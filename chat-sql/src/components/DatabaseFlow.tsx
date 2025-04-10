@@ -14,32 +14,8 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-// 定义类型
-interface Column {
-  name: string;
-  type: string;
-  isPrimary: boolean;
-  foreignKeyRefs?: { tableId: string; columnName: string }[];
-}
-
-interface Table {
-  id: string;
-  tableName: string;
-  position: { x: number; y: number };
-  columns: Column[];
-  isReferenced: boolean;
-}
-
-interface Edge {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle: string;
-  targetHandle: string;
-  type: string;
-  label: string;
-  markerEnd: any;
-}
+// 删除原有的类型定义，改为导入
+import { Column, Table, Edge } from '@/types/database';
 
 // 生成随机颜色
 const getRandomColor = () => {
@@ -137,34 +113,7 @@ const nodeTypes = {
   table: TableNode,
 };
 
-// 默认输入数据（用于测试）
-const defaultTables: Table[] = [
-  {
-    id: "1",
-    tableName: "Orders",
-    position: { x: 0, y: 0 },
-    columns: [
-      { name: "order_id", type: "INT", isPrimary: true },
-      {
-        name: "user_id",
-        type: "INT",
-        isPrimary: false,
-        foreignKeyRefs: [{ tableId: "2", columnName: "user_id" }],
-      },
-    ],
-    isReferenced: false,
-  },
-  {
-    id: "2",
-    tableName: "Users",
-    position: { x: 300, y: 100 },
-    columns: [
-      { name: "user_id", type: "INT", isPrimary: true },
-      { name: "username", type: "VARCHAR", isPrimary: false },
-    ],
-    isReferenced: true,
-  },
-];
+
 
 // 根据表数据自动生成边
 const generateEdges = (tables: Table[]): Edge[] => {
@@ -197,11 +146,12 @@ const generateEdges = (tables: Table[]): Edge[] => {
 };
 
 // 主组件
-export const DatabaseFlow = ({
-  tables = defaultTables,
-}: {
-  tables?: Table[];
-}) => {
+interface DatabaseFlowProps {
+  tables: Table[];
+  styles?: React.CSSProperties;
+}
+
+export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     tables.map((table) => ({
       id: table.id,
@@ -243,7 +193,7 @@ export const DatabaseFlow = ({
   );
 
   return (
-    <div style={{ width: "100%", height: "100vh" }}>
+    <div style={{ width: "100%", height: "100vh" , ...styles}}>
       <ReactFlow
         nodes={nodes}
         edges={edgesState}

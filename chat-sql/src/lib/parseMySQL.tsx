@@ -1,38 +1,7 @@
-interface Column {
-    name: string;
-    type: string;
-    isPrimary: boolean;
-    foreignKeyRefs?: { tableId: string; columnName: string }[];
-  }
-  
-  interface Table {
-    id: string;
-    tableName: string;
-    position: { x: number; y: number };
-    columns: Column[];
-    isReferenced: boolean;
-  }
-  
-  // 输入 JSON 的类型定义
-  interface InputColumn {
-    name: string;
-    type: string;
-    isPrimary: boolean;
-  }
-  
-  interface InputForeignKey {
-    column: string;
-    references: {
-      table: string;
-      column: string;
-    };
-  }
-  
-  interface InputTable {
-    tableName: string;
-    columns: InputColumn[];
-    foreignKeys?: InputForeignKey[];
-  }
+// 删除原有的类型定义，改为导入
+import { InputColumn, InputForeignKey, InputTable, Table } from '@/types/database';
+
+
   
   // 将 JSON 数组转换为 Table 数组的函数
   export const parseJSONToTables = (jsonTables: InputTable[]): Table[] => {
