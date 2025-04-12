@@ -13,6 +13,7 @@ import {
   Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import './DatabaseFlow.css';
 
 // 删除原有的类型定义，改为导入
 import { Column, Table, Edge } from '@/types/database';
@@ -30,9 +31,8 @@ const TableNode = ({
 }: {
   data: { tableName: string; columns: Column[]; isReferenced: boolean };
 }) => {
-  const headerColorRef = useRef<string | null>(null); // 使用 useRef 存储颜色
+  const headerColorRef = useRef<string | null>(null);
 
-  // 初次渲染时生成颜色
   if (headerColorRef.current === null) {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
@@ -41,46 +41,26 @@ const TableNode = ({
   }
 
   return (
-    <div
-      style={{
-        border: "1px solid #777",
-        borderRadius: "5px",
-        background: "#fff",
-        width: "250px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          background: headerColorRef.current, // 使用存储的颜色
-          padding: "5px",
-          fontWeight: "bold",
-          textAlign: "center",
-          borderBottom: "1px solid #777",
-        }}
+    <div className="table-node">
+      <div 
+        className="table-header"
+        style={{ background: headerColorRef.current }}
       >
         {data.tableName}
       </div>
-      <div style={{ padding: "5px" }}>
+      <div className="table-content">
         {data.columns.map((col, index) => (
-          <div key={index} style={{ margin: "5px 0" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
+          <div key={index}>
+            <div className="column-row">
               <Handle
                 type="source"
-                position={Position.Left} // 源 Handle 放在左边
+                position={Position.Left}
                 id={col.name}
-                style={{ background: "transparent", border: "none" }}
+                className="handle"
               />
-              <span>{col.name}</span>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <span>{col.type}</span>
-                {/* TODO: key的标识以及类型的字体 */}
+              <span className="column-name">{col.name}</span>
+              <div className="column-info">
+                <span className="column-type">{col.type}</span>
                 {col.isPrimary && <span style={{ marginLeft: "5px" }}></span>}
                 {col.foreignKeyRefs && col.foreignKeyRefs.length > 0 && (
                   <span style={{ marginLeft: "5px" }}>(FK)</span>
@@ -88,19 +68,12 @@ const TableNode = ({
               </div>
               <Handle
                 type="target"
-                position={Position.Right} // 目标 Handle 放在右边
+                position={Position.Right}
                 id={col.name}
-                style={{ background: "transparent", border: "none" }}
+                className="handle"
               />
             </div>
-            <hr
-              style={{
-                border: "none",
-                borderTop: "1px dashed #777",
-                width: "90%",
-                margin: "5px auto 0",
-              }}
-            />
+            <hr className="column-divider" />
           </div>
         ))}
       </div>
@@ -193,7 +166,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   );
 
   return (
-    <div style={{ width: "100%", height: "100vh" , ...styles}}>
+    <div className="database-flow-container" style={styles}>
       <ReactFlow
         nodes={nodes}
         edges={edgesState}
@@ -205,7 +178,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <MiniMap />
-        <Controls />
+        <Controls className="flow-controls" />
       </ReactFlow>
     </div>
   );
