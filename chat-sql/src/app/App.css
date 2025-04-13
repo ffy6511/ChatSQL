@@ -1,0 +1,81 @@
+/* App.css */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* 侧边栏样式 */
+.sidebar-panel .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f5f5d5;
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+    padding: 1em;
+    background: #f5f5d5;
+    text-align: center;
+    font-size: 1.2em;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.sidebar-body {
+    flex: 1;
+    padding: 1em;
+    overflow-y: auto;
+}
+
+/* 历史记录区域样式 */
+.history-panel .history-content {
+    height: 100%;
+    background: #d9e7ff;
+    padding: 1em;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* 右侧上部区域样式 */
+.upper-panel .upper-content {
+    height: 100%;
+    background: #ffdbdb;
+    padding: 1em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* 右侧下部左侧区域样式 */
+.lower-left-panel .lower-left-content {
+    height: 100%;
+    background: #e6f4e6;
+    padding: 1em;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* 右侧下部右侧区域样式 */
+.lower-right-panel .lower-right-content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #e6f4e6;
+    /* padding: 1em; */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* 调整 Splitter 的分割线样式 */
+.ant-splitter-horizontal>.ant-splitter-bar,
+.ant-splitter-vertical>.ant-splitter-bar {
+    background: #ddd;
+}
+
+.ant-splitter-horizontal>.ant-splitter-bar:hover,
+.ant-splitter-vertical>.ant-splitter-bar:hover {
+    background: #bbb;
+}

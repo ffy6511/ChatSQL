@@ -1,0 +1,24 @@
+.sql-editor-container {
+  width: 100%;
+  height: 100%;
+  /* border-radius: 8px; */
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sql-editor {
+  height: 100% !important;
+  width: 100%;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  /* padding-top: 5px; */
+} 
+
+/* 针对 Monaco Editor 内部的编辑区域添加内边距 */
+.sql-editor .monaco-editor .margin,
+.sql-editor .monaco-editor .monaco-editor-background {
+  padding-top: 0.9em;
+}

@@ -13,7 +13,7 @@ interface SQLEditorProps {
 const SQLEditor: React.FC<SQLEditorProps> = ({ 
   value = "SELECT * FROM your_table;", 
   onChange,
-  height = "500px" 
+  height = "100%" 
 }) => {
   const handleEditorWillMount = useCallback((monaco: any) => {
     monaco.languages.registerCompletionItemProvider("sql", {
