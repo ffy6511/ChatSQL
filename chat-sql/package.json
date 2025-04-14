@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@monaco-editor/react": "^4.7.0",
+    "@mui/material": "^7.0.2",
     "@xyflow/react": "^12.5.5",
     "antd": "^5.24.6",
     "monaco-editor": "^0.52.2",

@@ -175,6 +175,10 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView
+        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
+        minZoom={0.2}
+        maxZoom={2}
+        fitViewOptions={{ padding: 0.2, includeHiddenNodes: false }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <MiniMap />

@@ -2,16 +2,34 @@ import React from 'react';
 import { Splitter } from 'antd';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
+import Container from '@/components/LLMInteractive/Container';
+
+
+const exampleTable =
+[
+    {
+      "id": "users-table",
+      "tableName": "users",
+      "position": { "x": 100, "y": 100 },
+      "columns": [
+        { "name": "id", "type": "INT", "isPrimary": true },
+        { "name": "username", "type": "VARCHAR(50)", "isPrimary": false },
+        { "name": "email", "type": "VARCHAR(100)", "isPrimary": false, "foreignKeyRefs": [{ "tableId": "orders-table", "columnName": "user_id" }] }
+      ],
+      "isReferenced": false
+    }
+  ];
 
 const App: React.FC = () => {
   return (
     <div className="app-container">
-      <Splitter style={{ height: '100vh', width: '100vw', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+      <Splitter style={{ height: '100vh', width: '100vw', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'}} >
         {/* 左侧侧边栏 */}
         <Splitter.Panel
           collapsible
-          size="200px" // 固定宽度为 200px
+          defaultSize="200px"
           className="sidebar-panel"
+          // onResize={() => {}}
         >
           <div className="sidebar-content">
             <div className="sidebar-header">
@@ -53,8 +71,7 @@ const App: React.FC = () => {
                   className="upper-panel"
                 >
                   <div className="upper-content">
-                    <h3>题目选择区域 / 题目的返回区域 (参考信息管理要求)</h3>
-                    <p>上部区域内容...</p>
+                    <Container tables={exampleTable}/>
                     {/* 这里可以添加上部区域的具体内容 */}
                   </div>
                 </Splitter.Panel>
