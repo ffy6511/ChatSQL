@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.0",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^7.0.2",
+    "@mui/x-data-grid": "^7.28.3",
     "@xyflow/react": "^12.5.5",
     "antd": "^5.24.6",
     "monaco-editor": "^0.52.2",
