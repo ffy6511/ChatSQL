@@ -1,0 +1,28 @@
+.container {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .section {
+    margin-bottom: 24px;
+  }
+  
+  .label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .resultBox {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 24px;
+    min-height: 80px;
+    border: 1px dashed #d9d9d9;
+  }
+  

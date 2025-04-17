@@ -2,7 +2,8 @@ import React from 'react';
 import { Splitter } from 'antd';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
-import Container from '@/components/LLMInteractive/Container';
+import Container from '@/components/LLMInteractive/renderedArea/Container';
+import LLMWindow from '@/components/LLMInteractive/LLMWindow/LLMWindow';
 
 
 const exampleTable =
@@ -17,7 +18,19 @@ const exampleTable =
         { "name": "email", "type": "VARCHAR(100)", "isPrimary": false, "foreignKeyRefs": [{ "tableId": "orders-table", "columnName": "user_id" }] }
       ],
       "isReferenced": false
+    },
+    {
+      "id": "orders-table",
+      "tableName": "orders",
+      "position": { "x": 300, "y": 200 },
+      "columns": [
+        { "name": "order_id", "type": "INT", "isPrimary": true },
+        { "name": "user_id", "type": "INT", "isPrimary": false },
+        { "name": "amount", "type": "DECIMAL(10, 2)", "isPrimary": false }
+      ],
+      "isReferenced": false
     }
+
   ];
 
 const App: React.FC = () => {
@@ -71,7 +84,7 @@ const App: React.FC = () => {
                   className="upper-panel"
                 >
                   <div className="upper-content">
-                    <Container tables={exampleTable}/>
+                    <LLMWindow/>
                     {/* 这里可以添加上部区域的具体内容 */}
                   </div>
                 </Splitter.Panel>
