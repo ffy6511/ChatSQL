@@ -5,7 +5,9 @@ import styles from './LLMWindow.module.css';
 import { Input, Tag, Button, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { useLLMContext } from '@/contexts/LLMContext'; // 假设你的Context路径
+import { useLLMContext } from '@/contexts/LLMContext'; 
+import LLMResultView from '@/lib/LLMResultView';
+import { useSimpleStorage } from '@/hooks/useRecords';
 
 const initialTags = [
   { label: '算法', color: 'magenta' },
@@ -40,6 +42,7 @@ const LLMWindow: React.FC = () => {
   const [problemCnt, setProblemCnt] = useState(1);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const {storeProblem, isSaving} = useSimpleStorage();
 
   // 标签添加
   const handleTagInputConfirm = () => {
@@ -98,9 +101,22 @@ const LLMWindow: React.FC = () => {
   };
 
   // 确认按钮
-  const handleConfirm = () => {
-    setLLMResult(result);
-    setShowLLMWindow(false);
+  const handleConfirm = async () => {
+    if (!result?.data?.outputs) {
+      message.error('没有有效的结果数据');
+      return;
+    }
+    
+    try {
+      // 直接保存整个outputs对象到IndexedDB
+      await storeProblem(result.data.outputs);
+      
+      // 更新上下文并关闭窗口
+      setLLMResult(result);
+      setShowLLMWindow(false);
+    } catch (error) {
+      console.error('保存问题失败:', error);
+    }
   };
 
   return (
@@ -207,19 +223,16 @@ const LLMWindow: React.FC = () => {
           <div className={styles.section}>
             <span className={styles.label}>LLM返回结果：</span>
             <div className={styles.resultBox}>
-              {loading ? <Spin /> : (
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                  {JSON.stringify(result, null, 2)}
-                </pre>
-              )}
+            {result?.data?.outputs && <LLMResultView outputs={result.data.outputs} />}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <Button
               type="primary"
               onClick={handleConfirm}
+              loading={isSaving}
             >
-              确认
+              确认并保存
             </Button>
           </div>
         </>
