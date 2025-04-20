@@ -4,15 +4,16 @@ import React from 'react';
 import { Box } from '@mui/material';
 import DatabaseFlow from './DatabaseFlow';
 import TupleViewer from './TupleViewer';
+import { useLLMContext } from '@/contexts/LLMContext';
+import { parseJSONToTables } from '@/lib/parseMySQL';
 
-import { Table} from '@/types/database';
+export const Container: React.FC = () => {
+  const { llmResult } = useLLMContext();
+  
+  const tables = llmResult?.data?.outputs?.tableStructure 
+    ? parseJSONToTables(llmResult.data.outputs.tableStructure)
+    : [];
 
-interface ContainerProps {
-  tables: Table[];
-}
-
-
-export const Container: React.FC<ContainerProps> = ({ tables }) => {
   return (
     <Box sx={{
       display: 'flex',

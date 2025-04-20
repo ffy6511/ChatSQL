@@ -2,12 +2,15 @@
 'use client'
 
 import React, { createContext, useContext, useState } from 'react';
+import { DifyResponse } from '@/types/dify';
 
 interface LLMContextType {
   showLLMWindow: boolean;
   setShowLLMWindow: (v: boolean) => void;
-  llmResult: any;
-  setLLMResult: (v: any) => void;
+  llmResult: DifyResponse | null;
+  setLLMResult: (v: DifyResponse | null) => void;
+  currentProblemId: number | null;
+  setCurrentProblemId: (v: number | null) => void;
 }
 
 const LLMContext = createContext<LLMContextType | null>(null);
@@ -20,10 +23,18 @@ export const useLLMContext = () => {
 
 export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLLMWindow, setShowLLMWindow] = useState(true);
-  const [llmResult, setLLMResult] = useState<any>(null);
+  const [llmResult, setLLMResult] = useState<DifyResponse | null>(null);
+  const [currentProblemId, setCurrentProblemId] = useState<number | null>(null);
 
   return (
-    <LLMContext.Provider value={{ showLLMWindow, setShowLLMWindow, llmResult, setLLMResult }}>
+    <LLMContext.Provider value={{
+      showLLMWindow,
+      setShowLLMWindow,
+      llmResult,
+      setLLMResult,
+      currentProblemId,
+      setCurrentProblemId
+    }}>
       {children}
     </LLMContext.Provider>
   );

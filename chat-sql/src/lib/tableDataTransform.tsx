@@ -1,13 +1,9 @@
 import { Box, Paper } from '@mui/material';
 import { DataGrid, GridColDef, GridRowsProp, GridPaginationModel } from '@mui/x-data-grid';
 import { useState } from 'react';
+import { TableTuple } from '@/types/dify';
 
-interface TableData {
-  tableName: string;
-  tupleData: Record<string, any>[];
-}
-
-export const transformTableData = (jsonData: TableData[]) => {
+export const transformTableData = (jsonData: TableTuple[]) => {
   return jsonData.map((tableInfo) => {
     const columns: GridColDef[] = tableInfo.tupleData.length > 0
       ? Object.keys(tableInfo.tupleData[0]).map((key) => ({

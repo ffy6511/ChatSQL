@@ -3,43 +3,12 @@
 
 import React from 'react';
 import { Card, Tag, List, Typography, Divider, Table } from 'antd';
+import { ProblemOutput, TableStructure, TableTuple } from '@/types/dify';
 
 const { Title, Paragraph, Text } = Typography;
 
-type TableColumn = {
-  name: string;
-  type: string;
-  isPrimary: boolean;
-};
-
-type TableStructure = {
-  tableName: string;
-  columns: TableColumn[];
-  foreignKeys: any[];
-};
-
-type TupleData = {
-  [key: string]: any;
-};
-
-type TableTuple = {
-  tableName: string;
-  tupleData: TupleData[];
-};
-
-type Outputs = {
-  description: string;
-  problem: string[];
-  tags: string[];
-  tableStructure?: TableStructure[];
-  tuples?: TableTuple[];
-  expected_result?: TableTuple[];
-  hint?: string;
-  [key: string]: any;
-};
-
 interface LLMResultViewProps {
-  outputs: Outputs;
+  outputs: ProblemOutput;
 }
 
 const colorMap = [
@@ -73,7 +42,7 @@ const renderTable = (table: TableStructure) => (
 const renderTupleTable = (table: TableTuple) => {
     // 1. 如果没有数据，直接返回
     if (!table.tupleData || table.tupleData.length === 0) return null;
-  
+
     // 2. 生成 columns
     const columns = Object.keys(table.tupleData[0]).map(key => ({
       title: <Text code>{key}</Text>,
@@ -81,7 +50,7 @@ const renderTupleTable = (table: TableTuple) => {
       key,
       render: (value: any) => <span>{String(value)}</span>,
     }));
-  
+
     return (
       <div style={{ marginBottom: 16 }}>
         <strong style={{ display: 'block',textAlign: 'center' }}>{table.tableName}</strong>

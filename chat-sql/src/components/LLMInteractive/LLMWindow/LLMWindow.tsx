@@ -8,6 +8,7 @@ import { Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { useLLMContext } from '@/contexts/LLMContext'; 
 import LLMResultView from '@/lib/LLMResultView';
 import { useSimpleStorage } from '@/hooks/useRecords';
+import { DifyResponse } from '@/types/dify';
 
 const initialTags = [
   { label: '算法', color: 'magenta' },
@@ -31,7 +32,7 @@ function getRandomColor() {
 }
 
 const LLMWindow: React.FC = () => {
-  const { setShowLLMWindow, setLLMResult } = useLLMContext();
+  const { setShowLLMWindow, setLLMResult, setCurrentProblemId } = useLLMContext();
 
   const [tags, setTags] = useState(initialTags);
   const [checkedTags, setCheckedTags] = useState<string[]>([]);
@@ -90,7 +91,8 @@ const LLMWindow: React.FC = () => {
       });
 
       if (!response.ok) throw new Error('请求失败！');
-      const data = await response.json();
+      
+      const data = (await response.json()) as DifyResponse;
       setResult(data);
       message.success('LLM返回成功，请确认。');
     } catch (err) {
@@ -102,6 +104,7 @@ const LLMWindow: React.FC = () => {
 
   // 确认按钮
   const handleConfirm = async () => {
+    console.log('Confirming...', result);
     if (!result?.data?.outputs) {
       message.error('没有有效的结果数据');
       return;
@@ -109,13 +112,19 @@ const LLMWindow: React.FC = () => {
     
     try {
       // 直接保存整个outputs对象到IndexedDB
-      await storeProblem(result.data.outputs);
+      const savedId = await storeProblem(result.data.outputs);
       
+      setCurrentProblemId(savedId);
+
       // 更新上下文并关闭窗口
+      console.log('Setting context...', { result, savedId });
       setLLMResult(result);
       setShowLLMWindow(false);
+      console.log('Context updated');
     } catch (error) {
+      console.error('Error:', error);
       console.error('保存问题失败:', error);
+      message.error('保存失败');
     }
   };
 
