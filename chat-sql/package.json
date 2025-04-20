@@ -21,6 +21,12 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
+  "resolutions": {
+    "antd": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",

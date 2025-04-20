@@ -33,10 +33,10 @@
 /* 历史记录区域样式 */
 .history-panel .history-content {
     height: 100%;
-    background: #d9e7ff;
-    padding: 1em;
+    background: #ffffff;
+    padding: 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 /* 右侧上部区域样式 */

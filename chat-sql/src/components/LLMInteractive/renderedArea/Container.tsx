@@ -9,8 +9,16 @@ import { parseJSONToTables } from '@/lib/parseMySQL';
 
 export const Container: React.FC = () => {
   const { llmResult } = useLLMContext();
-  
-  const tables = llmResult?.data?.outputs?.tableStructure 
+
+  // 打印 llmResult 以便于调试
+  React.useEffect(() => {
+    if (llmResult) {
+      console.log('Container received llmResult:', llmResult);
+      console.log('Table structure:', llmResult?.data?.outputs?.tableStructure);
+    }
+  }, [llmResult]);
+
+  const tables = llmResult?.data?.outputs?.tableStructure
     ? parseJSONToTables(llmResult.data.outputs.tableStructure)
     : [];
 

@@ -7,6 +7,7 @@ import SQLEditor from '@/components/codeEditing/SQLEditor';
 import Container from '@/components/LLMInteractive/renderedArea/Container';
 import LLMWindow from '@/components/LLMInteractive/LLMWindow/LLMWindow';
 import { useLLMContext } from '@/contexts/LLMContext';
+import HistoryPanel from '@/components/History/HistoryPanel';
 
 const Page: React.FC = () => {
   const { showLLMWindow } = useLLMContext();
@@ -43,8 +44,7 @@ const Page: React.FC = () => {
               className="history-panel"
             >
               <div className="history-content">
-                <h3>历史记录</h3>
-                {/* 历史记录内容将在实现功能时添加 */}
+                <HistoryPanel />
               </div>
             </Splitter.Panel>
 

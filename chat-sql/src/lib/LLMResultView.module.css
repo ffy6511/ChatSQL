@@ -1,0 +1,29 @@
+.resultCard {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.titleSection {
+  margin-top: 24px;
+}
+
+.tagContainer {
+  margin-bottom: 16px;
+}
+
+.tableContainer {
+  margin-bottom: 16px;
+}
+
+.tableTitle {
+  display: block;
+  text-align: center;
+}
+
+.tableList {
+  margin-top: 8px;
+}
+
+.listSection {
+  margin-bottom: 16px;
+}

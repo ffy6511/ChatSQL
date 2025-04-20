@@ -1,0 +1,53 @@
+.historyItem {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 4px;
+}
+
+.historyItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.active {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.itemContent {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.titleContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+.title {
+  display: block;
+  font-size: 14px;
+}
+
+.date {
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.editContainer {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: center;
+}
+
+.editContainer input {
+  flex: 1;
+}

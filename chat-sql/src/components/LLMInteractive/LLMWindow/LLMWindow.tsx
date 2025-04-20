@@ -5,7 +5,7 @@ import styles from './LLMWindow.module.css';
 import { Input, Tag, Button, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { useLLMContext } from '@/contexts/LLMContext'; 
+import { useLLMContext } from '@/contexts/LLMContext';
 import LLMResultView from '@/lib/LLMResultView';
 import { useSimpleStorage } from '@/hooks/useRecords';
 import { DifyResponse } from '@/types/dify';
@@ -91,7 +91,7 @@ const LLMWindow: React.FC = () => {
       });
 
       if (!response.ok) throw new Error('请求失败！');
-      
+
       const data = (await response.json()) as DifyResponse;
       setResult(data);
       message.success('LLM返回成功，请确认。');
@@ -109,11 +109,11 @@ const LLMWindow: React.FC = () => {
       message.error('没有有效的结果数据');
       return;
     }
-    
+
     try {
       // 直接保存整个outputs对象到IndexedDB
       const savedId = await storeProblem(result.data.outputs);
-      
+
       setCurrentProblemId(savedId);
 
       // 更新上下文并关闭窗口
@@ -229,17 +229,18 @@ const LLMWindow: React.FC = () => {
       {/* LLM返回结果展示和确认 */}
       {result && (
         <>
-          <div className={styles.section}>
+          <div className={styles.section} style={{ flex: 1, overflow: 'hidden' }}>
             <span className={styles.label}>LLM返回结果：</span>
             <div className={styles.resultBox}>
-            {result?.data?.outputs && <LLMResultView outputs={result.data.outputs} />}
+              {result?.data?.outputs && <LLMResultView outputs={result.data.outputs} />}
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div className={styles.fixedButtonContainer}>
             <Button
               type="primary"
               onClick={handleConfirm}
               loading={isSaving}
+              size="large"
             >
               确认并保存
             </Button>

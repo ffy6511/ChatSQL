@@ -4,6 +4,7 @@
 import React from 'react';
 import { Card, Tag, List, Typography, Divider, Table } from 'antd';
 import { ProblemOutput, TableStructure, TableTuple } from '@/types/dify';
+import styles from './LLMResultView.module.css';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,8 +22,8 @@ function getTagColor(idx: number) {
 }
 
 const renderTable = (table: TableStructure) => (
-  <div style={{ marginBottom: 16 }}>
-    <strong style={{ display: 'block',textAlign: 'center' }}>{table.tableName}</strong>
+  <div className={styles.tableContainer}>
+    <strong className={styles.tableTitle}>{table.tableName}</strong>
     <List
       size="small"
     //   header={<div>字段结构</div>}
@@ -34,7 +35,7 @@ const renderTable = (table: TableStructure) => (
           <Text type="secondary" style={{ marginLeft: 8 }}>{col.type}</Text>
         </List.Item>
       )}
-      style={{ marginTop: 8 }}
+      className={styles.tableList}
     />
   </div>
 );
@@ -52,14 +53,14 @@ const renderTupleTable = (table: TableTuple) => {
     }));
 
     return (
-      <div style={{ marginBottom: 16 }}>
-        <strong style={{ display: 'block',textAlign: 'center' }}>{table.tableName}</strong>
+      <div className={styles.tableContainer}>
+        <strong className={styles.tableTitle}>{table.tableName}</strong>
         <Table
           columns={columns}
           dataSource={table.tupleData.map((row, idx) => ({ ...row, key: idx }))}
           pagination={false}
           size="small"
-          style={{ marginTop: 8 }}
+          className={styles.tableList}
           bordered
         />
       </div>
@@ -68,23 +69,23 @@ const renderTupleTable = (table: TableTuple) => {
 
 const LLMResultView: React.FC<LLMResultViewProps> = ({ outputs }) => {
   return (
-    <Card bordered style={{ maxWidth: 700, margin: '0 auto' }}>
+    <Card bordered className={styles.resultCard}>
       {/* 描述 */}
       <Title level={4}>题目描述</Title>
       <Paragraph>{outputs.description}</Paragraph>
 
       {/* 题目要求 */}
-      <Title level={5} style={{ marginTop: 24 }}>题目要求</Title>
+      <Title level={5} className={styles.titleSection}>题目要求</Title>
       <List
         size="small"
         dataSource={outputs.problem}
         renderItem={item => <List.Item>{item}</List.Item>}
-        style={{ marginBottom: 16 }}
+        className={styles.listSection}
       />
 
       {/* 标签 */}
       <Title level={5}>标签</Title>
-      <div style={{ marginBottom: 16 }}>
+      <div className={styles.tagContainer}>
         {outputs.tags.map((tag, idx) =>
           <Tag color={getTagColor(idx)} key={tag}>{tag}</Tag>
         )}

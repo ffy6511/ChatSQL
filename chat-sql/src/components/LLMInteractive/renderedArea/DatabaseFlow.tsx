@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -42,7 +42,7 @@ const TableNode = ({
 
   return (
     <div className="table-node">
-      <div 
+      <div
         className="table-header"
         style={{ background: headerColorRef.current }}
       >
@@ -125,21 +125,34 @@ interface DatabaseFlowProps {
 }
 
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    tables.map((table) => ({
-      id: table.id,
-      type: "table",
-      position: table.position,
-      data: {
-        tableName: table.tableName,
-        columns: table.columns,
-        isReferenced: table.isReferenced,
-      },
-    }))
-  );
-  const [edgesState, setEdges, onEdgesChange] = useEdgesState(
-    generateEdges(tables)
-  );
+  // 初始化空节点和边，稍后在 useEffect 中更新
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edgesState, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // 当 tables 变化时更新节点和边
+  useEffect(() => {
+    if (tables && tables.length > 0) {
+      console.log('Tables changed, updating nodes and edges:', tables);
+
+      // 更新节点
+      const newNodes = tables.map((table) => ({
+        id: table.id,
+        type: "table",
+        position: table.position,
+        data: {
+          tableName: table.tableName,
+          columns: table.columns,
+          isReferenced: table.isReferenced,
+        },
+      }));
+
+      // 更新边
+      const newEdges = generateEdges(tables);
+
+      setNodes(newNodes);
+      setEdges(newEdges);
+    }
+  }, [tables, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: any) => {
