@@ -1,23 +1,26 @@
 'use client'
 
 import React, { useState } from 'react';
-import { 
-  List, 
-  Typography, 
-  Space, 
-  Button, 
-  Popconfirm, 
-  Input, 
-  Tooltip, 
-  Modal
+import {
+  List,
+  Typography,
+  Space,
+  Button,
+  Popconfirm,
+  Input,
+  Tooltip,
+  Modal,
+  Badge
 } from 'antd';
-import { 
-  DeleteOutlined, 
-  EditOutlined, 
-  StarOutlined, 
+import {
+  DeleteOutlined,
+  EditOutlined,
+  StarOutlined,
   StarFilled,
   CheckOutlined,
-  CloseOutlined
+  CloseOutlined,
+  FileTextOutlined,
+  HistoryOutlined
 } from '@ant-design/icons';
 import { LLMProblem } from '@/services/recordsIndexDB';
 import styles from './HistoryItem.module.css';
@@ -86,16 +89,16 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               size="small"
             />
             <Space>
-              <Button 
-                type="text" 
-                size="small" 
-                icon={<CheckOutlined />} 
+              <Button
+                type="text"
+                size="small"
+                icon={<CheckOutlined />}
                 onClick={handleRenameSubmit}
               />
-              <Button 
-                type="text" 
-                size="small" 
-                icon={<CloseOutlined />} 
+              <Button
+                type="text"
+                size="small"
+                icon={<CloseOutlined />}
                 onClick={handleRenameCancel}
               />
             </Space>
@@ -103,25 +106,34 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
         ) : (
           <>
             <div className={styles.titleContainer}>
-              <Text 
+              <div className={styles.titleRow}>
+              {/* <FileTextOutlined className={styles.titleIcon} /> */}
+              <Text
                 ellipsis={{ tooltip: record.title }}
                 strong={isActive}
                 className={styles.title}
               >
                 {record.title}
               </Text>
+              {record.isFavorite && (
+                <Badge status="warning" className={styles.favoriteBadge} />
+              )}
+            </div>
+            <div className={styles.dateRow}>
+              <HistoryOutlined className={styles.dateIcon} />
               <Text type="secondary" className={styles.date}>
                 {formatDate(record.createdAt)}
               </Text>
             </div>
-            
+            </div>
+
             {isHovered && (
               <div className={styles.actions}>
                 <Tooltip title="重命名">
-                  <Button 
-                    type="text" 
-                    size="small" 
-                    icon={<EditOutlined />} 
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsEditing(true);
@@ -129,10 +141,10 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   />
                 </Tooltip>
                 <Tooltip title={record.isFavorite ? "取消收藏" : "收藏"}>
-                  <Button 
-                    type="text" 
-                    size="small" 
-                    icon={record.isFavorite ? <StarFilled /> : <StarOutlined />} 
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={record.isFavorite ? <StarFilled /> : <StarOutlined />}
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggleFavorite(record.id!);
@@ -149,11 +161,11 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   cancelText="取消"
                 >
                   <Tooltip title="删除">
-                    <Button 
-                      type="text" 
-                      size="small" 
-                      danger 
-                      icon={<DeleteOutlined />} 
+                    <Button
+                      type="text"
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
                       onClick={(e) => e.stopPropagation()}
                     />
                   </Tooltip>

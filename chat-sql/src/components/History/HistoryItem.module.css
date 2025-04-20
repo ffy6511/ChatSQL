@@ -1,18 +1,47 @@
 .historyItem {
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-bottom: 4px;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: white;
+}
+
+.historyItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: transparent;
+  transition: all 0.3s ease;
 }
 
 .historyItem:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f5f9ff;
+  border-color: rgba(24, 144, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
+/* .historyItem:hover::before {
+  background: #1677ff;
+} */
+
 .active {
-  background-color: rgba(24, 144, 255, 0.1);
+  background-color: #f0f7ff;
+  border-color: rgba(24, 144, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
 }
+
+/* .active::before {
+  background: #1677ff;
+} */
 
 .itemContent {
   width: 100%;
@@ -24,21 +53,83 @@
 .titleContainer {
   flex: 1;
   overflow: hidden;
+  transition: all 0.2s ease;
+  padding-left: 1em;
 }
 
-.title {
-  display: block;
+.titleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* .titleIcon {
   font-size: 14px;
+  color: #1677ff;
+  margin-right: 8px;
+  opacity: 0.8;
+} */
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+  flex: 1;
+}
+
+/* .active .title {
+  color: #1677ff;
+} */
+
+.favoriteBadge {
+  margin-left: 8px;
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+}
+
+.dateIcon {
+  font-size: 12px;
+  color: #999;
+  margin-right: 6px;
 }
 
 .date {
   font-size: 12px;
+  color: #999;
 }
 
 .actions {
   display: flex;
-  gap: 4px;
-  margin-left: 8px;
+  gap: 6px;
+  margin-left: 12px;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+}
+
+.historyItem:hover .actions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.actions button {
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.actions button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
 }
 
 .editContainer {
@@ -50,4 +141,14 @@
 
 .editContainer input {
   flex: 1;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  padding: 4px 8px;
+  transition: all 0.3s;
+}
+
+.editContainer input:focus {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  outline: none;
 }

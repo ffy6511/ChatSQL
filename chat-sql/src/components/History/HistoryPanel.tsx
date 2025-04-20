@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useEffect } from 'react';
-import { Tabs, List, Empty, Spin, Typography } from 'antd';
-import { StarOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Tabs, List, Empty, Spin, Typography, Badge } from 'antd';
+import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined } from '@ant-design/icons';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 import { useLLMContext } from '@/contexts/LLMContext';
 import HistoryItem from './HistoryItem';
@@ -92,16 +92,25 @@ const HistoryPanel: React.FC = () => {
 
   return (
     <div className={styles.historyPanel}>
-      <Title level={4} className={styles.title}>历史记录</Title>
+      <div className={styles.headerContainer}>
+        <HistoryOutlined className={styles.headerIcon} />
+        <Title level={4} className={styles.title}>历史记录</Title>
+      </div>
       <Tabs
         defaultActiveKey="recent"
         items={[
           {
             key: 'recent',
             label: (
-              <span>
+              <span className={styles.tabLabel}>
                 <ClockCircleOutlined />
                 最近
+                <Badge
+                  count={recentRecords.length}
+                  className={styles.countBadge}
+                  size="small"
+                  style={{ backgroundColor: '#52c41a' }}
+                />
               </span>
             ),
             children: renderList(recentRecords),
@@ -109,9 +118,15 @@ const HistoryPanel: React.FC = () => {
           {
             key: 'favorite',
             label: (
-              <span>
-                <StarOutlined />
+              <span className={styles.tabLabel}>
+                <HeartOutlined />
                 收藏
+                <Badge
+                  count={favoriteRecords.length}
+                  className={styles.countBadge}
+                  size="small"
+                  style={{ backgroundColor: '#faad14' }}
+                />
               </span>
             ),
             children: renderList(favoriteRecords),

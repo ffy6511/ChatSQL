@@ -2,19 +2,75 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 1em;
   overflow: hidden;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-left: 1em;
+}
+
+.headerIcon {
+  font-size: 22px;
+  color: #1677ff;
+  margin-right: 10px;
 }
 
 .title {
-  margin-bottom: 16px !important;
-  padding-left: 8px;
+  margin-bottom: 0 !important;
+  font-size: 18px !important;
+  color: #333;
+  position: relative;
+  font-weight: 600 !important;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #1677ff, #69b1ff);
+  border-radius: 3px;
+}
+
+.tabLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.countBadge {
+  margin-left: 4px;
 }
 
 .list {
   overflow-y: auto;
   height: 100%;
   padding: 0 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #d0d0d0 transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background-color: #d0d0d0;
+  border-radius: 6px;
 }
 
 .spinner {
@@ -22,8 +78,31 @@
   justify-content: center;
   align-items: center;
   height: 100px;
+  color: #1677ff;
 }
 
 .empty {
   margin-top: 40px;
+  color: #999;
+}
+
+/* 标签页样式优化 */
+:global(.ant-tabs-nav) {
+  margin-bottom: 16px !important;
+}
+
+:global(.ant-tabs-tab) {
+  padding: 8px 16px !important;
+  transition: all 0.3s ease;
+}
+
+:global(.ant-tabs-tab-active) {
+  background-color: rgba(22, 119, 255, 0.1);
+  border-radius: 4px;
+}
+
+:global(.ant-tabs-ink-bar) {
+  background: #1677ff !important;
+  height: 3px !important;
+  border-radius: 3px !important;
 }
