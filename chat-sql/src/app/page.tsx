@@ -8,6 +8,7 @@ import Container from '@/components/LLMInteractive/renderedArea/Container';
 import LLMWindow from '@/components/LLMInteractive/LLMWindow/LLMWindow';
 import { useLLMContext } from '@/contexts/LLMContext';
 import HistoryPanel from '@/components/History/HistoryPanel';
+import SideBar from '@/components/SideBar';
 
 const Page: React.FC = () => {
   const { showLLMWindow } = useLLMContext();
@@ -22,14 +23,7 @@ const Page: React.FC = () => {
           className="sidebar-panel"
           // onResize={() => {}}
         >
-          <div className="sidebar-content">
-            <div className="sidebar-header">
-              <span>导航</span>
-            </div>
-            <div className="sidebar-body">
-              {/* 侧边栏内容将在实现功能时添加 */}
-            </div>
-          </div>
+          <SideBar />
         </Splitter.Panel>
 
         {/* 右侧区域：历史记录 + 大区域（ */}

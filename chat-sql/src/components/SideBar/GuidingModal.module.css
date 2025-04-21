@@ -1,0 +1,56 @@
+.guidingModal {
+  max-width: 90vw;
+}
+
+.steps {
+  margin-bottom: 24px;
+}
+
+.stepsContent {
+  min-height: 300px;
+  margin-top: 16px;
+  padding: 20px;
+  background-color: #fafafa;
+  border: 1px dashed #e9e9e9;
+  border-radius: 8px;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepContent h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.stepContent p {
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.gifContainer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 200px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  border-radius: 4px;
+}
+
+.stepsAction {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
