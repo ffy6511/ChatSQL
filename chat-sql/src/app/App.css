@@ -43,7 +43,7 @@
 /* 右侧上部区域样式 */
 .upper-panel .upper-content {
     height: 100%;
-    background: #ffdbdb;
+    background: #f6f3f3;
     padding: 1em;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
@@ -52,7 +52,7 @@
 /* 右侧下部左侧区域样式 */
 .lower-left-panel .lower-left-content {
     height: 100%;
-    background: #e6f4e6;
+    background: #f2f4f2;
     padding: 1em;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;

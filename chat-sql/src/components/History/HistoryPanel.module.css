@@ -12,8 +12,14 @@
 .headerContainer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 20px;
-  padding-left: 1em;
+  padding: 0 1em;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
 }
 
 .headerIcon {
@@ -27,7 +33,7 @@
   font-size: 18px !important;
   color: #333;
   position: relative;
-  font-weight: 600 !important;
+  font-weight: 800 !important;
 }
 
 .title::after {
@@ -50,6 +56,30 @@
 
 .countBadge {
   margin-left: 4px;
+}
+
+.newChatButton {
+  background:  #307de9;
+  border: none;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.35);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newChatButton:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.5);
+  background: linear-gradient(135deg, #0958d9, #1677ff);
+}
+
+.newChatButton:active {
+  transform: scale(0.95);
+}
+
+.newChatButton svg {
+  font-size: 18px;
 }
 
 .list {

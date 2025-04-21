@@ -1,5 +1,5 @@
 .historyItem {
-  padding: 12px 16px;
+  padding: 3px 6px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -7,11 +7,12 @@
   border: 1px solid transparent;
   position: relative;
   overflow: hidden;
+  min-height: 5em !important; 
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  background-color: white;
+  background-color: rgb(250, 244, 244);
 }
 
-.historyItem::before {
+/* .historyItem::before {
   content: '';
   position: absolute;
   left: 0;
@@ -20,13 +21,13 @@
   width: 4px;
   background: transparent;
   transition: all 0.3s ease;
-}
+} */
 
 .historyItem:hover {
   background-color: #f5f9ff;
   border-color: rgba(24, 144, 255, 0.2);
   transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); */
 }
 
 /* .historyItem:hover::before {
@@ -108,7 +109,7 @@
 .actions {
   display: flex;
   gap: 6px;
-  margin-left: 12px;
+  margin-left: 8px;
   opacity: 0;
   transform: translateX(10px);
   transition: all 0.3s ease;
@@ -129,7 +130,7 @@
 
 .actions button:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .editContainer {
@@ -151,4 +152,53 @@
   border-color: #1677ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
   outline: none;
+}
+
+/* 删除确认对话框样式 */
+.deleteModal {
+  width: 320px !important;
+}
+
+:global(.ant-modal-content) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:global(.ant-modal-header) {
+  margin-bottom: 16px;
+}
+
+:global(.ant-modal-title) {
+  font-weight: 500;
+  font-size: 16px;
+  color: #333;
+}
+
+:global(.ant-modal-body) {
+  padding: 16px 24px;
+}
+
+:global(.ant-modal-body p) {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+:global(.ant-modal-body p:last-child) {
+  color: #ff4d50e1;
+  font-size: 13px;
+}
+
+:global(.ant-modal-footer) {
+  padding: 10px 24px 16px;
+  border-top: none;
+}
+
+:global(.ant-modal-footer .ant-btn-primary) {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+:global(.ant-modal-footer .ant-btn-primary:hover) {
+  background-color: #ff7875;
+  border-color: #ff7875;
 }

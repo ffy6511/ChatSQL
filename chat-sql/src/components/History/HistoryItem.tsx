@@ -6,7 +6,6 @@ import {
   Typography,
   Space,
   Button,
-  Popconfirm,
   Input,
   Tooltip,
   Modal,
@@ -18,9 +17,7 @@ import {
   StarOutlined,
   StarFilled,
   CheckOutlined,
-  CloseOutlined,
-  FileTextOutlined,
-  HistoryOutlined
+  CloseOutlined
 } from '@ant-design/icons';
 import { LLMProblem } from '@/services/recordsIndexDB';
 import styles from './HistoryItem.module.css';
@@ -47,6 +44,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(record.title || '');
   const [isHovered, setIsHovered] = useState(false);
+  const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
 
   const handleRenameSubmit = () => {
     if (newTitle.trim()) {
@@ -79,6 +77,25 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
       onClick={() => onSelect(record.id!)}
     >
       <div className={styles.itemContent}>
+        {/* 删除确认对话框 */}
+        <Modal
+          title="删除确认"
+          open={isDeleteConfirmVisible}
+          onOk={() => {
+            onDelete(record.id!);
+            setIsDeleteConfirmVisible(false);
+          }}
+          onCancel={() => setIsDeleteConfirmVisible(false)}
+          okText="确定删除"
+          cancelText="取消"
+          centered
+          maskClosable={true} // 允许点击遮罩层关闭 
+          className={styles.deleteModal}
+        >
+          <p>确定要删除这条记录吗？</p>
+          <p>删除后将无法恢复。</p>
+        </Modal>
+
         {isEditing ? (
           <div className={styles.editContainer}>
             <Input
@@ -120,7 +137,6 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               )}
             </div>
             <div className={styles.dateRow}>
-              <HistoryOutlined className={styles.dateIcon} />
               <Text type="secondary" className={styles.date}>
                 {formatDate(record.createdAt)}
               </Text>
@@ -129,7 +145,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
 
             {isHovered && (
               <div className={styles.actions}>
-                <Tooltip title="重命名">
+                <Tooltip title="重命名" mouseEnterDelay={0.2} mouseLeaveDelay={0.2}>
                   <Button
                     type="text"
                     size="small"
@@ -140,7 +156,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     }}
                   />
                 </Tooltip>
-                <Tooltip title={record.isFavorite ? "取消收藏" : "收藏"}>
+                <Tooltip title={record.isFavorite ? "取消收藏" : "收藏"} mouseEnterDelay={0.2} mouseLeaveDelay={0.2}>
                   <Button
                     type="text"
                     size="small"
@@ -151,25 +167,18 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     }}
                   />
                 </Tooltip>
-                <Popconfirm
-                  title="确定要删除这条记录吗？"
-                  onConfirm={(e) => {
-                    e?.stopPropagation();
-                    onDelete(record.id!);
-                  }}
-                  okText="确定"
-                  cancelText="取消"
-                >
-                  <Tooltip title="删除">
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </Tooltip>
-                </Popconfirm>
+                <Tooltip title="删除" mouseEnterDelay={0.2} mouseLeaveDelay={0.2}>
+                  <Button
+                    type="text"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDeleteConfirmVisible(true);
+                    }}
+                  />
+                </Tooltip>
               </div>
             )}
           </>

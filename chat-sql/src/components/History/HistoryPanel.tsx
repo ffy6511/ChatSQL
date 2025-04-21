@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useEffect } from 'react';
-import { Tabs, List, Empty, Spin, Typography, Badge } from 'antd';
-import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined } from '@ant-design/icons';
+import { Tabs, List, Empty, Spin, Typography, Badge, Button, Tooltip } from 'antd';
+import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 import { useLLMContext } from '@/contexts/LLMContext';
 import HistoryItem from './HistoryItem';
@@ -21,7 +21,7 @@ const HistoryPanel: React.FC = () => {
     refreshRecords
   } = useHistoryRecords();
 
-  const { currentProblemId, setCurrentProblemId, setLLMResult, setShowLLMWindow } = useLLMContext();
+  const { currentProblemId, setCurrentProblemId, setLLMResult, setShowLLMWindow, showLLMWindow } = useLLMContext();
 
   // 当选择一个历史记录时
   const handleSelectRecord = async (id: number) => {
@@ -93,8 +93,23 @@ const HistoryPanel: React.FC = () => {
   return (
     <div className={styles.historyPanel}>
       <div className={styles.headerContainer}>
-        <HistoryOutlined className={styles.headerIcon} />
-        <Title level={4} className={styles.title}>历史记录</Title>
+        <div className={styles.headerLeft}>
+          {/* <HistoryOutlined className={styles.headerIcon} /> */}
+          <div className={styles.title}>历史记录</div>
+        </div>
+        <Tooltip title="新建对话">
+          <Button
+            type="primary"
+            // shape="circle"
+            icon={<PlusCircleOutlined />}
+            className={styles.newChatButton}
+            onClick={() => {
+              setLLMResult(null);
+              setCurrentProblemId(null);
+              setShowLLMWindow(true);
+            }}
+          />
+        </Tooltip>
       </div>
       <Tabs
         defaultActiveKey="recent"
