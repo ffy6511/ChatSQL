@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Splitter } from 'antd';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
@@ -9,9 +9,31 @@ import LLMWindow from '@/components/LLMInteractive/LLMWindow/LLMWindow';
 import { useLLMContext } from '@/contexts/LLMContext';
 import HistoryPanel from '@/components/History/HistoryPanel';
 import SideBar from '@/components/SideBar';
+import { useQueryContext } from '@/contexts/QueryContext';
+import QueryResultTable from '@/components/codeEditing/QueryResultTable';
+
+const SQLQueryArea: React.FC = () => {
+  const { queryResult } = useQueryContext();
+  
+  return (
+    <div className="lower-left-content">
+      <h3>SQL查询区域</h3>
+      {queryResult && (
+        <QueryResultTable data={queryResult} />
+      )}
+    </div>
+  );
+};
 
 const Page: React.FC = () => {
   const { showLLMWindow } = useLLMContext();
+  const [sqlValue, setSqlValue] = useState(''); // 添加状态管理
+
+  // 添加查询结果处理函数
+  const handleQueryResult = (data: any) => {
+    console.log('Query result:', data);
+    // 这里可以添加更多的结果处理逻辑
+  };
 
   return (
     <div className="app-container">
@@ -21,12 +43,11 @@ const Page: React.FC = () => {
           collapsible
           defaultSize="200px"
           className="sidebar-panel"
-          // onResize={() => {}}
         >
           <SideBar />
         </Splitter.Panel>
 
-        {/* 右侧区域：历史记录 + 大区域（ */}
+        {/* 右侧区域：历史记录 + 大区域 */}
         <Splitter.Panel>
           <Splitter style={{ height: '100%', width: '100%' }}>
             {/* 历史记录区域 */}
@@ -70,17 +91,17 @@ const Page: React.FC = () => {
                       min="30%"
                       className="lower-left-panel"
                     >
-                      <div className="lower-left-content">
-                        <h3>SQL查询区域</h3>
-                        {/* SQL查询相关内容将在实现功能时添加 */}
-                      </div>
+                      <SQLQueryArea />
                     </Splitter.Panel>
 
                     {/* 下部右侧区域 */}
                     <Splitter.Panel className="lower-right-panel">
                       <div className="lower-right-content">
-                        <SQLEditor />
-
+                        <SQLEditor 
+                          value={sqlValue}
+                          onChange={(newValue) => setSqlValue(newValue)}
+                          onExecute={handleQueryResult}
+                        />
                       </div>
                     </Splitter.Panel>
                   </Splitter>
