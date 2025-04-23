@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './LLMWindow.module.css';
 import { Input, Tag, Button, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -44,6 +44,15 @@ const LLMWindow: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const {storeProblem, isSaving} = useSimpleStorage();
+
+  useEffect(() => {
+    if (result?.data?.outputs) {
+      console.log('LLM Response received:', {
+        tableStructure: result.data.outputs.tableStructure,
+        tuples: result.data.outputs.tuples
+      });
+    }
+  }, [result]);
 
   // 标签添加
   const handleTagInputConfirm = () => {

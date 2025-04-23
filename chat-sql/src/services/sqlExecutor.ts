@@ -311,51 +311,84 @@ export class SQLQueryEngine {
 
   private evaluateWhereClause(row: any, where: any): boolean {
     if (!where) return true;
-    // 实现WHERE子句的条件评估
-    // 支持基本的比较操作符和逻辑操作符
+    // 直接调用 evaluateCondition
     return this.evaluateCondition(row, where);
   }
 
   private evaluateCondition(row: any, condition: any): boolean {
-    // 根据条件类型进行评估
-    switch (condition.type) {
-      case 'AND':
-        return this.evaluateCondition(row, condition.left) && 
-               this.evaluateCondition(row, condition.right);
-      case 'OR':
-        return this.evaluateCondition(row, condition.left) || 
-               this.evaluateCondition(row, condition.right);
-      case 'COMPARISON':
-        return this.evaluateComparison(
-          this.evaluateExpression(condition.left, row),
-          condition.operator,
-          this.evaluateExpression(condition.right, row)
-        );
-      default:
-        throw new Error(`不支持的条件类型: ${condition.type}`);
+    if (!condition) return true;
+    
+    console.log('Evaluating condition:', condition); // 调试日志
+    
+    // 处理逻辑运算符的特殊情况
+    if (condition.operator === 'AND' || condition.operator === 'OR') {
+      const leftResult = this.evaluateCondition(row, condition.left);
+      const rightResult = this.evaluateCondition(row, condition.right);
+      return condition.operator === 'AND' ? leftResult && rightResult : leftResult || rightResult;
     }
+
+    // 处理二元表达式
+    if (condition.type === 'binary_expr') {
+      const leftValue = this.evaluateExpression(condition.left, row);
+      const rightValue = this.evaluateExpression(condition.right, row);
+      console.log('Binary expression values:', { leftValue, operator: condition.operator, rightValue });
+      return this.evaluateComparison(leftValue, condition.operator, rightValue);
+    }
+
+    throw new Error(`不支持的条件类型: ${condition.type}`);
   }
 
   private evaluateComparison(left: any, operator: string, right: any): boolean {
-    switch (operator) {
+    console.log('Comparing:', { left, operator, right }); // 调试日志
+    
+    switch (operator.toUpperCase()) {
       case '=': return left === right;
       case '>': return left > right;
       case '<': return left < right;
       case '>=': return left >= right;
       case '<=': return left <= right;
-      case '<>': return left !== right;
+      case '<>': 
+      case '!=': return left !== right;
       case 'LIKE': return this.evaluateLike(left, right);
-      case 'IN': return right.includes(left);
+      case 'IN': return Array.isArray(right) && right.includes(left);
+      case 'IS': return (left === null && right === null) || left === right;
+      case 'IS NOT': return (left !== null || right !== null) && left !== right;
       default:
-        throw new Error(`不支持的操作符: ${operator}`);
+        console.log('Unsupported operator:', operator);
     }
   }
 
   private evaluateExpression(expr: any, row?: any): any {
-    // 实现表达式求值
-    if (typeof expr === 'string' && row && expr in row) {
-      return row[expr];
+    if (!expr) return null;
+    
+    console.log('Evaluating expression:', expr); // 调试日志
+    
+    if (expr.type === 'column_ref') {
+      const value = row[expr.column];
+      console.log('Column reference:', { column: expr.column, value });
+      return value;
     }
+    
+    if (expr.type === 'number') {
+      return Number(expr.value);
+    }
+    
+    if (expr.type === 'string') {
+      return String(expr.value);
+    }
+    
+    if (expr.type === 'bool') {
+      return Boolean(expr.value);
+    }
+    
+    if (typeof expr === 'string' || typeof expr === 'number' || typeof expr === 'boolean') {
+      return expr;
+    }
+    
+    if (expr.value !== undefined) {
+      return expr.value;
+    }
+    
     return expr;
   }
 
@@ -470,5 +503,18 @@ export class SQLQueryEngine {
       }
       return 0;
     });
+  }
+
+  private evaluateLike(value: string, pattern: string): boolean {
+    if (typeof value !== 'string' || typeof pattern !== 'string') {
+      return false;
+    }
+    // 将SQL LIKE模式转换为正则表达式
+    const regexPattern = pattern
+      .replace(/%/g, '.*')
+      .replace(/_/g, '.')
+      .replace(/[\[\]\(\)\{\}\^\$\+\*\?\|\\]/g, '\\$&');
+    const regex = new RegExp(`^${regexPattern}$`, 'i');
+    return regex.test(value);
   }
 }
