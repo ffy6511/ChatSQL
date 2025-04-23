@@ -1,16 +1,45 @@
 import { TableStructure, TableTuple } from '@/types/dify';
 import { Parser } from 'node-sql-parser';
+import { TableData, SQLQueryResult } from '@/types/sqlExecutor';
 
-interface TableData {
-  structure: TableStructure;
-  data: any[];
-}
+// 导入辅助函数
+import {
+  evaluateWhereClause,
+  evaluateExpression,
+  validatePrimaryKey,
+  validateForeignKeys,
+  beginTransaction,
+  commitTransaction,
+  rollbackTransaction
+} from '@/lib';
 
+/**
+ * SQL查询引擎
+ *
+ * 该类提供了内存中的SQL查询执行功能，支持基本的SQL操作，包括：
+ * - SELECT查询
+ * - INSERT插入
+ * - UPDATE更新
+ * - DELETE删除
+ * - CREATE TABLE创建表
+ * - DROP TABLE删除表
+ * - 事务支持（BEGIN/COMMIT/ROLLBACK）
+ */
 export class SQLQueryEngine {
+  /** 存储所有表数据的Map */
   private tables: Map<string, TableData>;
+
+  /** 事务数据，当事务活动时保存原始数据的副本 */
   private transactionData: Map<string, TableData> | null = null;
+
+  /** SQL解析器 */
   private parser: Parser;
 
+  /**
+   * 创建SQLQueryEngine实例
+   * @param tableStructures 表结构定义数组
+   * @param tuples 表数据数组
+   */
   constructor(tableStructures: TableStructure[], tuples: TableTuple[]) {
     this.tables = new Map();
     this.parser = new Parser();
@@ -22,7 +51,12 @@ export class SQLQueryEngine {
     });
   }
 
-  executeQuery(sql: string): { success: boolean; data?: any[]; message?: string } {
+  /**
+   * 执行SQL查询
+   * @param sql SQL查询语句
+   * @returns 查询结果
+   */
+  executeQuery(sql: string): SQLQueryResult {
     try {
       if (!sql.trim()) {
         return {
@@ -38,15 +72,22 @@ export class SQLQueryEngine {
         keys: Array.from(this.tables.keys()),
         tables: Array.from(this.tables.entries())
       });
-      
+
       // 特殊处理事务相关的命令
       const upperSql = sql.trim().toUpperCase();
       if (upperSql === 'BEGIN') {
-        return this.beginTransaction();
+        const { result, newTransactionData } = beginTransaction(this.tables, this.transactionData);
+        this.transactionData = newTransactionData;
+        return result;
       } else if (upperSql === 'COMMIT') {
-        return this.commitTransaction();
+        const result = commitTransaction(this.transactionData);
+        this.transactionData = null;
+        return result;
       } else if (upperSql === 'ROLLBACK') {
-        return this.rollbackTransaction();
+        const { result, tables } = rollbackTransaction(this.transactionData);
+        if (tables) this.tables = tables;
+        this.transactionData = null;
+        return result;
       }
 
       // 解析其他SQL命令
@@ -56,15 +97,16 @@ export class SQLQueryEngine {
       }
 
       console.log('AST:', JSON.stringify(ast, null, 2)); // 调试用
-      
+
       // 处理数组形式的AST（多条语句）
       let stmt = Array.isArray(ast) ? ast[0] : ast;
-      
+
       // node-sql-parser 的 AST 结构中类型可能在不同位置
-      const type = stmt.type || // 有些语句类型直接在type字段
-                  (stmt.statement && stmt.statement[0]?.type) || // 某些复杂语句在statement数组中
-                  stmt.ast_type || // 某些版本使用ast_type
-                  (stmt.keyword && stmt.keyword.toUpperCase()); // 某些语句使用keyword字段
+      // 使用类型断言来避免 TypeScript 类型错误
+      const type = (stmt as any).type || // 有些语句类型直接在type字段
+                  ((stmt as any).statement && (stmt as any).statement[0]?.type) || // 某些复杂语句在statement数组中
+                  (stmt as any).ast_type || // 某些版本使用ast_type
+                  ((stmt as any).keyword && (stmt as any).keyword.toUpperCase()); // 某些语句使用keyword字段
 
       if (!type) {
         console.error('AST structure:', stmt); // 调试用
@@ -97,17 +139,22 @@ export class SQLQueryEngine {
     }
   }
 
-  private executeSelect(ast: any) {
+  /**
+   * 执行SELECT查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeSelect(ast: any): SQLQueryResult {
     console.log('SELECT AST:', JSON.stringify(ast, null, 2));
-    
+
     // 处理数组形式的AST
     const selectAst = Array.isArray(ast) ? ast[0] : ast;
-    
+
     const tableName = selectAst.from?.[0]?.table;
     if (!tableName) {
       throw new Error('无效的SELECT语句：缺少表名');
     }
-    
+
     const table = this.getTable(tableName);
     if (!table) {
       throw new Error(`表 ${tableName} 不存在`);
@@ -117,17 +164,17 @@ export class SQLQueryEngine {
 
     // 处理WHERE子句
     if (selectAst.where) {
-      result = result.filter(row => this.evaluateWhereClause(row, selectAst.where));
+      result = result.filter(row => evaluateWhereClause(row, selectAst.where));
     }
 
     // 处理列选择
     let selectedColumns;
-    if (selectAst.columns === '*' || 
-        (selectAst.columns[0]?.expr?.type === 'column_ref' && 
+    if (selectAst.columns === '*' ||
+        (selectAst.columns[0]?.expr?.type === 'column_ref' &&
          selectAst.columns[0]?.expr?.column === '*')) {
       selectedColumns = table.data.length > 0 ? Object.keys(table.data[0]) : [];
     } else {
-      selectedColumns = selectAst.columns.map((col: any) => 
+      selectedColumns = selectAst.columns.map((col: any) =>
         col.expr?.column || col.expr?.value || col.name
       );
     }
@@ -148,7 +195,12 @@ export class SQLQueryEngine {
     };
   }
 
-  private executeInsert(ast: any) {
+  /**
+   * 执行INSERT查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeInsert(ast: any): SQLQueryResult {
     const tableName = ast.table;
     const table = this.getTable(tableName);
 
@@ -162,10 +214,10 @@ export class SQLQueryEngine {
     });
 
     // 验证主键约束
-    this.validatePrimaryKey(table, newRow);
+    validatePrimaryKey(table, newRow);
 
     // 验证外键约束
-    this.validateForeignKeys(table, newRow);
+    validateForeignKeys(table, newRow, this.getTable.bind(this));
 
     table.data.push(newRow);
 
@@ -175,7 +227,12 @@ export class SQLQueryEngine {
     };
   }
 
-  private executeUpdate(ast: any) {
+  /**
+   * 执行UPDATE查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeUpdate(ast: any): SQLQueryResult {
     const tableName = ast.table;
     const table = this.getTable(tableName);
 
@@ -185,15 +242,15 @@ export class SQLQueryEngine {
 
     let updatedCount = 0;
     table.data = table.data.map(row => {
-      if (this.evaluateWhereClause(row, ast.where)) {
+      if (evaluateWhereClause(row, ast.where)) {
         updatedCount++;
         const newRow = { ...row };
         ast.set.forEach((set: any) => {
-          newRow[set.column] = this.evaluateExpression(set.value);
+          newRow[set.column] = evaluateExpression(set.value);
         });
         // 验证约束
-        this.validatePrimaryKey(table, newRow);
-        this.validateForeignKeys(table, newRow);
+        validatePrimaryKey(table, newRow);
+        validateForeignKeys(table, newRow, this.getTable.bind(this));
         return newRow;
       }
       return row;
@@ -205,7 +262,12 @@ export class SQLQueryEngine {
     };
   }
 
-  private executeDelete(ast: any) {
+  /**
+   * 执行DELETE查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeDelete(ast: any): SQLQueryResult {
     const tableName = ast.table;
     const table = this.getTable(tableName);
 
@@ -214,7 +276,7 @@ export class SQLQueryEngine {
     }
 
     const originalLength = table.data.length;
-    table.data = table.data.filter(row => !this.evaluateWhereClause(row, ast.where));
+    table.data = table.data.filter(row => !evaluateWhereClause(row, ast.where));
 
     return {
       success: true,
@@ -222,7 +284,12 @@ export class SQLQueryEngine {
     };
   }
 
-  private executeCreate(ast: any) {
+  /**
+   * 执行CREATE查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeCreate(ast: any): SQLQueryResult {
     if (ast.tableType === 'TABLE') {
       const tableName = ast.name;
       if (this.tables.has(tableName)) {
@@ -252,7 +319,12 @@ export class SQLQueryEngine {
     throw new Error('仅支持CREATE TABLE操作');
   }
 
-  private executeDrop(ast: any) {
+  /**
+   * 执行DROP查询
+   * @param ast 查询的AST
+   * @returns 查询结果
+   */
+  private executeDrop(ast: any): SQLQueryResult {
     if (ast.tableType === 'TABLE') {
       const tableName = ast.name;
       if (!this.tables.has(tableName)) {
@@ -268,253 +340,16 @@ export class SQLQueryEngine {
     throw new Error('仅支持DROP TABLE操作');
   }
 
-  // 事务支持
-  private beginTransaction() {
-    if (this.transactionData) {
-      throw new Error('事务已经开始');
-    }
-    this.transactionData = new Map(
-      Array.from(this.tables.entries()).map(([name, table]) => [
-        name,
-        {
-          structure: { ...table.structure },
-          data: [...table.data]
-        }
-      ])
-    );
-    return { success: true, message: '事务开始' };
-  }
-
-  private commitTransaction() {
-    if (!this.transactionData) {
-      throw new Error('没有活动的事务');
-    }
-    this.transactionData = null;
-    return { success: true, message: '事务提交成功' };
-  }
-
-  private rollbackTransaction() {
-    if (!this.transactionData) {
-      throw new Error('没有活动的事务');
-    }
-    this.tables = new Map(this.transactionData);
-    this.transactionData = null;
-    return { success: true, message: '事务回滚成功' };
-  }
-
-  // 辅助方法
+  /**
+   * 获取表数据
+   * @param tableName 表名
+   * @returns 表数据或undefined
+   */
   private getTable(tableName: string): TableData | undefined {
     const table = this.transactionData?.get(tableName) || this.tables.get(tableName);
     console.log('Getting table:', tableName, 'Found:', !!table); // 添加调试日志
     return table;
   }
 
-  private evaluateWhereClause(row: any, where: any): boolean {
-    if (!where) return true;
-    // 直接调用 evaluateCondition
-    return this.evaluateCondition(row, where);
-  }
 
-  private evaluateCondition(row: any, condition: any): boolean {
-    if (!condition) return true;
-    
-    console.log('Evaluating condition:', condition); // 调试日志
-    
-    // 处理逻辑运算符的特殊情况
-    if (condition.operator === 'AND' || condition.operator === 'OR') {
-      const leftResult = this.evaluateCondition(row, condition.left);
-      const rightResult = this.evaluateCondition(row, condition.right);
-      return condition.operator === 'AND' ? leftResult && rightResult : leftResult || rightResult;
-    }
-
-    // 处理二元表达式
-    if (condition.type === 'binary_expr') {
-      const leftValue = this.evaluateExpression(condition.left, row);
-      const rightValue = this.evaluateExpression(condition.right, row);
-      console.log('Binary expression values:', { leftValue, operator: condition.operator, rightValue });
-      return this.evaluateComparison(leftValue, condition.operator, rightValue);
-    }
-
-    throw new Error(`不支持的条件类型: ${condition.type}`);
-  }
-
-  private evaluateComparison(left: any, operator: string, right: any): boolean {
-    console.log('Comparing:', { left, operator, right }); // 调试日志
-    
-    switch (operator.toUpperCase()) {
-      case '=': return left === right;
-      case '>': return left > right;
-      case '<': return left < right;
-      case '>=': return left >= right;
-      case '<=': return left <= right;
-      case '<>': 
-      case '!=': return left !== right;
-      case 'LIKE': return this.evaluateLike(left, right);
-      case 'IN': return Array.isArray(right) && right.includes(left);
-      case 'IS': return (left === null && right === null) || left === right;
-      case 'IS NOT': return (left !== null || right !== null) && left !== right;
-      default:
-        console.log('Unsupported operator:', operator);
-    }
-  }
-
-  private evaluateExpression(expr: any, row?: any): any {
-    if (!expr) return null;
-    
-    console.log('Evaluating expression:', expr); // 调试日志
-    
-    if (expr.type === 'column_ref') {
-      const value = row[expr.column];
-      console.log('Column reference:', { column: expr.column, value });
-      return value;
-    }
-    
-    if (expr.type === 'number') {
-      return Number(expr.value);
-    }
-    
-    if (expr.type === 'string') {
-      return String(expr.value);
-    }
-    
-    if (expr.type === 'bool') {
-      return Boolean(expr.value);
-    }
-    
-    if (typeof expr === 'string' || typeof expr === 'number' || typeof expr === 'boolean') {
-      return expr;
-    }
-    
-    if (expr.value !== undefined) {
-      return expr.value;
-    }
-    
-    return expr;
-  }
-
-  private validatePrimaryKey(table: TableData, row: any) {
-    const primaryKeys = table.structure.columns
-      .filter(col => col.isPrimary)
-      .map(col => col.name);
-
-    if (primaryKeys.length === 0) return;
-
-    const existingRow = table.data.find(existing =>
-      primaryKeys.every(key => existing[key] === row[key])
-    );
-
-    if (existingRow) {
-      throw new Error('违反主键约束');
-    }
-  }
-
-  private validateForeignKeys(table: TableData, row: any) {
-    // 实现外键约束验证
-    table.structure.columns.forEach(column => {
-      if (column.foreignKeyRefs) {
-        column.foreignKeyRefs.forEach(ref => {
-          const refTable = this.getTable(ref.tableName);
-          if (!refTable) {
-            throw new Error(`引用的表 ${ref.tableName} 不存在`);
-          }
-
-          const value = row[column.name];
-          const exists = refTable.data.some(refRow => 
-            refRow[ref.columnName] === value
-          );
-
-          if (!exists) {
-            throw new Error(`违反外键约束: ${column.name}`);
-          }
-        });
-      }
-    });
-  }
-
-  private executeJoins(baseData: any[], joins: any[]): any[] {
-    let result = [...baseData];
-    
-    for (const join of joins) {
-      const joinTable = this.getTable(join.table);
-      if (!joinTable) {
-        throw new Error(`Join表 ${join.table} 不存在`);
-      }
-
-      result = result.flatMap(leftRow => {
-        return joinTable.data
-          .filter(rightRow => 
-            this.evaluateCondition({ ...leftRow, ...rightRow }, join.on))
-          .map(rightRow => ({
-            ...leftRow,
-            ...rightRow
-          }));
-      });
-    }
-    
-    return result;
-  }
-
-  private executeGroupBy(data: any[], groupBy: string[], having?: any): any[] {
-    const groups = new Map();
-    
-    // 分组
-    for (const row of data) {
-      const key = groupBy.map(col => row[col]).join('|');
-      if (!groups.has(key)) {
-        groups.set(key, []);
-      }
-      groups.get(key).push(row);
-    }
-
-    // 处理聚合
-    const result = Array.from(groups.entries()).map(([key, rows]) => {
-      const groupRow: any = {};
-      
-      // 保留分组列
-      groupBy.forEach(col => {
-        groupRow[col] = rows[0][col];
-      });
-
-      // TODO: 实现聚合函数 (COUNT, SUM, AVG, etc.)
-      
-      return groupRow;
-    });
-
-    // 处理HAVING子句
-    if (having) {
-      return result.filter(row => this.evaluateCondition(row, having));
-    }
-
-    return result;
-  }
-
-  private executeOrderBy(data: any[], orderBy: any[]): any[] {
-    return [...data].sort((a, b) => {
-      for (const order of orderBy) {
-        const column = order.column;
-        const direction = order.direction.toUpperCase();
-        
-        if (a[column] < b[column]) {
-          return direction === 'ASC' ? -1 : 1;
-        }
-        if (a[column] > b[column]) {
-          return direction === 'ASC' ? 1 : -1;
-        }
-      }
-      return 0;
-    });
-  }
-
-  private evaluateLike(value: string, pattern: string): boolean {
-    if (typeof value !== 'string' || typeof pattern !== 'string') {
-      return false;
-    }
-    // 将SQL LIKE模式转换为正则表达式
-    const regexPattern = pattern
-      .replace(/%/g, '.*')
-      .replace(/_/g, '.')
-      .replace(/[\[\]\(\)\{\}\^\$\+\*\?\|\\]/g, '\\$&');
-    const regex = new RegExp(`^${regexPattern}$`, 'i');
-    return regex.test(value);
-  }
 }
