@@ -1,0 +1,33 @@
+.resultHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(to right, #f8f8f8, #f0f0f0);
+  border-bottom: 1px solid #e0e0e0;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.resultIcon {
+  color: #f0c14b; /* 金黄色，与空状态图标颜色一致 */
+  margin-right: 10px;
+  font-size: 1.5rem !important;
+}
+
+.resultTitle {
+  font-weight: 600 !important;
+  color: #333;
+  font-size: 1.2rem !important;
+}
+
+.resultCount {
+  margin-left: auto !important;
+  color: #666;
+  font-size: 0.875rem !important;
+}
+
+.tableContainer {
+  height: calc(100% - 48px); /* 减去标题区域的高度 */
+  width: 100%;
+}

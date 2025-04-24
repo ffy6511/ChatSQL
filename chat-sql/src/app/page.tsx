@@ -11,15 +11,17 @@ import HistoryPanel from '@/components/History/HistoryPanel';
 import SideBar from '@/components/SideBar';
 import { useQueryContext } from '@/contexts/QueryContext';
 import QueryResultTable from '@/components/codeEditing/QueryResultTable';
+import EmptyQueryState from '@/components/codeEditing/EmptyQueryState';
 
 const SQLQueryArea: React.FC = () => {
   const { queryResult } = useQueryContext();
-  
+
   return (
     <div className="lower-left-content">
-      <h3>SQL查询区域</h3>
-      {queryResult && (
+      {queryResult ? (
         <QueryResultTable data={queryResult} />
+      ) : (
+        <EmptyQueryState />
       )}
     </div>
   );
@@ -97,7 +99,7 @@ const Page: React.FC = () => {
                     {/* 下部右侧区域 */}
                     <Splitter.Panel className="lower-right-panel">
                       <div className="lower-right-content">
-                        <SQLEditor 
+                        <SQLEditor
                           value={sqlValue}
                           onChange={(newValue) => setSqlValue(newValue)}
                           onExecute={handleQueryResult}

@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  height: 95%;
+  background-color: rgba(245, 245, 245, 0.7);
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+  transition: all 0.3s ease;
+}
+
+.container:hover {
+  background-color: rgba(245, 245, 245, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  font-size: 6rem !important;
+  color: #f0c14b; /* 金黄色，符合用户偏好 */
+  opacity: 0.8;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.title {
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #777;
+  text-align: center;
+  max-width: 80%;
+  font-size: 0.875rem;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}

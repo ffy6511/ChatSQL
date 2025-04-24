@@ -7,8 +7,8 @@
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -18,6 +18,6 @@
   font-family: 'Fira Code', monospace;
   font-size: 14px;
   line-height: 1.5;
-} 
+}
 
 
