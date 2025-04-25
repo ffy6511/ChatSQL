@@ -5,8 +5,8 @@ import Editor from '@monaco-editor/react';
 import './SQLEditor.css';
 import './MonacoEditorStyles.css'; // 添加Monaco编辑器样式
 import { SQLQueryEngine } from '@/services/sqlExecutor';
-import { Button, ButtonGroup } from '@mui/material';
-import { PlayArrow } from '@mui/icons-material';
+import { Button, ButtonGroup, Tooltip } from '@mui/material';
+import { PlayArrow, KeyboardCommandKey, KeyboardReturn } from '@mui/icons-material';
 import { message as antdMessage } from 'antd';
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useQueryContext } from '@/contexts/QueryContext';
@@ -62,7 +62,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     }
   }, [llmResult]);
 
-  const handleExecute = async () => {
+  const handleExecute = useCallback(async () => {
     if (!queryEngine) {
       setError('请先生成数据库结构');
       return;
@@ -74,7 +74,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
         tables: queryEngine['tables'] // 添加调试信息
       });
 
-      const result = queryEngine.executeQuery(value!);
+      const result = queryEngine.executeQuery(editorValue);
       if (result.success) {
         if (result.data) {
           setQueryResult(result.data); // 使用上下文存储结果
@@ -89,7 +89,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     } catch (err) {
       setError(err instanceof Error ? err.message : '查询执行失败');
     }
-  };
+  }, [queryEngine, editorValue, setError, setQueryResult, onExecute, messageApi]);
 
   // 保存自动补全提供器的引用，以便在需要时取消注册
   const completionProviderRef = useRef<any>(null);
@@ -163,19 +163,120 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     }
   }, [onChange]);
 
+  // 保存编辑器实例的引用
+  const editorRef = useRef<any>(null);
+
+  // 编辑器挂载后设置键盘快捷键
+  const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
+    // 保存编辑器实例的引用
+    editorRef.current = editor;
+
+    // 添加键盘快捷键：Windows/Command + Enter 执行查询
+    editor.addCommand(
+      // 使用 CtrlCmd 表示在 Windows 上是 Ctrl，在 Mac 上是 Command
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+      () => {
+        // 只有在查询引擎可用时才执行查询
+        if (queryEngine) {
+          // 直接从编辑器获取当前内容
+          const currentValue = editor.getValue();
+          console.log('执行查询，当前SQL:', currentValue);
+
+          if (!currentValue.trim()) {
+            messageApi.warning('SQL语句不能为空');
+            return;
+          }
+
+          // 更新editorValue状态
+          setEditorValue(currentValue);
+
+          // 使用当前编辑器内容执行查询
+          try {
+            const result = queryEngine.executeQuery(currentValue);
+            if (result.success) {
+              if (result.data) {
+                setQueryResult(result.data);
+                onExecute?.(result.data);
+              }
+              if (result.message) {
+                messageApi.success(result.message);
+              }
+            } else {
+              setError(result.message || '查询执行失败');
+            }
+          } catch (err) {
+            setError(err instanceof Error ? err.message : '查询执行失败');
+          }
+        } else {
+          messageApi.warning('请先生成数据库结构');
+        }
+      }
+    );
+
+    // 可以在这里添加更多的键盘快捷键
+  }, [queryEngine, setEditorValue, setQueryResult, onExecute, setError, messageApi]);
+
   return (
     <div className="sql-editor-container">
       {contextHolder}
       <div className="sql-editor-toolbar">
         <ButtonGroup>
-          <Button
-            variant="contained"
-            startIcon={<PlayArrow />}
-            onClick={handleExecute}
-            disabled={!queryEngine}
+          <Tooltip
+            title={
+              <div className="shortcut-tooltip">
+                <span>shortcut：</span>
+                <KeyboardCommandKey className="shortcut-icon" />
+                <span className="shortcut-plus">+</span>
+                <KeyboardReturn className="shortcut-icon" />
+              </div>
+            }
+            arrow
+            placement="top"
           >
-            执行查询
-          </Button>
+            <Button
+              variant="contained"
+              startIcon={<PlayArrow />}
+              onClick={() => {
+                // 如果有编辑器实例，直接从编辑器获取当前内容
+                if (editorRef.current) {
+                  const currentValue = editorRef.current.getValue();
+                  console.log('按钮执行查询，当前SQL:', currentValue);
+
+                  if (!currentValue.trim()) {
+                    messageApi.warning('SQL语句不能为空');
+                    return;
+                  }
+
+                  // 更新editorValue状态
+                  setEditorValue(currentValue);
+
+                  // 使用当前编辑器内容执行查询
+                  try {
+                    const result = queryEngine!.executeQuery(currentValue);
+                    if (result.success) {
+                      if (result.data) {
+                        setQueryResult(result.data);
+                        onExecute?.(result.data);
+                      }
+                      if (result.message) {
+                        messageApi.success(result.message);
+                      }
+                    } else {
+                      setError(result.message || '查询执行失败');
+                    }
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : '查询执行失败');
+                  }
+                } else {
+                  // 如果没有编辑器实例，使用状态中的值
+                  handleExecute();
+                }
+              }}
+              disabled={!queryEngine}
+            >
+              执行查询
+            </Button>
+          </Tooltip>
           <Button
             variant="outlined"
             onClick={() => {
@@ -277,6 +378,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           },
         }}
         beforeMount={handleEditorWillMount}
+        onMount={handleEditorDidMount}
         onChange={handleChange}
       />
     </div>

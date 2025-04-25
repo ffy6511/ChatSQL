@@ -20,4 +20,26 @@
   line-height: 1.5;
 }
 
+.sql-editor-toolbar {
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* 快捷键提示样式 */
+.shortcut-tooltip {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.shortcut-icon {
+  font-size: 1.5em !important;
+  margin-left: 4px;
+  margin-right: 2px;
+}
+
+.shortcut-plus {
+  margin: 0 2px;
+}
 
