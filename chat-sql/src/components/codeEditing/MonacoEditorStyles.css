@@ -1,0 +1,33 @@
+/* Monaco 编辑器自定义样式 */
+
+/* 自动补全窗口 */
+.monaco-editor .suggest-widget {
+  z-index: 9999 !important; /* 确保自动补全窗口显示在最上层 */
+}
+
+/* 悬停提示窗口 */
+.monaco-editor .monaco-hover {
+  z-index: 9999 !important; /* 确保悬停提示窗口显示在最上层 */
+}
+
+/* 参数提示窗口 */
+.monaco-editor .parameter-hints-widget {
+  z-index: 9999 !important; /* 确保参数提示窗口显示在最上层 */
+}
+
+/* 编辑器内容区域 */
+.monaco-editor .monaco-editor-background,
+.monaco-editor .monaco-editor-background .margin,
+.monaco-editor .monaco-editor-background .monaco-editor-hover {
+  z-index: 1 !important; /* 编辑器背景层级 */
+}
+
+/* 确保编辑器内容可见 */
+.monaco-editor .view-lines {
+  z-index: 2 !important; /* 编辑器文本内容层级 */
+}
+
+/* 确保光标可见 */
+.monaco-editor .cursor {
+  z-index: 3 !important; /* 光标层级 */
+}
