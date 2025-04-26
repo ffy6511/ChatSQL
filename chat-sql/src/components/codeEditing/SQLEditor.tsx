@@ -224,10 +224,10 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           <Tooltip
             title={
               <div className="shortcut-tooltip">
-                <span>shortcut：</span>
-                <KeyboardCommandKey className="shortcut-icon" />
+                <span>执行查询 </span>
+                (<KeyboardCommandKey className="shortcut-icon" />
                 <span className="shortcut-plus">+</span>
-                <KeyboardReturn className="shortcut-icon" />
+                <KeyboardReturn className="shortcut-icon" />)
               </div>
             }
             arrow
@@ -235,7 +235,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           >
             <Button
               variant="contained"
-              startIcon={<PlayArrow />}
+              // startIcon={<PlayArrow />}
               onClick={() => {
                 // 如果有编辑器实例，直接从编辑器获取当前内容
                 if (editorRef.current) {
@@ -274,7 +274,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
               }}
               disabled={!queryEngine}
             >
-              执行查询
+              <PlayArrow />
             </Button>
           </Tooltip>
           <Button
