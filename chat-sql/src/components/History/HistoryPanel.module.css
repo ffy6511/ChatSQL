@@ -116,22 +116,22 @@
   color: #999;
 }
 
-/* 标签页样式优化 */
-:global(.ant-tabs-nav) {
+
+.ant-tabs-nav{
   margin-bottom: 16px !important;
 }
 
-:global(.ant-tabs-tab) {
+.ant-tabs-tab{
   padding: 8px 16px !important;
   transition: all 0.3s ease;
 }
 
-:global(.ant-tabs-tab-active) {
+.ant-tabs-tab-active {
   background-color: rgba(22, 119, 255, 0.1);
   border-radius: 4px;
 }
 
-:global(.ant-tabs-ink-bar) {
+.ant-tabs-ink-bar {
   background: #1677ff !important;
   height: 3px !important;
   border-radius: 3px !important;

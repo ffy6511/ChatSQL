@@ -17,7 +17,11 @@ export const Container: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('schema');
 
   const tables = llmResult?.data?.outputs?.tableStructure
-    ? parseJSONToTables(llmResult.data.outputs.tableStructure)
+    ? parseJSONToTables(llmResult.data.outputs.tableStructure.map(table => ({
+        tableName: table.tableName,
+        columns: table.columns,
+        foreignKeys: table.foreignKeys
+      })))
     : [];
 
   const handleViewChange = (event: React.MouseEvent<HTMLElement>, newMode: ViewMode | null) => {

@@ -82,16 +82,16 @@ export function executeGroupBy(data: any[], groupBy: string[], columns: any[], h
             groupRow[alias] = rows.length;
             break;
           case 'SUM':
-            groupRow[alias] = rows.reduce((sum, row) => sum + (Number(row[columnName]) || 0), 0);
+            groupRow[alias] = rows.reduce((sum: number, row: Record<string, any>) => sum + (Number(row[columnName]) || 0), 0);
             break;
           case 'AVG':
-            groupRow[alias] = rows.reduce((sum, row) => sum + (Number(row[columnName]) || 0), 0) / rows.length;
+            groupRow[alias] = rows.reduce((sum: number, row: Record<string, any>) => sum + (Number(row[columnName]) || 0), 0) / rows.length;
             break;
           case 'MAX':
-            groupRow[alias] = Math.max(...rows.map(row => Number(row[columnName]) || 0));
+            groupRow[alias] = Math.max(...rows.map((row: Record<string, any>) => Number(row[columnName]) || 0));
             break;
           case 'MIN':
-            groupRow[alias] = Math.min(...rows.map(row => Number(row[columnName]) || 0));
+            groupRow[alias] = Math.min(...rows.map((row: Record<string, any>) => Number(row[columnName]) || 0));
             break;
           default:
             throw new Error(`不支持的聚合函数: ${name}`);

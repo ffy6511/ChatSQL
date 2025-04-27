@@ -24,11 +24,10 @@ export interface TableStructure {
     isPrimary: boolean;
   }[];
   foreignKeys?: {
-    column: string;
-    references: {
-      table: string;
-      column: string;
-    };
+    fromTable: string;
+    fromColumn: string;
+    toTable: string;
+    toColumn: string;
   }[];
 }
 

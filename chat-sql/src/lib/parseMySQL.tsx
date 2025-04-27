@@ -1,5 +1,5 @@
 // 用于解析JSON格式的表结构, 为可视化组件提供输入
-import { InputColumn, InputForeignKey, InputTable, Table } from '@/types/database';
+import {  InputTable, Table } from '@/types/database';
 
   // 将 JSON 数组转换为 Table 数组的函数
   export const parseJSONToTables = (jsonTables: InputTable[]): Table[] => {

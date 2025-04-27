@@ -7,18 +7,29 @@ import {
   useEdgesState,
   Background,
   BackgroundVariant,
-  MiniMap,
   Controls,
   Handle,
   Position,
   MarkerType,
   getBezierPath,
+  Node as FlowNode,
+  Edge as FlowEdge,
+  NodeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
 
 // 删除原有的类型定义，改为导入
-import { Column, Table, Edge, CustomEdgeMarker } from '@/types/database';
+import { Column, Table, Edge } from '@/types/database';
+
+type TableNodeData = {
+  tableName: string;
+  columns: Column[];
+  isReferenced: boolean;
+} & Record<string, unknown>;
+
+type CustomNode = FlowNode<TableNodeData>;
+type CustomEdge = FlowEdge;
 
 // 生成随机颜色
 const getRandomColor = () => {
@@ -149,7 +160,6 @@ const generateEdges = (tables: Table[]): Edge[] => {
             sourceHandle: col.name,
             targetHandle: ref.columnName,
             type: 'custom',
-            animated: false,
             style: {
               stroke: '#ff9900',
               strokeWidth: 2
@@ -169,15 +179,15 @@ interface DatabaseFlowProps {
 }
 
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
-  // 初始化空节点和边，稍后在 useEffect 中更新
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  // 显式指定 useNodesState 的泛型参数
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>([]); // 移除额外的数组层级
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
 
   // 添加布局初始化
   useEffect(() => {
     if (tables && tables.length > 0) {
       // 为每个表生成一个基础位置
-      const newNodes = tables.map((table, index) => ({
+      const newNodes: CustomNode[] = tables.map((table, index) => ({
         id: table.id,
         type: "table",
         // 如果没有预设位置，则按网格布局排列
@@ -193,7 +203,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         draggable: true,
       }));
 
-      const newEdges = generateEdges(tables);
+      const newEdges: CustomEdge[] = generateEdges(tables);
       
       setNodes(newNodes);
       setEdges(newEdges);
@@ -216,7 +226,6 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         fitViewOptions={{ padding: 0.2 }}
         nodesDraggable={true}
         elementsSelectable={true}
-        connectionLineType="smoothstep"
         defaultEdgeOptions={{
           type: 'custom',
           animated: false,

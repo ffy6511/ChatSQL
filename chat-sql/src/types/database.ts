@@ -20,8 +20,9 @@ export interface Edge {
   sourceHandle: string;
   targetHandle: string;
   type: string;
-  label: string;
-  markerEnd: any;
+  label?: string;
+  markerEnd?: any;
+  style?: any;
 }
 
 // 输入 JSON 的类型定义
@@ -32,11 +33,10 @@ export interface InputColumn {
 }
 
 export interface InputForeignKey {
-  column: string;
-  references: {
-    table: string;
-    column: string;
-  };
+  fromTable: string;
+  fromColumn: string;
+  toTable: string;
+  toColumn: string;
 }
 
 export interface InputTable {

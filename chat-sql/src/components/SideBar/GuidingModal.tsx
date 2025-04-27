@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, type ReactElement } from 'react';
 import { Modal, Button, Steps } from 'antd';
 import styles from './GuidingModal.module.css';
 

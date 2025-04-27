@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, type ReactElement } from 'react';
 import { Switch } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Tooltip } from 'antd';
