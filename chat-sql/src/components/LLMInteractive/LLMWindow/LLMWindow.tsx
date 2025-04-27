@@ -2,13 +2,26 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './LLMWindow.module.css';
-import { Input, Tag, Button, message, Spin } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Input, Tag, message, Spin, Button, Popover } from 'antd';
+import {
+  SendOutlined,
+  CheckOutlined,
+  TagOutlined,
+  BarChartOutlined,
+  NumberOutlined,
+  RobotOutlined
+} from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
 import LLMResultView from '@/lib/LLMResultView';
 import { useSimpleStorage } from '@/hooks/useRecords';
 import { DifyResponse } from '@/types/dify';
+import {
+  Box,
+  Paper,
+  Typography,
+  Stack
+} from '@mui/material';
+import ShinyText from '@/components/utils/ShinyText';
 
 const initialTags = [
   { label: '算法', color: 'magenta' },
@@ -22,28 +35,21 @@ const difficultyOptions = [
   { label: '困难', value: 'hard' },
 ];
 
-const tagColors = [
-  'magenta', 'red', 'volcano', 'orange', 'gold',
-  'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'
-];
-
-function getRandomColor() {
-  return tagColors[Math.floor(Math.random() * tagColors.length)];
-}
-
 const LLMWindow: React.FC = () => {
   const { setShowLLMWindow, setLLMResult, setCurrentProblemId } = useLLMContext();
 
-  const [tags, setTags] = useState(initialTags);
   const [checkedTags, setCheckedTags] = useState<string[]>([]);
-  const [inputVisible, setInputVisible] = useState(false);
-  const [inputValue, setInputValue] = useState('');
   const [declare, setDeclare] = useState('');
   const [difficulty, setDifficulty] = useState('simple');
   const [problemCnt, setProblemCnt] = useState(1);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const {storeProblem, isSaving} = useSimpleStorage();
+
+  // 弹出框状态
+  const [tagsPopoverOpen, setTagsPopoverOpen] = useState(false);
+  const [difficultyPopoverOpen, setDifficultyPopoverOpen] = useState(false);
+  const [countPopoverOpen, setCountPopoverOpen] = useState(false);
 
   useEffect(() => {
     if (result?.data?.outputs) {
@@ -53,15 +59,6 @@ const LLMWindow: React.FC = () => {
       });
     }
   }, [result]);
-
-  // 标签添加
-  const handleTagInputConfirm = () => {
-    if (inputValue && !tags.find(tag => tag.label === inputValue)) {
-      setTags([...tags, { label: inputValue, color: getRandomColor() }]);
-    }
-    setInputVisible(false);
-    setInputValue('');
-  };
 
   const handleTagCheck = (tag: string, checked: boolean) => {
     setCheckedTags(checked
@@ -137,145 +134,210 @@ const LLMWindow: React.FC = () => {
     }
   };
 
-  return (
-    <div className={styles.container}>
-      {!result && (
-        <>
-          {/* 标签选择 */}
-          <div className={styles.section}>
-            <span className={styles.label}>标签：</span>
-            {tags.map(tag => (
-              <CheckableTag
-                key={tag.label}
-                checked={checkedTags.includes(tag.label)}
-                color={tag.color}
-                onChange={checked => handleTagCheck(tag.label, checked)}
-              >
-                {tag.label}
-              </CheckableTag>
-            ))}
-            {inputVisible ? (
-              <Input
-                size="small"
-                style={{ width: 100, marginLeft: 8 }}
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onBlur={handleTagInputConfirm}
-                onPressEnter={handleTagInputConfirm}
-                autoFocus
-              />
-            ) : (
-              <Tag
-                onClick={() => setInputVisible(true)}
-                style={{
-                  background: '#fff',
-                  borderStyle: 'dashed',
-                  marginLeft: 8,
-                  cursor: 'pointer'
-                }}
-              >
-                <PlusOutlined /> 新标签
-              </Tag>
-            )}
-          </div>
-
-          {/* 难度选择 */}
-          <div className={styles.section}>
-            <span className={styles.label}>难度：</span>
-            <ToggleButtonGroup
-              value={difficulty}
-              exclusive
-              onChange={(_, value) => value && setDifficulty(value)}
-              size="small"
-            >
-              {difficultyOptions.map(opt => (
-                <ToggleButton key={opt.value} value={opt.value}>
-                  {opt.label}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </div>
-
-          {/* 题目数量 */}
-          <div className={styles.section}>
-          <span className={styles.label}>题目数量：</span>
-            <Slider
-              value={problemCnt}
-              onChange={(_, value) => setProblemCnt(Number(value))}
-              min={1}
-              max={10}
-              step={1}
-              valueLabelDisplay="auto"
-              style={{ width: 200 }}
-            />
-            <span style={{ marginLeft: 16 }}>{problemCnt} 道</span>
-          </div>
-
-          {/* 描述输入 */}
-          <div className={styles.section}>
-            <span className={styles.label}>描述：</span>
-            <Input.TextArea
-              rows={4}
-              value={declare}
-              onChange={e => setDeclare(e.target.value)}
-              placeholder="请输入题目描述..."
-            />
-          </div>
-
-          {/* 提交按钮 */}
-          <div style={{ textAlign: 'right' }}>
-            <Button
-              type="primary"
-              loading={loading}
-              onClick={handleSubmit}
-            >
-              提交
-            </Button>
-          </div>
-        </>
-      )}
-
-      {/* LLM返回结果展示和确认 */}
-      {result && (
-        <>
-          <div className={styles.section} style={{ flex: 1, overflow: 'hidden' }}>
-            <span className={styles.label}>LLM返回结果：</span>
-            <div className={styles.resultBox}>
-              {result?.data?.outputs && <LLMResultView outputs={result.data.outputs} />}
-            </div>
-          </div>
-          <div className={styles.fixedButtonContainer}>
-            <Button
-              type="primary"
-              onClick={handleConfirm}
-              loading={isSaving}
-              size="large"
-            >
-              确认并保存
-            </Button>
-          </div>
-        </>
-      )}
+  // 标签选择弹出框内容
+  const tagsPopoverContent = (
+    <div style={{ padding: '16px', width: 300 }}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择标签</Typography>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+        {initialTags.map(tag => (
+          <Tag.CheckableTag
+            key={tag.label}
+            checked={checkedTags.includes(tag.label)}
+            onChange={checked => handleTagCheck(tag.label, checked)}
+            style={{
+              borderColor: tag.color,
+              color: checkedTags.includes(tag.label) ? '#fff' : tag.color,
+              background: checkedTags.includes(tag.label) ? tag.color : 'transparent',
+              marginBottom: '8px',
+              borderRadius: '4px',
+              transition: 'all 0.3s',
+              padding: '4px 8px',
+              cursor: 'pointer',
+            }}
+          >
+            {tag.label}
+          </Tag.CheckableTag>
+        ))}
+      </div>
     </div>
   );
-};
 
-// antd CheckableTag 增强：支持颜色
-const CheckableTag = (props: any) => {
-  const { color, checked, children, ...rest } = props;
+  // 难度选择弹出框内容
+  const difficultyPopoverContent = (
+    <div style={{ padding: '16px', width: 200 }}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择难度</Typography>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {difficultyOptions.map(opt => (
+          <Button
+            key={opt.value}
+            onClick={() => {
+              setDifficulty(opt.value);
+              setDifficultyPopoverOpen(false);
+            }}
+            type={difficulty === opt.value ? 'primary' : 'default'}
+            block
+            size="middle"
+          >
+            {opt.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // 数量选择弹出框内容
+  const countPopoverContent = (
+    <div style={{ padding: '16px', width: 250 }}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择题目数量</Typography>
+      <div style={{ padding: '0 16px' }}>
+        <Input
+          type="number"
+          value={problemCnt}
+          onChange={e => setProblemCnt(Number(e.target.value))}
+          min={1}
+          max={10}
+          style={{ width: '100%', marginBottom: '12px', height: '36px', borderRadius: '8px' }}
+        />
+        <Typography variant="caption" style={{ color: 'rgba(0, 0, 0, 0.45)', display: 'block', textAlign: 'center' }}>
+          范围: 1-10 题
+        </Typography>
+      </div>
+    </div>
+  );
+
   return (
-    <Tag.CheckableTag
-      checked={checked}
-      style={{
-        borderColor: color,
-        color: checked ? '#fff' : color,
-        background: checked ? color : '#fff',
-        marginBottom: 8,
-      }}
-      {...rest}
-    >
-      {children}
-    </Tag.CheckableTag>
+    <div className={styles.container} id="llm-window-container">
+      <div className={`${styles.windowContainer} ${result ? styles.withResult : ''}`}>
+        <div className={`${styles.contentWrapper} ${result ? styles.withResultContent : ''}`}>
+          {/* 顶部标题区域 */}
+          <div className={styles.headerArea}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 'bold',
+                textAlign: 'center',
+                flex: 1
+              }}
+            >
+              {loading ? (
+                <ShinyText text="正在生成有趣的应用..." speed={3} />
+              ) : (
+                "今天希望练习什么内容？"
+              )}
+            </Typography>
+          </div>
+
+
+          {/* 结果展示区域 - 有结果时显示 */}
+          {result && (
+            <div className={styles.resultArea}>
+              <div className={styles.chatBubble}>
+                <div className={styles.resultHeader}>
+                  <Typography variant="h6">
+                    <RobotOutlined style={{ marginRight: '8px' }} /> 这个问题如何?
+                  </Typography>
+
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={handleConfirm}
+                    loading={isSaving}
+                    icon={<CheckOutlined />}
+                    style={{ backgroundColor: '#52c41a' }}
+                  >
+                    确认并保存
+                  </Button>
+                </div>
+
+                {result?.data?.outputs && (
+                  <LLMResultView outputs={result.data.outputs} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 输入区域 - 始终显示 */}
+          <div className={`${styles.inputArea} ${result ? styles.inputAreaWithResult : ''}`}>
+          <div className={styles.buttonGroup}>
+            {/* 快捷按钮区域 */}
+            <Popover
+              open={tagsPopoverOpen}
+              onOpenChange={setTagsPopoverOpen}
+              content={tagsPopoverContent}
+              trigger="click"
+              placement="bottom"
+              destroyTooltipOnHide={false}
+            >
+              <Button
+                type="default"
+                size="small"
+                icon={<TagOutlined />}
+              >
+                {checkedTags.length > 0 ? `${checkedTags.length}个标签` : '标签'}
+              </Button>
+            </Popover>
+
+            <Popover
+              open={difficultyPopoverOpen}
+              onOpenChange={setDifficultyPopoverOpen}
+              content={difficultyPopoverContent}
+              trigger="click"
+              placement="bottom"
+              destroyTooltipOnHide={false}
+            >
+              <Button
+                type="default"
+                size="small"
+                icon={<BarChartOutlined />}
+              >
+                {difficultyOptions.find(opt => opt.value === difficulty)?.label || '难度'}
+              </Button>
+            </Popover>
+
+            <Popover
+              open={countPopoverOpen}
+              onOpenChange={setCountPopoverOpen}
+              content={countPopoverContent}
+              trigger="click"
+              placement="bottom"
+              destroyTooltipOnHide={false}
+            >
+              <Button
+                type="default"
+                size="small"
+                icon={<NumberOutlined />}
+              >
+                {problemCnt}题
+              </Button>
+            </Popover>
+          </div>
+
+          {/* 输入框区域 */}
+          <div className={styles.textAreaWrapper}>
+            <Input.TextArea
+              placeholder="请输入你想要训练的内容描述..."
+              value={declare}
+              onChange={e => setDeclare(e.target.value)}
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              className={styles.textAreaContainer}
+            />
+
+            <div className={styles.actionButtonContainer}>
+              <Button
+                type="primary"
+                loading={loading}
+                onClick={handleSubmit}
+                icon={<SendOutlined />}
+                shape="circle"
+                size="large"
+                style={{ backgroundColor: '#1677ff', fontSize: '18px' }}
+              />
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

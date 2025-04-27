@@ -65,50 +65,54 @@ const Page: React.FC = () => {
               </div>
             </Splitter.Panel>
 
-            {/* 右侧大区域：1上2下 */}
+            {/* 右侧大区域 */}
             <Splitter.Panel>
-              <Splitter layout="vertical" style={{ height: '100%' }}>
-                {/* 上部区域 */}
-                <Splitter.Panel
-                  defaultSize="50%"
-                  min="30%"
-                  max="70%"
-                  className="upper-panel"
-                >
-                  <div className="upper-content">
-                    {showLLMWindow ? (
-                      <LLMWindow />
-                    ) : (
+              {showLLMWindow ? (
+                // 当显示LLM窗口时，占据整个区域
+                <div className="full-height-llm-container">
+                  <LLMWindow />
+                </div>
+              ) : (
+                // 正常模式：1上2下
+                <Splitter layout="vertical" style={{ height: '100%' }}>
+                  {/* 上部区域 - 容器 */}
+                  <Splitter.Panel
+                    defaultSize="50%"
+                    min="30%"
+                    max="70%"
+                    className="upper-panel"
+                  >
+                    <div className="upper-content">
                       <Container />
-                    )}
-                  </div>
-                </Splitter.Panel>
+                    </div>
+                  </Splitter.Panel>
 
-                {/* 下部区域：水平分为两部分 */}
-                <Splitter.Panel>
-                  <Splitter style={{ height: '100%' }}>
-                    {/* 下部左侧区域 */}
-                    <Splitter.Panel
-                      defaultSize="50%"
-                      min="30%"
-                      className="lower-left-panel"
-                    >
-                      <SQLQueryArea />
-                    </Splitter.Panel>
+                  {/* 下部区域：水平分为两部分 */}
+                  <Splitter.Panel>
+                    <Splitter style={{ height: '100%' }}>
+                      {/* 下部左侧区域 */}
+                      <Splitter.Panel
+                        defaultSize="50%"
+                        min="30%"
+                        className="lower-left-panel"
+                      >
+                        <SQLQueryArea />
+                      </Splitter.Panel>
 
-                    {/* 下部右侧区域 */}
-                    <Splitter.Panel className="lower-right-panel">
-                      <div className="lower-right-content">
-                        <SQLEditor
-                          value={sqlValue}
-                          onChange={(newValue) => setSqlValue(newValue)}
-                          onExecute={handleQueryResult}
-                        />
-                      </div>
-                    </Splitter.Panel>
-                  </Splitter>
-                </Splitter.Panel>
-              </Splitter>
+                      {/* 下部右侧区域 */}
+                      <Splitter.Panel className="lower-right-panel">
+                        <div className="lower-right-content">
+                          <SQLEditor
+                            value={sqlValue}
+                            onChange={(newValue) => setSqlValue(newValue)}
+                            onExecute={handleQueryResult}
+                          />
+                        </div>
+                      </Splitter.Panel>
+                    </Splitter>
+                  </Splitter.Panel>
+                </Splitter>
+              )}
             </Splitter.Panel>
           </Splitter>
         </Splitter.Panel>

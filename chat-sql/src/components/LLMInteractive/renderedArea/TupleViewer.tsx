@@ -6,6 +6,7 @@ import TableDisplay from './TableDisplay';
 import { useState } from 'react';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Height } from '@mui/icons-material';
 
 export default function TupleViewer() {
   const { llmResult } = useLLMContext();
@@ -71,7 +72,8 @@ export default function TupleViewer() {
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        minHeight: '300px', // 确保有足够的空间显示表格
+         minHeight: '400px', // 确保有足够的空间显示表格
+        // maxHeight: '50px',
       }}>
         <IconButton 
           onClick={handlePrevious}

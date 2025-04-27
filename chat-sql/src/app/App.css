@@ -49,6 +49,20 @@
     overflow-y: auto;
 }
 
+/* 全高度LLM容器样式 */
+.full-height-llm-container {
+    height: 100%;
+    width: 100%;
+    background: #f6f3f3;
+    padding: 1em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 /* 右侧下部左侧区域样式 */
 .lower-left-panel .lower-left-content {
     height: 100%;

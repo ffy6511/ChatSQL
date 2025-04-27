@@ -21,7 +21,13 @@ const HistoryPanel: React.FC = () => {
     refreshRecords
   } = useHistoryRecords();
 
-  const { currentProblemId, setCurrentProblemId, setLLMResult, setShowLLMWindow, showLLMWindow } = useLLMContext();
+  const {
+    currentProblemId,
+    setCurrentProblemId,
+    setLLMResult,
+    setShowLLMWindow,
+    showLLMWindow
+  } = useLLMContext();
 
   // 当选择一个历史记录时
   const handleSelectRecord = async (id: number) => {

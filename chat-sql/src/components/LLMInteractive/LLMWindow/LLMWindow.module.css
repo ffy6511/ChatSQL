@@ -1,43 +1,193 @@
 .container {
-    padding: 24px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    /* max-width: 600px; */
-    margin: 0 auto;
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
 
-  .section {
-    margin-bottom: 24px;
-  }
+.windowContainer {
+  padding: 24px;
+  /* background: #fff; */
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* max-width: 800px; */
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
 
-  .label {
-    font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
-  }
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center; /* 默认竖直居中显示 */
+  gap: 20px; /* 添加间距 */
+  transition: all 0.5s ease;
+}
 
-  .resultBox {
-    background: #f6f8fa;
-    border-radius: 6px;
-    padding: 16px;
-    margin-bottom: 24px;
-    min-height: 80px;
-    border: 1px dashed #d9d9d9;
-    overflow-y: auto;
-    max-height: calc(100vh - 200px);
-  }
+.withResultContent {
+  justify-content: flex-start; /* 有结果时改为从顶部开始 */
+}
 
-  .fixedButtonContainer {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    padding: 16px 0;
-    border-top: 1px solid #f0f0f0;
-    text-align: right;
-    z-index: 10;
-  }
+.withResult {
+  justify-content: flex-start; /* 有结果时改为从顶部开始 */
+}
+
+.headerArea {
+  display: flex;
+  align-items: center !important;
+  justify-content: center!important;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+  text-align: center;
+  width: 100%;
+  transition: all 0.5s ease;
+}
+
+.headerIcon {
+  font-size: 24px;
+  margin-right: 8px;
+  color: #1677ff;
+}
+
+.iconArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0 30px;
+  gap: 30px;
+}
+
+.themeIcon {
+  font-size: 48px;
+  color: #f3e741;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.themeIcon:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.inputArea {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  transition: all 0.5s ease;
+}
+
+.inputAreaWithResult {
+  margin-top: auto; /* 有结果时将输入区域推到底部 */
+}
+
+.textAreaWrapper {
+  position: relative;
+  margin-top: 10px;
+  min-width: 45vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+  justify-content: center;
+}
+
+.textAreaContainer {
+  border-radius: 24px !important;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  padding-right: 60px; /* 为发送按钮留出空间 */
+  min-height: 120px;
+  position: relative;
+  border: 1px solid #e8e8e8;
+  margin-top: auto;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.actionButtonContainer {
+  position: absolute;
+  right: 2em;
+  bottom: 3em;
+  z-index: 2;
+}
+
+.actionButtonContainer button {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.actionButtonContainer button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hiddenPopoverTrigger {
+  display: none;
+}
+
+.resultArea {
+  flex: 1;
+  overflow: auto;
+  margin-top: 16px;
+  padding-top: 16px;
+  max-height: calc(100% - 250px); /* 为输入区域留出空间 */
+}
+
+.chatBubble {
+  background-color: #f6f2f2;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  max-width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+}
+
+/* .chatBubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-bottom-color: #f0f8ff;
+  border-top: 0;
+  margin-top: -10px;
+} */
+
+.resultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
