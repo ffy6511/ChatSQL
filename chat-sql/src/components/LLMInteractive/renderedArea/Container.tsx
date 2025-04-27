@@ -94,7 +94,7 @@ export const Container: React.FC = () => {
         maxWidth: '500px',
         height: '100%',
         backgroundColor: 'transparent',
-        borderRadius: 3,
+        borderRadius: 5,
         overflow: 'auto',
       }}>
         <ProblemViewer />

@@ -212,7 +212,7 @@ const LLMWindow: React.FC = () => {
           {/* 顶部标题区域 */}
           <div className={styles.headerArea}>
             <Typography
-              variant="h5"
+              variant="h4"
               sx={{
                 fontWeight: 'bold',
                 textAlign: 'center',

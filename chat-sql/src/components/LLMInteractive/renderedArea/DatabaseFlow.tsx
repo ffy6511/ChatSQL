@@ -11,12 +11,14 @@ import {
   Controls,
   Handle,
   Position,
+  MarkerType,
+  getBezierPath,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
 
 // 删除原有的类型定义，改为导入
-import { Column, Table, Edge } from '@/types/database';
+import { Column, Table, Edge, CustomEdgeMarker } from '@/types/database';
 
 // 生成随机颜色
 const getRandomColor = () => {
@@ -26,6 +28,50 @@ const getRandomColor = () => {
   return `rgba(${r}, ${g}, ${b}, 0.5)`; // 添加 80% 透明度
 };
 
+// 自定义边组件
+const CustomEdge = ({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = {},
+}: {
+  id: string;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  sourcePosition: Position;
+  targetPosition: Position;
+  style?: React.CSSProperties;
+}) => {
+  const [edgePath] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  return (
+    <path
+      id={id}
+      style={{
+        ...style,
+        strokeWidth: 2,
+        stroke: '#ff9900',
+      }}
+      className="react-flow__edge-path"
+      d={edgePath}
+    />
+  );
+};
+
+// 表节点组件
 const TableNode = ({
   data,
 }: {
@@ -34,46 +80,50 @@ const TableNode = ({
   const headerColorRef = useRef<string | null>(null);
 
   if (headerColorRef.current === null) {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    headerColorRef.current = `rgba(${r}, ${g}, ${b}, 0.5)`;
+    headerColorRef.current = getRandomColor();
   }
 
   return (
     <div className="table-node">
       <div
         className="table-header"
-        style={{ background: headerColorRef.current }}
+        style={{ 
+          background: headerColorRef.current,
+          textAlign: 'center',
+          padding: '12px 8px',
+          fontSize: '1.1em',
+          fontWeight: 'bold'
+        }}
       >
         {data.tableName}
       </div>
       <div className="table-content">
         {data.columns.map((col, index) => (
-          <div key={index}>
-            <div className="column-row">
+          <div key={index} className="column-row">
+            {/* 外键列在左侧添加连接点 */}
+            {col.foreignKeyRefs && (
               <Handle
                 type="source"
                 position={Position.Left}
-                id={col.name}
-                className="handle"
+                id={`${col.name}`}
+                className="foreign-key-handle"
               />
-              <span className="column-name">{col.name}</span>
-              <div className="column-info">
-                <span className="column-type">{col.type}</span>
-                {col.isPrimary && <span style={{ marginLeft: "5px" }}></span>}
-                {col.foreignKeyRefs && col.foreignKeyRefs.length > 0 && (
-                  <span style={{ marginLeft: "5px" }}>(FK)</span>
-                )}
-              </div>
+            )}
+            <span className="column-name">{col.name}</span>
+            <div className="column-info">
+              <span className="column-type">{col.type}</span>
+              {col.isPrimary && <span className="primary-key-badge">PK</span>}
+              {col.foreignKeyRefs && <span className="foreign-key-badge">FK</span>}
+            </div>
+            {/* 主键列在右侧添加连接点 */}
+            {col.isPrimary && (
               <Handle
                 type="target"
                 position={Position.Right}
-                id={col.name}
-                className="handle"
+                id={`${col.name}`}
+                className="primary-key-handle"
               />
-            </div>
-            <hr className="column-divider" />
+            )}
           </div>
         ))}
       </div>
@@ -81,35 +131,29 @@ const TableNode = ({
   );
 };
 
-// 定义节点类型
-const nodeTypes = {
-  table: TableNode,
-};
+// 注册自定义组件
+const nodeTypes = { table: TableNode };
+const edgeTypes = { custom: CustomEdge };
 
-
-
-// 根据表数据自动生成边
+// 生成边
 const generateEdges = (tables: Table[]): Edge[] => {
   const edges: Edge[] = [];
-  tables.forEach((table) => {
-    table.columns.forEach((col) => {
+  tables.forEach((sourceTable) => {
+    sourceTable.columns.forEach((col) => {
       if (col.foreignKeyRefs) {
         col.foreignKeyRefs.forEach((ref) => {
-          // 反转 source 和 target
           edges.push({
-            id: `e${table.id}-${ref.tableId}-${col.name}`, // 修改 id
-            source: table.id, // 引用表
-            target: ref.tableId, // 被引用表
-            sourceHandle: col.name, // 外键字段
-            targetHandle: ref.columnName, // 主键字段
-            type: "smoothstep",
-            label: ``,
-            markerEnd: {
-              type: "arrowclosed",
-              width: 20,
-              height: 20,
-              color: "#777",
-            },
+            id: `${sourceTable.id}-${ref.tableId}-${col.name}`,
+            source: sourceTable.id,
+            target: ref.tableId,
+            sourceHandle: col.name,
+            targetHandle: ref.columnName,
+            type: 'custom',
+            animated: false,
+            style: {
+              stroke: '#ff9900',
+              strokeWidth: 2
+            }
           });
         });
       }
@@ -127,75 +171,77 @@ interface DatabaseFlowProps {
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   // 初始化空节点和边，稍后在 useEffect 中更新
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edgesState, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // 当 tables 变化时更新节点和边
+  // 添加布局初始化
   useEffect(() => {
     if (tables && tables.length > 0) {
-      console.log('Tables changed, updating nodes and edges:', tables);
-
-      // 更新节点
-      const newNodes = tables.map((table) => ({
+      // 为每个表生成一个基础位置
+      const newNodes = tables.map((table, index) => ({
         id: table.id,
         type: "table",
-        position: table.position,
+        // 如果没有预设位置，则按网格布局排列
+        position: table.position || {
+          x: (index % 3) * 350 + 50,  // 每行3个表
+          y: Math.floor(index / 3) * 350 + 50
+        },
         data: {
           tableName: table.tableName,
           columns: table.columns,
           isReferenced: table.isReferenced,
         },
+        draggable: true,
       }));
 
-      // 更新边
       const newEdges = generateEdges(tables);
-
+      
       setNodes(newNodes);
       setEdges(newEdges);
     }
   }, [tables, setNodes, setEdges]);
 
-  const onConnect = useCallback(
-    (params: any) => {
-      setEdges((eds) => [
-        ...eds,
-        {
-          id: `e${params.source}-${params.target}`,
-          source: params.source,
-          target: params.target,
-          sourceHandle: params.sourceHandle,
-          targetHandle: params.targetHandle,
-          type: "smoothstep",
-          label: ``,
-          markerEnd: {
-            type: "arrowclosed",
-            width: 20,
-            height: 20,
-            color: "#777",
-          },
-        },
-      ]);
-    },
-    [setEdges]
-  );
-
   return (
     <div className="database-flow-container" style={styles}>
       <ReactFlow
         nodes={nodes}
-        edges={edgesState}
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         minZoom={0.2}
         maxZoom={2}
-        fitViewOptions={{ padding: 0.2, includeHiddenNodes: false }}
+        fitViewOptions={{ padding: 0.2 }}
+        nodesDraggable={true}
+        elementsSelectable={true}
+        connectionLineType="smoothstep"
+        defaultEdgeOptions={{
+          type: 'custom',
+          animated: false,
+          style: { 
+            stroke: '#ff9900', 
+            strokeWidth: 2
+          }
+        }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <MiniMap />
-        <Controls className="flow-controls" />
+        <Controls
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '8px',
+            padding: '4px',
+            backgroundColor: 'white',
+            borderRadius: '4px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+          showZoom={true}
+          showFitView={true}
+          showInteractive={true}
+          position="bottom-right"
+        />
       </ReactFlow>
     </div>
   );

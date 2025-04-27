@@ -3,60 +3,64 @@ import { InputColumn, InputForeignKey, InputTable, Table } from '@/types/databas
 
   // 将 JSON 数组转换为 Table 数组的函数
   export const parseJSONToTables = (jsonTables: InputTable[]): Table[] => {
-    // 创建表名到 ID 的映射
     const tableNameToId: Map<string, string> = new Map();
     const tables: Table[] = [];
-  
-    // 第一步：生成基本表结构并分配 ID
+
+    // 第一步：建立表名到ID的映射
     jsonTables.forEach((inputTable, index) => {
-      const tableId = `${index + 1}`;
+      const tableId = `table-${index}`;
       tableNameToId.set(inputTable.tableName, tableId);
-  
+    });
+
+    // 第二步：创建基本表结构
+    jsonTables.forEach((inputTable, index) => {
+      const tableId = tableNameToId.get(inputTable.tableName)!;
+      
       tables.push({
         id: tableId,
         tableName: inputTable.tableName,
-        position: { x: index * 300, y: 0 }, // 简单水平排列
+        position: { x: index * 350, y: 100 },
         columns: inputTable.columns.map((col) => ({
           name: col.name,
           type: col.type,
           isPrimary: col.isPrimary,
+          foreignKeyRefs: undefined  // 初始化为 undefined
         })),
-        isReferenced: false, // 初始设为 false，后面根据外键更新
+        isReferenced: false
       });
     });
-  
-    // 第二步：处理外键关系
-    jsonTables.forEach((inputTable, index) => {
-      const currentTable = tables[index];
-  
+
+    // 第三步：处理外键关系
+    jsonTables.forEach((inputTable) => {
       if (inputTable.foreignKeys) {
         inputTable.foreignKeys.forEach((fk) => {
-          // 找到对应的列
-          const column = currentTable.columns.find(
-            (col) => col.name === fk.column
-          );
-          if (column) {
-            const refTableId = tableNameToId.get(fk.references.table);
-            if (refTableId) {
-              // 添加外键引用
-              column.foreignKeyRefs = [
-                {
-                  tableId: refTableId,
-                  columnName: fk.references.column,
-                },
-              ];
-  
-              // 更新被引用的表的状态
-              const referencedTable = tables.find((t) => t.id === refTableId);
-              if (referencedTable) {
-                referencedTable.isReferenced = true;
+          const sourceTableId = tableNameToId.get(fk.fromTable);
+          const targetTableId = tableNameToId.get(fk.toTable);
+          
+          if (sourceTableId && targetTableId) {
+            // 找到源表和源列
+            const sourceTable = tables.find(t => t.id === sourceTableId);
+            if (sourceTable) {
+              const sourceColumn = sourceTable.columns.find(c => c.name === fk.fromColumn);
+              if (sourceColumn) {
+                // 设置外键引用
+                sourceColumn.foreignKeyRefs = [{
+                  tableId: targetTableId,  // 使用 tableId 而不是 tableName
+                  columnName: fk.toColumn
+                }];
               }
+            }
+
+            // 标记目标表为被引用
+            const targetTable = tables.find(t => t.id === targetTableId);
+            if (targetTable) {
+              targetTable.isReferenced = true;
             }
           }
         });
       }
     });
-  
+
     return tables;
   };
   

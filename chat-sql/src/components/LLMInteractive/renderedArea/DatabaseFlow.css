@@ -1,68 +1,113 @@
 .database-flow-container {
   width: 100%;
   height: 100vh;
-  background-color: #d5d4d4;
+  background-color: #f0eaea;
 }
 
 .table-node {
-  border: 1px solid #777;
-  border-radius: 5px;
-  background: #fff;
-  width: 250px;
-  font-family: Arial, sans-serif;
-  color: #333;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 200px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .table-header {
-  padding: 5px;
+  padding: 12px 8px;
   font-weight: bold;
+  border-bottom: 1px solid #ccc;
   text-align: center;
-  border-bottom: 1px solid #777;
-  color: #fff;
+  font-size: 1.1em;
 }
 
 .table-content {
-  padding: 5px;
+  padding: 8px;
 }
 
 .column-row {
-  margin: 5px 0;
+  position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  padding: 8px;
+  gap: 8px;
+}
+
+.column-name {
+  flex: 1;
+  margin-left: 16px;
+  font-weight: 500;
 }
 
 .column-info {
   display: flex;
+  gap: 8px;
   align-items: center;
-}
-
-.column-name {
-  color: #2c3e50;
-  font-weight: 500;
+  margin-left: auto;
 }
 
 .column-type {
-  margin-left: 5px;
-  color: #7f8c8d;
+  color: #666;
   font-size: 0.9em;
 }
 
-.column-divider {
-  border: none;
-  border-top: 1px dashed #777;
-  width: 90%;
-  margin: 5px auto 0;
+.primary-key-badge {
+  background: #eb8a75;
+  color: #232323;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
-.handle {
-  background: transparent;
-  border: none;
+.foreign-key-badge {
+  background: #f0ad48;
+  color: #4b4848;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
-.flow-controls {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  z-index: 4;
-} 
+.foreign-key-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: #ff9900 !important;
+  border: 2px solid white !important;
+}
+
+.primary-key-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: #ffd700 !important;
+  border: 2px solid white !important;
+}
+
+/* 基础层级设置 */
+.react-flow__renderer {
+  z-index: 0;
+}
+
+.react-flow__edge {
+  z-index: 1 !important;
+}
+
+.react-flow__node {
+  z-index: 2 !important;
+}
+
+.react-flow__handle {
+  z-index: 3 !important;
+}
+
+.react-flow__controls {
+  z-index: 4 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px !important;
+}
+
+.react-flow__edge-path {
+  stroke: #ff9900;
+  stroke-width: 2;
+}

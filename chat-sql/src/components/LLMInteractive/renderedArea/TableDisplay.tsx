@@ -20,15 +20,18 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
         headerAlign: 'center',
       }))
     : [];
-  
+
   const rows: GridRowsProp = tableInfo.tupleData.map((row, idx) => ({ id: idx, ...row }));
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       width: '100%',
-      height: '100%',
+      height: 'auto', // 改为自适应高度
       overflow: 'hidden',
+      borderRadius: '0 0 8px 8px', // 添加底部圆角
+      border: '1px solid #e0e0e0', // 添加边框
+      borderTop: 'none', // 移除顶部边框，与表名区域连接
     }}>
       <DataGrid
         rows={rows}
@@ -37,12 +40,30 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[5, 10, 20]}
+        // 设置固定高度
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 5, page: 0 },
+          },
+        }}
         sx={{
           border: 'none',
           '.MuiDataGrid-cell': {
             borderColor: 'divider',
           },
-          height: '100%',
+          height: '350px', // 设置固定高度
+          '& .MuiDataGrid-main': {
+            // 确保表格内容区域正确显示
+            overflow: 'auto',
+          },
+          '& .MuiDataGrid-virtualScroller': {
+            // 确保虚拟滚动区域正确显示
+            overflow: 'auto',
+          },
+          '& .MuiDataGrid-footerContainer': {
+            // 确保页脚区域正确显示
+            borderTop: '1px solid #e0e0e0',
+          },
         }}
         disableRowSelectionOnClick
       />
