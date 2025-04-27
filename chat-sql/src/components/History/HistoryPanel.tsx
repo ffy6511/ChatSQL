@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, List, Empty, Spin, Typography, Badge, Button, Tooltip } from 'antd';
 import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
@@ -9,10 +9,12 @@ import { useCompletionContext } from '@/contexts/CompletionContext';
 import { useEditorContext } from '@/contexts/EditorContext';
 import HistoryItem from './HistoryItem';
 import styles from './HistoryPanel.module.css';
+import SearchBar from './SearchBar';
 
 const { Title } = Typography;
 
 const HistoryPanel: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   const {
     recentRecords,
     favoriteRecords,
@@ -75,6 +77,14 @@ const HistoryPanel: React.FC = () => {
     refreshRecords();
   }, [refreshRecords, currentProblemId]);
 
+  // 过滤记录的函数
+  const filterRecords = (records: any[]) => {
+    if (!searchQuery) return records;
+    return records.filter(record => 
+      record.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   const renderList = (records: any[]) => {
     if (loading) {
       return <Spin className={styles.spinner} />;
@@ -107,13 +117,12 @@ const HistoryPanel: React.FC = () => {
     <div className={styles.historyPanel}>
       <div className={styles.headerContainer}>
         <div className={styles.headerLeft}>
-          {/* <HistoryOutlined className={styles.headerIcon} /> */}
           <div className={styles.title}>历史记录</div>
         </div>
+        <SearchBar onSearch={setSearchQuery} />
         <Tooltip title="新建对话">
           <Button
             type="primary"
-            // shape="circle"
             icon={<PlusCircleOutlined />}
             className={styles.newChatButton}
             onClick={() => {
@@ -134,14 +143,14 @@ const HistoryPanel: React.FC = () => {
                 <ClockCircleOutlined />
                 最近
                 <Badge
-                  count={recentRecords.length}
+                  count={filterRecords(recentRecords).length}
                   className={styles.countBadge}
                   size="small"
                   style={{ backgroundColor: '#52c41a' }}
                 />
               </span>
             ),
-            children: renderList(recentRecords),
+            children: renderList(filterRecords(recentRecords))
           },
           {
             key: 'favorite',
@@ -150,14 +159,14 @@ const HistoryPanel: React.FC = () => {
                 <HeartOutlined />
                 收藏
                 <Badge
-                  count={favoriteRecords.length}
+                  count={filterRecords(favoriteRecords).length}
                   className={styles.countBadge}
                   size="small"
                   style={{ backgroundColor: '#faad14' }}
                 />
               </span>
             ),
-            children: renderList(favoriteRecords),
+            children: renderList(filterRecords(favoriteRecords))
           },
         ]}
       />

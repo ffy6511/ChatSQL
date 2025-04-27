@@ -9,7 +9,8 @@ import {
   TagOutlined,
   BarChartOutlined,
   NumberOutlined,
-  RobotOutlined
+  RobotOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
 import LLMResultView from '@/lib/LLMResultView';
@@ -23,6 +24,7 @@ import {
 } from '@mui/material';
 import { useEditorContext } from '@/contexts/EditorContext';
 import ShinyText from '@/components/utils/ShinyText';
+import { useTagsManager } from '@/hooks/useTagsManager';
 
 const initialTags = [
   { label: '算法', color: 'magenta' },
@@ -36,9 +38,11 @@ const difficultyOptions = [
   { label: '困难', value: 'hard' },
 ];
 
+
 const LLMWindow: React.FC = () => {
   const { setShowLLMWindow, setLLMResult, setCurrentProblemId } = useLLMContext();
   const { clearEditor } = useEditorContext();
+  const { tags, addTag, deleteTag } = useTagsManager();
 
   const [checkedTags, setCheckedTags] = useState<string[]>([]);
   const [declare, setDeclare] = useState('');
@@ -52,6 +56,9 @@ const LLMWindow: React.FC = () => {
   const [tagsPopoverOpen, setTagsPopoverOpen] = useState(false);
   const [difficultyPopoverOpen, setDifficultyPopoverOpen] = useState(false);
   const [countPopoverOpen, setCountPopoverOpen] = useState(false);
+
+  // 添加新状态用于管理新标签输入
+  const [newTagInput, setNewTagInput] = useState('');
 
   useEffect(() => {
     if (result?.data?.outputs) {
@@ -140,27 +147,56 @@ const LLMWindow: React.FC = () => {
   // 标签选择弹出框内容
   const tagsPopoverContent = (
     <div style={{ padding: '16px', width: 300 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择标签</Typography>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-        {initialTags.map(tag => (
-          <Tag.CheckableTag
-            key={tag.label}
-            checked={checkedTags.includes(tag.label)}
-            onChange={checked => handleTagCheck(tag.label, checked)}
-            style={{
-              borderColor: tag.color,
-              color: checkedTags.includes(tag.label) ? '#fff' : tag.color,
-              background: checkedTags.includes(tag.label) ? tag.color : 'transparent',
-              marginBottom: '8px',
-              borderRadius: '4px',
-              transition: 'all 0.3s',
-              padding: '4px 8px',
-              cursor: 'pointer',
-            }}
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+        选择标签
+      </Typography>
+      
+      <div className={styles.tagContainer}>
+        {Object.entries(tags).map(([tag, color]) => (
+          <Tag
+            key={tag}
+            className={`${styles.tag} ${checkedTags.includes(tag) ? styles.checked : ''}`}
+            closable={false}
+            style={checkedTags.includes(tag) ? { backgroundColor: color, borderColor: color } : {}}
+            onClick={() => handleTagCheck(tag, !checkedTags.includes(tag))}
           >
-            {tag.label}
-          </Tag.CheckableTag>
+            {tag}
+            <CloseOutlined
+              className={styles.closeBtn}
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteTag(tag);
+              }}
+            />
+          </Tag>
         ))}
+      </div>
+
+      <div className={styles.tagInputContainer}>
+        <Input
+          className={styles.tagInput}
+          placeholder="输入新标签"
+          value={newTagInput}
+          onChange={e => setNewTagInput(e.target.value)}
+          onPressEnter={() => {
+            if (newTagInput.trim()) {
+              addTag(newTagInput.trim());
+              setNewTagInput('');
+            }
+          }}
+        />
+        <Button 
+          type="primary"
+          onClick={() => {
+            if (newTagInput.trim()) {
+              addTag(newTagInput.trim());
+              setNewTagInput('');
+            }
+          }}
+          disabled={!newTagInput.trim()}
+        >
+          添加
+        </Button>
       </div>
     </div>
   );

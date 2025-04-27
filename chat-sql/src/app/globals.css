@@ -24,3 +24,26 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* 全局快捷键提示样式 */
+.shortcut-tooltip {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.shortcut-icon {
+  font-size: 1em !important;
+  margin-left: 4px;
+  margin-right: 2px;
+}
+
+.shortcut-plus {
+  margin: 0 2px;
+}
+
+.shortcut-tooltip .shortcut-plus {
+  margin: 0 2px;
+  opacity: 0.7;
+}

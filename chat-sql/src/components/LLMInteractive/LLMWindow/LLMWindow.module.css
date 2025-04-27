@@ -191,3 +191,50 @@
   align-items: center;
   margin-bottom: 16px;
 }
+
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.tag {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 10px !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  background: #fff!important;
+}
+
+.tag.checked {
+  color: #373636 !important;
+  font-weight: bold;
+  background: #f5f2f2 !important;
+}
+
+.closeBtn {
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 10px;
+}
+
+.tag:hover .closeBtn {
+  opacity: 1;
+}
+
+.tagInputContainer {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+}
+
+.tagInput {
+  flex: 1;
+}
