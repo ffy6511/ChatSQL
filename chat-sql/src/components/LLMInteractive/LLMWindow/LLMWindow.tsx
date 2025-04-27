@@ -21,6 +21,7 @@ import {
   Typography,
   Stack
 } from '@mui/material';
+import { useEditorContext } from '@/contexts/EditorContext';
 import ShinyText from '@/components/utils/ShinyText';
 
 const initialTags = [
@@ -37,6 +38,7 @@ const difficultyOptions = [
 
 const LLMWindow: React.FC = () => {
   const { setShowLLMWindow, setLLMResult, setCurrentProblemId } = useLLMContext();
+  const { clearEditor } = useEditorContext();
 
   const [checkedTags, setCheckedTags] = useState<string[]>([]);
   const [declare, setDeclare] = useState('');
@@ -121,6 +123,7 @@ const LLMWindow: React.FC = () => {
       const savedId = await storeProblem(result.data.outputs);
 
       setCurrentProblemId(savedId);
+      clearEditor();
 
       // 更新上下文并关闭窗口
       console.log('Setting context...', { result, savedId });

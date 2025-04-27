@@ -5,6 +5,8 @@ import { Tabs, List, Empty, Spin, Typography, Badge, Button, Tooltip } from 'ant
 import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 import { useLLMContext } from '@/contexts/LLMContext';
+import { useCompletionContext } from '@/contexts/CompletionContext';
+import { useEditorContext } from '@/contexts/EditorContext';
 import HistoryItem from './HistoryItem';
 import styles from './HistoryPanel.module.css';
 
@@ -29,6 +31,9 @@ const HistoryPanel: React.FC = () => {
     showLLMWindow
   } = useLLMContext();
 
+  const { resetCompletion } = useCompletionContext();  // 获取重置方法
+  const { clearEditor } = useEditorContext();  // 引入 clearEditor
+
   // 当选择一个历史记录时
   const handleSelectRecord = async (id: number) => {
     try {
@@ -41,6 +46,8 @@ const HistoryPanel: React.FC = () => {
 
         // 更新上下文
         setCurrentProblemId(id);
+        resetCompletion();  // 重置完成状态
+        clearEditor();      // 清空编辑器内容
 
         // 构造 DifyResponse 格式的数据
         const difyResponse = {

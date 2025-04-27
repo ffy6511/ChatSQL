@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Splitter } from 'antd';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
@@ -10,6 +10,7 @@ import { useLLMContext } from '@/contexts/LLMContext';
 import HistoryPanel from '@/components/History/HistoryPanel';
 import SideBar from '@/components/SideBar';
 import { useQueryContext } from '@/contexts/QueryContext';
+import { useEditorContext } from '@/contexts/EditorContext';
 import QueryResultTable from '@/components/codeEditing/QueryResultTable';
 import EmptyQueryState from '@/components/codeEditing/EmptyQueryState';
 
@@ -29,7 +30,7 @@ const SQLQueryArea: React.FC = () => {
 
 const Page: React.FC = () => {
   const { showLLMWindow } = useLLMContext();
-  const [sqlValue, setSqlValue] = useState(''); // 添加状态管理
+  const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
 
   // 添加查询结果处理函数
   const handleQueryResult = (data: any) => {
@@ -103,8 +104,6 @@ const Page: React.FC = () => {
                       <Splitter.Panel className="lower-right-panel">
                         <div className="lower-right-content">
                           <SQLEditor
-                            value={sqlValue}
-                            onChange={(newValue) => setSqlValue(newValue)}
                             onExecute={handleQueryResult}
                           />
                         </div>

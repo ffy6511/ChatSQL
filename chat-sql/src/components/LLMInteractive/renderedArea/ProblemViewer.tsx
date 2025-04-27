@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useLLMContext } from '@/contexts/LLMContext';
@@ -10,14 +10,16 @@ const ProblemViewer: React.FC = () => {
   const { llmResult } = useLLMContext();
   const { completedProblems } = useCompletionContext();
   
-  console.log('ProblemViewer state:', {
-    completedProblems: Array.from(completedProblems),
-    problem: llmResult?.data?.outputs?.problem,
-    expectedResults: llmResult?.data?.outputs?.expected_result
-  });
+  // 使用 useMemo 缓存数据，避免不必要的重新计算
+  const problem = useMemo(() => llmResult?.data?.outputs?.problem || [], [llmResult?.data?.outputs?.problem]);
+  const description = useMemo(() => llmResult?.data?.outputs?.description || '', [llmResult?.data?.outputs?.description]);
 
-  const problem = llmResult?.data?.outputs?.problem || [];
-  const description = llmResult?.data?.outputs?.description || '';
+  // 移除调试日志
+  // console.log('ProblemViewer state:', {
+  //   completedProblems: Array.from(completedProblems),
+  //   problem: llmResult?.data?.outputs?.problem,
+  //   expectedResults: llmResult?.data?.outputs?.expected_result
+  // });
 
   return (
     <Box sx={{ 

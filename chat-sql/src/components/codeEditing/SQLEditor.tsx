@@ -10,6 +10,7 @@ import { PlayArrow, KeyboardCommandKey, KeyboardReturn } from '@mui/icons-materi
 import { message as antdMessage } from 'antd';
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useQueryContext } from '@/contexts/QueryContext';
+import { useEditorContext } from '@/contexts/EditorContext';
 
 interface SQLEditorProps {
   value?: string;
@@ -19,7 +20,7 @@ interface SQLEditorProps {
 }
 
 const SQLEditor: React.FC<SQLEditorProps> = ({
-  value, // 移除默认值，让它由父组件控制
+  value,
   onChange,
   onExecute,
   height = "100%"
@@ -29,7 +30,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   const [queryEngine, setQueryEngine] = useState<SQLQueryEngine | null>(null);
   const [error, setError] = useState<string>('');
   const [hasTransaction, setHasTransaction] = useState(false);
-  const [editorValue, setEditorValue] = useState(value || ''); // 添加本地状态
+  const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
   const { setQueryResult } = useQueryContext();
 
   // 当表结构变化时，重新加载编辑器以更新自动补全
@@ -44,8 +45,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
   // 当外部value改变时更新编辑器内容
   useEffect(() => {
-    if (value !== undefined) {
-      setEditorValue(value);
+    if (value !== undefined && value !== sqlEditorValue) {
+      setSqlEditorValue(value);
     }
   }, [value]);
 
@@ -69,8 +70,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     }
 
     try {
-      console.log('[SQLEditor] Executing query:', editorValue);
-      const result = queryEngine.executeQuery(editorValue);
+      console.log('[SQLEditor] Executing query:', sqlEditorValue);
+      const result = queryEngine.executeQuery(sqlEditorValue);
       console.log('[SQLEditor] Query result:', result);
 
       if (result.success) {
@@ -89,7 +90,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
       console.error('[SQLEditor] Error:', err);
       setError(err instanceof Error ? err.message : '查询执行失败');
     }
-  }, [queryEngine, editorValue, setError, setQueryResult, onExecute, messageApi]);
+  }, [queryEngine, sqlEditorValue, setError, setQueryResult, onExecute, messageApi]);
 
   // 保存自动补全提供器的引用，以便在需要时取消注册
   const completionProviderRef = useRef<any>(null);
@@ -158,10 +159,10 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
   const handleChange = useCallback((newValue: string | undefined) => {
     if (newValue !== undefined) {
-      setEditorValue(newValue);
+      setSqlEditorValue(newValue);
       onChange?.(newValue);
     }
-  }, [onChange]);
+  }, [onChange, setSqlEditorValue]);
 
   // 保存编辑器实例的引用
   const editorRef = useRef<any>(null);
@@ -187,8 +188,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
             return;
           }
 
-          // 更新editorValue状态
-          setEditorValue(currentValue);
+          // 更新编辑器状态
+          setSqlEditorValue(currentValue);
 
           // 使用当前编辑器内容执行查询
           try {
@@ -214,7 +215,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     );
 
     // 可以在这里添加更多的键盘快捷键
-  }, [queryEngine, setEditorValue, setQueryResult, onExecute, setError, messageApi]);
+  }, [queryEngine, setSqlEditorValue, setQueryResult, onExecute, setError, messageApi]);
 
   return (
     <div className="sql-editor-container">
@@ -247,8 +248,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
                     return;
                   }
 
-                  // 更新editorValue状态
-                  setEditorValue(currentValue);
+                  // 更新编辑器状态
+                  setSqlEditorValue(currentValue);
 
                   // 使用当前编辑器内容执行查询
                   try {
@@ -332,7 +333,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
         className="sql-editor"
         height={height}
         defaultLanguage="sql"
-        value={editorValue} // 使用本地状态而不是props直接传入
+        value={sqlEditorValue} // 使用EditorContext而不是本地状态
         theme="vs-dark"
         options={{
           automaticLayout: true,

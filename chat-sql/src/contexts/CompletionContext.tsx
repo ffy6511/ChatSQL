@@ -4,11 +4,14 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { areResultsEqual } from '@/lib/resultComparator';
 import { useLLMContext } from './LLMContext';
 import { useQueryContext } from './QueryContext';
+import { useEditorContext } from './EditorContext';
+import { TableTuple } from '@/types/dify';
 
 interface CompletionContextType {
   completedProblems: Set<number>;
   setCompletedProblems: React.Dispatch<React.SetStateAction<Set<number>>>;
   checkQueryResult: () => void;
+  resetCompletion: () => void;
 }
 
 const CompletionContext = createContext<CompletionContextType | null>(null);
@@ -23,30 +26,24 @@ export const useCompletionContext = () => {
 
 export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [completedProblems, setCompletedProblems] = useState<Set<number>>(new Set());
-  const { llmResult } = useLLMContext();
-  const { queryResult } = useQueryContext(); // 添加这行，使用 QueryContext
+  const { llmResult, currentProblemId } = useLLMContext();
+  const { queryResult } = useQueryContext();
+  
+  // 移除 clearEditor 的依赖，避免循环依赖
+  const resetCompletion = useCallback(() => {
+    setCompletedProblems(new Set());
+  }, []);
 
   const checkQueryResult = useCallback(() => {
-    console.log('[CompletionProvider] Checking results:', {
-      queryResult,
-      expectedResults: llmResult?.data?.outputs?.expected_result
-    });
-
     if (!queryResult || !llmResult?.data?.outputs?.expected_result) {
-      console.log('[CompletionProvider] Missing query result or expected results');
       return;
     }
 
     llmResult.data.outputs.expected_result.forEach((expected: TableTuple, index: number) => {
-      if (!expected.tupleData) {
-        console.log(`[CompletionProvider] Invalid expected result at index ${index}`);
-        return;
-      }
+      if (!expected.tupleData) return;
 
       try {
         const isMatch = areResultsEqual(queryResult, expected.tupleData);
-        console.log(`[CompletionProvider] Comparison result for index ${index}:`, isMatch);
-        
         if (isMatch) {
           setCompletedProblems(prev => {
             const newSet = new Set(prev);
@@ -55,23 +52,24 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           });
         }
       } catch (error) {
-        console.error(`[CompletionProvider] Error comparing results:`, error);
+        console.error(`Error comparing results:`, error);
       }
     });
-  }, [queryResult, llmResult]); // 依赖项更新
+  }, [queryResult, llmResult]);
 
-  // 当 queryResult 变化时自动触发比较
+  // 只在问题ID变化时重置完成状态
   useEffect(() => {
-    if (queryResult) {
-      checkQueryResult();
+    if (currentProblemId !== null) {
+      resetCompletion();
     }
-  }, [queryResult, checkQueryResult]);
+  }, [currentProblemId, resetCompletion]);
 
   return (
     <CompletionContext.Provider value={{
       completedProblems,
       setCompletedProblems,
       checkQueryResult,
+      resetCompletion,
     }}>
       {children}
     </CompletionContext.Provider>
