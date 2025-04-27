@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LLMProvider } from "@/contexts/LLMContext";
 import { QueryProvider } from "@/contexts/QueryContext";
+import { CompletionProvider } from "@/contexts/CompletionContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,18 +22,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <LLMProvider>
-        <QueryProvider>
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-            {children}
-          </body>
-        </QueryProvider>
-      </LLMProvider>
+      <body>
+        <LLMProvider>
+          <QueryProvider>
+            <CompletionProvider>
+              {children}
+            </CompletionProvider>
+          </QueryProvider>
+        </LLMProvider>
+      </body>
     </html>
   );
 }

@@ -25,7 +25,7 @@ export function evaluateWhereClause(row: any, where: any): boolean {
 export function evaluateCondition(row: any, condition: any): boolean {
   if (!condition) return true;
   
-  console.log('Evaluating condition:', condition); // 调试日志
+  console.log('Evaluating condition:', condition);
   
   // 处理逻辑运算符的特殊情况
   if (condition.operator === 'AND' || condition.operator === 'OR') {
@@ -38,7 +38,13 @@ export function evaluateCondition(row: any, condition: any): boolean {
   if (condition.type === 'binary_expr') {
     const leftValue = evaluateExpression(condition.left, row);
     const rightValue = evaluateExpression(condition.right, row);
-    console.log('Binary expression values:', { leftValue, operator: condition.operator, rightValue });
+    console.log('Binary expression values:', { 
+      leftValue, 
+      operator: condition.operator, 
+      rightValue,
+      leftExpr: condition.left,
+      rightExpr: condition.right
+    });
     return evaluateComparison(leftValue, condition.operator, rightValue);
   }
 
@@ -82,7 +88,7 @@ export function evaluateComparison(left: any, operator: string, right: any): boo
 export function evaluateExpression(expr: any, row?: any): any {
   if (!expr) return null;
   
-  console.log('Evaluating expression:', expr); // 调试日志
+  console.log('Evaluating expression:', expr);
   
   if (expr.type === 'column_ref') {
     const value = row[expr.column];
@@ -90,12 +96,15 @@ export function evaluateExpression(expr: any, row?: any): any {
     return value;
   }
   
-  if (expr.type === 'number') {
-    return Number(expr.value);
+  if (expr.type === 'string') {
+    // 确保移除引号
+    const value = expr.value.replace(/^['"]|['"]$/g, '');
+    console.log('String value:', value);
+    return value;
   }
   
-  if (expr.type === 'string') {
-    return String(expr.value);
+  if (expr.type === 'number') {
+    return Number(expr.value);
   }
   
   if (expr.type === 'bool') {
@@ -120,14 +129,48 @@ export function evaluateExpression(expr: any, row?: any): any {
  * @returns 布尔值，表示是否匹配
  */
 export function evaluateLike(value: string, pattern: string): boolean {
+  console.log('Evaluating LIKE:', { value, pattern });
+
   if (typeof value !== 'string' || typeof pattern !== 'string') {
+    console.log('Invalid types for LIKE:', { 
+      valueType: typeof value, 
+      patternType: typeof pattern,
+      value,
+      pattern
+    });
     return false;
   }
-  // 将SQL LIKE模式转换为正则表达式
-  const regexPattern = pattern
-    .replace(/%/g, '.*')
-    .replace(/_/g, '.')
-    .replace(/[\[\]\(\)\{\}\^\$\+\*\?\|\\]/g, '\\$&');
-  const regex = new RegExp(`^${regexPattern}$`, 'i');
-  return regex.test(value);
+
+  try {
+    // 将SQL LIKE模式转换为正则表达式
+    let regexPattern = pattern
+      .replace(/%/g, '.*')     // % 匹配任意字符序列
+      .replace(/_/g, '.');     // _ 匹配单个字符
+
+    // 转义特殊字符，但保留已转换的 .* 和 .
+    regexPattern = regexPattern
+      .split('.*').map(part => 
+        part.split('.').map(subPart => 
+          subPart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        ).join('.')
+      ).join('.*');
+
+    console.log('Converted regex pattern:', regexPattern);
+    
+    // 使用 RegExp 构造函数，不添加 ^ 和 $，允许部分匹配
+    const regex = new RegExp(regexPattern);
+    const result = regex.test(value);
+    
+    console.log('LIKE evaluation result:', {
+      value,
+      pattern,
+      regexPattern,
+      result
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('Error in LIKE evaluation:', error);
+    return false;
+  }
 }

@@ -69,16 +69,15 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     }
 
     try {
-      console.log('Current queryEngine state:', {
-        engineExists: !!queryEngine,
-        tables: queryEngine['tables'] // 添加调试信息
-      });
-
+      console.log('[SQLEditor] Executing query:', editorValue);
       const result = queryEngine.executeQuery(editorValue);
+      console.log('[SQLEditor] Query result:', result);
+
       if (result.success) {
         if (result.data) {
-          setQueryResult(result.data); // 使用上下文存储结果
-          onExecute?.(result.data);
+          console.log('[SQLEditor] Setting query result to context:', result.data);
+          setQueryResult(result.data);  // 设置到 context
+          onExecute?.(result.data);     // 可选的回调
         }
         if (result.message) {
           messageApi.success(result.message);
@@ -87,6 +86,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
         setError(result.message || '查询执行失败');
       }
     } catch (err) {
+      console.error('[SQLEditor] Error:', err);
       setError(err instanceof Error ? err.message : '查询执行失败');
     }
   }, [queryEngine, editorValue, setError, setQueryResult, onExecute, messageApi]);

@@ -1,13 +1,21 @@
 'use client'
 
 import React from 'react';
-import { Box, Typography, Paper, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Typography, Paper, List, ListItem, ListItemText } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useLLMContext } from '@/contexts/LLMContext';
+import { useCompletionContext } from '@/contexts/CompletionContext';
 
 const ProblemViewer: React.FC = () => {
   const { llmResult } = useLLMContext();
+  const { completedProblems } = useCompletionContext();
+  
+  console.log('ProblemViewer state:', {
+    completedProblems: Array.from(completedProblems),
+    problem: llmResult?.data?.outputs?.problem,
+    expectedResults: llmResult?.data?.outputs?.expected_result
+  });
+
   const problem = llmResult?.data?.outputs?.problem || [];
   const description = llmResult?.data?.outputs?.description || '';
 
@@ -78,11 +86,31 @@ const ProblemViewer: React.FC = () => {
         
         <List>
           {problem.map((item, index) => (
-            <ListItem key={index} sx={{ py: 1 }}>
+            <ListItem 
+              key={index} 
+              sx={{ 
+                py: 1,
+                backgroundColor: completedProblems.has(index) ? 'rgba(76, 175, 80, 0.1)' : 'transparent',
+                borderRadius: 1,
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                '&::after': completedProblems.has(index) ? {
+                  content: '"✓"',
+                  position: 'absolute',
+                  right: '8px',
+                  color: '#4CAF50',
+                  fontWeight: 'bold'
+                } : {},
+              }}
+            >
               <ListItemText 
                 primary={item}
                 primaryTypographyProps={{
-                  style: { whiteSpace: 'pre-wrap' }
+                  style: { 
+                    textDecoration: completedProblems.has(index) ? 'line-through' : 'none',
+                    color: completedProblems.has(index) ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.87)',
+                    fontStyle: completedProblems.has(index) ? 'italic' : 'normal',
+                  }
                 }}
               />
             </ListItem>

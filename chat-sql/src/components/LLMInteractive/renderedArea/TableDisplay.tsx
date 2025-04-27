@@ -23,27 +23,29 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
   
   const rows: GridRowsProp = tableInfo.tupleData.map((row, idx) => ({ id: idx, ...row }));
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
 
   return (
-    <Box sx={{ mb: 2, maxHeight: 400, overflow: 'hidden' }}>
-      <Paper sx={{ height: 300, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          autosizeOnMount={true}
-          pagination
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[5, 10, 20]}
-          onRowSelectionModelChange={(newSelection) => {
-            setSelectedRows(rows.filter(row => newSelection.includes(row.id)));
-          }}
-          sx={{ border: 0 }}
-          disableRowSelectionOnClick
-          autoHeight={false}
-        />
-      </Paper>
+    <Box sx={{ 
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
+    }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pagination
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        pageSizeOptions={[5, 10, 20]}
+        sx={{
+          border: 'none',
+          '.MuiDataGrid-cell': {
+            borderColor: 'divider',
+          },
+          height: '100%',
+        }}
+        disableRowSelectionOnClick
+      />
     </Box>
   );
 };

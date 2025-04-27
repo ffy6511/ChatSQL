@@ -1,16 +1,34 @@
 'use client'
 
-import React from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Paper, Typography, Button, Tooltip } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { KeyboardCommandKey, KeyboardReturn } from '@mui/icons-material';
 import styles from './QueryResultTable.module.css';
+import { useCompletionContext } from '@/contexts/CompletionContext';
 
 interface QueryResultTableProps {
   data: any[];
 }
 
 const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
+  const { checkQueryResult } = useCompletionContext();
+
+  // 添加键盘快捷键处理
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+        e.preventDefault();
+        checkQueryResult();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [checkQueryResult]);
+
   if (!data || data.length === 0) {
     return null;
   }
@@ -30,7 +48,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
   }));
 
   return (
-    <Box sx={{ mt: 2, height: 400 }}>
+    <Box sx={{ mt: 1, height: 400 }}>
       <Paper sx={{ height: '100%', width: '100%' }}>
         {/* 结果标题区域 */}
         <div className={styles.resultHeader}>
@@ -38,6 +56,28 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
           <Typography className={styles.resultTitle}>
             查询结果
           </Typography>
+          <Tooltip
+            title={
+              <div className="shortcut-tooltip">
+                <span>比较结果 </span>
+                (<KeyboardCommandKey className="shortcut-icon" />
+                <span className="shortcut-plus">+</span>
+                <span>J</span>)
+              </div>
+            }
+            arrow
+            placement="top"
+          >
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<CompareArrowsIcon />}
+              onClick={() => checkQueryResult()}
+              sx={{ ml: 2 }}
+            >
+              比较
+            </Button>
+          </Tooltip>
           <Typography className={styles.resultCount}>
             共 {rows.length} 条记录
           </Typography>
