@@ -21,13 +21,13 @@ ChatSQL 是一个交互式 SQL 学习平台，通过 AI 生成练习题帮助用
 ## 🖥 界面预览
 
 ### 初始化界面
-<img src="./public/assets/initialization.png" alt="初始化界面" width="80%" />
+<img src="./chat-sql/public/assets/initialization.png" alt="初始化界面" width="80%" />
 
 ### 数据库结构可视化
-<img src="./public/assets/rendering.png" alt="数据库结构" width="80%" />
+<img src="./chat-sql/public/assets/rendering.png" alt="数据库结构" width="80%" />
 
 ### SQL 编辑器演示
-<img src="./public/assets/edit.gif" alt="编辑器演示" width="80%" />
+<img src="./chat-sql/public/assets/edit.gif" alt="编辑器演示" width="80%" />
 
 ## 🛠 技术栈
 
@@ -102,7 +102,7 @@ npm run dev
 2. 导入工作流配置：
    - 从项目中下载 `public/chatSQL.yml` 文件
    - 在 Dify 平台中导入该配置文件
-   - <img src="./public/assets/dify.png" alt="导入工作流" width="80%" />
+   - <img src="./chat-sql/public/assets/dify.png" alt="导入工作流" width="80%" />
 3. 获取 API 密钥并在个人设置中配置（工作流默认使用 Gemini，可根据需要修改）
 
 ## 🤝 贡献

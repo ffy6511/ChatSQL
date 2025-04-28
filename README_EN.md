@@ -21,13 +21,13 @@ ChatSQL is an interactive SQL learning platform that helps users master SQL quer
 ## 🖥 Interface Preview
 
 ### Initialization Interface
-<img src="./public/assets/initialization.png" alt="Initialization Interface" width="80%" />
+<img src="./chat-sql/public/assets/initialization.png" alt="Initialization Interface" width="80%" />
 
 ### Database Structure Visualization
-<img src="./public/assets/rendering.png" alt="Database Structure" width="80%" />
+<img src="./chat-sql/public/assets/rendering.png" alt="Database Structure" width="80%" />
 
 ### SQL Editor Demo
-<img src="./public/assets/edit.gif" alt="Editor Demo" width="80%" />
+<img src="./chat-sql/public/assets/edit.gif" alt="Editor Demo" width="80%" />
 
 ## 🛠 Tech Stack
 
@@ -102,7 +102,7 @@ npm run dev
 2. Import workflow configuration:
    - Download the `public/chatSQL.yml` file from the project
    - Import this configuration file in the Dify platform
-   - <img src="./public/assets/dify.png" alt="Import Workflow" width="80%" />
+   - <img src="./chat-sql/public/assets/dify.png" alt="Import Workflow" width="80%" />
 3. Get API key and configure in personal settings (workflow uses Gemini by default, can be modified as needed)
 
 ## 🤝 Contributing
