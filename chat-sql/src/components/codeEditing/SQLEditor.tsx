@@ -377,6 +377,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
             enabled: true,
             cycle: true, // 循环显示参数提示
           },
+          fontFamily: 'var(--font-mono)',
+          fontLigatures: true, // 启用连字
         }}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}

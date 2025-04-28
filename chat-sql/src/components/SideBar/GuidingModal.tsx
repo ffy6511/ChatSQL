@@ -19,7 +19,7 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
       title: '欢迎使用',
       content: (
         <div className={styles.stepContent}>
-          <h3>欢迎使用 ChatSQL</h3>
+          <h3>👋 欢迎使用 ChatSQL</h3>
           <p>这是一个帮助您学习和使用SQL的交互式工具。</p>
           <p>通过以下步骤，您将了解如何使用本应用的主要功能。</p>
           <div className={styles.gifContainer}>

@@ -25,16 +25,15 @@ const ProblemViewer: React.FC = () => {
     <Box sx={{ 
       height: '100%', 
       overflow: 'auto',
+      borderRadius: 2,
       p: 1,
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     }}>
       <Paper 
         elevation={0}
         sx={{ 
-          p: 3,
-          backgroundColor: 'background.default',
-          border: '1px solid',
-          borderColor: 'divider',
+          p: 2,
+          backgroundColor: 'transparent',
         }}
       >
         <Box sx={{ 
@@ -43,11 +42,11 @@ const ProblemViewer: React.FC = () => {
           mb: 2,
         }}>
           <AssignmentIcon sx={{ 
-            fontSize: 32,
-            mr: 1,
+            fontSize: 30,
             color: 'primary.main',
+            // marginLeft: 'auto', // 使图标在容器中水平居中
           }} />
-          <Typography variant="h5" component="h2" fontWeight="bold" textAlign={'center'}>
+          <Typography variant="h5" component="h2" fontWeight="bold" textAlign={'center'} width='100%'>
             查询要求
           </Typography>
         </Box>
@@ -96,6 +95,10 @@ const ProblemViewer: React.FC = () => {
                 borderRadius: 1,
                 transition: 'all 0.3s ease',
                 position: 'relative',
+                textDecoration: 'underline', // 添加下划线
+                textDecorationColor: 'secondary.main', // 设置下划线颜色
+                textDecorationThickness: '1px', // 设置下划线粗细
+                textUnderlineOffset: '5px', // 设置下划线与文字的距离
                 '&::after': completedProblems.has(index) ? {
                   content: '"✓"',
                   position: 'absolute',

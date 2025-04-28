@@ -297,59 +297,7 @@ const LLMWindow: React.FC = () => {
 
           {/* 输入区域 - 始终显示 */}
           <div className={`${styles.inputArea} ${result ? styles.inputAreaWithResult : ''}`}>
-          <div className={styles.buttonGroup}>
-            {/* 快捷按钮区域 */}
-            <Popover
-              open={tagsPopoverOpen}
-              onOpenChange={setTagsPopoverOpen}
-              content={tagsPopoverContent}
-              trigger="click"
-              placement="bottom"
-              destroyTooltipOnHide={false}
-            >
-              <Button
-                type="default"
-                size="small"
-                icon={<TagOutlined />}
-              >
-                {checkedTags.length > 0 ? `${checkedTags.length}个标签` : '标签'}
-              </Button>
-            </Popover>
 
-            <Popover
-              open={difficultyPopoverOpen}
-              onOpenChange={setDifficultyPopoverOpen}
-              content={difficultyPopoverContent}
-              trigger="click"
-              placement="bottom"
-              destroyTooltipOnHide={false}
-            >
-              <Button
-                type="default"
-                size="small"
-                icon={<BarChartOutlined />}
-              >
-                {difficultyOptions.find(opt => opt.value === difficulty)?.label || '难度'}
-              </Button>
-            </Popover>
-
-            <Popover
-              open={countPopoverOpen}
-              onOpenChange={setCountPopoverOpen}
-              content={countPopoverContent}
-              trigger="click"
-              placement="bottom"
-              destroyTooltipOnHide={false}
-            >
-              <Button
-                type="default"
-                size="small"
-                icon={<NumberOutlined />}
-              >
-                {problemCnt}题
-              </Button>
-            </Popover>
-          </div>
 
           {/* 输入框区域 */}
           <div className={styles.textAreaWrapper}>
@@ -372,7 +320,62 @@ const LLMWindow: React.FC = () => {
                 style={{ backgroundColor: '#1677ff', fontSize: '18px' }}
               />
             </div>
-          </div>
+            </div>
+            
+                        <div className={styles.buttonGroup}>
+              {/* 快捷按钮区域 */}
+              <Popover
+                open={tagsPopoverOpen}
+                onOpenChange={setTagsPopoverOpen}
+                content={tagsPopoverContent}
+                trigger="click"
+                placement="bottom"
+                destroyTooltipOnHide={false}
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  icon={<TagOutlined />}
+                >
+                  {checkedTags.length > 0 ? `${checkedTags.length}个标签` : '标签'}
+                </Button>
+              </Popover>
+
+              <Popover
+                open={difficultyPopoverOpen}
+                onOpenChange={setDifficultyPopoverOpen}
+                content={difficultyPopoverContent}
+                trigger="click"
+                placement="bottom"
+                destroyTooltipOnHide={false}
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  icon={<BarChartOutlined />}
+                >
+                  {difficultyOptions.find(opt => opt.value === difficulty)?.label || '难度'}
+                </Button>
+              </Popover>
+
+              <Popover
+                open={countPopoverOpen}
+                onOpenChange={setCountPopoverOpen}
+                content={countPopoverContent}
+                trigger="click"
+                placement="bottom"
+                destroyTooltipOnHide={false}
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  icon={<NumberOutlined />}
+                >
+                  {problemCnt}题
+                </Button>
+              </Popover>
+            </div>
+            
         </div>
         </div>
       </div>

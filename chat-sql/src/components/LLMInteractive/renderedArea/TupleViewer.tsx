@@ -6,7 +6,6 @@ import TableDisplay from './TableDisplay';
 import { useState } from 'react';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Height } from '@mui/icons-material';
 
 export default function TupleViewer() {
   const { llmResult } = useLLMContext();
@@ -42,7 +41,8 @@ export default function TupleViewer() {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      p: 2,
+      backgroundColor: '#f8f4f4',
+      p: 0,
       overflow: 'auto', // 允许内容滚动
       gap: 0, // 移除子元素之间的间距
     }}>
@@ -83,7 +83,7 @@ export default function TupleViewer() {
             position: 'absolute',
             left: 0,
             zIndex: 2,
-            backgroundColor: 'background.paper',
+            backgroundColor: 'transparent',
             '&:hover': {
               backgroundColor: 'action.hover',
             },
@@ -111,7 +111,7 @@ export default function TupleViewer() {
             position: 'absolute',
             right: 0,
             zIndex: 2,
-            backgroundColor: 'background.paper',
+            backgroundColor: 'transparent',
             '&:hover': {
               backgroundColor: 'action.hover',
             },

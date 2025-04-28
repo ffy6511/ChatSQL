@@ -46,6 +46,7 @@ const Page: React.FC = () => {
           collapsible
           defaultSize="200px"
           className="sidebar-panel"
+          max = "25%"
         >
           <SideBar />
         </Splitter.Panel>

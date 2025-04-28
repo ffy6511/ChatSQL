@@ -48,7 +48,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
   }));
 
   return (
-    <Box sx={{ mt: 1, height: 400 }}>
+    <Box sx={{ mt: 1, height: 400 , borderRadius: 1 }}>
       <Paper sx={{ height: '100%', width: '100%' }}>
         {/* 结果标题区域 */}
         <div className={styles.resultHeader}>

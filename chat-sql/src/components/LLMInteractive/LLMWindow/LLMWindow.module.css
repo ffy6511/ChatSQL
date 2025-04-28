@@ -104,9 +104,15 @@
 .buttonGroup {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  gap: 8px;
+  margin-top: 12px;
+  gap: 2em;
   justify-content: center;
+}
+
+.buttonGroup button{
+  border-radius: 20px!important;
+  padding: 8px 16px!important;
+  height: 35px!important;
 }
 
 .textAreaContainer {
@@ -156,7 +162,7 @@
   overflow: auto;
   margin-top: 16px;
   padding-top: 16px;
-  max-height: calc(100% - 250px); /* 为输入区域留出空间 */
+  max-height: calc(100% - 100px); /* 为输入区域留出空间 */
 }
 
 .chatBubble {

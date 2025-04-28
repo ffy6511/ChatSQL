@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-mono: 'Maple Mono', monospace;
 }
 
 @theme inline {
@@ -46,4 +47,43 @@ body {
 .shortcut-tooltip .shortcut-plus {
   margin: 0 2px;
   opacity: 0.7;
+}
+
+/* 定义字体 */
+@font-face {
+    font-family: 'Maple Mono';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/fonts/MapleMono-Regular.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Maple Mono';
+    font-style: italic;
+    font-weight: normal;
+    src: url('/fonts/MapleMono-Italic.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Maple Mono';
+    font-style: normal;
+    font-weight: bold;
+    src: url('/fonts/MapleMono-Bold.ttf') format('truetype');
+    font-display: swap;
+}
+
+/* 在:root中定义变量 */
+:root {
+    --font-mono: 'Maple Mono', monospace !important;
+}
+
+/* 强制应用到Monaco编辑器 */
+.monaco-editor {
+    font-family: var(--font-mono) !important;
+}
+
+.monaco-editor .view-line * {
+    font-family: var(--font-mono) !important;
 }

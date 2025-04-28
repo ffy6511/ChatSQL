@@ -26,19 +26,24 @@ const SideBar: React.FC = () => {
 
   return (
     <div className={styles.sideBarContainer}>
-      <div className={styles.logoContainer}>
+
+      {/* TODO: logo的设计与布局 */}
+
+      {/* <div className={styles.logoContainer}>
         <h2 className={styles.logo}>ChatSQL</h2>
-      </div>
+      </div> */}
       
       <div className={styles.menuContainer}>
-                <Tooltip title="切换主题">
-      <div className={styles.themeToggle}>
+
+        {/* TODO: 主题CSS变量的设置 */}
+        {/* <Tooltip title="切换主题">
+        <div className={styles.themeToggle}>
             <ThemeToggle />
-          </div>
-        </Tooltip>
+        </div>
+        </Tooltip> */}
         
         <div className={styles.menuItems}>
-          {/* 这里可以添加导航菜单项 */}
+          {/* 导航菜单项 */}
         </div>
       </div>
       

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Tooltip } from '@mui/material';
 import DatabaseFlow from './DatabaseFlow';
 import TupleViewer from './TupleViewer';
 import ProblemViewer from './ProblemViewer';
@@ -24,11 +24,10 @@ export const Container: React.FC = () => {
       })))
     : [];
 
-  const handleViewChange = (event: React.MouseEvent<HTMLElement>, newMode: ViewMode | null) => {
-    if (newMode !== null) {
-      setViewMode(newMode);
-    }
-  };
+  const actions = [
+    { icon: <SchemaIcon />, name: '数据库结构', value: 'schema' },
+    { icon: <TableChartIcon />, name: '元组表格', value: 'data' },
+  ];
 
   return (
     <Box sx={{
@@ -36,6 +35,7 @@ export const Container: React.FC = () => {
       width: '100%',
       height: '100%',
       gap: 1,
+      position: 'relative',
     }}>
       {/* 左侧区域 */}
       <Box sx={{
@@ -44,31 +44,54 @@ export const Container: React.FC = () => {
         flexDirection: 'column',
         gap: 0,
         height: '100%',
-        overflow: 'hidden', // 确保内容不会溢出
+        overflow: 'hidden',
+        position: 'relative',
+        borderRadius: '8px',
       }}>
-        {/* 切换按钮 */}
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          p: 1,
-        }}>
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={handleViewChange}
-            aria-label="view mode"
-            size="small"
-          >
-            <ToggleButton value="schema" aria-label="schema view">
-              <SchemaIcon sx={{ mr: 2 }} />
-              数据库结构
-            </ToggleButton>
-            <ToggleButton value="data" aria-label="data view">
-              <TableChartIcon sx={{ mr: 2 }} />
-              元组表格
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+        {/* SpeedDial 切换按钮 */}
+        <SpeedDial
+          ariaLabel="视图切换"
+          sx={{
+            position: 'absolute',
+            bottom: 16, // 改为 bottom
+            left: 6,
+            '& .MuiSpeedDial-fab': {
+              width: 30,
+              height: 30,
+              color: 'text.secondary',
+              backgroundColor: 'transparent',
+              boxShadow: 1,
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+            },
+          }}
+          icon={<SpeedDialIcon />}
+          direction="right"
+        >
+          {actions.map((action) => (
+            <SpeedDialAction
+              key={action.value}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={() => setViewMode(action.value as ViewMode)}
+              sx={{
+                backgroundColor: viewMode === action.value ? 'primary.main' : 'background.paper',
+                width: '36px', // 设置按钮宽度
+                height: '36px', // 设置按钮高度
+                '& .MuiSvgIcon-root': {
+                  color: viewMode === action.value ? 'white' : 'inherit',
+                  fontSize: '20px', // 设置图标大小
+                },
+                '& .MuiFab-root': { // 设置内部 Fab 按钮的大小
+                  width: '20px',
+                  height: '20px',
+                  minHeight: 'unset',
+                }
+              }}
+            />
+          ))}
+        </SpeedDial>
 
         {/* 内容区域 */}
         <Box sx={{
@@ -77,7 +100,8 @@ export const Container: React.FC = () => {
           minHeight: 0,
           backgroundColor: 'background.paper',
           borderRadius: 1,
-          overflow: 'auto', // 允许内容滚动
+          overflow: 'auto',
+          mt:0, 
         }}>
           {viewMode === 'schema' ? (
             <Box sx={{ height: '100%' }}>
@@ -98,8 +122,9 @@ export const Container: React.FC = () => {
         maxWidth: '500px',
         height: '100%',
         backgroundColor: 'transparent',
-        borderRadius: 5,
+        borderRadius: '8px',
         overflow: 'auto',
+        border: '1px solid rgba(71, 70, 70, 0.12)', // 添加边框使圆角更明显
       }}>
         <ProblemViewer />
       </Box>

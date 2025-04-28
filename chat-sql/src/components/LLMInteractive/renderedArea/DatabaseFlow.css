@@ -1,11 +1,11 @@
 .database-flow-container {
   width: 100%;
   height: 100vh;
-  background-color: #f0eaea;
+  background-color: #f8f4f4;
 }
 
 .table-node {
-  background: white;
+  background: rgb(249, 246, 246);
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;

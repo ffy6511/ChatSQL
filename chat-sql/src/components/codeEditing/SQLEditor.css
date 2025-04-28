@@ -10,12 +10,13 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  font-family: var(--font-mono) !important;
 }
 
 .sql-editor {
   height: 100% !important;
   width: 100%;
-  font-family: 'Fira Code', monospace;
+  font-family: var(--font-mono) !important;
   font-size: 14px;
   line-height: 1.5;
 }
