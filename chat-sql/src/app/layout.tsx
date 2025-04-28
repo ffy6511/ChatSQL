@@ -5,6 +5,7 @@ import { LLMProvider } from "@/contexts/LLMContext";
 import { QueryProvider } from "@/contexts/QueryContext";
 import { CompletionProvider } from "@/contexts/CompletionContext";
 import { EditorProvider } from "@/contexts/EditorContext";
+import NavBar from "@/components/NavBar/NavBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
           <QueryProvider>
             <EditorProvider>
               <CompletionProvider>
+                <NavBar />
                 {children}
               </CompletionProvider>
             </EditorProvider>

@@ -4,6 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-mono: 'Maple Mono', monospace;
+  --navbar-height: 40px;  /* 导航栏高度变量 */
 }
 
 @theme inline {
@@ -15,7 +16,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    /* --background: #f8f3f3; */
     --foreground: #ededed;
   }
 }

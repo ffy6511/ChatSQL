@@ -1,0 +1,51 @@
+.navBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.leftSection {
+  flex: 0 0 auto;
+}
+
+.middleSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rightSection {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoImage {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.logoText {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #4285f4;
+  margin: 0;
+  font-family: 'Maple Mono', monospace;
+}

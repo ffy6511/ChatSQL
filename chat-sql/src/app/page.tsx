@@ -39,85 +39,87 @@ const Page: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
-      <Splitter style={{ height: '100vh', width: '100vw', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'}} >
-        {/* 左侧侧边栏 */}
-        <Splitter.Panel
-          collapsible
-          defaultSize="200px"
-          className="sidebar-panel"
-          max = "25%"
-        >
-          <SideBar />
-        </Splitter.Panel>
+    <>
+      <div className="app-container"> {/* 添加上边距以避免被导航栏遮挡 */}
+        <Splitter className="main-splitter">
+          {/* 左侧侧边栏 */}
+          <Splitter.Panel
+            resizable={false}
+            defaultSize="100px"
+            className="sidebar-panel"
+            // max = "10%"
+          >
+            <SideBar />
+          </Splitter.Panel>
 
-        {/* 右侧区域：历史记录 + 大区域 */}
-        <Splitter.Panel>
-          <Splitter style={{ height: '100%', width: '100%' }}>
-            {/* 历史记录区域 */}
-            <Splitter.Panel
-              collapsible
-              min="15%"
-              defaultSize="20%"
-              max="30%"
-              className="history-panel"
-            >
-              <div className="history-content">
-                <HistoryPanel />
-              </div>
-            </Splitter.Panel>
-
-            {/* 右侧大区域 */}
-            <Splitter.Panel>
-              {showLLMWindow ? (
-                // 当显示LLM窗口时，占据整个区域
-                <div className="full-height-llm-container">
-                  <LLMWindow />
+          {/* 右侧区域：历史记录 + 大区域 */}
+          <Splitter.Panel>
+            <Splitter style={{ height: '100%', width: '100%' }}>
+              {/* 历史记录区域 */}
+              <Splitter.Panel
+                collapsible
+                min="15%"
+                defaultSize="20%"
+                max="30%"
+                className="history-panel"
+              >
+                <div className="history-content">
+                  <HistoryPanel />
                 </div>
-              ) : (
-                // 正常模式：1上2下
-                <Splitter layout="vertical" style={{ height: '100%' }}>
-                  {/* 上部区域 - 容器 */}
-                  <Splitter.Panel
-                    defaultSize="50%"
-                    min="30%"
-                    max="70%"
-                    className="upper-panel"
-                  >
-                    <div className="upper-content">
-                      <Container />
-                    </div>
-                  </Splitter.Panel>
+              </Splitter.Panel>
 
-                  {/* 下部区域：水平分为两部分 */}
-                  <Splitter.Panel>
-                    <Splitter style={{ height: '100%' }}>
-                      {/* 下部左侧区域 */}
-                      <Splitter.Panel
-                        defaultSize="50%"
-                        min="30%"
-                        className="lower-left-panel"
-                      >
-                        <SQLQueryArea />
-                      </Splitter.Panel>
+              {/* 右侧大区域 */}
+              <Splitter.Panel>
+                {showLLMWindow ? (
+                  // 当显示LLM窗口时，占据整个区域
+                  <div className="full-height-llm-container">
+                    <LLMWindow />
+                  </div>
+                ) : (
+                  // 正常模式：1上2下
+                  <Splitter layout="vertical" style={{ height: '100%' }}>
+                    {/* 上部区域 - 容器 */}
+                    <Splitter.Panel
+                      defaultSize="50%"
+                      min="30%"
+                      max="70%"
+                      className="upper-panel"
+                    >
+                      <div className="upper-content">
+                        <Container />
+                      </div>
+                    </Splitter.Panel>
 
-                      {/* 下部右侧区域 */}
-                      <Splitter.Panel className="lower-right-panel">
-                        <div className="lower-right-content">
-                          <SQLEditor
-                            onExecute={handleQueryResult}
-                          />
-                        </div>
-                      </Splitter.Panel>
-                    </Splitter>
-                  </Splitter.Panel>
-                </Splitter>
-              )}
-            </Splitter.Panel>
-          </Splitter>
-        </Splitter.Panel>
-      </Splitter>
-    </div>
+                    {/* 下部区域：水平分为两部分 */}
+                    <Splitter.Panel>
+                      <Splitter style={{ height: '100%' }}>
+                        {/* 下部左侧区域 */}
+                        <Splitter.Panel
+                          defaultSize="50%"
+                          min="30%"
+                          className="lower-left-panel"
+                        >
+                          <SQLQueryArea />
+                        </Splitter.Panel>
+
+                        {/* 下部右侧区域 */}
+                        <Splitter.Panel className="lower-right-panel">
+                          <div className="lower-right-content">
+                            <SQLEditor
+                              onExecute={handleQueryResult}
+                            />
+                          </div>
+                        </Splitter.Panel>
+                      </Splitter>
+                    </Splitter.Panel>
+                  </Splitter>
+                )}
+              </Splitter.Panel>
+            </Splitter>
+          </Splitter.Panel>
+        </Splitter>
+      </div>
+    </>
   );
 };
 
