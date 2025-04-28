@@ -13,7 +13,8 @@
 # testing
 /coverage
 
-*.md
+.work_log.md
+
 # next.js
 /.next/
 /out/
