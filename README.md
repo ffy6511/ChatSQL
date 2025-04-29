@@ -69,7 +69,7 @@ ChatSQL 是一个交互式 SQL 学习平台，通过 AI 生成练习题帮助用
 
 ```bash
 git clone https://github.com/ffy6511/chatSQL.git
-cd chatSQL
+cd chatSQL/chat-sql
 ```
 
 2. 安装依赖
@@ -81,10 +81,10 @@ npm install
 3. 配置环境变量
 
 ```bash
-cp .env.example .env.local
+touch .env
 ```
 
-编辑 `.env.local` 文件并添加你的 Dify API 密钥：
+编辑 `.env` 文件并添加你的 Dify API 密钥：
 
 ```
 NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here

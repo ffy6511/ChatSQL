@@ -21,12 +21,15 @@ ChatSQL is an interactive SQL learning platform that helps users master SQL quer
 ## 🖥 Interface Preview
 
 ### Initialization Interface
+
 <img src="./chat-sql/public/assets/initialization.png" alt="Initialization Interface" width="80%" />
 
 ### Database Structure Visualization
+
 <img src="./chat-sql/public/assets/rendering.png" alt="Database Structure" width="80%" />
 
 ### SQL Editor Demo
+
 <img src="./chat-sql/public/assets/edit.gif" alt="Editor Demo" width="80%" />
 
 ## 🛠 Tech Stack
@@ -69,7 +72,7 @@ ChatSQL is an interactive SQL learning platform that helps users master SQL quer
 
 ```bash
 git clone https://github.com/ffy6511/chatSQL.git
-cd chatSQL
+cd chatSQL/chat-sql
 ```
 
 2. Install dependencies
@@ -81,10 +84,10 @@ npm install
 3. Configure environment variables
 
 ```bash
-cp .env.example .env.local
+touch .env
 ```
 
-Edit the `.env.local` file and add your Dify API key:
+Edit the `.env` file and add your Dify API key:
 
 ```
 NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
