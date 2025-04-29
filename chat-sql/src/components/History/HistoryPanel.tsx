@@ -1,19 +1,29 @@
-'use client'
-
 import React, { useState, useEffect } from 'react';
-import { Tabs, List, Empty, Spin, Typography, Badge, Button, Tooltip } from 'antd';
-import { StarOutlined, ClockCircleOutlined, HistoryOutlined, HeartOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { useHistoryRecords } from '@/hooks/useHistoryRecords';
+import { 
+  Button, 
+  Tooltip, 
+  Empty, 
+  List, 
+  Spin, 
+  message, 
+  Tabs,
+  Badge 
+} from 'antd';
+import { 
+  PlusCircleOutlined, 
+  ClockCircleOutlined,
+  HeartOutlined 
+} from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useCompletionContext } from '@/contexts/CompletionContext';
 import { useEditorContext } from '@/contexts/EditorContext';
+import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 import HistoryItem from './HistoryItem';
 import styles from './HistoryPanel.module.css';
 import SearchBar from './SearchBar';
 
-const { Title } = Typography;
-
 const HistoryPanel: React.FC = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [searchQuery, setSearchQuery] = useState('');
   const {
     recentRecords,
@@ -25,12 +35,12 @@ const HistoryPanel: React.FC = () => {
     refreshRecords
   } = useHistoryRecords();
 
-  const {
-    currentProblemId,
-    setCurrentProblemId,
-    setLLMResult,
+  const { 
+    setLLMResult, 
+    setCurrentProblemId, 
     setShowLLMWindow,
-    showLLMWindow
+    showLLMWindow,
+    currentProblemId 
   } = useLLMContext();
 
   const { resetCompletion } = useCompletionContext();  // 获取重置方法
@@ -113,8 +123,21 @@ const HistoryPanel: React.FC = () => {
     );
   };
 
+  const handleNewChat = () => {
+    // 检查是否已经在新建对话界面
+    if (showLLMWindow && !currentProblemId) {
+      messageApi.info('您已处于新建的对话当中');
+      return;
+    }
+    
+    setLLMResult(null);
+    setCurrentProblemId(null);
+    setShowLLMWindow(true);
+  };
+
   return (
     <div className={styles.historyPanel}>
+      {contextHolder}
       <div className={styles.headerContainer}>
         <div className={styles.headerLeft}>
           <div className={styles.title}>历史记录</div>
@@ -125,11 +148,7 @@ const HistoryPanel: React.FC = () => {
             type="primary"
             icon={<PlusCircleOutlined />}
             className={styles.newChatButton}
-            onClick={() => {
-              setLLMResult(null);
-              setCurrentProblemId(null);
-              setShowLLMWindow(true);
-            }}
+            onClick={handleNewChat}
           />
         </Tooltip>
       </div>

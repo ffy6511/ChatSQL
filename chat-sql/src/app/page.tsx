@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Splitter } from 'antd';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
@@ -30,6 +30,12 @@ const SQLQueryArea: React.FC = () => {
 
 const Page: React.FC = () => {
   const { showLLMWindow } = useLLMContext();
+  const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(false);
+
+  const handleToggleHistory = () => {
+    setIsHistoryCollapsed(!isHistoryCollapsed);
+  };
+
   const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
 
   // 添加查询结果处理函数
@@ -49,16 +55,17 @@ const Page: React.FC = () => {
             className="sidebar-panel"
             // max = "10%"
           >
-            <SideBar />
+            <SideBar onToggleHistory={handleToggleHistory} />
           </Splitter.Panel>
 
           {/* 右侧区域：历史记录 + 大区域 */}
           <Splitter.Panel>
             <Splitter style={{ height: '100%', width: '100%' }}>
-              {/* 历史记录区域 */}
+            {/* 使用条件渲染来控制历史面板的显示/隐藏 */}
+            {!isHistoryCollapsed && (
               <Splitter.Panel
-                collapsible
-                min="15%"
+                  min="15%"
+                  // collapsible={true}
                 defaultSize="20%"
                 max="30%"
                 className="history-panel"
@@ -67,6 +74,7 @@ const Page: React.FC = () => {
                   <HistoryPanel />
                 </div>
               </Splitter.Panel>
+            )}
 
               {/* 右侧大区域 */}
               <Splitter.Panel>

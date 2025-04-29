@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.0",
     "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "^7.0.2",
+    "@mui/lab": "^7.0.0-beta.11",
     "@mui/material": "^7.0.2",
     "@mui/x-data-grid": "^7.28.3",
     "@xyflow/react": "^12.5.5",
@@ -21,7 +22,8 @@
     "next": "15.3.0",
     "node-sql-parser": "^5.3.8",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "simple-git": "^3.27.0"
   },
   "resolutions": {
     "antd": {
