@@ -8,9 +8,6 @@ import {
   evaluateExpression,
   validatePrimaryKey,
   validateForeignKeys,
-  beginTransaction,
-  commitTransaction,
-  rollbackTransaction,
   executeJoins,
   executeGroupBy,
   executeOrderBy,
@@ -27,14 +24,10 @@ import {
  * - DELETE删除
  * - CREATE TABLE创建表
  * - DROP TABLE删除表
- * - 事务支持（BEGIN/COMMIT/ROLLBACK）
  */
 export class SQLQueryEngine {
   /** 存储所有表数据的Map */
   private tables: Map<string, TableData>;
-
-  /** 事务数据，当事务活动时保存原始数据的副本 */
-  private transactionData: Map<string, TableData> | null = null;
 
   /** SQL解析器 */
   private parser: Parser;
@@ -69,52 +62,43 @@ export class SQLQueryEngine {
         };
       }
 
-      console.log('Executing SQL:', sql);
-      // 修改调试输出方式
-      console.log('Tables content:', {
-        size: this.tables.size,
-        keys: Array.from(this.tables.keys()),
-        tables: Array.from(this.tables.entries())
-      });
-
-      // 特殊处理事务相关的命令
-      const upperSql = sql.trim().toUpperCase();
-      if (upperSql === 'BEGIN') {
-        const { result, newTransactionData } = beginTransaction(this.tables, this.transactionData);
-        this.transactionData = newTransactionData;
-        return result;
-      } else if (upperSql === 'COMMIT') {
-        const result = commitTransaction(this.transactionData);
-        this.transactionData = null;
-        return result;
-      } else if (upperSql === 'ROLLBACK') {
-        const { result, tables } = rollbackTransaction(this.transactionData);
-        if (tables) this.tables = tables;
-        this.transactionData = null;
-        return result;
+      // 检查SQL语句是否以分号结尾
+      if (!sql.trim().endsWith(';')) {
+        return {
+          success: false,
+          message: 'SQL语句必须以分号(;)结尾'
+        };
       }
 
-      // 解析其他SQL命令
-      const ast = this.parser.astify(sql);
-      if (!ast || typeof ast !== 'object') {
-        throw new Error('无效的SQL语句');
+      // 解析SQL命令
+      let ast;
+      try {
+        ast = this.parser.astify(sql);
+        if (!ast || typeof ast !== 'object') {
+          return {
+            success: false,
+            message: '无效的SQL语句'
+          };
+        }
+      } catch (parseError) {
+        console.error('SQL解析错误:', parseError);
+        return {
+          success: false,
+          message: '无效的SQL语句：语法错误'
+        };
       }
-
-      console.log('AST:', JSON.stringify(ast, null, 2)); // 调试用
 
       // 处理数组形式的AST（多条语句）
       let stmt = Array.isArray(ast) ? ast[0] : ast;
-
-      // node-sql-parser 的 AST 结构中类型可能在不同位置
-      // 使用类型断言来避免 TypeScript 类型错误
-      const type = (stmt as any).type || // 有些语句类型直接在type字段
-                  ((stmt as any).statement && (stmt as any).statement[0]?.type) || // 某些复杂语句在statement数组中
-                  (stmt as any).ast_type || // 某些版本使用ast_type
-                  ((stmt as any).keyword && (stmt as any).keyword.toUpperCase()); // 某些语句使用keyword字段
+      const type = (stmt as any).type || 
+                  ((stmt as any).statement && (stmt as any).statement[0]?.type) ||
+                  (stmt as any).ast_type;
 
       if (!type) {
-        console.error('AST structure:', stmt); // 调试用
-        throw new Error('无法识别的SQL语句类型');
+        return {
+          success: false,
+          message: '无法识别的SQL语句类型'
+        };
       }
 
       const upperType = type.toUpperCase();
@@ -132,7 +116,10 @@ export class SQLQueryEngine {
         case 'DROP':
           return this.executeDrop(stmt);
         default:
-          throw new Error(`不支持的SQL操作: ${type}`);
+          return {
+            success: false,
+            message: `不支持的SQL操作: ${type}`
+          };
       }
     } catch (error) {
       console.error('Query execution error:', error);
@@ -381,7 +368,7 @@ export class SQLQueryEngine {
    * @returns 表数据或undefined
    */
   private getTable(tableName: string): TableData | undefined {
-    const table = this.transactionData?.get(tableName) || this.tables.get(tableName);
+    const table = this.tables.get(tableName);
     console.log('Getting table:', tableName, 'Found:', !!table); // 添加调试日志
     return table;
   }

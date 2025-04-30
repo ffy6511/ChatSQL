@@ -28,7 +28,6 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   const [messageApi, contextHolder] = antdMessage.useMessage();
   const { llmResult } = useLLMContext();
   const [queryEngine, setQueryEngine] = useState<SQLQueryEngine | null>(null);
-  const [hasTransaction, setHasTransaction] = useState(false);
   const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
   const { setQueryResult } = useQueryContext();
 
@@ -65,11 +64,20 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   const handleExecute = useCallback(async () => {
     if (!queryEngine) {
       messageApi.error('请先生成数据库结构');
+      setQueryResult([]); // 清空查询结果
       return;
     }
 
     try {
       console.log('[SQLEditor] Executing query:', sqlEditorValue);
+      
+      // 检查空语句
+      if (!sqlEditorValue.trim()) {
+        messageApi.warning('SQL语句不能为空');
+        setQueryResult([]); // 清空查询结果
+        return;
+      }
+
       const result = queryEngine.executeQuery(sqlEditorValue);
       console.log('[SQLEditor] Query result:', result);
 
@@ -77,17 +85,19 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
         if (result.data) {
           setQueryResult(result.data);
           onExecute?.(result.data);
+        } else {
+          setQueryResult([]); // 如果没有数据，清空结果
         }
         if (result.message) {
           messageApi.success(result.message);
         }
       } else {
-        // 显示友好的错误消息
-        messageApi.error('SQL语句不合法，请检查语法');
+        setQueryResult([]); // 执行失败时清空结果
+        messageApi.error(result.message || 'SQL语句不合法，请检查语法');
       }
     } catch (err) {
       console.error('[SQLEditor] Error:', err);
-      // 显示友好的错误消息
+      setQueryResult([]); // 发生错误时清空结果
       messageApi.error('SQL语句不合法，请检查语法');
     }
   }, [queryEngine, sqlEditorValue, setQueryResult, onExecute, messageApi]);
@@ -188,39 +198,41 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
       // 使用 CtrlCmd 表示在 Windows 上是 Ctrl，在 Mac 上是 Command
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => {
-        // 只有在查询引擎可用时才执行查询
         if (queryEngine) {
-          // 直接从编辑器获取当前内容
           const currentValue = editor.getValue();
           console.log('执行查询，当前SQL:', currentValue);
 
           if (!currentValue.trim()) {
             messageApi.warning('SQL语句不能为空');
+            setQueryResult([]); // 清空查询结果
             return;
           }
 
-          // 更新编辑器状态
           setSqlEditorValue(currentValue);
 
-          // 使用当前编辑器内容执行查询
           try {
             const result = queryEngine.executeQuery(currentValue);
             if (result.success) {
               if (result.data) {
                 setQueryResult(result.data);
                 onExecute?.(result.data);
+              } else {
+                setQueryResult([]); // 如果没有数据，清空结果
               }
               if (result.message) {
                 messageApi.success(result.message);
               }
             } else {
-              messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+              setQueryResult([]); // 执行失败时清空结果
+              messageApi.error(result.message || 'SQL语句不合法，请检查语法');
             }
           } catch (err) {
-            messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+            setQueryResult([]); // 发生错误时清空结果
+            messageApi.error('SQL语句不合法，请检查语法');
           }
         } else {
           messageApi.warning('请先生成数据库结构');
+          setQueryResult([]); // 清空查询结果
         }
       }
     );
@@ -235,6 +247,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
       if (!currentValue.trim()) {
         messageApi.warning('SQL语句不能为空');
+        setQueryResult([]); // 清空查询结果
         return;
       }
 
@@ -246,15 +259,19 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           if (result.data) {
             setQueryResult(result.data);
             onExecute?.(result.data);
+          } else {
+            setQueryResult([]); // 如果没有数据，清空结果
           }
           if (result.message) {
             messageApi.success(result.message);
           }
         } else {
-          messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+          setQueryResult([]); // 执行失败时清空结果
+          messageApi.error(result.message || 'SQL语句不合法，请检查语法');
         }
       } catch (err) {
-        messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+        setQueryResult([]); // 发生错误时清空结果
+        messageApi.error('SQL语句不合法，请检查语法');
       }
     } else {
       handleExecute();
@@ -262,77 +279,45 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   };
 
   return (
-    <div className="sql-editor-container">
+    <div className="sql-editor-container" style={{ position: 'relative' }}>
       {contextHolder}
-      <div className="sql-editor-toolbar">
-        <ButtonGroup>
-          <Tooltip
-            title={
-              <div className="shortcut-tooltip">
-                <span>执行查询 </span>
-                (<KeyboardCommandKey className="shortcut-icon" />
-                <span className="shortcut-plus">+</span>
-                <KeyboardReturn className="shortcut-icon" />)
-              </div>
-            }
-            arrow
-            placement="top"
-          >
-            <Button
-              variant="contained"
-              // startIcon={<PlayArrow />}
-              onClick={handleToolbarClick}
-              disabled={!queryEngine}
-            >
-              <PlayArrow />
-            </Button>
-          </Tooltip>
+      <div style={{
+        position: 'absolute',
+        bottom: '16px',
+        right: '16px',
+        zIndex: 1000,
+      }}>
+        <Tooltip
+          title={
+            <div className="shortcut-tooltip">
+              <span>执行查询 </span>
+              (<KeyboardCommandKey className="shortcut-icon" />
+              <span className="shortcut-plus">+</span>
+              <KeyboardReturn className="shortcut-icon" />)
+            </div>
+          }
+          arrow
+          placement="left"
+        >
           <Button
-            variant="outlined"
-            onClick={() => {
-              try {
-                queryEngine?.executeQuery('BEGIN');
-                setHasTransaction(true);
-                messageApi.info('事务已开始');
-              } catch (err) {
-                messageApi.error(err instanceof Error? err.message : '开始事务失败');
-              }
+            variant="contained"
+            onClick={handleToolbarClick}
+            disabled={!queryEngine}
+            sx={{
+              minWidth: '40px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+              boxShadow: 3,
             }}
-            disabled={!queryEngine || hasTransaction}
           >
-            开始事务
+            <PlayArrow />
           </Button>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              try {
-                queryEngine?.executeQuery('COMMIT');
-                setHasTransaction(false);
-                messageApi.success('事务已提交');
-              } catch (err) {
-                messageApi.error(err instanceof Error? err.message : '提交事务失败');
-              }
-            }}
-            disabled={!hasTransaction}
-          >
-            提交
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              try {
-                queryEngine?.executeQuery('ROLLBACK');
-                setHasTransaction(false);
-                messageApi.info('事务已回滚');
-              } catch (err) {
-                messageApi.error(err instanceof Error? err.message : '回滚事务失败');
-              }
-            }}
-            disabled={!hasTransaction}
-          >
-            回滚
-          </Button>
-        </ButtonGroup>
+        </Tooltip>
       </div>
       <Editor
         key={editorKey} // 使用key强制重新加载编辑器以更新自动补全

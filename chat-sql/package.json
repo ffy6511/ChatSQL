@@ -17,6 +17,7 @@
     "@mui/lab": "^7.0.0-beta.11",
     "@mui/material": "^7.0.2",
     "@mui/x-data-grid": "^7.28.3",
+    "@tsparticles/slim": "^3.8.1",
     "@xyflow/react": "^12.5.5",
     "antd": "^5.24.6",
     "monaco-editor": "^0.52.2",
@@ -24,7 +25,8 @@
     "node-sql-parser": "^5.3.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "simple-git": "^3.27.0"
+    "simple-git": "^3.27.0",
+    "tsparticles-engine": "^2.12.0"
   },
   "resolutions": {
     "antd": {

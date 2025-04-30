@@ -10,7 +10,7 @@ import { TableTuple } from '@/types/dify';
 interface CompletionContextType {
   completedProblems: Set<number>;
   setCompletedProblems: React.Dispatch<React.SetStateAction<Set<number>>>;
-  checkQueryResult: () => void;
+  checkQueryResult: () => boolean;
   resetCompletion: () => void;
 }
 
@@ -36,8 +36,10 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const checkQueryResult = useCallback(() => {
     if (!queryResult || !llmResult?.data?.outputs?.expected_result) {
-      return;
+      return false;
     }
+
+    let isAnyMatch = false;
 
     llmResult.data.outputs.expected_result.forEach((expected: TableTuple, index: number) => {
       if (!expected.tupleData) return;
@@ -45,6 +47,7 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       try {
         const isMatch = areResultsEqual(queryResult, expected.tupleData);
         if (isMatch) {
+          isAnyMatch = true;
           setCompletedProblems(prev => {
             const newSet = new Set(prev);
             newSet.add(index);
@@ -55,6 +58,8 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         console.error(`Error comparing results:`, error);
       }
     });
+    
+    return isAnyMatch;
   }, [queryResult, llmResult]);
 
   // 只在问题ID变化时重置完成状态

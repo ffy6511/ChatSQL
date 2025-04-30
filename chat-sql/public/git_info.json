@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "687dce225767bbb4048aefd21eb42baeb6f082a8",
+      "date": "2025-04-30T20:55:21+08:00",
+      "message": "fix(sqlExecutor & sqlEditor): Added aggregate function support for the SQL execution engine",
+      "author": "ffy6511"
+    },
+    {
       "hash": "27bd4f8d16d21a42ea3e3fd7a9dd51d075b6c8de",
       "date": "2025-04-30T15:19:22+08:00",
       "message": "feat(ShareLink): Add ShareButton component for sharing database links",
@@ -218,12 +224,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 36,
+    "totalCommits": 37,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-04-30T15:19:22+08:00",
+    "lastUpdate": "2025-04-30T20:55:21+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,
