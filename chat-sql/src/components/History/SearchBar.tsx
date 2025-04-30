@@ -41,7 +41,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       >
         <Input
           ref={inputRef}
-          placeholder="搜索记录..."
+          placeholder="搜索记录"
           prefix={<SearchOutlined />}
           onChange={(e) => onSearch(e.target.value)}
           className={styles.searchInput}

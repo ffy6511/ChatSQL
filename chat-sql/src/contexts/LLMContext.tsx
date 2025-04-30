@@ -11,6 +11,7 @@ interface LLMContextType {
   setLLMResult: (v: DifyResponse | null) => void;
   currentProblemId: number | null;
   setCurrentProblemId: (v: number | null) => void;
+  refreshRecords?: () => void;
 }
 
 const LLMContext = createContext<LLMContextType | null>(null);
@@ -26,6 +27,8 @@ export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [llmResult, setLLMResult] = useState<DifyResponse | null>(null);
   const [currentProblemId, setCurrentProblemId] = useState<number | null>(null);
 
+  const refreshRecords = () => {};
+
   return (
     <LLMContext.Provider value={{
       showLLMWindow,
@@ -33,7 +36,8 @@ export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       llmResult,
       setLLMResult,
       currentProblemId,
-      setCurrentProblemId
+      setCurrentProblemId,
+      refreshRecords
     }}>
       {children}
     </LLMContext.Provider>

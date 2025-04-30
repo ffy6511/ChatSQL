@@ -2,11 +2,52 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 1em;
+  padding-top: 1em;
   overflow: hidden;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+/* 添加 Tabs 相关样式 */
+.tabsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tabsContainer :global(.ant-tabs) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabsContainer :global(.ant-tabs-nav) {
+  margin: 0 !important;
+  padding: 0 16px;
+  margin-bottom: 8px!important;
+}
+
+.tabsContainer :global(.ant-tabs-nav-list) {
+  width: 100%;
+  display: flex !important;
+}
+
+.tabsContainer :global(.ant-tabs-tab) {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 !important;
+}
+
+.tabsContainer :global(.ant-tabs-content-holder) {
+  flex: 1;
+  overflow: hidden;
+}
+
+.tabsContainer :global(.ant-tabs-content) {
+  height: 100%;
 }
 
 .headerContainer {
@@ -14,78 +55,17 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  padding: 0 1em;
+  gap: 8px;
 }
 
-.headerLeft {
-  display: flex;
-  align-items: center;
-}
-
-.headerIcon {
-  font-size: 22px;
-  color: #1677ff;
-  margin-right: 10px;
-}
-
-.title {
-  margin-bottom: 0 !important;
-  font-size: 18px !important;
-  color: #333;
-  position: relative;
-  font-weight: 800 !important;
-}
-
-.title::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(90deg, #1677ff, #69b1ff);
-  border-radius: 3px;
-}
-
-.tabLabel {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-}
-
-.countBadge {
-  margin-left: 4px;
-}
-
-.newChatButton {
-  background:  #307de9;
-  border: none;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.35);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.newChatButton:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.5);
-  background: linear-gradient(135deg, #0958d9, #1677ff);
-}
-
-.newChatButton:active {
-  transform: scale(0.95);
-}
-
-.newChatButton svg {
-  font-size: 18px;
+.searchContainer {
+  flex: 1;
 }
 
 .list {
   overflow-y: auto;
   height: 100%;
-  padding: 0 4px;
+  padding: 0;
   scrollbar-width: thin;
   scrollbar-color: #d0d0d0 transparent;
 }
@@ -112,7 +92,7 @@
 }
 
 .empty {
-  margin-top: 40px;
+  margin-top: 20vh;
   color: #999;
 }
 
@@ -135,4 +115,24 @@
   background: #1677ff !important;
   height: 3px !important;
   border-radius: 3px !important;
+}
+
+
+.actionButton {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 1.2em!important;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: #666;
+  background: transparent;
+}
+
+.actionButton:hover {
+  background: #e2e1e1 !important;
+  color: #6b6d6e !important;
 }

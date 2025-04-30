@@ -1,123 +1,76 @@
 .historyItem {
-  padding: 3px 6px;
-  border-radius: 8px;
+  padding: 0px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 8px;
-  border: 1px solid transparent;
   position: relative;
-  overflow: hidden;
-  min-height: 5em !important; 
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  background-color: rgb(250, 244, 244);
-}
-
-/* .historyItem::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 4px;
-  background: transparent;
-  transition: all 0.3s ease;
-} */
-
-.historyItem:hover {
-  background-color: #f5f9ff;
-  border-color: rgba(24, 144, 255, 0.2);
-  transform: translateY(-1px);
-  /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); */
-}
-
-/* .historyItem:hover::before {
-  background: #1677ff;
-} */
-
-.active {
-  background-color: #f0f7ff;
-  border-color: rgba(24, 144, 255, 0.3);
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
-}
-
-/* .active::before {
-  background: #1677ff;
-} */
-
-.itemContent {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.titleContainer {
-  flex: 1;
-  overflow: hidden;
-  transition: all 0.2s ease;
-  padding-left: 1em;
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-/* .titleIcon {
-  font-size: 14px;
-  color: #1677ff;
-  margin-right: 8px;
-  opacity: 0.8;
-} */
-
-.title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.2s ease;
-  flex: 1;
-}
-
-/* .active .title {
-  color: #1677ff;
-} */
-
-.favoriteBadge {
-  margin-left: 8px;
-}
-
-.dateRow {
-  display: flex;
-  align-items: center;
-}
-
-.dateIcon {
-  font-size: 12px;
-  color: #999;
+  background-color: rgb(251, 248, 248);
+  border-radius: 10px!important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-left: 6px;
   margin-right: 6px;
 }
 
-.date {
+.historyItem:hover {
+  background-color: #e2e3e4b7;
+}
+
+.active {
+  background-color: #e2e3e4;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: 14px;
+  color: #333;
+  padding-left: 6px;
+  width: 100%;
+}
+
+.infoContainer {
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  gap: 8px;
   font-size: 12px;
   color: #999;
 }
 
+.dateInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tagsContainer {
+  display: flex;
+  gap: 2px;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 0 4px;
+  font-family: var(--font-mono) !important;
+  line-height: 16px;
+}
+
 .actions {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   gap: 6px;
-  margin-left: 8px;
   opacity: 0;
-  transform: translateX(10px);
   transition: all 0.3s ease;
 }
 
 .historyItem:hover .actions {
   opacity: 1;
-  transform: translateX(0);
 }
 
 .actions button {
@@ -157,4 +110,24 @@
 /* 删除确认对话框样式 */
 .deleteModal {
   width: 320px !important;
+}
+
+.tutorial {
+  background-color: rgba(24, 144, 255, 0.1);
+  border-left: 3px solid #1890ff;
+}
+
+.tutorial:hover {
+  background-color: rgba(24, 144, 255, 0.2);
+}
+
+.moreButton{
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-size: 1.3em;
+  margin-right: 6px;
+}
+
+.historyItem:hover .moreButton{
+  opacity: 1;
 }

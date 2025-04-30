@@ -15,23 +15,23 @@
 }
 
 .topButtons {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #eae5e5;
 }
 
 .bottomButtons {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #eae5e5;
 }
 
 .actionButton {
-  width: 40px;
-  height: 40px;
+  width: 2em !important;
+  height: 2em!important;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   transition: all 0.3s ease;
-  color: #666;
+  color: #666 !important;
   background: transparent;
 }
 
@@ -44,6 +44,7 @@
 .menuContainer {
   flex: 1;
   overflow-y: auto;
+  margin-top:2em;
 }
 
 .menuItems {

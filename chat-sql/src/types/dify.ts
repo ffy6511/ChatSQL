@@ -1,7 +1,25 @@
 // Dify API 返回的数据结构
 export interface DifyResponse {
   data: {
-    outputs: ProblemOutput;
+    outputs: {
+      description: string;
+      problem: string[];
+      expected_result: any[];
+      hint: string;
+      tableStructure: {
+        tableName: string;
+        columns: any[];
+        foreignKeys: any[];
+      }[];
+      tuples: {
+        tableName: string;
+        tupleData: any[];
+      }[];
+      tags: string[];
+      isBuiltIn?: boolean;  // 新增字段，用于标识内置教程
+      order?: number;       // 新增字段，用于教程排序
+      category?: string;    // 新增字段，用于教程分类
+    }
   }
 }
 

@@ -66,8 +66,8 @@ const Page: React.FC = () => {
               <Splitter.Panel
                   min="15%"
                   // collapsible={true}
-                defaultSize="20%"
-                max="30%"
+                defaultSize="19%"
+                max="21%"
                 className="history-panel"
               >
                 <div className="history-content">

@@ -5,11 +5,12 @@ import {
   GithubOutlined, 
   PlusCircleOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
 import styles from './SideBar.module.css';
 import GuidingModal from './GuidingModal';
+import InitTutorialButton from '../Tutorial/InitTutorialButton';
 
 const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -20,7 +21,7 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
     setCurrentProblemId, 
     setShowLLMWindow,
     showLLMWindow,
-    currentProblemId 
+    currentProblemId,
   } = useLLMContext();
 
   const handleOpenGuide = () => {
@@ -73,11 +74,13 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
             onClick={handleToggleHistory}
           />
         </Tooltip>
+
+
       </div>
 
       <div className={styles.menuContainer}>
         <div className={styles.menuItems}>
-          {/* 导航菜单项 */}
+            <InitTutorialButton className={styles.actionButton} />
         </div>
       </div>
       

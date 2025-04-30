@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "6e759cd7b42828386edf53934dd5331363697ece",
+      "date": "2025-04-30T11:49:09+08:00",
+      "message": "fix(changeLog): Add the ability to generate git information and update related interfaces",
+      "author": "ffy6511"
+    },
+    {
       "hash": "e6349aa63e0a3d3b26648f9fc964580379a0b5a0",
       "date": "2025-04-30T00:01:05+08:00",
       "message": "docs(GuidingModal):",
@@ -200,12 +206,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 33,
+    "totalCommits": 34,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-04-30T00:01:05+08:00",
+    "lastUpdate": "2025-04-30T11:49:09+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,

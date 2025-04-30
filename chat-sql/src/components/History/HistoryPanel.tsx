@@ -10,7 +10,7 @@ import {
   Badge 
 } from 'antd';
 import { 
-  PlusCircleOutlined, 
+  EditOutlined, 
   ClockCircleOutlined,
   HeartOutlined 
 } from '@ant-design/icons';
@@ -139,56 +139,58 @@ const HistoryPanel: React.FC = () => {
     <div className={styles.historyPanel}>
       {contextHolder}
       <div className={styles.headerContainer}>
-        <div className={styles.headerLeft}>
-          <div className={styles.title}>历史记录</div>
+        <div className={styles.searchContainer}>
+          <SearchBar onSearch={setSearchQuery} />
         </div>
-        <SearchBar onSearch={setSearchQuery} />
         <Tooltip title="新建对话">
           <Button
             type="primary"
-            icon={<PlusCircleOutlined />}
-            className={styles.newChatButton}
+            icon={<EditOutlined />}
+            className={styles.actionButton}
             onClick={handleNewChat}
+            style={{marginRight:'1em'}}
           />
         </Tooltip>
       </div>
-      <Tabs
-        defaultActiveKey="recent"
-        items={[
-          {
-            key: 'recent',
-            label: (
-              <span className={styles.tabLabel}>
-                <ClockCircleOutlined />
-                最近
-                <Badge
-                  count={filterRecords(recentRecords).length}
-                  className={styles.countBadge}
-                  size="small"
-                  style={{ backgroundColor: '#52c41a' }}
-                />
-              </span>
-            ),
-            children: renderList(filterRecords(recentRecords))
-          },
-          {
-            key: 'favorite',
-            label: (
-              <span className={styles.tabLabel}>
-                <HeartOutlined />
-                收藏
-                <Badge
-                  count={filterRecords(favoriteRecords).length}
-                  className={styles.countBadge}
-                  size="small"
-                  style={{ backgroundColor: '#faad14' }}
-                />
-              </span>
-            ),
-            children: renderList(filterRecords(favoriteRecords))
-          },
-        ]}
-      />
+      <div className={styles.tabsContainer}>
+        <Tabs
+          defaultActiveKey="recent"
+          items={[
+            {
+              key: 'recent',
+              label: (
+                <span className={styles.tabLabel}>
+                  <ClockCircleOutlined />
+                  最近
+                  <Badge
+                    count={filterRecords(recentRecords).length}
+                    className={styles.countBadge}
+                    size="small"
+                    style={{ backgroundColor: '#52c41a' }}
+                  />
+                </span>
+              ),
+              children: renderList(filterRecords(recentRecords))
+            },
+            {
+              key: 'favorite',
+              label: (
+                <span className={styles.tabLabel}>
+                  <HeartOutlined />
+                  收藏
+                  <Badge
+                    count={filterRecords(favoriteRecords).length}
+                    className={styles.countBadge}
+                    size="small"
+                    style={{ backgroundColor: '#faad14' }}
+                  />
+                </span>
+              ),
+              children: renderList(filterRecords(favoriteRecords))
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 };

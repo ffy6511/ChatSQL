@@ -1,7 +1,5 @@
 .searchContainer {
-  /* margin-left: auto; */
-  display: flex;
-  align-items: center;
+  margin-left: 1rem;
 }
 
 .searchIcon {
@@ -16,12 +14,13 @@
 }
 
 .searchInput {
-  width: 5em;
+  width: 8em;
   transition: all 0.3s;
-  border-radius: 6px;
+  border-radius: 10px;
+  background-color: #f7f3f3;
 }
 
 .searchInput:focus {
-  width: 7em;
+  width: 10em;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
