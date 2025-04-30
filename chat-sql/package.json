@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "generate-git": "node scripts/generate-git-info.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

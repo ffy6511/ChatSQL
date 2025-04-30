@@ -96,6 +96,11 @@ NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
 npm run dev
 ```
 
+5. 更新git日志: 如果您希望更新自己的"更新日志"界面, 请执行
+```bash
+npm run generate-git
+```
+
 ### Dify 工作流配置
 
 1. 在 [Dify 平台](https://dify.ai) 创建新应用（选择工作流）

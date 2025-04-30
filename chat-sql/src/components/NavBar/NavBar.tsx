@@ -27,7 +27,7 @@ const NavBar: React.FC = () => {
       </div>
       
       <div className={styles.rightSection}>
-                <Tooltip title="返回主页">
+        <Tooltip title="返回主页">
           <Button 
             type="text" 
             icon={<HomeOutlined />}
@@ -35,15 +35,14 @@ const NavBar: React.FC = () => {
             className={styles.navButton}
           />
         </Tooltip>
-        {/* TODO: fix with Octokit on vercel */}
-        {/* <Tooltip title="更新日志">
+        <Tooltip title="更新日志">
           <Button 
             type="text" 
             icon={<HistoryOutlined />}
             onClick={() => router.push('/changelog')}
             className={styles.navButton}
           />
-        </Tooltip> */}
+        </Tooltip>
       </div>
     </nav>
   );

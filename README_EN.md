@@ -99,6 +99,12 @@ NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
 npm run dev
 ```
 
+5. Update the git log: If you wish to update your own "changelog" interface, please execute
+
+```bash
+npm run generate-git
+```
+
 ### Dify Workflow Configuration
 
 1. Create a new application (select workflow) on [Dify platform](https://dify.ai)

@@ -1,0 +1,220 @@
+{
+  "history": [
+    {
+      "hash": "e6349aa63e0a3d3b26648f9fc964580379a0b5a0",
+      "date": "2025-04-30T00:01:05+08:00",
+      "message": "docs(GuidingModal):",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "e037da525ab951f0909986723e759463b45855f9",
+      "date": "2025-04-29T23:08:35+08:00",
+      "message": "feat(navBar):changelog page & Sidebar updated",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "dec792d0f1df30e7822bd4b61511c03c350b269e",
+      "date": "2025-04-28T23:52:36+08:00",
+      "message": "feat(navBar): Added logo and navigation bar design.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "5466abea80ad3441708590d0dc92b8be2d416c3d",
+      "date": "2025-04-28T21:41:55+08:00",
+      "message": "fix(README)",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "0fd371d8d18463c4066c1bca87fc4fa8488a888a",
+      "date": "2025-04-28T21:17:02+08:00",
+      "message": "docs(README)",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "b04b8bcf00c819defa2283b50df4d1fcd12ed0ca",
+      "date": "2025-04-28T19:04:33+08:00",
+      "message": "style: Major modifications to the overall style.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "eee3382a80b1a921a1363b5fe5a9f59b5eb26215",
+      "date": "2025-04-27T23:32:20+08:00",
+      "message": "fix: Update ESLint configuration to disable specific rules, optimize style and component logic",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "1cf9720893ad425830e8df8c2fb5d59b0170ff15",
+      "date": "2025-04-27T22:37:50+08:00",
+      "message": "feat(HistoryPanel): Added search function of search bar and corresponding shortcut",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "0a3021c7b5ff3269162cfffc07e3db2b13c27e23",
+      "date": "2025-04-27T21:04:33+08:00",
+      "message": "fix(problemViewer):Update answer status when switching questions",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "52af636814eed34ac333df281cef950ccb705937",
+      "date": "2025-04-27T20:41:18+08:00",
+      "message": "Style: Styling schema and tuple data.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "05b57412e81b7902138cd6fec54cdc4d90d55d8b",
+      "date": "2025-04-27T14:45:36+08:00",
+      "message": "feat(LLMWindow): Modify the layout format and logic of the LLM window",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "f3d27c5f96e053e2c225c54715d547b055ed7ea1",
+      "date": "2025-04-27T09:03:24+08:00",
+      "message": "feat(resultComparator): Automatically/manually invoke the comparison function between query results and query requirements, adding context relevant to problem completion.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "2881d344e3cf9f283e813534cde69d023a62e450",
+      "date": "2025-04-26T23:39:00+08:00",
+      "message": "feat(ProblemViewer): Added view switching function to support the display of database structures and tuple tables.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "73a3d0ad4bd241b03ac13fedf104a663e94070c5",
+      "date": "2025-04-25T22:26:41+08:00",
+      "message": "feat(SQLEditor): Add keyboard shortcut support and tooltips to optimize the query execution experience",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "2b39667993cf3aa529312a03810dde6969e1db38",
+      "date": "2025-04-25T22:09:26+08:00",
+      "message": "feat(sqlCompletionProvider): Enhance SQL editor with dynamic auto-completion and improved suggestion provider",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "dc1d9440f74be5ea99e180b572e823c5d175d0bf",
+      "date": "2025-04-25T00:00:34+08:00",
+      "message": "feat(RenderdArea): Add empty state component and query result title to optimize query area display",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "f1c9c8778ae907db50d53d7e0cb6ed848e4593d4",
+      "date": "2025-04-23T23:33:10+08:00",
+      "message": "refactor(SQLExecutor): Add conditional evaluation, constraint validation, query assistance, and transaction management modules",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "481bf61916a8f55aa6be8bae9bef73d6acb904ea",
+      "date": "2025-04-23T23:11:17+08:00",
+      "message": "fix(sqlExcutor): Perfect basic logical operations and where clauses, etc",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "433dcb14ef05d91f5489154bd89ce23d5929cea9",
+      "date": "2025-04-22T23:49:36+08:00",
+      "message": "feat: integrate SQL query execution and result display",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "7b8b52cb5b524754565a4622764ce2ff6a9612ea",
+      "date": "2025-04-21T23:04:18+08:00",
+      "message": "feat(SideBar): Implement sidebar component with guiding modal and theme toggle",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "d89b887b64056e39aeec8650479f5ff473a0d18f",
+      "date": "2025-04-21T22:42:59+08:00",
+      "message": "feat(addNewChat): Added a button for creating a new dialog window",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "1cdf9ed48956bc9014d9ac826ec3c8378df1b5f6",
+      "date": "2025-04-20T15:15:08+08:00",
+      "message": "Style(History): Enhance history panel and item styles with improved UI elements and interactions",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "4de26d2fa843031af00b79d52fa94ef61541ae5f",
+      "date": "2025-04-20T13:59:11+08:00",
+      "message": "feat(History): Implement history management with CRUD operations and UI components",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "17f6c720364a9db5c40654922c026752825d4d57",
+      "date": "2025-04-20T13:35:40+08:00",
+      "message": "feat(LLMInteractive): Refactor LLM components to utilize DifyResponse type and improve context management",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "f136e5be81effb3971c8c7992cd80db1457137ef",
+      "date": "2025-04-18T23:24:48+08:00",
+      "message": "feat(LLMInteractive): Add LLM result view component and implement data storage function",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "ccd1c83e65f8ed5a00d96b947631c29ef82c7187",
+      "date": "2025-04-17T23:44:49+08:00",
+      "message": "feat(LLMInteractive): Add LLM interaction components and their associated contexts and styles",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "e7bc194c9321b84ce1242ac772d44207f456c0b4",
+      "date": "2025-04-15T23:08:56+08:00",
+      "message": "Style(tableDataTransform): Modify table styles with @mui/x-data-grid to enhance visualization",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "7f7075f4ef3d2a045103c66bd5ca03d9a8b07b02",
+      "date": "2025-04-14T23:59:45+08:00",
+      "message": "feat(LLMInteractive): Add Tuple Viewer Components and Optimize UI Styles",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "3f4a89570ce7b3cad9bad18ea450ccc390d841bf",
+      "date": "2025-04-13T23:41:11+08:00",
+      "message": "style(page): Design the overall layout, using antd's scaling components and embedding SQLEditor",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "bfc79018f8ae6a6d8dda151e5bd7d1dccbc17875",
+      "date": "2025-04-13T00:05:04+08:00",
+      "message": "feat: Add SQL editor components and related styles, update dependencies, and modify database process component styles",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "80286f0d308d7878045591e438ccb1300cdef536",
+      "date": "2025-04-10T23:14:35+08:00",
+      "message": "refactor: Centralize type definitions into the Database.ts file",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "9f8c08a04d6b4cbfc5ec87cba511703d1affce7a",
+      "date": "2025-04-10T23:00:10+08:00",
+      "message": "feat: Initialize the project and add a database visualization component",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "6431f8d3b7c35caf708bff7e338a32289396dd1a",
+      "date": "2025-04-09T23:21:09+08:00",
+      "message": "Initial commit",
+      "author": "junhao Zhuo"
+    }
+  ],
+  "stats": {
+    "totalCommits": 33,
+    "contributors": [
+      "ffy6511",
+      "junhao Zhuo"
+    ],
+    "lastUpdate": "2025-04-30T00:01:05+08:00",
+    "activeBranches": 3,
+    "branchDetails": {
+      "totalBranches": 3,
+      "currentBranch": "main",
+      "branches": [
+        "main",
+        "mobile",
+        "remotes/origin/main"
+      ]
+    }
+  }
+}

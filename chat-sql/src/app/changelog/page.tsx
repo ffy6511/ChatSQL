@@ -189,6 +189,7 @@ const ChangelogPage: React.FC = () => {
       <div className={styles.parallaxBackground} />
       <div className={styles.content}>
 
+        {/* 项目统计 */}
         {/* <Row gutter={[16, 16]}>
           <Col xs={24} md={6}>
             <StatsCard>

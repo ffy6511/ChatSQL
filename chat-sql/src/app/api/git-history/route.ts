@@ -1,27 +1,13 @@
 import { NextResponse } from 'next/server';
-import simpleGit from 'simple-git';
+import { GitInfo } from '@/types/git';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// 读取 JSON 文件
+const gitInfoData: GitInfo = JSON.parse(
+  readFileSync(join(process.cwd(), 'public', 'git_info.json'), 'utf-8')
+);
 
 export async function GET() {
-  try {
-    const git = simpleGit();
-    
-    // 获取最近的 50 条提交记录
-    const logs = await git.log({
-      maxCount: 50,
-      format: {
-        hash: '%H',
-        date: '%aI',
-        message: '%s',
-        author: '%an'
-      }
-    });
-
-    return NextResponse.json(logs.all);
-  } catch (error) {
-    console.error('Error fetching git history:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch git history' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(gitInfoData.history);
 }

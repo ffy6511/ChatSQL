@@ -5,7 +5,7 @@
   right: 0;
   height: var(--navbar-height);
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -48,4 +48,16 @@
   color: #4285f4;
   margin: 0;
   font-family: 'Maple Mono', monospace;
+}
+
+.navButton{
+  border-radius: 50%; 
+  border: 1px solid #f4f5f4;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 30px;
+  width: 30px;
+}
+
+.navButton:hover {
+  background-color: #e9ebe9 !important;
 }
