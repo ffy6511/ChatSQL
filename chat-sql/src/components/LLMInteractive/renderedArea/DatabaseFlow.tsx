@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -15,6 +15,7 @@ import {
   Node as FlowNode,
   Edge as FlowEdge,
   NodeChange,
+  applyNodeChanges,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
@@ -179,36 +180,33 @@ interface DatabaseFlowProps {
 }
 
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
-  // 显式指定 useNodesState 的泛型参数
-  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>([]); // 移除额外的数组层级
-  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
+  const initialNodes = tables.map((table, index) => ({
+    id: table.id,
+    type: "table",
+    position: {
+      x: (index % 3) * 350 + 50,
+      y: Math.floor(index / 3) * 350 + 50
+    },
+    data: {
+      tableName: table.tableName,
+      columns: table.columns,
+      isReferenced: table.isReferenced,
+    },
+    draggable: true,
+  }));
 
-  // 添加布局初始化
+  const initialEdges = generateEdges(tables);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(initialEdges);
+
+  // 只在 tables 变化时更新节点和边
   useEffect(() => {
     if (tables && tables.length > 0) {
-      // 为每个表生成一个基础位置
-      const newNodes: CustomNode[] = tables.map((table, index) => ({
-        id: table.id,
-        type: "table",
-        // 如果没有预设位置，则按网格布局排列
-        position: table.position || {
-          x: (index % 3) * 350 + 50,  // 每行3个表
-          y: Math.floor(index / 3) * 350 + 50
-        },
-        data: {
-          tableName: table.tableName,
-          columns: table.columns,
-          isReferenced: table.isReferenced,
-        },
-        draggable: true,
-      }));
-
-      const newEdges: CustomEdge[] = generateEdges(tables);
-      
-      setNodes(newNodes);
-      setEdges(newEdges);
+      setNodes(initialNodes);
+      setEdges(initialEdges);
     }
-  }, [tables, setNodes, setEdges]);
+  }, [tables]);
 
   return (
     <div className="database-flow-container" style={styles}>
@@ -248,7 +246,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
           }}
           showZoom={true}
           showFitView={true}
-          showInteractive={true}
+          showInteractive={false}
           position="bottom-right"
         />
       </ReactFlow>

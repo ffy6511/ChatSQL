@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "27bd4f8d16d21a42ea3e3fd7a9dd51d075b6c8de",
+      "date": "2025-04-30T15:19:22+08:00",
+      "message": "feat(ShareLink): Add ShareButton component for sharing database links",
+      "author": "ffy6511"
+    },
+    {
       "hash": "f436be9ab7d5adcb34639bcb052e2fb9636b3222",
       "date": "2025-04-30T15:05:49+08:00",
       "message": "feat(Tutorial): Added pre-basic exercises",
@@ -212,12 +218,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 35,
+    "totalCommits": 36,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-04-30T15:05:49+08:00",
+    "lastUpdate": "2025-04-30T15:19:22+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,

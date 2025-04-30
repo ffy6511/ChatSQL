@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import Editor from '@monaco-editor/react';
 import './SQLEditor.css';
 import './MonacoEditorStyles.css'; // 添加Monaco编辑器样式
@@ -28,7 +28,6 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   const [messageApi, contextHolder] = antdMessage.useMessage();
   const { llmResult } = useLLMContext();
   const [queryEngine, setQueryEngine] = useState<SQLQueryEngine | null>(null);
-  const [error, setError] = useState<string>('');
   const [hasTransaction, setHasTransaction] = useState(false);
   const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
   const { setQueryResult } = useQueryContext();
@@ -65,7 +64,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
   const handleExecute = useCallback(async () => {
     if (!queryEngine) {
-      setError('请先生成数据库结构');
+      messageApi.error('请先生成数据库结构');
       return;
     }
 
@@ -76,21 +75,22 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
       if (result.success) {
         if (result.data) {
-          console.log('[SQLEditor] Setting query result to context:', result.data);
-          setQueryResult(result.data);  // 设置到 context
-          onExecute?.(result.data);     // 可选的回调
+          setQueryResult(result.data);
+          onExecute?.(result.data);
         }
         if (result.message) {
           messageApi.success(result.message);
         }
       } else {
-        setError(result.message || '查询执行失败');
+        // 显示友好的错误消息
+        messageApi.error('SQL语句不合法，请检查语法');
       }
     } catch (err) {
       console.error('[SQLEditor] Error:', err);
-      setError(err instanceof Error ? err.message : '查询执行失败');
+      // 显示友好的错误消息
+      messageApi.error('SQL语句不合法，请检查语法');
     }
-  }, [queryEngine, sqlEditorValue, setError, setQueryResult, onExecute, messageApi]);
+  }, [queryEngine, sqlEditorValue, setQueryResult, onExecute, messageApi]);
 
   // 保存自动补全提供器的引用，以便在需要时取消注册
   const completionProviderRef = useRef<any>(null);
@@ -158,11 +158,22 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
   }, [llmResult?.data?.outputs?.tableStructure]);
 
   const handleChange = useCallback((newValue: string | undefined) => {
-    if (newValue !== undefined) {
+    if (newValue !== undefined && newValue !== sqlEditorValue) {
       setSqlEditorValue(newValue);
+      // 只在真正需要时触发 onChange
       onChange?.(newValue);
     }
-  }, [onChange, setSqlEditorValue]);
+  }, [onChange, setSqlEditorValue, sqlEditorValue]);
+
+  // 使用 useMemo 缓存编辑器配置
+  const editorOptions = useMemo(() => ({
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    fontSize: 14,
+    lineNumbers: 'on',
+    roundedSelection: false,
+    automaticLayout: true,
+  }), []);
 
   // 保存编辑器实例的引用
   const editorRef = useRef<any>(null);
@@ -203,10 +214,10 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
                 messageApi.success(result.message);
               }
             } else {
-              setError(result.message || '查询执行失败');
+              messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
             }
           } catch (err) {
-            setError(err instanceof Error ? err.message : '查询执行失败');
+            messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
           }
         } else {
           messageApi.warning('请先生成数据库结构');
@@ -215,7 +226,40 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
     );
 
     // 可以在这里添加更多的键盘快捷键
-  }, [queryEngine, setSqlEditorValue, setQueryResult, onExecute, setError, messageApi]);
+  }, [queryEngine, setSqlEditorValue, setQueryResult, onExecute, messageApi]);
+
+  const handleToolbarClick = () => {
+    if (editorRef.current) {
+      const currentValue = editorRef.current.getValue();
+      console.log('按钮执行查询，当前SQL:', currentValue);
+
+      if (!currentValue.trim()) {
+        messageApi.warning('SQL语句不能为空');
+        return;
+      }
+
+      setSqlEditorValue(currentValue);
+
+      try {
+        const result = queryEngine!.executeQuery(currentValue);
+        if (result.success) {
+          if (result.data) {
+            setQueryResult(result.data);
+            onExecute?.(result.data);
+          }
+          if (result.message) {
+            messageApi.success(result.message);
+          }
+        } else {
+          messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+        }
+      } catch (err) {
+        messageApi.error('SQL语句不合法，请检查语法'); // 替换 setError
+      }
+    } else {
+      handleExecute();
+    }
+  };
 
   return (
     <div className="sql-editor-container">
@@ -237,42 +281,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
             <Button
               variant="contained"
               // startIcon={<PlayArrow />}
-              onClick={() => {
-                // 如果有编辑器实例，直接从编辑器获取当前内容
-                if (editorRef.current) {
-                  const currentValue = editorRef.current.getValue();
-                  console.log('按钮执行查询，当前SQL:', currentValue);
-
-                  if (!currentValue.trim()) {
-                    messageApi.warning('SQL语句不能为空');
-                    return;
-                  }
-
-                  // 更新编辑器状态
-                  setSqlEditorValue(currentValue);
-
-                  // 使用当前编辑器内容执行查询
-                  try {
-                    const result = queryEngine!.executeQuery(currentValue);
-                    if (result.success) {
-                      if (result.data) {
-                        setQueryResult(result.data);
-                        onExecute?.(result.data);
-                      }
-                      if (result.message) {
-                        messageApi.success(result.message);
-                      }
-                    } else {
-                      setError(result.message || '查询执行失败');
-                    }
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : '查询执行失败');
-                  }
-                } else {
-                  // 如果没有编辑器实例，使用状态中的值
-                  handleExecute();
-                }
-              }}
+              onClick={handleToolbarClick}
               disabled={!queryEngine}
             >
               <PlayArrow />
@@ -286,7 +295,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
                 setHasTransaction(true);
                 messageApi.info('事务已开始');
               } catch (err) {
-                setError(err instanceof Error ? err.message : '开始事务失败');
+                messageApi.error(err instanceof Error? err.message : '开始事务失败');
               }
             }}
             disabled={!queryEngine || hasTransaction}
@@ -301,7 +310,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
                 setHasTransaction(false);
                 messageApi.success('事务已提交');
               } catch (err) {
-                setError(err instanceof Error ? err.message : '提交事务失败');
+                messageApi.error(err instanceof Error? err.message : '提交事务失败');
               }
             }}
             disabled={!hasTransaction}
@@ -316,7 +325,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
                 setHasTransaction(false);
                 messageApi.info('事务已回滚');
               } catch (err) {
-                setError(err instanceof Error ? err.message : '回滚事务失败');
+                messageApi.error(err instanceof Error? err.message : '回滚事务失败');
               }
             }}
             disabled={!hasTransaction}
@@ -325,9 +334,6 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           </Button>
         </ButtonGroup>
       </div>
-      {error && (
-        <div className="error-message">{error}</div>
-      )}
       <Editor
         key={editorKey} // 使用key强制重新加载编辑器以更新自动补全
         className="sql-editor"

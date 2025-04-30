@@ -10,7 +10,11 @@ import {
   validateForeignKeys,
   beginTransaction,
   commitTransaction,
-  rollbackTransaction
+  rollbackTransaction,
+  executeJoins,
+  executeGroupBy,
+  executeOrderBy,
+  isAggregateFunction
 } from '@/lib';
 
 /**
@@ -147,9 +151,9 @@ export class SQLQueryEngine {
   private executeSelect(ast: any): SQLQueryResult {
     console.log('SELECT AST:', JSON.stringify(ast, null, 2));
 
-    // 处理数组形式的AST
     const selectAst = Array.isArray(ast) ? ast[0] : ast;
 
+    // 获取基础表数据
     const tableName = selectAst.from?.[0]?.table;
     if (!tableName) {
       throw new Error('无效的SELECT语句：缺少表名');
@@ -162,36 +166,67 @@ export class SQLQueryEngine {
 
     let result = [...table.data];
 
+    // 处理JOIN
+    if (selectAst.join) {
+      result = executeJoins(result, selectAst.join, this.getTable.bind(this));
+    }
+
     // 处理WHERE子句
     if (selectAst.where) {
       result = result.filter(row => evaluateWhereClause(row, selectAst.where));
     }
 
-    // 处理列选择
-    let selectedColumns;
-    if (selectAst.columns === '*' ||
-        (selectAst.columns[0]?.expr?.type === 'column_ref' &&
-         selectAst.columns[0]?.expr?.column === '*')) {
-      selectedColumns = table.data.length > 0 ? Object.keys(table.data[0]) : [];
+    // 检查是否包含聚合函数
+    const hasAggregates = selectAst.columns.some((col: any) => 
+      isAggregateFunction(col.expr)
+    );
+
+    // 处理GROUP BY
+    if (selectAst.groupby || hasAggregates) {
+      const groupByColumns = selectAst.groupby?.map((item: any) => item.column) || [];
+      result = executeGroupBy(result, groupByColumns, selectAst.columns);
+
+      // 处理HAVING子句
+      if (selectAst.having) {
+        result = result.filter(row => evaluateWhereClause(row, selectAst.having));
+      }
     } else {
-      selectedColumns = selectAst.columns.map((col: any) =>
-        col.expr?.column || col.expr?.value || col.name
-      );
+      // 普通列选择
+      let selectedColumns;
+      if (selectAst.columns === '*' ||
+          (selectAst.columns[0]?.expr?.type === 'column_ref' &&
+           selectAst.columns[0]?.expr?.column === '*')) {
+        selectedColumns = result.length > 0 ? Object.keys(result[0]) : [];
+      } else {
+        selectedColumns = selectAst.columns.map((col: any) =>
+          col.expr?.column || col.expr?.value || col.name
+        );
+      }
+
+      result = result.map(row => {
+        const resultRow: any = {};
+        selectedColumns.forEach((col: string) => {
+          resultRow[col] = row[col];
+        });
+        return resultRow;
+      });
     }
 
-    const resultData = result.map(row => {
-      const resultRow: any = {};
-      selectedColumns.forEach((col: string) => {
-        resultRow[col] = row[col];
-      });
-      return resultRow;
-    });
+    // 处理ORDER BY
+    if (selectAst.orderby) {
+      result = executeOrderBy(result, selectAst.orderby);
+    }
 
-    console.log('Query result data:', resultData); // 添加结果日志
+    // 处理LIMIT和OFFSET
+    if (selectAst.limit) {
+      const limit = Number(selectAst.limit.value);
+      const offset = selectAst.limit.offset ? Number(selectAst.limit.offset.value) : 0;
+      result = result.slice(offset, offset + limit);
+    }
 
     return {
       success: true,
-      data: resultData
+      data: result
     };
   }
 

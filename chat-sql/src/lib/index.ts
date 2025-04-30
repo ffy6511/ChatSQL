@@ -1,7 +1,5 @@
 /**
  * SQL执行器辅助函数索引
- * 
- * 该文件导出所有SQL执行器使用的辅助函数，以便更容易导入。
  */
 
 // 条件评估
@@ -15,3 +13,6 @@ export * from './queryHelpers';
 
 // 事务管理
 export * from './transactionManager';
+
+// 聚合函数
+export * from './aggregateFunctions';

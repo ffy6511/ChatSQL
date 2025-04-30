@@ -34,6 +34,7 @@ export interface ProblemOutput {
   hint?: string;
 }
 
+// schema渲染组件的输入要求(通过parse函数将dify的外键关系进行转换)
 export interface TableStructure {
   tableName: string;
   columns: {

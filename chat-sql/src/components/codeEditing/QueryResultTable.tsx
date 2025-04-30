@@ -29,8 +29,31 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [checkQueryResult]);
 
+  // 如果没有数据，显示提示信息而不是返回 null
   if (!data || data.length === 0) {
-    return null;
+    return (
+      <Box sx={{ mt: 1, height: 400, borderRadius: 1 }}>
+        <Paper 
+          sx={{ 
+            height: '100%', 
+            width: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: 2
+          }}
+        >
+          <AssessmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
+          <Typography variant="h6" color="text.secondary">
+            暂无查询结果
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            请执行查询语句获取数据
+          </Typography>
+        </Paper>
+      </Box>
+    );
   }
 
   const columns: GridColDef[] = Object.keys(data[0]).map((key) => ({

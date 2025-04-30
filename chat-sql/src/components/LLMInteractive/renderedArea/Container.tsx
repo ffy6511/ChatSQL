@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Box, SpeedDial, SpeedDialIcon, SpeedDialAction, Tooltip } from '@mui/material';
 import DatabaseFlow from './DatabaseFlow';
 import TupleViewer from './TupleViewer';
@@ -16,13 +16,24 @@ export const Container: React.FC = () => {
   const { llmResult } = useLLMContext();
   const [viewMode, setViewMode] = useState<ViewMode>('schema');
 
-  const tables = llmResult?.data?.outputs?.tableStructure
-    ? parseJSONToTables(llmResult.data.outputs.tableStructure.map(table => ({
-        tableName: table.tableName,
-        columns: table.columns,
-        foreignKeys: table.foreignKeys
-      })))
-    : [];
+  // 只在 tableStructure 变化时更新 tables
+  const tables = useMemo(() => {
+    if (!llmResult?.data?.outputs?.tableStructure) {
+      return [];
+    }
+    return parseJSONToTables(llmResult.data.outputs.tableStructure.map(table => ({
+      tableName: table.tableName,
+      columns: table.columns,
+      foreignKeys: table.foreignKeys
+    })));
+  }, [llmResult?.data?.outputs?.tableStructure]);
+
+  // 使用 useMemo 包装渲染内容，避免不必要的重渲染
+  const schemaContent = useMemo(() => (
+    <Box sx={{ height: '100%' }}>
+      <DatabaseFlow tables={tables} styles={{ height: '100%' }} />
+    </Box>
+  ), [tables]);
 
   const actions = [
     { icon: <SchemaIcon />, name: '数据库结构', value: 'schema' },
@@ -101,13 +112,9 @@ export const Container: React.FC = () => {
           backgroundColor: 'background.paper',
           borderRadius: 1,
           overflow: 'auto',
-          mt:0, 
+          mt: 0, 
         }}>
-          {viewMode === 'schema' ? (
-            <Box sx={{ height: '100%' }}>
-              <DatabaseFlow tables={tables} styles={{ height: '100%' }} />
-            </Box>
-          ) : (
+          {viewMode === 'schema' ? schemaContent : (
             <Box sx={{ height: '100%' }}>
               <TupleViewer />
             </Box>

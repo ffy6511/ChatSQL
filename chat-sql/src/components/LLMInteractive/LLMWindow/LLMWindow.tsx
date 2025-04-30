@@ -17,20 +17,12 @@ import LLMResultView from '@/lib/LLMResultView';
 import { useSimpleStorage } from '@/hooks/useRecords';
 import { DifyResponse } from '@/types/dify';
 import {
-  Box,
-  Paper,
   Typography,
-  Stack
 } from '@mui/material';
 import { useEditorContext } from '@/contexts/EditorContext';
 import ShinyText from '@/components/utils/ShinyText';
 import { useTagsManager } from '@/hooks/useTagsManager';
 
-const initialTags = [
-  { label: '算法', color: 'magenta' },
-  { label: '数据结构', color: 'geekblue' },
-  { label: '数学', color: 'cyan' },
-];
 
 const difficultyOptions = [
   { label: '简单', value: 'simple' },
