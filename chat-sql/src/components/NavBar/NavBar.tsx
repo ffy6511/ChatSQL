@@ -5,6 +5,7 @@ import { Button, Tooltip } from 'antd';
 import { HomeOutlined, HistoryOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import styles from './NavBar.module.css';
+import ShareButton from './ShareButton';
 
 const NavBar: React.FC = () => {
   const router = useRouter();
@@ -27,6 +28,7 @@ const NavBar: React.FC = () => {
       </div>
       
       <div className={styles.rightSection}>
+        <ShareButton />
         <Tooltip title="返回主页">
           <Button 
             type="text" 

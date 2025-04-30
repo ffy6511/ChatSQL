@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "f436be9ab7d5adcb34639bcb052e2fb9636b3222",
+      "date": "2025-04-30T15:05:49+08:00",
+      "message": "feat(Tutorial): Added pre-basic exercises",
+      "author": "ffy6511"
+    },
+    {
       "hash": "6e759cd7b42828386edf53934dd5331363697ece",
       "date": "2025-04-30T11:49:09+08:00",
       "message": "fix(changeLog): Add the ability to generate git information and update related interfaces",
@@ -206,12 +212,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 34,
+    "totalCommits": 35,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-04-30T11:49:09+08:00",
+    "lastUpdate": "2025-04-30T15:05:49+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,

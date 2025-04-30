@@ -105,14 +105,25 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   ];
 
   // 格式化时间的函数
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear().toString().slice(2); // 只取年份后两位
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${year}/${month}/${day} ${hours}:${minutes}`;
+  const formatDate = (dateInput: Date | string) => {
+    try {
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      
+      if (isNaN(date.getTime())) {
+        return '未知时间';
+      }
+
+      const year = date.getFullYear().toString().slice(2); // 只取年份后两位
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      
+      return `${year}/${month}/${day} ${hours}:${minutes}`;
+    } catch (error) {
+      console.error('日期格式化错误:', error);
+      return '未知时间';
+    }
   };
 
   return (
