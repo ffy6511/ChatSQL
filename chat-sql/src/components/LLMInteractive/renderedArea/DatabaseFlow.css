@@ -100,6 +100,18 @@
   z-index: 3 !important;
 }
 
+/* 拖拽中的节点样式 */
+.dragging-node {
+  z-index: 1000 !important; /* 确保拖拽中的节点在最上层 */
+}
+
+/* 为拖拽中的节点添加轻微阴影效果，增强视觉反馈 */
+.dragging-node .table-node {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.01);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
 .react-flow__controls {
   z-index: 4 !important;
   display: flex !important;

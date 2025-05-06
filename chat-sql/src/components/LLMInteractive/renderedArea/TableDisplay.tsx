@@ -10,8 +10,11 @@ interface TableDisplayProps {
 }
 
 const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
-  const columns: GridColDef[] = tableInfo.tupleData.length > 0
-    ? Object.keys(tableInfo.tupleData[0]).map((key) => ({
+  // 添加防御性检查，确保 tableInfo 和 tableInfo.tupleData 存在
+  const tupleData = tableInfo?.tupleData || [];
+  
+  const columns: GridColDef[] = tupleData.length > 0
+    ? Object.keys(tupleData[0]).map((key) => ({
         field: key,
         headerName: key,
         flex: 1,
@@ -21,7 +24,7 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
       }))
     : [];
 
-  const rows: GridRowsProp = tableInfo.tupleData.map((row, idx) => ({ id: idx, ...row }));
+  const rows: GridRowsProp = tupleData.map((row, idx) => ({ id: idx, ...row }));
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
   return (

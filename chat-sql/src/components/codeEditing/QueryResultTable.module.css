@@ -28,6 +28,6 @@
 }
 
 .tableContainer {
-  height: calc(100% - 48px); /* 减去标题区域的高度 */
+  height: calc(100% - 8px); /* 减去标题区域的高度 */
   width: 100%;
 }

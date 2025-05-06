@@ -3,7 +3,7 @@
 import { Box, Typography, IconButton, Paper } from '@mui/material';
 import { useLLMContext } from '@/contexts/LLMContext';
 import TableDisplay from './TableDisplay';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -12,6 +12,13 @@ export default function TupleViewer() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const tupleData = llmResult?.data?.outputs?.tuples || [];
+  
+  // 确保 currentIndex 在有效范围内
+  useEffect(() => {
+    if (currentIndex >= tupleData.length && tupleData.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [tupleData, currentIndex]);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : tupleData.length - 1));
@@ -65,7 +72,7 @@ export default function TupleViewer() {
         }}
       >
         <Typography variant="subtitle1" component="h2">
-          {tupleData[currentIndex].tableName}
+          {tupleData[currentIndex]?.tableName || '无表名'}
         </Typography>
       </Paper>
 

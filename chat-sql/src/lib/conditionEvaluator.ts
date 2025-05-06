@@ -48,7 +48,8 @@ export function evaluateCondition(row: any, condition: any): boolean {
     return evaluateComparison(leftValue, condition.operator, rightValue);
   }
 
-  throw new Error(`不支持的条件类型: ${condition.type}`);
+  console.log('不支持的条件类型:', condition.type);
+  return false;
 }
 
 /**
@@ -91,11 +92,41 @@ export function evaluateExpression(expr: any, row?: any): any {
   console.log('Evaluating expression:', expr);
   
   if (expr.type === 'column_ref') {
-    const value = row[expr.column];
-    console.log('Column reference:', { column: expr.column, value });
-    return value;
+    if (!row) return null;
+    
+    const columnName = expr.column;
+    const tableAlias = expr.table;
+    
+    // 1. 如果有表别名，先尝试完整的"表别名.列名"形式
+    if (tableAlias) {
+      const fullColumnName = `${tableAlias}.${columnName}`;
+      if (row[fullColumnName] !== undefined) {
+        console.log(`找到列 ${fullColumnName}:`, row[fullColumnName]);
+        return row[fullColumnName];
+      }
+    }
+    
+    // 2. 尝试直接匹配列名（不带表别名）
+    if (row[columnName] !== undefined) {
+      console.log(`找到列 ${columnName}:`, row[columnName]);
+      return row[columnName];
+    }
+    
+    // 3. 尝试查找任何表别名下的该列名
+    const matchingKey = Object.keys(row).find(k => 
+      k.endsWith(`.${columnName}`)
+    );
+    
+    if (matchingKey) {
+      console.log(`找到匹配列 ${matchingKey}:`, row[matchingKey]);
+      return row[matchingKey];
+    }
+    
+    console.log(`列 ${tableAlias ? tableAlias + '.' : ''}${columnName} 未找到`);
+    return null;
   }
   
+  // 其他表达式类型处理
   if (expr.type === 'string') {
     // 确保移除引号
     const value = expr.value.replace(/^['"]|['"]$/g, '');

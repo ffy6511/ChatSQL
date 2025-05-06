@@ -76,7 +76,7 @@
     height: 100%;
     /* background: #f2f4f2; */
     background-color: transparent;
-    padding: 1em;
+    padding: 0.5em;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
 }
@@ -88,7 +88,7 @@
     display: flex;
     flex-direction: column;
     /* background: #e6f4e6; */
-    padding: 0.6em;
+    padding: 0.5em;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
 }

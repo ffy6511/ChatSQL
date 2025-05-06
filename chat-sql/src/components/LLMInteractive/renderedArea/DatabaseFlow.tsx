@@ -15,6 +15,7 @@ import {
   Node as FlowNode,
   Edge as FlowEdge,
   NodeChange,
+  NodePositionChange,
   applyNodeChanges,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -199,6 +200,35 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(initialEdges);
+  
+  // 处理节点变化，为拖拽中的节点添加特殊类名
+  const handleNodesChange = useCallback((changes: NodeChange<CustomNode>[]) => {
+    // 应用节点变化
+    onNodesChange(changes);
+    
+    // 检查是否有节点正在拖拽，并更新节点的类名
+    const draggedNodeIds = changes
+      .filter((change): change is NodePositionChange => 
+        change.type === 'position' && 'dragging' in change && !!change.dragging)
+      .map(change => change.id);
+      
+    if (draggedNodeIds.length > 0) {
+      setNodes(nds => 
+        nds.map(node => ({
+          ...node,
+          className: draggedNodeIds.includes(node.id) ? 'dragging-node' : '',
+        }))
+      );
+    } else if (changes.some(change => change.type === 'position')) {
+      // 拖拽结束时，清除类名
+      setNodes(nds => 
+        nds.map(node => ({
+          ...node,
+          className: '',
+        }))
+      );
+    }
+  }, [onNodesChange, setNodes]);
 
   // 只在 tables 变化时更新节点和边
   useEffect(() => {
@@ -213,7 +243,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={handleNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Button, Tooltip, Fade, Zoom, rgbToHex } from '@mui/material';
+import { Box, Paper, Typography, Button, Tooltip, Fade, Zoom } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -182,6 +182,10 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
                 minWidth: 130,
                 align: 'center',
                 headerAlign: 'center',
+                renderCell: (params) => {
+                  // 直接在单元格渲染时处理 null 值
+                  return params.value === null || params.value === undefined ? "null" : params.value;
+                }
               }))}
               pagination
               pageSizeOptions={[5, 10, 20]}
