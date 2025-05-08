@@ -39,6 +39,7 @@ export interface SQLQueryResult {
   success: boolean;
   data?: any[];
   message?: string;
+  columns?: string[]; // 添加列名数组属性
 }
 
 /**

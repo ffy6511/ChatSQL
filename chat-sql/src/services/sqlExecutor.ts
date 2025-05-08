@@ -72,48 +72,31 @@ export class SQLQueryEngine {
   }
 
   /**
-   * 执行SQL查询
+   * 执行查询
    * @param sql SQL查询语句
    * @returns 查询结果
    */
-  executeQuery(sql: string): SQLQueryResult {
+  public executeQuery(sql: string): SQLQueryResult {
     try {
-      if (!sql.trim()) {
-        return {
-          success: false,
-          message: 'SQL语句不能为空'
-        };
+      console.log('执行查询:', sql);
+      
+      // 预处理SQL语句
+      const processedSQL = this.preprocessSQL(sql);
+      
+      // 解析SQL语句
+      const parser = new Parser();
+      const ast = parser.astify(processedSQL, { database: 'mysql' });
+      console.log('解析后的AST:', JSON.stringify(ast, null, 2));
+      
+      // 检查是否包含NATURAL JOIN
+      const containsNaturalJoin = sql.toUpperCase().includes('NATURAL JOIN');
+      console.log('SQL包含NATURAL JOIN:', containsNaturalJoin);
+      
+      // 如果原始SQL包含NATURAL JOIN，手动修改AST
+      if (containsNaturalJoin) {
+        this.handleNaturalJoin(ast);
       }
-
-      // 检查SQL语句是否以分号结尾
-      if (!sql.trim().endsWith(';')) {
-        return {
-          success: false,
-          message: 'SQL语句必须以分号(;)结尾'
-        };
-      }
-
-      // 预处理SQL语句，处理NATURAL JOIN
-      sql = this.preprocessSQL(sql);
-
-      // 解析SQL命令
-      let ast;
-      try {
-        ast = this.parser.astify(sql);
-        if (!ast || typeof ast !== 'object') {
-          return {
-            success: false,
-            message: '无效的SQL语句'
-          };
-        }
-      } catch (parseError) {
-        console.error('SQL解析错误:', parseError);
-        return {
-          success: false,
-          message: '无效的SQL语句：语法错误'
-        };
-      }
-
+      
       // 处理数组形式的AST（多条语句）
       let stmt = Array.isArray(ast) ? ast[0] : ast;
       const type = (stmt as any).type || 
@@ -157,21 +140,132 @@ export class SQLQueryEngine {
   }
 
   /**
+   * 处理NATURAL JOIN
+   * @param ast 查询的AST
+   */
+  private handleNaturalJoin(ast: any): void {
+    console.log('开始处理NATURAL JOIN');
+    
+    // 确保ast是一个对象
+    if (!ast || typeof ast !== 'object') {
+      console.warn('AST不是一个对象，无法处理NATURAL JOIN');
+      return;
+    }
+    
+    // 处理数组形式的AST
+    const statements = Array.isArray(ast) ? ast : [ast];
+    
+    for (const stmt of statements) {
+      // 确保是SELECT语句
+      if (stmt.type !== 'select') {
+        console.warn('不是SELECT语句，跳过NATURAL JOIN处理');
+        continue;
+      }
+      
+      // 确保有FROM子句
+      if (!stmt.from || !Array.isArray(stmt.from) || stmt.from.length <= 1) {
+        console.warn('FROM子句不完整，跳过NATURAL JOIN处理');
+        continue;
+      }
+      
+      console.log('FROM子句:', JSON.stringify(stmt.from, null, 2));
+      
+      // 遍历FROM子句中的表
+      for (let i = 1; i < stmt.from.length; i++) {
+        const joinClause = stmt.from[i];
+        
+        // 检查是否是JOIN
+        if (!joinClause.join) {
+          console.warn(`第${i}个表不是JOIN，跳过`);
+          continue;
+        }
+        
+        console.log(`检查第${i}个JOIN:`, joinClause);
+        
+        // 检查是否是NATURAL JOIN
+        // 由于我们在预处理中将NATURAL JOIN替换为JOIN，
+        // 我们需要通过其他方式来识别它是否是NATURAL JOIN
+        
+        // 如果on为null且join为INNER JOIN，可能是NATURAL JOIN
+        if (joinClause.join.toUpperCase() === 'INNER JOIN' && !joinClause.on) {
+          console.log('检测到可能的NATURAL JOIN，准备设置ON条件');
+          
+          // 获取左表和右表
+          const leftTable = this.getTable(stmt.from[i-1].table);
+          const rightTable = this.getTable(joinClause.table);
+          
+          if (!leftTable || !rightTable) {
+            console.warn('无法找到JOIN的表');
+            continue;
+          }
+          
+          // 找出共同列
+          const leftColumns = leftTable.structure.columns.map(col => col.name);
+          const rightColumns = rightTable.structure.columns.map(col => col.name);
+          
+          const commonColumns = leftColumns.filter(col => rightColumns.includes(col));
+          console.log('找到共同列:', commonColumns);
+          
+          if (commonColumns.length === 0) {
+            console.warn('没有找到共同列，将作为CROSS JOIN处理');
+            continue;
+          }
+          
+          // 构建ON条件
+          let onCondition: any = null;
+          
+          for (const column of commonColumns) {
+            const leftTableName = stmt.from[i-1].as || stmt.from[i-1].table;
+            const rightTableName = joinClause.as || joinClause.table;
+            
+            const condition = {
+              type: 'binary_expr',
+              operator: '=',
+              left: {
+                type: 'column_ref',
+                table: leftTableName,
+                column: column
+              },
+              right: {
+                type: 'column_ref',
+                table: rightTableName,
+                column: column
+              }
+            };
+            
+            if (!onCondition) {
+              onCondition = condition;
+            } else {
+              onCondition = {
+                type: 'binary_expr',
+                operator: 'AND',
+                left: onCondition,
+                right: condition
+              };
+            }
+          }
+          
+          // 设置ON条件
+          joinClause.on = onCondition;
+          console.log('设置NATURAL JOIN的ON条件:', JSON.stringify(onCondition, null, 2));
+        }
+      }
+    }
+  }
+
+  /**
    * 预处理SQL语句，处理特殊语法
    * @param sql 原始SQL语句
    * @returns 处理后的SQL语句
    */
   private preprocessSQL(sql: string): string {
-    // 处理NATURAL JOIN语法
-    // 将 "table1 NATURAL JOIN table2" 转换为 "table1 JOIN table2"
-    // 我们会在后续处理中检测到这是一个JOIN，并自动处理为NATURAL JOIN
-    const naturalJoinRegex = /(\w+)\s+NATURAL\s+JOIN\s+(\w+)/gi;
-    sql = sql.replace(naturalJoinRegex, (match, table1, table2) => {
-      console.log(`检测到NATURAL JOIN: ${table1} NATURAL JOIN ${table2}`);
-      // 将NATURAL JOIN标记为特殊的JOIN类型，后续会特殊处理
-      return `${table1} JOIN ${table2} ON 1=1 /* NATURAL_JOIN */`;
-    });
+    console.log('预处理SQL语句:', sql);
     
+    // 检测NATURAL JOIN并替换为INNER JOIN
+    // 不再添加注释标记，因为解析器可能不会正确处理它
+    sql = sql.replace(/NATURAL\s+JOIN/gi, 'INNER JOIN');
+    
+    console.log('预处理后的SQL语句:', sql);
     return sql;
   }
 
@@ -187,6 +281,8 @@ export class SQLQueryEngine {
     const selectAst = Array.isArray(ast) ? ast[0] : ast;
     
     try {
+      // 注意：不再调用 preprocessAst
+      
       // 1. 处理FROM子句
       let result = this.processFromClause(selectAst);
 
@@ -214,20 +310,28 @@ export class SQLQueryEngine {
         result = this.processGroupByClause(result, selectAst.groupby || [], selectAst.columns);
       }
 
-      // 5. 处理SELECT子句
+      // 5. 处理SELECT子句（投影）
       result = this.processSelectClause(result, selectAst.columns);
-
+      
       // 6. 处理ORDER BY子句
       if (selectAst.orderby) {
         result = this.processOrderByClause(result, selectAst.orderby);
       }
-
+      
+      // 7. 处理LIMIT子句
+      let finalRows = result.rows;
+      if (selectAst.limit) {
+        const limit = Number(selectAst.limit.value);
+        finalRows = finalRows.slice(0, limit);
+      }
+      
       return {
         success: true,
-        data: result.rows
+        data: finalRows,
+        columns: result.metadata.columnMetadata.map(col => col.outputName)
       };
     } catch (error) {
-      console.error('执行SELECT查询时出错:', error);
+      console.error('SELECT查询执行错误:', error);
       return {
         success: false,
         message: error instanceof Error ? error.message : '查询执行失败'
@@ -338,17 +442,17 @@ export class SQLQueryEngine {
     let currentResult = { ...result };
     
     for (const join of joinClauses) {
+      console.log('处理JOIN子句:', join);
+      
       // 检查是否是预处理的NATURAL JOIN
-      const isNaturalJoin = join.on && 
-                            join.on.type === 'binary_expr' && 
-                            join.on.operator === '=' && 
-                            join.on.left.value === 1 && 
-                            join.on.right.value === 1 &&
-                            join.on.comment === 'NATURAL_JOIN';
+      // 通过检查注释来识别NATURAL JOIN
+      const isNaturalJoin = join.comment === 'NATURAL_JOIN';
       
       const joinType = isNaturalJoin ? 'NATURAL JOIN' : (join.join || 'INNER JOIN').toUpperCase();
       const joinTableName = join.table;
       const joinAlias = join.as || join.alias || join.table;
+      
+      console.log(`JOIN类型: ${joinType}, 表: ${joinTableName}, 别名: ${joinAlias}`);
       
       // 更新表别名映射
       currentResult.metadata.tableAliases.set(joinAlias, joinTableName);
@@ -361,6 +465,7 @@ export class SQLQueryEngine {
       // 执行JOIN操作
       if (isNaturalJoin) {
         // 对于NATURAL JOIN，我们需要找出共同列并构建ON条件
+        console.log('执行NATURAL JOIN');
         currentResult = this.executeJoin(
           currentResult, 
           joinTable, 
@@ -370,6 +475,7 @@ export class SQLQueryEngine {
         );
       } else {
         // 正常处理其他JOIN类型
+        console.log('执行普通JOIN');
         currentResult = this.executeJoin(currentResult, joinTable, joinAlias, join.on, joinType);
       }
     }
@@ -650,6 +756,8 @@ export class SQLQueryEngine {
     rightTable: TableData, 
     rightAlias: string
   ): Record<string, any>[] {
+    console.log('执行NATURAL JOIN');
+    
     // 找出左右表的共同列名
     const commonColumns = this.findCommonColumns(leftRows, rightTable);
     console.log('NATURAL JOIN 共同列:', commonColumns);
@@ -660,63 +768,118 @@ export class SQLQueryEngine {
       return this.executeCrossJoin(leftRows, rightTable, rightAlias);
     }
     
-    // 构建 ON 条件
-    const onCondition = this.buildNaturalJoinCondition(commonColumns, rightAlias);
-    console.log('构建的 NATURAL JOIN ON 条件:', onCondition);
+    const joinedRows: Record<string, any>[] = [];
     
-    // 使用 INNER JOIN 处理
-    return this.executeInnerJoin(leftRows, rightTable, rightAlias, onCondition);
+    // 对每一行执行自然连接
+    for (const leftRow of leftRows) {
+      for (const rightRow of rightTable.data) {
+        // 检查所有共同列是否匹配
+        let allColumnsMatch = true;
+        
+        for (const { leftCol, rightCol } of commonColumns) {
+          // 获取左表列值（可能带有表前缀）
+          let leftValue = null;
+          
+          // 1. 先尝试不带前缀的列名
+          if (leftRow[leftCol] !== undefined) {
+            leftValue = leftRow[leftCol];
+          } else {
+            // 2. 尝试查找任何表别名下的该列名
+            const matchingLeftKey = Object.keys(leftRow).find(k => 
+              k.endsWith(`.${leftCol}`)
+            );
+            if (matchingLeftKey) {
+              leftValue = leftRow[matchingLeftKey];
+            }
+          }
+          
+          // 获取右表列值
+          const rightValue = rightRow[rightCol];
+          
+          // 如果任何一对共同列的值不匹配，则不连接这两行
+          if (leftValue !== rightValue) {
+            allColumnsMatch = false;
+            break;
+          }
+        }
+        
+        // 如果所有共同列都匹配，则合并这两行
+        if (allColumnsMatch) {
+          // 使用特殊的合并方法，确保共同列只出现一次
+          joinedRows.push(this.mergeRowsForNaturalJoin(leftRow, rightRow, rightAlias, commonColumns));
+        }
+      }
+    }
+    
+    return joinedRows;
   }
 
   /**
-   * 为自然连接构建 ON 条件
+   * 找出左右表的共同列
    */
-  private buildNaturalJoinCondition(
-    commonColumns: { leftCol: string, rightCol: string }[],
-    rightAlias: string
-  ): any {
-    if (commonColumns.length === 0) {
-      return null;
-    }
+  private findCommonColumns(
+    leftRows: Record<string, any>[], 
+    rightTable: TableData
+  ): { leftCol: string, rightCol: string }[] {
+    if (leftRows.length === 0) return [];
     
-    // 构建第一个条件
-    let condition: any = {
-      type: 'binary_expr',
-      operator: '=',
-      left: {
-        type: 'column_ref',
-        column: commonColumns[0].leftCol
-      },
-      right: {
-        type: 'column_ref',
-        table: rightAlias,
-        column: commonColumns[0].rightCol
+    // 获取左表的列名（不带表前缀）
+    const leftColumns = new Set<string>();
+    const firstLeftRow = leftRows[0];
+    
+    // 收集左表的所有列名
+    for (const key of Object.keys(firstLeftRow)) {
+      // 如果是带表前缀的列名，提取列名部分
+      if (key.includes('.')) {
+        const columnName = key.split('.')[1];
+        leftColumns.add(columnName);
+      } else {
+        // 不带前缀的列名直接添加
+        leftColumns.add(key);
       }
-    };
-    
-    // 添加其余条件
-    for (let i = 1; i < commonColumns.length; i++) {
-      condition = {
-        type: 'binary_expr',
-        operator: 'AND',
-        left: condition,
-        right: {
-          type: 'binary_expr',
-          operator: '=',
-          left: {
-            type: 'column_ref',
-            column: commonColumns[i].leftCol
-          },
-          right: {
-            type: 'column_ref',
-            table: rightAlias,
-            column: commonColumns[i].rightCol
-          }
-        }
-      };
     }
     
-    return condition;
+    console.log('左表列名:', Array.from(leftColumns));
+    
+    // 获取右表的列名
+    const rightColumns = rightTable.structure.columns.map(col => col.name);
+    console.log('右表列名:', rightColumns);
+    
+    // 找出共同列
+    const commonColumns: { leftCol: string, rightCol: string }[] = [];
+    
+    for (const leftCol of leftColumns) {
+      if (rightColumns.includes(leftCol)) {
+        commonColumns.push({
+          leftCol,
+          rightCol: leftCol
+        });
+      }
+    }
+    
+    console.log('共同列:', commonColumns);
+    return commonColumns;
+  }
+
+  /**
+   * 合并行，但共同列只保留一份
+   */
+  private mergeRowsForNaturalJoin(
+    leftRow: Record<string, any>, 
+    rightRow: Record<string, any>, 
+    rightAlias: string, 
+    commonColumns: { leftCol: string, rightCol: string }[]
+  ): Record<string, any> {
+    const mergedRow: Record<string, any> = { ...leftRow };
+    
+    // 添加右表列（带别名前缀），但不包括共同列
+    Object.entries(rightRow).forEach(([key, value]) => {
+      if (!commonColumns.some(col => col.rightCol === key)) {
+        mergedRow[`${rightAlias}.${key}`] = value;
+      }
+    });
+    
+    return mergedRow;
   }
 
   /**
@@ -737,34 +900,6 @@ export class SQLQueryEngine {
     }
     
     return joinedRows;
-  }
-
-  /**
-   * 查找左右表的共同列
-   */
-  private findCommonColumns(
-    leftRows: Record<string, any>[], 
-    rightTable: TableData
-  ): { leftCol: string, rightCol: string }[] {
-    if (leftRows.length === 0) return [];
-    
-    // 获取左表的列名（不带表前缀）
-    const leftColumns = new Set<string>();
-    const firstLeftRow = leftRows[0];
-    
-    Object.keys(firstLeftRow).forEach(key => {
-      if (!key.includes('.')) {
-        leftColumns.add(key);
-      }
-    });
-    
-    // 获取右表的列名
-    const rightColumns = rightTable.structure.columns.map(col => col.name);
-    
-    // 找出共同列
-    return Array.from(leftColumns)
-      .filter(col => rightColumns.includes(col))
-      .map(col => ({ leftCol: col, rightCol: col }));
   }
 
   /**
@@ -810,7 +945,7 @@ export class SQLQueryEngine {
     // 1. 首先复制左表的所有字段
     for (const key in leftRow) {
       merged[key] = leftRow[key];
-      console.log(`  复制左表字段 ${key}:`, leftRow[key]);
+      // console.log(`  复制左表字段 ${key}:`, leftRow[key]);
     }
     
     // 2. 添加右表字段，带上别名前缀
@@ -843,7 +978,7 @@ export class SQLQueryEngine {
     // 1. 首先复制左表的所有字段
     for (const key in leftRow) {
       merged[key] = leftRow[key];
-      console.log(`  复制左表字段 ${key}:`, leftRow[key]);
+      // console.log(`  复制左表字段 ${key}:`, leftRow[key]);
     }
     
     // 2. 用 null 补充右表字段
@@ -855,27 +990,6 @@ export class SQLQueryEngine {
     
     console.log('合并NULL行 - 结果:', merged);
     return merged;
-  }
-
-  /**
-   * 合并行，但共同列只保留一份
-   */
-  private mergeRowsForNaturalJoin(
-    leftRow: Record<string, any>, 
-    rightRow: Record<string, any>, 
-    rightAlias: string, 
-    commonColumns: { leftCol: string, rightCol: string }[]
-  ): Record<string, any> {
-    const mergedRow: Record<string, any> = { ...leftRow };
-    
-    // 添加右表列（带别名前缀），但不包括共同列
-    Object.entries(rightRow).forEach(([key, value]) => {
-      if (!commonColumns.some(col => col.rightCol === key)) {
-        mergedRow[`${rightAlias}.${key}`] = value;
-      }
-    });
-    
-    return mergedRow;
   }
 
   /**
@@ -1033,7 +1147,7 @@ export class SQLQueryEngine {
           // 直接复制所有不带前缀的列
           Object.keys(row).forEach(key => {
             if (!key.includes('.')) {
-              console.log(`  复制不带前缀的列 ${key}:`, row[key]);
+              // console.log(`  复制不带前缀的列 ${key}:`, row[key]);
               newRow[key] = row[key];
             }
           });
@@ -1068,7 +1182,7 @@ export class SQLQueryEngine {
             // 直接复制所有不带前缀的列
             Object.keys(row).forEach(key => {
               if (!key.includes('.')) {
-                console.log(`  复制不带前缀的列 ${key}:`, row[key]);
+                // console.log(`  复制不带前缀的列 ${key}:`, row[key]);
                 newRow[key] = row[key];
               }
             });
