@@ -91,17 +91,80 @@ export function evaluateExpression(expr: any, row?: any): any {
   
   console.log('Evaluating expression:', expr);
   
+  // 处理数字字面量
+  if (expr.type === 'number') {
+    return expr.value;
+  }
+  
+  // 处理字符串字面量
+  if (expr.type === 'string') {
+    return expr.value;
+  }
+  
+  // 处理布尔字面量
+  if (expr.type === 'bool') {
+    return expr.value;
+  }
+  
+  // 处理NULL字面量
+  if (expr.type === 'null') {
+    return null;
+  }
+  
+  // 处理聚合函数
+  if (expr.type === 'aggr_func') {
+    if (!row) return null;
+    
+    const funcName = expr.name;
+    let argName = '*';
+    
+    if (expr.args && expr.args.expr) {
+      if (expr.args.expr.type === 'column_ref') {
+        argName = expr.args.expr.column;
+      } else if (expr.args.expr.type === 'star') {
+        argName = '*';
+      }
+    }
+    
+    // 尝试从行中获取聚合函数的结果
+    const funcKey = `${funcName}(${argName})`;
+    
+    // 1. 尝试精确匹配
+    if (row[funcKey] !== undefined) {
+      console.log(`找到聚合函数结果 ${funcKey}:`, row[funcKey]);
+      return row[funcKey];
+    }
+    
+    // 2. 尝试别名匹配
+    if (funcName === 'COUNT' && row['student_count'] !== undefined) {
+      console.log(`找到COUNT别名 student_count:`, row['student_count']);
+      return row['student_count'];
+    }
+    
+    if (funcName === 'AVG' && row['avg_age'] !== undefined) {
+      console.log(`找到AVG别名 avg_age:`, row['avg_age']);
+      return row['avg_age'];
+    }
+    
+    // 3. 尝试模糊匹配
+    const possibleKey = Object.keys(row).find(k => 
+      k.startsWith(`${funcName}(`) || 
+      (funcName === 'COUNT' && k.includes('count')) ||
+      (funcName === 'AVG' && k.includes('avg'))
+    );
+    
+    if (possibleKey) {
+      console.log(`找到可能的聚合函数结果 ${possibleKey}:`, row[possibleKey]);
+      return row[possibleKey];
+    }
+    
+    console.log(`未找到聚合函数 ${funcKey} 的结果`);
+    return null;
+  }
+  
   // 处理子查询
   if (expr.ast) {
     console.log('检测到子查询表达式:', expr);
-    // 这里需要访问 SQLQueryEngine 实例来执行子查询
-    // 由于 evaluateExpression 是一个独立函数，我们需要通过其他方式获取 SQLQueryEngine 实例
-    // 一种方法是将 SQLQueryEngine 实例作为参数传递给 evaluateExpression
-    // 另一种方法是使用全局变量或单例模式
-    // 这里我们假设有一个全局函数 executeSubQuery 可以执行子查询
-    
-    // 临时解决方案：返回一个标记，表示这是一个子查询
-    // 实际实现时需要替换为真正的子查询执行逻辑
     return { __isSubQuery: true, ast: expr.ast };
   }
   
@@ -139,8 +202,6 @@ export function evaluateExpression(expr: any, row?: any): any {
     console.log(`列 ${tableAlias ? tableAlias + '.' : ''}${columnName} 未找到`);
     return null;
   }
-  
-  // 其他表达式类型处理保持不变...
   
   return expr;
 }

@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "4e138c7a6ea96f9e33560cfec99568a8332acb24",
+      "date": "2025-05-08T15:01:37+08:00",
+      "message": "feat(sqlExecutor): Support for processing nested subqueries in from and where",
+      "author": "ffy6511"
+    },
+    {
       "hash": "21917f18b01cc348c7e91b74b583c59962101440",
       "date": "2025-05-08T14:33:56+08:00",
       "message": "fix(handleNaturalJoin):  Correct handling of natural join",
@@ -248,12 +254,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 41,
+    "totalCommits": 42,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-08T14:33:56+08:00",
+    "lastUpdate": "2025-05-08T15:01:37+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,

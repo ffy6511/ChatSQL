@@ -12,167 +12,167 @@ import { TableStructure } from '@/types/dify';
 const SQL_KEYWORDS = [
   {
     label: 'SELECT',
-    documentation: '选择数据列。\n语法: SELECT 列名1, 列名2, ... FROM 表名 WHERE 条件;\n例如: SELECT id, name FROM users WHERE age > 18;'
+    documentation: 'Select data columns.  \nSyntax: SELECT column1, column2, ... FROM table WHERE condition;  \nExample: SELECT id, name FROM users WHERE age > 18;'
   },
   {
     label: 'FROM',
-    documentation: '指定查询的数据表。\n语法: SELECT 列名 FROM 表名;\n例如: SELECT * FROM products;'
+    documentation: 'Specify the table to query.  \nSyntax: SELECT column FROM table;  \nExample: SELECT * FROM products;'
   },
   {
     label: 'WHERE',
-    documentation: '添加筛选条件。\n语法: SELECT 列名 FROM 表名 WHERE 条件;\n例如: SELECT * FROM orders WHERE order_date > "2023-01-01";'
+    documentation: 'Add filtering conditions.  \nSyntax: SELECT column FROM table WHERE condition;  \nExample: SELECT * FROM orders WHERE order_date > "2023-01-01";'
   },
   {
     label: 'JOIN',
-    documentation: '连接两个表。\n语法: SELECT * FROM 表1 JOIN 表2 ON 表1.列名 = 表2.列名;\n例如: SELECT * FROM orders JOIN customers ON orders.customer_id = customers.id;'
+    documentation: 'Join two tables.  \nSyntax: SELECT * FROM table1 JOIN table2 ON table1.column = table2.column;  \nExample: SELECT * FROM orders JOIN customers ON orders.customer_id = customers.id;'
   },
   {
     label: 'LEFT JOIN',
-    documentation: '左连接，保留左表所有行。\n语法: SELECT * FROM 表1 LEFT JOIN 表2 ON 表1.列名 = 表2.列名;\n例如: SELECT * FROM customers LEFT JOIN orders ON customers.id = orders.customer_id;'
+    documentation: 'Left join, preserves all rows from the left table.  \nSyntax: SELECT * FROM table1 LEFT JOIN table2 ON table1.column = table2.column;  \nExample: SELECT * FROM customers LEFT JOIN orders ON customers.id = orders.customer_id;'
   },
   {
     label: 'RIGHT JOIN',
-    documentation: '右连接，保留右表所有行。\n语法: SELECT * FROM 表1 RIGHT JOIN 表2 ON 表1.列名 = 表2.列名;\n例如: SELECT * FROM orders RIGHT JOIN customers ON orders.customer_id = customers.id;'
+    documentation: 'Right join, preserves all rows from the right table.  \nSyntax: SELECT * FROM table1 RIGHT JOIN table2 ON table1.column = table2.column;  \nExample: SELECT * FROM orders RIGHT JOIN customers ON orders.customer_id = customers.id;'
   },
   {
     label: 'INNER JOIN',
-    documentation: '内连接，只返回两表匹配的行。\n语法: SELECT * FROM 表1 INNER JOIN 表2 ON 表1.列名 = 表2.列名;\n例如: SELECT * FROM orders INNER JOIN customers ON orders.customer_id = customers.id;'
+    documentation: 'Inner join, returns only matching rows from both tables.  \nSyntax: SELECT * FROM table1 INNER JOIN table2 ON table1.column = table2.column;  \nExample: SELECT * FROM orders INNER JOIN customers ON orders.customer_id = customers.id;'
   },
   {
     label: 'GROUP BY',
-    documentation: '按指定列分组。\n语法: SELECT 列名, 聚合函数() FROM 表名 GROUP BY 列名;\n例如: SELECT department, COUNT(*) FROM employees GROUP BY department;'
+    documentation: 'Group by specified columns.  \nSyntax: SELECT column, aggregate_function() FROM table GROUP BY column;  \nExample: SELECT department, COUNT(*) FROM employees GROUP BY department;'
   },
   {
     label: 'HAVING',
-    documentation: '对分组结果进行筛选。\n语法: SELECT 列名, 聚合函数() FROM 表名 GROUP BY 列名 HAVING 条件;\n例如: SELECT department, COUNT(*) FROM employees GROUP BY department HAVING COUNT(*) > 5;'
+    documentation: 'Filter grouped results.  \nSyntax: SELECT column, aggregate_function() FROM table GROUP BY column HAVING condition;  \nExample: SELECT department, COUNT(\*) FROM employees GROUP BY department HAVING COUNT(\*) > 5;'
   },
   {
     label: 'ORDER BY',
-    documentation: '对结果进行排序。\n语法: SELECT 列名 FROM 表名 ORDER BY 列名 [ASC|DESC];\n例如: SELECT * FROM products ORDER BY price DESC;'
+    documentation: 'Sort results.  \nSyntax: SELECT column FROM table ORDER BY column [ASC|DESC];  \nExample: SELECT * FROM products ORDER BY price DESC;'
   },
   {
     label: 'LIMIT',
-    documentation: '限制返回结果的数量。\n语法: SELECT 列名 FROM 表名 LIMIT 数量 [OFFSET 偏移量];\n例如: SELECT * FROM products LIMIT 10 OFFSET 20;'
+    documentation: 'Limit the number of returned results.  \nSyntax: SELECT column FROM table LIMIT count [OFFSET offset];  \nExample: SELECT * FROM products LIMIT 10 OFFSET 20;'
   },
   {
     label: 'INSERT INTO',
-    documentation: '向表中插入数据。\n语法: INSERT INTO 表名 (列1, 列2, ...) VALUES (值1, 值2, ...);\n例如: INSERT INTO users (name, email) VALUES ("张三", "zhangsan@example.com");'
+    documentation: 'Insert data into a table.  \nSyntax: INSERT INTO table (column1, column2, ...) VALUES (value1, value2, ...);  \nExample: INSERT INTO users (name, email) VALUES ("John", "john@example.com");'
   },
   {
     label: 'VALUES',
-    documentation: '指定要插入的值。\n语法: INSERT INTO 表名 (列1, 列2) VALUES (值1, 值2);\n例如: INSERT INTO products (name, price) VALUES ("手机", 1999);'
+    documentation: 'Specify values to insert.  \nSyntax: INSERT INTO table (column1, column2) VALUES (value1, value2);  \nExample: INSERT INTO products (name, price) VALUES ("Phone", 1999);'
   },
   {
     label: 'UPDATE',
-    documentation: '更新表中的数据。\n语法: UPDATE 表名 SET 列1 = 值1, 列2 = 值2 WHERE 条件;\n例如: UPDATE users SET status = "active" WHERE id = 5;'
+    documentation: 'Update data in a table.  \nSyntax: UPDATE table SET column1 = value1, column2 = value2 WHERE condition;  \nExample: UPDATE users SET status = "active" WHERE id = 5;'
   },
   {
     label: 'SET',
-    documentation: '在UPDATE语句中指定要更新的列和值。\n语法: UPDATE 表名 SET 列名 = 新值 WHERE 条件;\n例如: UPDATE products SET price = 1888, stock = 100 WHERE id = 10;'
+    documentation: 'Specify columns and values to update in an UPDATE statement.  \nSyntax: UPDATE table SET column = new_value WHERE condition;  \nExample: UPDATE products SET price = 1888, stock = 100 WHERE id = 10;'
   },
   {
     label: 'DELETE FROM',
-    documentation: '删除表中的数据。\n语法: DELETE FROM 表名 WHERE 条件;\n例如: DELETE FROM users WHERE last_login < "2022-01-01";'
+    documentation: 'Delete data from a table.  \nSyntax: DELETE FROM table WHERE condition;  \nExample: DELETE FROM users WHERE last_login < "2022-01-01";'
   },
   {
     label: 'CREATE TABLE',
-    documentation: '创建新表。\n语法: CREATE TABLE 表名 (列名1 类型1, 列名2 类型2, ...);\n例如: CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100));'
+    documentation: 'Create a new table.  \nSyntax: CREATE TABLE table (column1 type1, column2 type2, ...);  \nExample: CREATE TABLE customers (id INT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100));'
   },
   {
     label: 'DROP TABLE',
-    documentation: '删除表。\n语法: DROP TABLE 表名;\n例如: DROP TABLE old_logs;'
+    documentation: 'Delete a table.  \nSyntax: DROP TABLE table;  \nExample: DROP TABLE old_logs;'
   },
   {
     label: 'ALTER TABLE',
-    documentation: '修改表结构。\n语法: ALTER TABLE 表名 ADD|DROP|MODIFY 列名 [类型];\n例如: ALTER TABLE users ADD COLUMN birth_date DATE;'
+    documentation: 'Modify table structure.  \nSyntax: ALTER TABLE table ADD|DROP|MODIFY column [type];  \nExample: ALTER TABLE users ADD COLUMN birth_date DATE;'
   },
   {
     label: 'ADD COLUMN',
-    documentation: '向表中添加新列。\n语法: ALTER TABLE 表名 ADD COLUMN 列名 类型 [约束];\n例如: ALTER TABLE products ADD COLUMN discount DECIMAL(5,2);'
+    documentation: 'Add a new column to a table.  \nSyntax: ALTER TABLE table ADD COLUMN column type [constraint];  \nExample: ALTER TABLE products ADD COLUMN discount DECIMAL(5,2);'
   },
   {
     label: 'DROP COLUMN',
-    documentation: '从表中删除列。\n语法: ALTER TABLE 表名 DROP COLUMN 列名;\n例如: ALTER TABLE users DROP COLUMN unused_field;'
+    documentation: 'Remove a column from a table.  \nSyntax: ALTER TABLE table DROP COLUMN column;  \nExample: ALTER TABLE users DROP COLUMN unused_field;'
   },
   {
     label: 'AND',
-    documentation: '逻辑与运算符，用于组合多个条件。\n语法: WHERE 条件1 AND 条件2;\n例如: SELECT * FROM products WHERE price > 100 AND stock > 0;'
+    documentation: 'Logical AND operator, combines multiple conditions.  \nSyntax: WHERE condition1 AND condition2;  \nExample: SELECT * FROM products WHERE price > 100 AND stock > 0;'
   },
   {
     label: 'OR',
-    documentation: '逻辑或运算符，用于组合多个条件。\n语法: WHERE 条件1 OR 条件2;\n例如: SELECT * FROM users WHERE role = "admin" OR role = "manager";'
+    documentation: 'Logical OR operator, combines multiple conditions.  \nSyntax: WHERE condition1 OR condition2;  \nExample: SELECT * FROM users WHERE role = "admin" OR role = "manager";'
   },
   {
     label: 'NOT',
-    documentation: '逻辑非运算符，用于否定条件。\n语法: WHERE NOT 条件;\n例如: SELECT * FROM products WHERE NOT category = "discontinued";'
+    documentation: 'Logical NOT operator, negates a condition.  \nSyntax: WHERE NOT condition;  \nExample: SELECT * FROM products WHERE NOT category = "discontinued";'
   },
   {
     label: 'IN',
-    documentation: '检查值是否在指定集合中。\n语法: WHERE 列名 IN (值1, 值2, ...);\n例如: SELECT * FROM products WHERE category IN ("电子", "家电", "数码");'
+    documentation: 'Check if a value is in a specified set.  \nSyntax: WHERE column IN (value1, value2, ...);  \nExample: SELECT * FROM products WHERE category IN ("electronics", "appliances", "digital");'
   },
   {
     label: 'BETWEEN',
-    documentation: '检查值是否在指定范围内。\n语法: WHERE 列名 BETWEEN 值1 AND 值2;\n例如: SELECT * FROM orders WHERE order_date BETWEEN "2023-01-01" AND "2023-12-31";'
+    documentation: 'Check if a value is within a specified range.  \nSyntax: WHERE column BETWEEN value1 AND value2;  \nExample: SELECT * FROM orders WHERE order_date BETWEEN "2023-01-01" AND "2023-12-31";'
   },
   {
     label: 'LIKE',
-    documentation: '模式匹配。% 表示任意多个字符，_ 表示单个字符。\n语法: WHERE 列名 LIKE 模式;\n例如: SELECT * FROM products WHERE name LIKE "%手机%";'
+    documentation: 'Pattern matching. % represents any number of characters, _ represents a single character.  \nSyntax: WHERE column LIKE pattern;  \nExample: SELECT * FROM products WHERE name LIKE "%phone%";'
   },
   {
     label: 'IS NULL',
-    documentation: '检查值是否为NULL。\n语法: WHERE 列名 IS NULL;\n例如: SELECT * FROM users WHERE phone IS NULL;'
+    documentation: 'Check if a value is NULL.  \nSyntax: WHERE column IS NULL;  \nExample: SELECT * FROM users WHERE phone IS NULL;'
   },
   {
     label: 'IS NOT NULL',
-    documentation: '检查值是否不为NULL。\n语法: WHERE 列名 IS NOT NULL;\n例如: SELECT * FROM users WHERE email IS NOT NULL;'
+    documentation: 'Check if a value is not NULL.  \nSyntax: WHERE column IS NOT NULL;  \nExample: SELECT * FROM users WHERE email IS NOT NULL;'
   },
   {
     label: 'COUNT',
-    documentation: '计算行数。\n语法: SELECT COUNT(列名) FROM 表名;\n例如: SELECT COUNT(*) FROM orders WHERE status = "completed";'
+    documentation: 'Count rows.  \nSyntax: SELECT COUNT(column) FROM table;  \nExample: SELECT COUNT(*) FROM orders WHERE status = "completed";'
   },
   {
     label: 'SUM',
-    documentation: '计算总和。\n语法: SELECT SUM(列名) FROM 表名;\n例如: SELECT SUM(amount) FROM orders WHERE order_date > "2023-01-01";'
+    documentation: 'Calculate sum.  \nSyntax: SELECT SUM(column) FROM table;  \nExample: SELECT SUM(amount) FROM orders WHERE order_date > "2023-01-01";'
   },
   {
     label: 'AVG',
-    documentation: '计算平均值。\n语法: SELECT AVG(列名) FROM 表名;\n例如: SELECT AVG(price) FROM products WHERE category = "电子";'
+    documentation: 'Calculate average.  \nSyntax: SELECT AVG(column) FROM table;  \nExample: SELECT AVG(price) FROM products WHERE category = "electronics";'
   },
   {
     label: 'MAX',
-    documentation: '找出最大值。\n语法: SELECT MAX(列名) FROM 表名;\n例如: SELECT MAX(price) FROM products;'
+    documentation: 'Find maximum value.  \nSyntax: SELECT MAX(column) FROM table;  \nExample: SELECT MAX(price) FROM products;'
   },
   {
     label: 'MIN',
-    documentation: '找出最小值。\n语法: SELECT MIN(列名) FROM 表名;\n例如: SELECT MIN(order_date) FROM orders;'
+    documentation: 'Find minimum value.  \nSyntax: SELECT MIN(column) FROM table;  \nExample: SELECT MIN(order_date) FROM orders;'
   },
   {
     label: 'DISTINCT',
-    documentation: '返回唯一值，去除重复。\n语法: SELECT DISTINCT 列名 FROM 表名;\n例如: SELECT DISTINCT category FROM products;'
+    documentation: 'Return unique values, remove duplicates.  \nSyntax: SELECT DISTINCT column FROM table;  \nExample: SELECT DISTINCT category FROM products;'
   },
   {
     label: 'AS',
-    documentation: '为列或表指定别名。\n语法: SELECT 列名 AS 别名 FROM 表名 AS 表别名;\n例如: SELECT p.name AS product_name FROM products AS p;'
+    documentation: 'Specify alias for column or table.  \nSyntax: SELECT column AS alias FROM table AS table_alias;  \nExample: SELECT p.name AS product_name FROM products AS p;'
   },
   {
     label: 'UNION',
-    documentation: '合并两个查询的结果集（去重）。\n语法: SELECT ... UNION SELECT ...;\n例如: SELECT name FROM customers UNION SELECT name FROM employees;'
+    documentation: 'Combine result sets from two queries (removes duplicates).  \nSyntax: SELECT ... UNION SELECT ...;  \nExample: SELECT name FROM customers UNION SELECT name FROM employees;'
   },
   {
     label: 'UNION ALL',
-    documentation: '合并两个查询的结果集（不去重）。\n语法: SELECT ... UNION ALL SELECT ...;\n例如: SELECT product_id FROM orders_2022 UNION ALL SELECT product_id FROM orders_2023;'
+    documentation: 'Combine result sets from two queries (keeps duplicates).  \nSyntax: SELECT ... UNION ALL SELECT ...;  \nExample: SELECT product_id FROM orders_2022 UNION ALL SELECT product_id FROM orders_2023;'
   },
   {
     label: 'BEGIN',
-    documentation: '开始一个事务。\n语法: BEGIN;\n事务允许将多个操作作为一个单元执行，要么全部成功，要么全部失败。'
+    documentation: 'Start a transaction.  \nSyntax: BEGIN;  \nTransactions allow multiple operations to be executed as a single unit, either all succeed or all fail.'
   },
   {
     label: 'COMMIT',
-    documentation: '提交事务，使事务中的所有更改永久生效。\n语法: COMMIT;\n例如: 在执行多个相关的INSERT或UPDATE后使用COMMIT确认这些更改。'
+    documentation: 'Commit a transaction, making all changes permanent.  \nSyntax: COMMIT;  \nExample: Use COMMIT after executing multiple related INSERTs or UPDATEs to confirm these changes.'
   },
   {
     label: 'ROLLBACK',
-    documentation: '回滚事务，取消事务中的所有更改。\n语法: ROLLBACK;\n例如: 当事务中的某个操作失败时，使用ROLLBACK撤销之前的所有更改。'
+    documentation: 'Rollback a transaction, canceling all changes.  \nSyntax: ROLLBACK;  \nExample: Use ROLLBACK when an operation in the transaction fails to undo all previous changes.'
   },
 ];
 
@@ -219,8 +219,13 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
       if (!word) return null;
 
       const wordText = word.word.toUpperCase();
-
-      // 检查是否是SQL关键字
+      
+      // 获取当前行内容，用于检测多词关键字
+      const lineContent = model.getLineContent(position.lineNumber);
+      const lineUntilPosition = lineContent.substring(0, position.column);
+      const lineAfterPosition = lineContent.substring(position.column);
+      
+      // 检查是否是SQL关键字（单个词）
       const keyword = SQL_KEYWORDS.find(k => k.label.toUpperCase() === wordText);
       if (keyword) {
         return {
@@ -236,6 +241,42 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
           }
         };
       }
+      
+      // 检查是否是多词SQL关键字（如"GROUP BY"）
+      // 向前查找可能的关键字开始
+      for (const keyword of SQL_KEYWORDS) {
+        if (keyword.label.includes(' ')) {
+          const parts = keyword.label.split(' ');
+          // 如果当前单词匹配多词关键字的任何部分
+          if (parts.some(part => part.toUpperCase() === wordText)) {
+            // 尝试在当前行查找完整的多词关键字
+            const keywordPattern = new RegExp(`\\b${keyword.label.replace(/ /g, '\\s+')}\\b`, 'i');
+            const match = lineContent.match(keywordPattern);
+            
+            if (match) {
+              const startIndex = match.index || 0;
+              const endIndex = startIndex + match[0].length;
+              
+              // 检查当前光标是否在多词关键字范围内
+              const cursorPos = position.column - 1; // 转为0-based索引
+              if (cursorPos >= startIndex && cursorPos <= endIndex) {
+                return {
+                  contents: [
+                    { value: `**${keyword.label}**` },
+                    { value: keyword.documentation }
+                  ],
+                  range: {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: startIndex + 1, // 转回1-based索引
+                    endColumn: endIndex + 1
+                  }
+                };
+              }
+            }
+          }
+        }
+      }
 
       // 如果没有表结构，只检查关键字
       if (!tableStructures || tableStructures.length === 0) {
@@ -246,13 +287,13 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
       const table = tableStructures.find(t => t.tableName.toUpperCase() === wordText);
       if (table) {
         const columnsList = table.columns.map(col =>
-          `- **${col.name}** (${col.type})${col.isPrimary ? ' [主键]' : ''}`
+          `- **${col.name}** (${col.type})${col.isPrimary ? ' [Primary Key]' : ''}`
         ).join('\n');
 
         return {
           contents: [
-            { value: `**表: ${table.tableName}**` },
-            { value: `包含以下列:\n${columnsList}` }
+            { value: `**Table: ${table.tableName}**` },
+            { value: `Contains the following columns:\n${columnsList}` }
           ],
           range: {
             startLineNumber: position.lineNumber,
@@ -269,8 +310,8 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
         if (column) {
           return {
             contents: [
-              { value: `**列: ${column.name}**` },
-              { value: `类型: ${column.type}${column.isPrimary ? ' [主键]' : ''}\n来自表: ${table.tableName}` }
+              { value: `**Column: ${column.name}**` },
+              { value: `Type: ${column.type}${column.isPrimary ? ' [Primary Key]' : ''}\nFrom table: ${table.tableName}` }
             ],
             range: {
               startLineNumber: position.lineNumber,
@@ -283,7 +324,6 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
       }
 
       // 检查是否是带表名前缀的列名（如 table.column）
-      const lineContent = model.getLineContent(position.lineNumber);
       const dotMatch = lineContent.substring(0, position.column).match(/([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)$/);
       if (dotMatch) {
         const tableName = dotMatch[1];
@@ -295,8 +335,8 @@ export function createSQLHoverProvider(monaco: any, tableStructures: TableStruct
           if (column) {
             return {
               contents: [
-                { value: `**列: ${column.name}**` },
-                { value: `类型: ${column.type}${column.isPrimary ? ' [主键]' : ''}\n来自表: ${table.tableName}` }
+                { value: `**Column: ${column.name}**` },
+                { value: `Type: ${column.type}${column.isPrimary ? ' [Primary Key]' : ''}\nFrom table: ${table.tableName}` }
               ],
               range: {
                 startLineNumber: position.lineNumber,
