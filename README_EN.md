@@ -7,30 +7,47 @@ English | [简体中文](./README.md)
   <img src="https://img.shields.io/badge/React-18.2.0-blue?logo=react" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
+  <a href="https://deepwiki.com/ffy6511/chatSQL"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" /></a>
 </p>
-
-ChatSQL is an interactive SQL learning platform that helps users master SQL query language through AI-generated exercises.
+<p align="center" style="font-size: 1.2em; margin: 20px 0;">
+  <a href="https://chat-sql-hazel.vercel.app/" target="_blank" style="font-size: 1.2em; font-weight: bold;">Website</a>
+</p>
+ChatSQL is an interactive SQL learning platform that leverages artificial intelligence to generate personalized SQL exercises, helping users master SQL query language from beginner to advanced levels. The platform combines intuitive database visualization tools, a smart code editor, and real-time feedback system to provide an immersive learning experience. Whether you're a SQL beginner or a developer looking to enhance your query skills, ChatSQL tailors learning content to your proficiency level, making SQL learning more efficient and engaging.
 
 ## ✨ Features
 
-- 🤖 AI-Generated Exercises: Automatically generates SQL exercises based on difficulty and tags
-- 📊 Database Structure Visualization: Intuitively displays table relationships and field information
-- ⌨️ Smart Code Editor: Supports syntax highlighting and auto-completion
+- 🤖 AI-Generated Exercises: Two sources of practice problems
+  - Through preset tutorials, progressively practice `select`, `join`, aggregation operations, and nested subqueries.
+  - Interact with Dify workflow to automatically generate SQL exercises by inputting difficulty, tags, and descriptions.
+
+- 📊 Database Structure Visualization: Intuitively displays table relationships and field information, with foreign key constraints clearly visible.
+- ⌨️ Monaco Editor with Schema Completion Integration:
+  - Supports SQL syntax highlighting and hover syntax tips
+  - Provides `tab` auto-completion based on current schema information
+
 - 📝 Instant Result Validation: Real-time verification of query results
+  - SQL engine built into the frontend processes query results with zero delay
+  - Supports comparing query results with expected results to evaluate correctness
 
 ## 🖥 Interface Preview
 
 ### Initialization Interface
-
-<img src="./chat-sql/public/assets/initialization.png" alt="Initialization Interface" width="80%" />
+![](https://my-blog-img-1358266118.cos.ap-guangzhou.myqcloud.com/undefined20250508164908220.png?imageSlim)
+- Click "Initialization Tutorial" in the sidebar to interact with the preset database structure
+- Click "Help" in the sidebar to view basic operation demonstrations
 
 ### Database Structure Visualization
-
-<img src="./chat-sql/public/assets/rendering.png" alt="Database Structure" width="80%" />
+![](https://my-blog-img-1358266118.cos.ap-guangzhou.myqcloud.com/undefined20250508165221364.png?imageSlim)
+- Database structure visualization view is displayed by default
+- You can switch to tuple view in the bottom left corner
 
 ### SQL Editor Demo
-
 <img src="./chat-sql/public/assets/edit.gif" alt="Editor Demo" width="80%" />
+
+Corresponding shortcuts:
+- `command+enter` : Execute query
+- `command+j`: Check if query results match
+- `command+k`: Search history records
 
 ## 🛠 Tech Stack
 
@@ -44,19 +61,19 @@ ChatSQL is an interactive SQL learning platform that helps users master SQL quer
   <img src="https://img.shields.io/badge/XY%20Flow-22C55E?style=for-the-badge&logo=diagram&logoColor=white" alt="XY Flow" />
 </p>
 
-- **Framework**: Next.js 15.3.0
+- **Framework**: [Next.js](https://nextjs.org/) 15.3.0
 - **UI Components**:
-  - Ant Design 5.24.6
-  - Material-UI 7.0.2
-- **Editor**: Monaco Editor
+  - [Ant Design](https://ant.design/) 5.24.6
+  - [Material-UI](https://mui.com/) 7.0.2
+- **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 - **Flow Diagram**:
-  - XY Flow (@xyflow/react)
+  - [XY Flow](https://reactflow.dev/) (@xyflow/react)
   - For database table relationship visualization
   - Supports custom node and edge styles
   - Provides interactive chart operations
   - D3.js-based zooming and dragging functionality
-- **AI Integration**: Dify.ai
-- **Type Checking**: TypeScript
+- **AI Integration**: [Dify.ai](https://dify.ai/)
+- **Type Checking**: [TypeScript](https://www.typescriptlang.org/)
 
 ## 🚀 Quick Start
 

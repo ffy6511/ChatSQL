@@ -1,6 +1,12 @@
 {
   "history": [
     {
+      "hash": "777e771ac6fea46a9ec7f3fa6d2988f311b2e758",
+      "date": "2025-05-08T15:45:00+08:00",
+      "message": "feat: Support for having and limiting queries; enhancement of floating hints",
+      "author": "ffy6511"
+    },
+    {
       "hash": "4e138c7a6ea96f9e33560cfec99568a8332acb24",
       "date": "2025-05-08T15:01:37+08:00",
       "message": "feat(sqlExecutor): Support for processing nested subqueries in from and where",
@@ -254,12 +260,12 @@
     }
   ],
   "stats": {
-    "totalCommits": 42,
+    "totalCommits": 43,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-08T15:01:37+08:00",
+    "lastUpdate": "2025-05-08T15:45:00+08:00",
     "activeBranches": 3,
     "branchDetails": {
       "totalBranches": 3,
