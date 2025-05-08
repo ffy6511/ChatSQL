@@ -352,13 +352,25 @@ export class SQLQueryEngine {
     const tableAliases = new Map<string, string>();
     const mainTable = ast.from[0];
     
-    // 处理子查询
-    if (mainTable.expr && mainTable.expr.type === 'select') {
-      return this.processSubquery(mainTable);
+    console.log('处理FROM子句:', JSON.stringify(mainTable, null, 2));
+    
+    // 处理子查询 - 检查新的AST结构
+    if (mainTable.expr) {
+      console.log('检测到可能的子查询:', JSON.stringify(mainTable.expr, null, 2));
+      
+      // 检查是否是子查询的新结构
+      if (mainTable.expr.ast || (mainTable.expr.type === 'select')) {
+        return this.processSubquery(mainTable);
+      }
     }
     
     console.log('主表信息:', mainTable);
     const mainTableName = mainTable.table;
+    
+    if (!mainTableName) {
+      throw new Error('无法识别的表名: ' + JSON.stringify(mainTable));
+    }
+    
     const mainTableAlias = mainTable.as || mainTable.alias || mainTable.table;
     tableAliases.set(mainTableAlias, mainTableName);
     
@@ -400,9 +412,39 @@ export class SQLQueryEngine {
    * @returns 中间结果
    */
   private processSubquery(subqueryClause: any): IntermediateResult {
-    const subQueryResult = this.executeSelect(subqueryClause.expr);
+    console.log('开始处理子查询');
+    
+    // 获取实际的子查询AST
+    let subQueryAst;
+    if (subqueryClause.expr.ast) {
+      // 新的AST结构
+      subQueryAst = subqueryClause.expr.ast;
+      console.log('从新结构中提取子查询AST:', JSON.stringify(subQueryAst, null, 2));
+    } else if (subqueryClause.expr.type === 'select') {
+      // 旧的AST结构
+      subQueryAst = subqueryClause.expr;
+      console.log('从旧结构中提取子查询AST:', JSON.stringify(subQueryAst, null, 2));
+    } else {
+      throw new Error('无法识别的子查询结构: ' + JSON.stringify(subqueryClause.expr));
+    }
+    
+    // 执行子查询
+    const subQueryResult = this.executeSelect(subQueryAst);
     if (!subQueryResult.success || !subQueryResult.data) {
-      throw new Error('子查询执行失败');
+      throw new Error('子查询执行失败: ' + (subQueryResult.message || '未知错误'));
+    }
+    
+    console.log('子查询结果:', subQueryResult);
+    
+    // 如果子查询结果为空，返回空结果集
+    if (subQueryResult.data.length === 0) {
+      return {
+        rows: [],
+        metadata: {
+          tableAliases: new Map(),
+          columnMetadata: []
+        }
+      };
     }
     
     const alias = subqueryClause.as || 'subquery';
@@ -449,6 +491,23 @@ export class SQLQueryEngine {
       const isNaturalJoin = join.comment === 'NATURAL_JOIN';
       
       const joinType = isNaturalJoin ? 'NATURAL JOIN' : (join.join || 'INNER JOIN').toUpperCase();
+      
+      // 检查是否是子查询
+      if (join.expr && (join.expr.ast || join.expr.type === 'select')) {
+        console.log('检测到JOIN中的子查询');
+        
+        // 处理子查询
+        const subqueryResult = this.processSubquery(join);
+        const joinAlias = join.as || 'subquery';
+        
+        console.log(`子查询JOIN, 别名: ${joinAlias}`);
+        
+        // 合并子查询结果
+        currentResult = this.mergeSubqueryJoin(currentResult, subqueryResult, join.on, joinType);
+        
+        continue; // 跳过后续处理
+      }
+      
       const joinTableName = join.table;
       const joinAlias = join.as || join.alias || join.table;
       
@@ -481,6 +540,125 @@ export class SQLQueryEngine {
     }
     
     return currentResult;
+  }
+
+  /**
+   * 合并子查询JOIN结果
+   * @param leftResult 左侧结果
+   * @param rightResult 右侧子查询结果
+   * @param onCondition ON条件
+   * @param joinType JOIN类型
+   * @returns 合并后的结果
+   */
+  private mergeSubqueryJoin(
+    leftResult: IntermediateResult,
+    rightResult: IntermediateResult,
+    onCondition: any,
+    joinType: string
+  ): IntermediateResult {
+    console.log('合并子查询JOIN结果');
+    console.log('左侧行数:', leftResult.rows.length);
+    console.log('右侧行数:', rightResult.rows.length);
+    
+    // 合并列元数据
+    const mergedColumnMetadata = [
+      ...leftResult.metadata.columnMetadata,
+      ...rightResult.metadata.columnMetadata
+    ];
+    
+    // 合并表别名映射
+    const mergedTableAliases = new Map([
+      ...leftResult.metadata.tableAliases,
+      ...rightResult.metadata.tableAliases
+    ]);
+    
+    // 根据JOIN类型执行不同的合并操作
+    let mergedRows: Record<string, any>[] = [];
+    
+    if (joinType === 'INNER JOIN') {
+      // 执行INNER JOIN
+      for (const leftRow of leftResult.rows) {
+        for (const rightRow of rightResult.rows) {
+          // 创建临时合并行用于评估JOIN条件
+          const tempRow = { ...leftRow, ...rightRow };
+          
+          // 评估JOIN条件
+          try {
+            if (evaluateCondition(tempRow, onCondition)) {
+              // 合并行
+              mergedRows.push(tempRow);
+            }
+          } catch (error) {
+            console.error('评估JOIN条件时出错:', error);
+          }
+        }
+      }
+    } else if (joinType === 'LEFT JOIN') {
+      // 执行LEFT JOIN
+      for (const leftRow of leftResult.rows) {
+        let hasMatch = false;
+        
+        for (const rightRow of rightResult.rows) {
+          // 创建临时合并行用于评估JOIN条件
+          const tempRow = { ...leftRow, ...rightRow };
+          
+          // 评估JOIN条件
+          try {
+            if (evaluateCondition(tempRow, onCondition)) {
+              // 合并行
+              mergedRows.push(tempRow);
+              hasMatch = true;
+            }
+          } catch (error) {
+            console.error('评估JOIN条件时出错:', error);
+          }
+        }
+        
+        // 如果没有匹配，添加NULL右行
+        if (!hasMatch) {
+          const nullRightRow: Record<string, null> = {};
+          
+          // 为右表的所有列创建NULL值
+          rightResult.metadata.columnMetadata.forEach(col => {
+            const fullColumnName = `${col.tableAlias}.${col.columnName}`;
+            nullRightRow[fullColumnName] = null;
+            nullRightRow[col.columnName] = null; // 同时添加不带前缀的列名
+          });
+          
+          mergedRows.push({ ...leftRow, ...nullRightRow });
+        }
+      }
+    } else {
+      // 默认使用INNER JOIN
+      console.warn(`不支持的JOIN类型: ${joinType}，将作为INNER JOIN处理`);
+      
+      for (const leftRow of leftResult.rows) {
+        for (const rightRow of rightResult.rows) {
+          // 创建临时合并行用于评估JOIN条件
+          const tempRow = { ...leftRow, ...rightRow };
+          
+          // 评估JOIN条件
+          try {
+            if (evaluateCondition(tempRow, onCondition)) {
+              // 合并行
+              mergedRows.push(tempRow);
+            }
+          } catch (error) {
+            console.error('评估JOIN条件时出错:', error);
+          }
+        }
+      }
+    }
+    
+    console.log('合并后的行数:', mergedRows.length);
+    
+    return {
+      rows: mergedRows,
+      metadata: {
+        tableAliases: mergedTableAliases,
+        columnMetadata: mergedColumnMetadata
+      }
+    };
   }
 
   /**
@@ -999,6 +1177,9 @@ export class SQLQueryEngine {
    * @returns 过滤后的中间结果
    */
   private processWhereClause(result: IntermediateResult, whereClause: any): IntermediateResult {
+    // 预处理 WHERE 子句中的子查询
+    this.preprocessWhereSubqueries(whereClause);
+    
     return {
       ...result,
       rows: result.rows.filter(row => {
@@ -1010,6 +1191,62 @@ export class SQLQueryEngine {
         }
       })
     };
+  }
+
+  /**
+   * 预处理 WHERE 子句中的子查询
+   * @param whereClause WHERE子句
+   */
+  private preprocessWhereSubqueries(whereClause: any): void {
+    if (!whereClause) return;
+    
+    console.log('预处理 WHERE 子句中的子查询:', whereClause);
+    
+    // 处理二元表达式
+    if (whereClause.type === 'binary_expr') {
+      // 递归处理左侧
+      if (whereClause.left) {
+        this.preprocessWhereSubqueries(whereClause.left);
+      }
+      
+      // 处理右侧
+      if (whereClause.right) {
+        // 检查是否是子查询
+        if (whereClause.right.ast) {
+          console.log('检测到 WHERE 子句中的子查询:', whereClause.right.ast);
+          
+          // 执行子查询
+          const subQueryResult = this.executeSelect(whereClause.right.ast);
+          if (!subQueryResult.success || !subQueryResult.data) {
+            throw new Error('子查询执行失败: ' + (subQueryResult.message || '未知错误'));
+          }
+          
+          console.log('子查询结果:', subQueryResult);
+          
+          // 如果子查询返回多行多列，我们需要确定使用哪个值
+          // 通常，比较操作符期望一个标量值，所以我们取第一行第一列
+          if (subQueryResult.data.length > 0) {
+            const firstRow = subQueryResult.data[0];
+            const firstKey = Object.keys(firstRow)[0];
+            const scalarValue = firstRow[firstKey];
+            
+            console.log('从子查询结果中提取标量值:', scalarValue);
+            
+            // 替换子查询为标量值
+            whereClause.right = scalarValue;
+          } else {
+            // 如果子查询没有返回任何行，使用 null
+            whereClause.right = null;
+          }
+        } else {
+          // 递归处理右侧
+          this.preprocessWhereSubqueries(whereClause.right);
+        }
+      }
+    }
+    
+    // 处理其他类型的条件（如 IN、EXISTS 等）
+    // ...
   }
 
   /**

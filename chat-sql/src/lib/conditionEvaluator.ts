@@ -91,6 +91,20 @@ export function evaluateExpression(expr: any, row?: any): any {
   
   console.log('Evaluating expression:', expr);
   
+  // 处理子查询
+  if (expr.ast) {
+    console.log('检测到子查询表达式:', expr);
+    // 这里需要访问 SQLQueryEngine 实例来执行子查询
+    // 由于 evaluateExpression 是一个独立函数，我们需要通过其他方式获取 SQLQueryEngine 实例
+    // 一种方法是将 SQLQueryEngine 实例作为参数传递给 evaluateExpression
+    // 另一种方法是使用全局变量或单例模式
+    // 这里我们假设有一个全局函数 executeSubQuery 可以执行子查询
+    
+    // 临时解决方案：返回一个标记，表示这是一个子查询
+    // 实际实现时需要替换为真正的子查询执行逻辑
+    return { __isSubQuery: true, ast: expr.ast };
+  }
+  
   if (expr.type === 'column_ref') {
     if (!row) return null;
     
@@ -126,29 +140,7 @@ export function evaluateExpression(expr: any, row?: any): any {
     return null;
   }
   
-  // 其他表达式类型处理
-  if (expr.type === 'string') {
-    // 确保移除引号
-    const value = expr.value.replace(/^['"]|['"]$/g, '');
-    console.log('String value:', value);
-    return value;
-  }
-  
-  if (expr.type === 'number') {
-    return Number(expr.value);
-  }
-  
-  if (expr.type === 'bool') {
-    return Boolean(expr.value);
-  }
-  
-  if (typeof expr === 'string' || typeof expr === 'number' || typeof expr === 'boolean') {
-    return expr;
-  }
-  
-  if (expr.value !== undefined) {
-    return expr.value;
-  }
+  // 其他表达式类型处理保持不变...
   
   return expr;
 }

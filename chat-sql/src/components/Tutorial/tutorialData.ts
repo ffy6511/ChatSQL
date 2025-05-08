@@ -487,5 +487,118 @@ export const tutorials: TutorialData[] = [
       order: 6,
       category: "Intermediate"
     }
+  },
+
+  // 添加嵌套子查询教程
+  {
+    title: "嵌套子查询操作",
+    description: "在一个销售管理系统中，存在产品表(Products)和销售记录表(Sales)。通过嵌套子查询可以实现更复杂的数据分析。",
+    problem: [
+      "1. 查询所有销售记录，但只显示产品价格高于平均价格的产品的销售记录（使用子查询计算平均价格）",
+      "2. 查询每个部门中销售额最高的销售员信息，包括销售员姓名、部门和销售总额（使用嵌套子查询和GROUP BY）"
+    ],
+    hint: "本教程主要介绍嵌套子查询的使用。参考SQL：\n1. SELECT s.* FROM Sales s JOIN Products p ON s.product_id = p.product_id WHERE p.price > (SELECT AVG(price) FROM Products);\n2. SELECT s1.salesperson_id, s1.name, s1.department, t.total_sales FROM Salespeople s1 JOIN (SELECT department, MAX(total) as max_sales FROM (SELECT s.salesperson_id, s.department, SUM(sa.amount) as total FROM Salespeople s JOIN Sales sa ON s.salesperson_id = sa.salesperson_id GROUP BY s.salesperson_id, s.department) as sales_totals GROUP BY department) t2 ON s1.department = t2.department JOIN (SELECT salesperson_id, SUM(amount) as total_sales FROM Sales GROUP BY salesperson_id) t ON s1.salesperson_id = t.salesperson_id AND t.total_sales = t2.max_sales;",
+    tags: ["subquery", "nested query", "join", "group by", "aggregate"],
+    tableStructure: [
+      {
+        tableName: "Products",
+        columns: [
+          { name: "product_id", type: "INT", isPrimary: true },
+          { name: "product_name", type: "VARCHAR(100)" },
+          { name: "price", type: "DECIMAL(10,2)" },
+          { name: "category", type: "VARCHAR(50)" }
+        ],
+        foreignKeys: []
+      },
+      {
+        tableName: "Salespeople",
+        columns: [
+          { name: "salesperson_id", type: "INT", isPrimary: true },
+          { name: "name", type: "VARCHAR(50)" },
+          { name: "department", type: "VARCHAR(50)" }
+        ],
+        foreignKeys: []
+      },
+      {
+        tableName: "Sales",
+        columns: [
+          { name: "sale_id", type: "INT", isPrimary: true },
+          { name: "salesperson_id", type: "INT" },
+          { name: "product_id", type: "INT" },
+          { name: "amount", type: "DECIMAL(10,2)" },
+          { name: "sale_date", type: "DATE" }
+        ],
+        foreignKeys: [
+          {
+            fromTable: "Sales",
+            fromColumn: "product_id",
+            toTable: "Products",
+            toColumn: "product_id"
+          },
+          {
+            fromTable: "Sales",
+            fromColumn: "salesperson_id",
+            toTable: "Salespeople",
+            toColumn: "salesperson_id"
+          }
+        ]
+      }
+    ],
+    tuples: [
+      {
+        tableName: "Products",
+        tupleData: [
+          { product_id: 1, product_name: "笔记本电脑", price: 6999.00, category: "电子产品" },
+          { product_id: 2, product_name: "智能手机", price: 3999.00, category: "电子产品" },
+          { product_id: 3, product_name: "耳机", price: 999.00, category: "配件" },
+          { product_id: 4, product_name: "显示器", price: 1499.00, category: "电子产品" },
+          { product_id: 5, product_name: "键盘", price: 299.00, category: "配件" }
+        ]
+      },
+      {
+        tableName: "Salespeople",
+        tupleData: [
+          { salesperson_id: 1, name: "张三", department: "电子产品" },
+          { salesperson_id: 2, name: "李四", department: "配件" },
+          { salesperson_id: 3, name: "王五", department: "电子产品" },
+          { salesperson_id: 4, name: "赵六", department: "配件" }
+        ]
+      },
+      {
+        tableName: "Sales",
+        tupleData: [
+          { sale_id: 1, salesperson_id: 1, product_id: 1, amount: 6999.00, sale_date: "2024-01-15" },
+          { sale_id: 2, salesperson_id: 1, product_id: 2, amount: 3999.00, sale_date: "2024-01-20" },
+          { sale_id: 3, salesperson_id: 2, product_id: 3, amount: 999.00, sale_date: "2024-02-05" },
+          { sale_id: 4, salesperson_id: 2, product_id: 5, amount: 299.00, sale_date: "2024-02-10" },
+          { sale_id: 5, salesperson_id: 3, product_id: 1, amount: 6999.00, sale_date: "2024-01-25" },
+          { sale_id: 6, salesperson_id: 3, product_id: 4, amount: 1499.00, sale_date: "2024-02-15" },
+          { sale_id: 7, salesperson_id: 4, product_id: 3, amount: 999.00, sale_date: "2024-01-10" },
+          { sale_id: 8, salesperson_id: 4, product_id: 5, amount: 299.00, sale_date: "2024-01-30" }
+        ]
+      }
+    ],
+    expected_result: [
+      {
+        tableName: "Result1",
+        tupleData: [
+          { sale_id: 1, salesperson_id: 1, product_id: 1, amount: 6999.00, sale_date: "2024-01-15" },
+          { sale_id: 2, salesperson_id: 1, product_id: 2, amount: 3999.00, sale_date: "2024-01-20" },
+          { sale_id: 5, salesperson_id: 3, product_id: 1, amount: 6999.00, sale_date: "2024-01-25" }
+        ]
+      },
+      {
+        tableName: "Result2",
+        tupleData: [
+          { salesperson_id: 1, name: "张三", department: "电子产品", total_sales: 10998.00 },
+          { salesperson_id: 2, name: "李四", department: "配件", total_sales: 1298.00 }
+        ]
+      }
+    ],
+    data: {
+      isBuiltIn: true,
+      order: 7,
+      category: "Advanced"
+    }
   }
 ];
