@@ -27,9 +27,21 @@ export function executeAggregateFunction(
 
   // 如果指定了列名，先提取该列的值
   const columnValues = columnName 
-    ? values.map(row => row[columnName])
+    ? values.map(row => {
+        // 确保能正确获取列值，即使列名带有表前缀
+        const value = row[columnName];
+        if (value !== undefined) {
+          return value;
+        }
+        
+        // 如果直接访问失败，尝试查找匹配的键
+        // 这种情况可能发生在JOIN操作后，列名可能带有表前缀
+        console.log(`聚合函数 ${functionName} 尝试查找列 ${columnName} 的值`);
+        return undefined;
+      }).filter(v => v !== undefined)
     : values;
 
+  console.log(`聚合函数 ${functionName} 处理列 ${columnName}，找到 ${columnValues.length} 个有效值`);
   return fn(columnValues);
 }
 

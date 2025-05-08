@@ -93,6 +93,9 @@ export class SQLQueryEngine {
         };
       }
 
+      // 预处理SQL语句，处理NATURAL JOIN
+      sql = this.preprocessSQL(sql);
+
       // 解析SQL命令
       let ast;
       try {
@@ -151,6 +154,25 @@ export class SQLQueryEngine {
         message: error instanceof Error ? error.message : '查询执行失败'
       };
     }
+  }
+
+  /**
+   * 预处理SQL语句，处理特殊语法
+   * @param sql 原始SQL语句
+   * @returns 处理后的SQL语句
+   */
+  private preprocessSQL(sql: string): string {
+    // 处理NATURAL JOIN语法
+    // 将 "table1 NATURAL JOIN table2" 转换为 "table1 JOIN table2"
+    // 我们会在后续处理中检测到这是一个JOIN，并自动处理为NATURAL JOIN
+    const naturalJoinRegex = /(\w+)\s+NATURAL\s+JOIN\s+(\w+)/gi;
+    sql = sql.replace(naturalJoinRegex, (match, table1, table2) => {
+      console.log(`检测到NATURAL JOIN: ${table1} NATURAL JOIN ${table2}`);
+      // 将NATURAL JOIN标记为特殊的JOIN类型，后续会特殊处理
+      return `${table1} JOIN ${table2} ON 1=1 /* NATURAL_JOIN */`;
+    });
+    
+    return sql;
   }
 
   /**
@@ -316,7 +338,15 @@ export class SQLQueryEngine {
     let currentResult = { ...result };
     
     for (const join of joinClauses) {
-      const joinType = (join.join || 'INNER JOIN').toUpperCase();
+      // 检查是否是预处理的NATURAL JOIN
+      const isNaturalJoin = join.on && 
+                            join.on.type === 'binary_expr' && 
+                            join.on.operator === '=' && 
+                            join.on.left.value === 1 && 
+                            join.on.right.value === 1 &&
+                            join.on.comment === 'NATURAL_JOIN';
+      
+      const joinType = isNaturalJoin ? 'NATURAL JOIN' : (join.join || 'INNER JOIN').toUpperCase();
       const joinTableName = join.table;
       const joinAlias = join.as || join.alias || join.table;
       
@@ -329,7 +359,19 @@ export class SQLQueryEngine {
       }
       
       // 执行JOIN操作
-      currentResult = this.executeJoin(currentResult, joinTable, joinAlias, join.on, joinType);
+      if (isNaturalJoin) {
+        // 对于NATURAL JOIN，我们需要找出共同列并构建ON条件
+        currentResult = this.executeJoin(
+          currentResult, 
+          joinTable, 
+          joinAlias, 
+          null, // 传递null作为ON条件，表示这是一个NATURAL JOIN
+          'NATURAL JOIN'
+        );
+      } else {
+        // 正常处理其他JOIN类型
+        currentResult = this.executeJoin(currentResult, joinTable, joinAlias, join.on, joinType);
+      }
     }
     
     return currentResult;
@@ -365,32 +407,27 @@ export class SQLQueryEngine {
     
     let joinedRows: Record<string, any>[] = [];
     
-    switch (joinType) {
-      case JoinType.INNER:
-      case 'INNER JOIN': // 兼容字符串类型
+    switch (joinType.toUpperCase()) {
+      case 'INNER JOIN':
         joinedRows = this.executeInnerJoin(result.rows, joinTable, joinAlias, onCondition);
         break;
-        
-      case JoinType.LEFT:
       case 'LEFT JOIN':
         joinedRows = this.executeLeftJoin(result.rows, joinTable, joinAlias, onCondition);
         break;
-        
-      case JoinType.RIGHT:
       case 'RIGHT JOIN':
         joinedRows = this.executeRightJoin(result.rows, joinTable, joinAlias, onCondition);
         break;
-        
-      case JoinType.FULL:
       case 'FULL OUTER JOIN':
+      case 'FULL JOIN':
         joinedRows = this.executeFullOuterJoin(result.rows, joinTable, joinAlias, onCondition);
         break;
-        
-      case JoinType.NATURAL:
+      case 'CROSS JOIN':
+        joinedRows = this.executeCrossJoin(result.rows, joinTable, joinAlias);
+        break;
       case 'NATURAL JOIN':
+        // 对于NATURAL JOIN，我们需要找出共同列并执行
         joinedRows = this.executeNaturalJoin(result.rows, joinTable, joinAlias);
         break;
-        
       default:
         console.warn(`不支持的JOIN类型: ${joinType}，将作为INNER JOIN处理`);
         joinedRows = this.executeInnerJoin(result.rows, joinTable, joinAlias, onCondition);
@@ -623,28 +660,63 @@ export class SQLQueryEngine {
       return this.executeCrossJoin(leftRows, rightTable, rightAlias);
     }
     
-    const joinedRows: Record<string, any>[] = [];
+    // 构建 ON 条件
+    const onCondition = this.buildNaturalJoinCondition(commonColumns, rightAlias);
+    console.log('构建的 NATURAL JOIN ON 条件:', onCondition);
     
-    for (const leftRow of leftRows) {
-      for (const rightRow of rightTable.data) {
-        // 检查所有共同列是否匹配
-        let allMatch = true;
-        for (const { leftCol, rightCol } of commonColumns) {
-          if (leftRow[leftCol] !== rightRow[rightCol]) {
-            allMatch = false;
-            break;
-          }
-        }
-        
-        if (allMatch) {
-          // 合并行，但共同列只保留一份
-          const mergedRow = this.mergeRowsForNaturalJoin(leftRow, rightRow, rightAlias, commonColumns);
-          joinedRows.push(mergedRow);
-        }
-      }
+    // 使用 INNER JOIN 处理
+    return this.executeInnerJoin(leftRows, rightTable, rightAlias, onCondition);
+  }
+
+  /**
+   * 为自然连接构建 ON 条件
+   */
+  private buildNaturalJoinCondition(
+    commonColumns: { leftCol: string, rightCol: string }[],
+    rightAlias: string
+  ): any {
+    if (commonColumns.length === 0) {
+      return null;
     }
     
-    return joinedRows;
+    // 构建第一个条件
+    let condition: any = {
+      type: 'binary_expr',
+      operator: '=',
+      left: {
+        type: 'column_ref',
+        column: commonColumns[0].leftCol
+      },
+      right: {
+        type: 'column_ref',
+        table: rightAlias,
+        column: commonColumns[0].rightCol
+      }
+    };
+    
+    // 添加其余条件
+    for (let i = 1; i < commonColumns.length; i++) {
+      condition = {
+        type: 'binary_expr',
+        operator: 'AND',
+        left: condition,
+        right: {
+          type: 'binary_expr',
+          operator: '=',
+          left: {
+            type: 'column_ref',
+            column: commonColumns[i].leftCol
+          },
+          right: {
+            type: 'column_ref',
+            table: rightAlias,
+            column: commonColumns[i].rightCol
+          }
+        }
+      };
+    }
+    
+    return condition;
   }
 
   /**
@@ -835,15 +907,93 @@ export class SQLQueryEngine {
    */
   private processGroupByClause(
     result: IntermediateResult, 
-    groupByClause: any[], 
+    groupByClause: any, 
     columns: any[]
   ): IntermediateResult {
-    const groupedResult = executeGroupBy(result.rows, groupByClause, columns);
-    const newColumnMetadata = columns.map(col => ({
-      tableAlias: col.table || '',
-      columnName: col.expr.column || col.expr.name,
-      outputName: col.as || col.expr.column || col.expr.name
-    }));
+    console.log('处理GROUP BY子句:');
+    console.log('- 输入行数:', result.rows.length);
+    console.log('- GROUP BY子句:', JSON.stringify(groupByClause));
+    console.log('- 列:', JSON.stringify(columns));
+    
+    // 转换GROUP BY子句为标准格式
+    let standardizedGroupBy: any[] = [];
+    
+    // 处理不同格式的GROUP BY子句
+    if (Array.isArray(groupByClause)) {
+      // 如果是数组格式
+      standardizedGroupBy = groupByClause.map(item => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        
+        if (item && item.type === 'column_ref') {
+          const tableName = item.table || '';
+          const columnName = item.column;
+          return tableName ? `${tableName}.${columnName}` : columnName;
+        }
+        
+        return item;
+      });
+    } else if (groupByClause && groupByClause.columns) {
+      // 如果是对象格式，包含columns属性
+      standardizedGroupBy = groupByClause.columns.map((item: any) => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        
+        if (item && item.type === 'column_ref') {
+          const tableName = item.table || '';
+          const columnName = item.column;
+          return tableName ? `${tableName}.${columnName}` : columnName;
+        }
+        
+        return item;
+      });
+    } else if (groupByClause) {
+      // 其他格式，尝试转换为数组
+      console.warn('未知的GROUP BY格式:', groupByClause);
+      standardizedGroupBy = [groupByClause];
+    }
+    
+    console.log('- 标准化后的GROUP BY:', standardizedGroupBy);
+    
+    // 执行GROUP BY操作
+    const groupedResult = executeGroupBy(result.rows, standardizedGroupBy, columns);
+    console.log('- GROUP BY结果行数:', groupedResult.length);
+    
+    // 更新列元数据
+    const newColumnMetadata = columns.map(col => {
+      if (col.expr.type === 'column_ref') {
+        return {
+          tableAlias: col.expr.table || '',
+          columnName: col.expr.column,
+          outputName: col.as || col.expr.column
+        };
+      } else if (col.expr.type === 'aggr_func') {
+        const funcName = col.expr.name;
+        let columnName = '';
+        
+        if (col.expr.args && col.expr.args.expr) {
+          if (col.expr.args.expr.type === 'column_ref') {
+            columnName = col.expr.args.expr.column;
+          } else if (col.expr.args.expr.type === 'star') {
+            columnName = '*';
+          }
+        }
+        
+        return {
+          tableAlias: '',
+          columnName: `${funcName}(${columnName})`,
+          outputName: col.as || `${funcName}(${columnName})`
+        };
+      }
+      
+      return {
+        tableAlias: '',
+        columnName: '',
+        outputName: ''
+      };
+    });
     
     return {
       rows: groupedResult,
@@ -939,38 +1089,17 @@ export class SQLQueryEngine {
           const tableAlias = columnExpr.table;
           const columnName = columnExpr.column;
           const outputName = alias || columnName;
-          
-          if (tableAlias) {
-            // 有表别名的情况
-            const fullColumnName = `${tableAlias}.${columnName}`;
-            console.log(`  查找带表别名的列 ${fullColumnName}`);
-            if (row[fullColumnName] !== undefined) {
-              console.log(`  找到列 ${fullColumnName}:`, row[fullColumnName]);
-              newRow[outputName] = row[fullColumnName];
-            } else {
-              console.log(`  未找到列 ${fullColumnName}, 设置为null`);
-              newRow[outputName] = null;
-            }
+
+          // 优先用不带前缀的列名
+          if (row[columnName] !== undefined) {
+            newRow[outputName] = row[columnName];
           } else {
-            // 没有表别名的情况，尝试在所有列中查找匹配的列名
-            console.log(`  查找不带表别名的列 ${columnName}`);
-            
-            // 首先尝试直接匹配不带前缀的列名
-            if (row[columnName] !== undefined) {
-              console.log(`  直接找到列 ${columnName}:`, row[columnName]);
-              newRow[outputName] = row[columnName];
+            // 再查找带前缀的列名
+            const matchingKey = Object.keys(row).find(k => k.endsWith(`.${columnName}`));
+            if (matchingKey) {
+              newRow[outputName] = row[matchingKey];
             } else {
-              // 然后尝试匹配带前缀的列名
-              const matchingKey = Object.keys(row).find(k => 
-                k.endsWith(`.${columnName}`)
-              );
-              if (matchingKey) {
-                console.log(`  找到匹配的带前缀列 ${matchingKey}:`, row[matchingKey]);
-                newRow[outputName] = row[matchingKey];
-              } else {
-                console.log(`  未找到列 ${columnName}, 设置为null`);
-                newRow[outputName] = null;
-              }
+              newRow[outputName] = null;
             }
           }
         } else if (columnExpr.type === 'aggr_func') {

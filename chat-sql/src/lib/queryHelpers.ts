@@ -102,22 +102,98 @@ export function executeJoins(
  */
 export function executeGroupBy(
   data: any[], 
-  groupBy: string[], 
+  groupBy: any[], 
   columns: any[]
 ): any[] {
+  console.log('executeGroupBy - 输入数据:', data.length, '行');
+  console.log('executeGroupBy - groupBy:', groupBy);
+  console.log('executeGroupBy - columns:', columns.map(c => c.as || (c.expr.column || c.expr.name)));
+  
+  if (data.length === 0) return [];
+  
+  // 打印第一行数据的键，帮助调试
+  console.log('第一行数据的键:', Object.keys(data[0]));
+  
   // 确保 groupBy 是数组
-  const groupByColumns = Array.isArray(groupBy) ? groupBy : [];
+  const groupByColumns = Array.isArray(groupBy) ? groupBy : [groupBy].filter(Boolean);
   const groups = new Map();
   
   // 分组
   for (const row of data) {
     // 使用所有 GROUP BY 列的值作为键
-    const key = groupByColumns.map(col => {
-      // 处理带表别名的列名
-      const columnName = col.includes('.') ? col.split('.')[1] : col;
-      const value = row[columnName];
-      return value === undefined ? null : value;
-    }).join('|');
+    const keyParts = [];
+    
+    for (const col of groupByColumns) {
+      let value = null;
+      
+      // 处理不同类型的列引用
+      if (typeof col === 'string') {
+        // 如果是字符串形式的列名
+        if (col.includes('.')) {
+          // 带表别名的列名 (例如 "table.column")
+          const [tableName, columnName] = col.split('.');
+          const fullColumnName = `${tableName}.${columnName}`;
+          
+          // 1. 先尝试完整的表别名.列名形式
+          if (row[fullColumnName] !== undefined) {
+            value = row[fullColumnName];
+          } else {
+            // 2. 尝试查找任何表别名下的该列名
+            const matchingKey = Object.keys(row).find(k => 
+              k.endsWith(`.${columnName}`)
+            );
+            if (matchingKey) {
+              value = row[matchingKey];
+            } else {
+              // 3. 最后尝试不带表别名的列名
+              value = row[columnName];
+            }
+          }
+        } else {
+          // 不带表别名的列名
+          const columnName = col;
+          
+          // 1. 先尝试不带表别名的列名
+          if (row[columnName] !== undefined) {
+            value = row[columnName];
+          } else {
+            // 2. 尝试查找任何表别名下的该列名
+            const matchingKey = Object.keys(row).find(k => 
+              k.endsWith(`.${columnName}`)
+            );
+            if (matchingKey) {
+              value = row[matchingKey];
+            }
+          }
+        }
+      } else if (col && col.type === 'column_ref') {
+        // 如果是对象形式的列引用
+        const columnName = col.column;
+        const tableName = col.table || '';
+        const fullColumnName = tableName ? `${tableName}.${columnName}` : columnName;
+        
+        // 1. 先尝试完整的表别名.列名形式
+        if (row[fullColumnName] !== undefined) {
+          value = row[fullColumnName];
+        } else if (row[columnName] !== undefined) {
+          // 2. 再尝试不带表别名的列名
+          value = row[columnName];
+        } else {
+          // 3. 最后尝试查找任何表别名下的该列名
+          const matchingKey = Object.keys(row).find(k => 
+            k.endsWith(`.${columnName}`)
+          );
+          if (matchingKey) {
+            value = row[matchingKey];
+          }
+        }
+      }
+      
+      keyParts.push(value === undefined ? 'null' : String(value));
+    }
+    
+    const key = keyParts.join('|');
+    console.log(`行的分组键: ${key}`);
     
     if (!groups.has(key)) {
       groups.set(key, []);
@@ -125,50 +201,137 @@ export function executeGroupBy(
     groups.get(key).push(row);
   }
 
+  console.log('分组数量:', groups.size);
+  for (const [key, rows] of groups.entries()) {
+    console.log(`分组 ${key}: ${rows.length} 行`);
+  }
+
   // 处理聚合
   return Array.from(groups.entries()).map(([key, rows]) => {
     const groupRow: any = {};
     
     // 保留分组列
-    groupByColumns.forEach(col => {
-      const columnName = col.includes('.') ? col.split('.')[1] : col;
-      const tableName = col.includes('.') ? col.split('.')[0] : '';
+    for (const col of groupByColumns) {
+      let columnName, tableName;
+      
+      if (typeof col === 'string') {
+        if (col.includes('.')) {
+          [tableName, columnName] = col.split('.');
+        } else {
+          columnName = col;
+          tableName = '';
+        }
+      } else if (col && col.type === 'column_ref') {
+        columnName = col.column;
+        tableName = col.table || '';
+      } else {
+        continue; // 跳过不支持的列类型
+      }
+      
       const fullColumnName = tableName ? `${tableName}.${columnName}` : columnName;
-      groupRow[fullColumnName] = rows[0][columnName];
-    });
+      let value;
+      
+      // 1. 先尝试完整的表别名.列名形式
+      if (rows[0][fullColumnName] !== undefined) {
+        value = rows[0][fullColumnName];
+        groupRow[columnName] = value; // 使用不带表别名的列名作为输出
+      } else if (rows[0][columnName] !== undefined) {
+        // 2. 再尝试不带表别名的列名
+        value = rows[0][columnName];
+        groupRow[columnName] = value;
+      } else {
+        // 3. 最后尝试查找任何表别名下的该列名
+        const matchingKey = Object.keys(rows[0]).find(k => 
+          k.endsWith(`.${columnName}`)
+        );
+        if (matchingKey) {
+          value = rows[0][matchingKey];
+          groupRow[columnName] = value; // 使用不带表别名的列名作为输出
+        }
+      }
+    }
 
     // 处理每个选择的列
-    columns.forEach(col => {
+    for (const col of columns) {
       if (col.expr.type === 'aggr_func') {
         const { name, args } = col.expr;
-        const columnName = args.expr.column;
-        // 处理带表别名的列名
-        const actualColumnName = columnName.includes('.') ? 
-          columnName.split('.')[1] : columnName;
-        const alias = col.as || `${name}(${columnName})`;
+        const alias = col.as || `${name}(${args.expr.column || '*'})`;
         
-        // 特殊处理 COUNT 函数
-        if (name.toUpperCase() === 'COUNT') {
-          if (rows.length === 0) {
-            groupRow[alias] = 0;
-          } else {
-            const values = rows.map((r: Record<string, any>) => r[actualColumnName])
-                              .filter((v: any): v is NonNullable<any> => v != null);
+        // 处理不同类型的聚合函数参数
+        if (args.expr.type === 'column_ref') {
+          const columnName = args.expr.column;
+          const tableName = args.expr.table || '';
+          
+          // 提取该列的所有值
+          const values = rows.map((r: { [x: string]: any; }) => {
+            const fullColumnName = tableName ? `${tableName}.${columnName}` : columnName;
+            
+            // 1. 先尝试完整的表别名.列名形式
+            if (r[fullColumnName] !== undefined) {
+              return r[fullColumnName];
+            } 
+            // 2. 再尝试不带表别名的列名
+            else if (r[columnName] !== undefined) {
+              return r[columnName];
+            }
+            // 3. 最后尝试查找任何表别名下的该列名
+            else {
+              const matchingKey = Object.keys(r).find(k => 
+                k.endsWith(`.${columnName}`)
+              );
+              if (matchingKey) {
+                return r[matchingKey];
+              }
+              return null;
+            }
+          }).filter((v: null) => v != null);
+          
+          console.log(`聚合函数 ${name}(${columnName}) 的值:`, values);
+          
+          // 执行聚合函数
+          if (name.toUpperCase() === 'COUNT') {
             groupRow[alias] = values.length;
+          } else {
+            groupRow[alias] = executeAggregate(name, values);
           }
-        } else {
-          groupRow[alias] = executeAggregate(name, rows, actualColumnName);
+        } else if (args.expr.type === 'star') {
+          // 处理 COUNT(*) 等情况
+          if (name.toUpperCase() === 'COUNT') {
+            groupRow[alias] = rows.length;
+          }
         }
       } else if (col.expr.type === 'column_ref') {
+        // 普通列引用，已在保留分组列步骤中处理
         const columnName = col.expr.column;
-        const tableName = col.expr.table;
-        const fullColumnName = tableName ? `${tableName}.${columnName}` : columnName;
-        const actualColumnName = columnName.includes('.') ? 
-          columnName.split('.')[1] : columnName;
-        groupRow[fullColumnName] = rows[0][actualColumnName];
+        const alias = col.as || columnName;
+        
+        // 如果该列不是分组列，则使用第一行的值
+        if (!groupRow.hasOwnProperty(columnName)) {
+          const tableName = col.expr.table || '';
+          const fullColumnName = tableName ? `${tableName}.${columnName}` : columnName;
+          
+          // 1. 先尝试完整的表别名.列名形式
+          if (rows[0][fullColumnName] !== undefined) {
+            groupRow[alias] = rows[0][fullColumnName];
+          } 
+          // 2. 再尝试不带表别名的列名
+          else if (rows[0][columnName] !== undefined) {
+            groupRow[alias] = rows[0][columnName];
+          }
+          // 3. 最后尝试查找任何表别名下的该列名
+          else {
+            const matchingKey = Object.keys(rows[0]).find(k => 
+              k.endsWith(`.${columnName}`)
+            );
+            if (matchingKey) {
+              groupRow[alias] = rows[0][matchingKey];
+            }
+          }
+        }
       }
-    });
+    }
     
+    console.log('生成的分组行:', groupRow);
     return groupRow;
   });
 }
@@ -177,16 +340,62 @@ export function executeGroupBy(
  * 执行ORDER BY操作
  */
 export function executeOrderBy(data: any[], orderBy: any[]): any[] {
+  console.log('executeOrderBy - 输入数据:', data.length, '行');
+  console.log('executeOrderBy - orderBy:', orderBy);
+  
+  if (data.length === 0) return [];
+  
+  // 打印第一行数据的键，帮助调试
+  console.log('第一行数据的键:', Object.keys(data[0]));
+  
   return [...data].sort((a, b) => {
     for (const order of orderBy) {
-      const columnExpr = order.expr;
-      // 处理带表别名的列名
-      const column = columnExpr.column.includes('.') ? 
-        columnExpr.column.split('.')[1] : columnExpr.column;
-      const direction = order.type?.toUpperCase() || 'ASC';
+      console.log('处理ORDER BY项:', order);
       
+      // 获取排序列名
+      let column;
+      const expr = order.expr;
+      
+      // 处理不同类型的表达式
+      if (expr.type === 'column_ref') {
+        // 普通列引用
+        if (expr.column && typeof expr.column === 'string') {
+          column = expr.column.includes('.') ? 
+            expr.column.split('.')[1] : expr.column;
+        } else {
+          console.warn('无效的列引用:', expr);
+          continue;
+        }
+      } else if (expr.type === 'aggr_func') {
+        // 聚合函数
+        const funcName = expr.name;
+        let argColumn = '*';
+        
+        if (expr.args && expr.args.expr) {
+          if (expr.args.expr.type === 'column_ref') {
+            argColumn = expr.args.expr.column;
+          } else if (expr.args.expr.type === 'star') {
+            argColumn = '*';
+          }
+        }
+        
+        column = `${funcName}(${argColumn})`;
+      } else {
+        console.warn('不支持的ORDER BY表达式类型:', expr.type);
+        continue;
+      }
+      
+      console.log('解析的排序列名:', column);
+      
+      // 确定排序方向
+      const direction = order.type?.toUpperCase() || 'ASC';
+      console.log('排序方向:', direction);
+      
+      // 获取值进行比较
       const aVal = a[column];
       const bVal = b[column];
+      
+      console.log('比较值:', { aVal, bVal });
       
       // 处理 null 值
       if (aVal === null && bVal === null) continue;

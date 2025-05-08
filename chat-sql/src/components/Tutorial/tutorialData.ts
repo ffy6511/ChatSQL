@@ -314,5 +314,178 @@ export const tutorials: TutorialData[] = [
       order: 3,
       category: "Basic"
     }
+  },
+
+
+
+  // 聚合函数测试教程
+  {
+    title: "简单聚合测试",
+    description: "一个销售记录表，测试基本的聚合函数",
+    problem: [
+      "计算每个部门的销售总额"
+    ],
+    hint: "使用GROUP BY和SUM函数",
+    tags: ["aggregate", "group by"],
+    tableStructure: [
+      {
+        tableName: "Sales",
+        columns: [
+          { name: "id", type: "INT", isPrimary: true },
+          { name: "department", type: "VARCHAR(50)" },
+          { name: "amount", type: "DECIMAL(10,2)" }
+        ],
+        foreignKeys: []
+      }
+    ],
+    tuples: [
+      {
+        tableName: "Sales",
+        tupleData: [
+          { id: 1, department: "电子", amount: 1000.00 },
+          { id: 2, department: "服装", amount: 500.00 },
+          { id: 3, department: "电子", amount: 1500.00 },
+          { id: 4, department: "服装", amount: 800.00 }
+        ]
+      }
+    ],
+    expected_result: [
+      {
+        tableName: "Result",
+        tupleData: [
+          { department: "电子", total_amount: 2500.00 },
+          { department: "服装", total_amount: 1300.00 }
+        ]
+      }
+    ],
+    data: {
+      isBuiltIn: true,
+      order: 5,
+      category: "Test"
+    }
+  },
+
+  // JOIN操作进阶
+  {
+    title: "JOIN操作进阶",
+    description: "在一个电商系统中，存在客户表(Customers)、订单表(Orders)和产品表(Products)。通过JOIN操作可以关联这些表，获取完整的业务信息。",
+    problem: [
+      "1. 查询所有客户及其订单数量，包括没有订单的客户（使用LEFT JOIN和COUNT）",
+      "2. 查询订单金额超过1000元的订单信息，显示客户姓名、产品名称和订单金额",
+      "3. 查询每个客户购买的所有产品信息，显示客户姓名、产品名称和购买日期，按客户姓名和购买日期排序"
+    ],
+    hint: "本教程主要介绍JOIN操作的不同类型和用法。参考SQL：\n1. SELECT c.customer_name, COUNT(o.order_id) AS order_count FROM Customers c LEFT JOIN Orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.customer_name;\n2. SELECT c.customer_name, p.product_name, o.amount FROM Orders o JOIN Customers c ON o.customer_id = c.customer_id JOIN Products p ON o.product_id = p.product_id WHERE o.amount > 1000;\n3. SELECT c.customer_name, p.product_name, o.order_date FROM Customers c JOIN Orders o ON c.customer_id = o.customer_id JOIN Products p ON o.product_id = p.product_id ORDER BY c.customer_name, o.order_date;",
+    tags: ["join", "left join", "inner join", "group by", "order by", "count"],
+    tableStructure: [
+      {
+        tableName: "Customers",
+        columns: [
+          { name: "customer_id", type: "INT", isPrimary: true },
+          { name: "customer_name", type: "VARCHAR(50)" },
+          { name: "email", type: "VARCHAR(100)" },
+          { name: "city", type: "VARCHAR(50)" }
+        ],
+        foreignKeys: []
+      },
+      {
+        tableName: "Products",
+        columns: [
+          { name: "product_id", type: "INT", isPrimary: true },
+          { name: "product_name", type: "VARCHAR(100)" },
+          { name: "price", type: "DECIMAL(10,2)" },
+          { name: "category", type: "VARCHAR(50)" }
+        ],
+        foreignKeys: []
+      },
+      {
+        tableName: "Orders",
+        columns: [
+          { name: "order_id", type: "INT", isPrimary: true },
+          { name: "customer_id", type: "INT" },
+          { name: "product_id", type: "INT" },
+          { name: "amount", type: "DECIMAL(10,2)" },
+          { name: "order_date", type: "DATE" }
+        ],
+        foreignKeys: [
+          {
+            fromTable: "Orders",
+            fromColumn: "customer_id",
+            toTable: "Customers",
+            toColumn: "customer_id"
+          },
+          {
+            fromTable: "Orders",
+            fromColumn: "product_id",
+            toTable: "Products",
+            toColumn: "product_id"
+          }
+        ]
+      }
+    ],
+    tuples: [
+      {
+        tableName: "Customers",
+        tupleData: [
+          { customer_id: 1, customer_name: "张三", email: "zhang@example.com", city: "北京" },
+          { customer_id: 2, customer_name: "李四", email: "li@example.com", city: "上海" },
+          { customer_id: 3, customer_name: "王五", email: "wang@example.com", city: "广州" },
+          { customer_id: 4, customer_name: "赵六", email: "zhao@example.com", city: "深圳" }
+        ]
+      },
+      {
+        tableName: "Products",
+        tupleData: [
+          { product_id: 1, product_name: "笔记本电脑", price: 6999.00, category: "电子产品" },
+          { product_id: 2, product_name: "智能手机", price: 3999.00, category: "电子产品" },
+          { product_id: 3, product_name: "耳机", price: 999.00, category: "配件" },
+          { product_id: 4, product_name: "显示器", price: 1499.00, category: "电子产品" }
+        ]
+      },
+      {
+        tableName: "Orders",
+        tupleData: [
+          { order_id: 1, customer_id: 1, product_id: 1, amount: 6999.00, order_date: "2024-01-15" },
+          { order_id: 2, customer_id: 1, product_id: 3, amount: 999.00, order_date: "2024-01-20" },
+          { order_id: 3, customer_id: 2, product_id: 2, amount: 3999.00, order_date: "2024-02-05" },
+          { order_id: 4, customer_id: 3, product_id: 1, amount: 6999.00, order_date: "2024-02-10" },
+          { order_id: 5, customer_id: 3, product_id: 4, amount: 1499.00, order_date: "2024-02-15" }
+        ]
+      }
+    ],
+    expected_result: [
+      {
+        tableName: "Result1",
+        tupleData: [
+          { customer_name: "张三", order_count: 2 },
+          { customer_name: "李四", order_count: 1 },
+          { customer_name: "王五", order_count: 2 },
+          { customer_name: "赵六", order_count: 0 }
+        ]
+      },
+      {
+        tableName: "Result2",
+        tupleData: [
+          { customer_name: "张三", product_name: "笔记本电脑", amount: 6999.00 },
+          { customer_name: "李四", product_name: "智能手机", amount: 3999.00 },
+          { customer_name: "王五", product_name: "笔记本电脑", amount: 6999.00 },
+          { customer_name: "王五", product_name: "显示器", amount: 1499.00 }
+        ]
+      },
+      {
+        tableName: "Result3",
+        tupleData: [
+          { customer_name: "张三", product_name: "笔记本电脑", order_date: "2024-01-15" },
+          { customer_name: "张三", product_name: "耳机", order_date: "2024-01-20" },
+          { customer_name: "李四", product_name: "智能手机", order_date: "2024-02-05" },
+          { customer_name: "王五", product_name: "笔记本电脑", order_date: "2024-02-10" },
+          { customer_name: "王五", product_name: "显示器", order_date: "2024-02-15" }
+        ]
+      }
+    ],
+    data: {
+      isBuiltIn: true,
+      order: 6,
+      category: "Intermediate"
+    }
   }
 ];
