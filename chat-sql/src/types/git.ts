@@ -2,6 +2,7 @@ export interface GitCommit {
   hash: string;
   date: string;
   message: string;
+  description?: string;  // 添加可选的详细描述字段
   author: string;
 }
 

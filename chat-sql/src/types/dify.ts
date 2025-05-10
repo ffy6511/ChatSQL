@@ -23,7 +23,7 @@ export interface DifyResponse {
   }
 }
 
-// dify返回的问题输出
+// dify返回的问题输出(显示在前端等待确认的部分)
 export interface ProblemOutput {
   description: string;
   problem: string[];

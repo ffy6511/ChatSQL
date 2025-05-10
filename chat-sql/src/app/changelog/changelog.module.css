@@ -21,9 +21,9 @@
 }
 
 .content {
-  position: relative;
+  position: relative; 
   padding: 24px;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   z-index: 1;
   background: transparent !important;

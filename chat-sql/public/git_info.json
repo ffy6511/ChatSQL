@@ -1,280 +1,685 @@
 {
   "history": [
     {
+      "hash": "4cbd89a5614825a8f7848a37bb681cbb1f230330",
+      "date": "2025-05-10T14:18:39+08:00",
+      "message": "feat(sqlCompletionProvider):  Improve the complete settings: .Define relevant keywords according to the context.",
+      "description": "- Use sortText to control the sorting of suggestion items, - Separate the floating prompt into a component for easy maintenance separately from the completion prompt\n- Avoid typing meaningless spaces to trigger the completion prompt",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "683646c7d5283f3de35834cd4f66d3d8a8ad48b7",
+      "date": "2025-05-08T17:20:04+08:00",
+      "message": "docs(README)",
+      "description": "- Modify the readme documentation according to the updated content\n- Added a link to deepwiki",
+      "author": "ffy6511"
+    },
+    {
       "hash": "777e771ac6fea46a9ec7f3fa6d2988f311b2e758",
       "date": "2025-05-08T15:45:00+08:00",
       "message": "feat: Support for having and limiting queries; enhancement of floating hints",
+      "description": "- support for limit and offset functions, limiting the number of queries\n- (evaluateExpression) fix queries where simple conditions\n- handle having conditions\n- modify suspended prompts to English, while wrapping according to the md format of the momaco editor,\n - modify prompt rules, support multiple word prompts",
       "author": "ffy6511"
     },
     {
       "hash": "4e138c7a6ea96f9e33560cfec99568a8332acb24",
       "date": "2025-05-08T15:01:37+08:00",
       "message": "feat(sqlExecutor): Support for processing nested subqueries in from and where",
+      "description": "- Processing nested subqueries: Extract the actual subquery AST from subqueryClause.expr.ast, using the subquery results as the data source for external queries\n- Support processing of nested subqueries in from and where\n - Special handling is required for join clauses containing subqueries",
       "author": "ffy6511"
     },
     {
       "hash": "21917f18b01cc348c7e91b74b583c59962101440",
       "date": "2025-05-08T14:33:56+08:00",
       "message": "fix(handleNaturalJoin):  Correct handling of natural join",
+      "description": "- Since node-sql-parser cannot handle natural joins directly, retrieve the sql statement, manually modify the on property in ast if there is a natural join, and then continue execution as an inner join.\n- Update the return interface in the type",
       "author": "ffy6511"
     },
     {
       "hash": "ebf20dbb4f6858abdd71129e026c96ced7bb610a",
       "date": "2025-05-08T14:13:23+08:00",
       "message": "fix(queryHelpers): Group and order operations",
+      "description": "- Fixed an issue with group by when there is an alias\n - Fixed an issue where order by could not recognize the alias",
       "author": "ffy6511"
     },
     {
       "hash": "9c3a6c36f06795cb63485bb3ae8a60b00f961e5a",
       "date": "2025-05-06T23:43:41+08:00",
       "message": "feat(queryHelpers):  Support for basic join operations",
+      "description": "- Supports basic join operations; ensures that the schema's table is dragged and dropped at the highest level.\n- Displays null values instead of rendering them as \"null\" in the resulting table.",
       "author": "ffy6511"
     },
     {
       "hash": "8cc90e9a918f1fbb152147a77199b827aed33a7d",
       "date": "2025-04-30T21:42:29+08:00",
       "message": "feat(sqlEditor): Style adjustment and error handling of code editing areas",
+      "description": "- Ensure that the query results are also cleared when the SQL statement is illegal;\n- Added animated prompts for correct comparisons;\n- Temporarily cleared redundant functions such as things execution, and adjusted the position of buttons.",
       "author": "ffy6511"
     },
     {
       "hash": "687dce225767bbb4048aefd21eb42baeb6f082a8",
       "date": "2025-04-30T20:55:21+08:00",
       "message": "fix(sqlExecutor & sqlEditor): Added aggregate function support for the SQL execution engine",
+      "description": "- Optimized the prompt when there is a syntax error in the query statement;\n- Optimized the style when the query result is empty\n- Avoided the repeated rendering of the schema during code editing",
       "author": "ffy6511"
     },
     {
       "hash": "27bd4f8d16d21a42ea3e3fd7a9dd51d075b6c8de",
       "date": "2025-04-30T15:19:22+08:00",
       "message": "feat(ShareLink): Add ShareButton component for sharing database links",
+      "description": "- Enhance date formatting with error handling\n-  Implement data import from shared links",
       "author": "ffy6511"
     },
     {
       "hash": "f436be9ab7d5adcb34639bcb052e2fb9636b3222",
       "date": "2025-04-30T15:05:49+08:00",
       "message": "feat(Tutorial): Added pre-basic exercises",
+      "description": "- Sidebar has added the function of initialization tutorial;\n- Improved the style of history entries, and added tags for distinction.",
       "author": "ffy6511"
     },
     {
       "hash": "6e759cd7b42828386edf53934dd5331363697ece",
       "date": "2025-04-30T11:49:09+08:00",
       "message": "fix(changeLog): Add the ability to generate git information and update related interfaces",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "e6349aa63e0a3d3b26648f9fc964580379a0b5a0",
       "date": "2025-04-30T00:01:05+08:00",
       "message": "docs(GuidingModal):",
+      "description": "- Modified the deployment instructions in the README.\n- Added the content of the help module. Temporarily removed the log page.",
       "author": "ffy6511"
     },
     {
       "hash": "e037da525ab951f0909986723e759463b45855f9",
       "date": "2025-04-29T23:08:35+08:00",
       "message": "feat(navBar):changelog page & Sidebar updated",
+      "description": "- Added a changelog page to display recent commit records\n- Feature update for the sidebar.",
       "author": "ffy6511"
     },
     {
       "hash": "dec792d0f1df30e7822bd4b61511c03c350b269e",
       "date": "2025-04-28T23:52:36+08:00",
       "message": "feat(navBar): Added logo and navigation bar design.",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "5466abea80ad3441708590d0dc92b8be2d416c3d",
       "date": "2025-04-28T21:41:55+08:00",
       "message": "fix(README)",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "0fd371d8d18463c4066c1bca87fc4fa8488a888a",
       "date": "2025-04-28T21:17:02+08:00",
       "message": "docs(README)",
+      "description": "- explaining the technology stack used by the projectthe\n- main features\n-  method of local deployment.",
       "author": "ffy6511"
     },
     {
       "hash": "b04b8bcf00c819defa2283b50df4d1fcd12ed0ca",
       "date": "2025-04-28T19:04:33+08:00",
       "message": "style: Major modifications to the overall style.",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "eee3382a80b1a921a1363b5fe5a9f59b5eb26215",
       "date": "2025-04-27T23:32:20+08:00",
       "message": "fix: Update ESLint configuration to disable specific rules, optimize style and component logic",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "1cf9720893ad425830e8df8c2fb5d59b0170ff15",
       "date": "2025-04-27T22:37:50+08:00",
       "message": "feat(HistoryPanel): Added search function of search bar and corresponding shortcut",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "0a3021c7b5ff3269162cfffc07e3db2b13c27e23",
       "date": "2025-04-27T21:04:33+08:00",
       "message": "fix(problemViewer):Update answer status when switching questions",
+      "description": "- Added management context for switching scenarios such as questions Clear the input area and render area.",
       "author": "ffy6511"
     },
     {
       "hash": "52af636814eed34ac333df281cef950ccb705937",
       "date": "2025-04-27T20:41:18+08:00",
       "message": "Style: Styling schema and tuple data.",
+      "description": "- Added edges for foreign key constraints;\n- Adjusted the display of tuple properties",
       "author": "ffy6511"
     },
     {
       "hash": "05b57412e81b7902138cd6fec54cdc4d90d55d8b",
       "date": "2025-04-27T14:45:36+08:00",
       "message": "feat(LLMWindow): Modify the layout format and logic of the LLM window",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "f3d27c5f96e053e2c225c54715d547b055ed7ea1",
       "date": "2025-04-27T09:03:24+08:00",
       "message": "feat(resultComparator): Automatically/manually invoke the comparison function between query results and query requirements, adding context relevant to problem completion.",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "2881d344e3cf9f283e813534cde69d023a62e450",
       "date": "2025-04-26T23:39:00+08:00",
       "message": "feat(ProblemViewer): Added view switching function to support the display of database structures and tuple tables.",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "73a3d0ad4bd241b03ac13fedf104a663e94070c5",
       "date": "2025-04-25T22:26:41+08:00",
       "message": "feat(SQLEditor): Add keyboard shortcut support and tooltips to optimize the query execution experience",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "2b39667993cf3aa529312a03810dde6969e1db38",
       "date": "2025-04-25T22:09:26+08:00",
       "message": "feat(sqlCompletionProvider): Enhance SQL editor with dynamic auto-completion and improved suggestion provider",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "dc1d9440f74be5ea99e180b572e823c5d175d0bf",
       "date": "2025-04-25T00:00:34+08:00",
       "message": "feat(RenderdArea): Add empty state component and query result title to optimize query area display",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "f1c9c8778ae907db50d53d7e0cb6ed848e4593d4",
       "date": "2025-04-23T23:33:10+08:00",
       "message": "refactor(SQLExecutor): Add conditional evaluation, constraint validation, query assistance, and transaction management modules",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "481bf61916a8f55aa6be8bae9bef73d6acb904ea",
       "date": "2025-04-23T23:11:17+08:00",
       "message": "fix(sqlExcutor): Perfect basic logical operations and where clauses, etc",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "433dcb14ef05d91f5489154bd89ce23d5929cea9",
       "date": "2025-04-22T23:49:36+08:00",
       "message": "feat: integrate SQL query execution and result display",
+      "description": "- Added QueryContext for managing query results across components.\n- Implemented SQLQueryEngine for executing SQL queries with support for SELECT, INSERT, UPDATE, DELETE, CREATE, and DROP operations.\n- Enhanced SQLEditor component to handle SQL execution and transaction management.\n- Created QueryResultTable component to display query results in a structured format.\n- Updated layout to include Que...",
       "author": "ffy6511"
     },
     {
       "hash": "7b8b52cb5b524754565a4622764ce2ff6a9612ea",
       "date": "2025-04-21T23:04:18+08:00",
       "message": "feat(SideBar): Implement sidebar component with guiding modal and theme toggle",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "d89b887b64056e39aeec8650479f5ff473a0d18f",
       "date": "2025-04-21T22:42:59+08:00",
       "message": "feat(addNewChat): Added a button for creating a new dialog window",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "1cdf9ed48956bc9014d9ac826ec3c8378df1b5f6",
       "date": "2025-04-20T15:15:08+08:00",
       "message": "Style(History): Enhance history panel and item styles with improved UI elements and interactions",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "4de26d2fa843031af00b79d52fa94ef61541ae5f",
       "date": "2025-04-20T13:59:11+08:00",
       "message": "feat(History): Implement history management with CRUD operations and UI components",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "17f6c720364a9db5c40654922c026752825d4d57",
       "date": "2025-04-20T13:35:40+08:00",
       "message": "feat(LLMInteractive): Refactor LLM components to utilize DifyResponse type and improve context management",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "f136e5be81effb3971c8c7992cd80db1457137ef",
       "date": "2025-04-18T23:24:48+08:00",
       "message": "feat(LLMInteractive): Add LLM result view component and implement data storage function",
+      "description": "- 新增LLMResultView组件用于展示LLM返回的结果\n- Added LLMResultView component to display the results returned by LLM\n- Implemented useSimpleStorage hook to support saving problem data to IndexedDB\n- Updated LLMWindow component to integrate new result view and saving capabilities",
       "author": "ffy6511"
     },
     {
       "hash": "ccd1c83e65f8ed5a00d96b947631c29ef82c7187",
       "date": "2025-04-17T23:44:49+08:00",
       "message": "feat(LLMInteractive): Add LLM interaction components and their associated contexts and styles",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "e7bc194c9321b84ce1242ac772d44207f456c0b4",
       "date": "2025-04-15T23:08:56+08:00",
       "message": "Style(tableDataTransform): Modify table styles with @mui/x-data-grid to enhance visualization",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "7f7075f4ef3d2a045103c66bd5ca03d9a8b07b02",
       "date": "2025-04-14T23:59:45+08:00",
       "message": "feat(LLMInteractive): Add Tuple Viewer Components and Optimize UI Styles",
+      "description": "- Added'TupleViewer 'component to display database tuple data\n- Added'Container' component to integrate'DatabaseFlow 'and'TupleViewer'",
       "author": "ffy6511"
     },
     {
       "hash": "3f4a89570ce7b3cad9bad18ea450ccc390d841bf",
       "date": "2025-04-13T23:41:11+08:00",
       "message": "style(page): Design the overall layout, using antd's scaling components and embedding SQLEditor",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "bfc79018f8ae6a6d8dda151e5bd7d1dccbc17875",
       "date": "2025-04-13T00:05:04+08:00",
       "message": "feat: Add SQL editor components and related styles, update dependencies, and modify database process component styles",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "80286f0d308d7878045591e438ccb1300cdef536",
       "date": "2025-04-10T23:14:35+08:00",
       "message": "refactor: Centralize type definitions into the Database.ts file",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "9f8c08a04d6b4cbfc5ec87cba511703d1affce7a",
       "date": "2025-04-10T23:00:10+08:00",
       "message": "feat: Initialize the project and add a database visualization component",
+      "description": "",
       "author": "ffy6511"
     },
     {
       "hash": "6431f8d3b7c35caf708bff7e338a32289396dd1a",
       "date": "2025-04-09T23:21:09+08:00",
       "message": "Initial commit",
+      "description": "",
       "author": "junhao Zhuo"
     }
   ],
+  "commitsByDate": {
+    "2025/5/10": [
+      {
+        "hash": "4cbd89a5614825a8f7848a37bb681cbb1f230330",
+        "date": "2025-05-10T14:18:39+08:00",
+        "message": "feat(sqlCompletionProvider):  Improve the complete settings: .Define relevant keywords according to the context.",
+        "description": "- Use sortText to control the sorting of suggestion items, - Separate the floating prompt into a component for easy maintenance separately from the completion prompt\n- Avoid typing meaningless spaces to trigger the completion prompt",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/5/8": [
+      {
+        "hash": "683646c7d5283f3de35834cd4f66d3d8a8ad48b7",
+        "date": "2025-05-08T17:20:04+08:00",
+        "message": "docs(README)",
+        "description": "- Modify the readme documentation according to the updated content\n- Added a link to deepwiki",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "777e771ac6fea46a9ec7f3fa6d2988f311b2e758",
+        "date": "2025-05-08T15:45:00+08:00",
+        "message": "feat: Support for having and limiting queries; enhancement of floating hints",
+        "description": "- support for limit and offset functions, limiting the number of queries\n- (evaluateExpression) fix queries where simple conditions\n- handle having conditions\n- modify suspended prompts to English, while wrapping according to the md format of the momaco editor,\n - modify prompt rules, support multiple word prompts",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "4e138c7a6ea96f9e33560cfec99568a8332acb24",
+        "date": "2025-05-08T15:01:37+08:00",
+        "message": "feat(sqlExecutor): Support for processing nested subqueries in from and where",
+        "description": "- Processing nested subqueries: Extract the actual subquery AST from subqueryClause.expr.ast, using the subquery results as the data source for external queries\n- Support processing of nested subqueries in from and where\n - Special handling is required for join clauses containing subqueries",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "21917f18b01cc348c7e91b74b583c59962101440",
+        "date": "2025-05-08T14:33:56+08:00",
+        "message": "fix(handleNaturalJoin):  Correct handling of natural join",
+        "description": "- Since node-sql-parser cannot handle natural joins directly, retrieve the sql statement, manually modify the on property in ast if there is a natural join, and then continue execution as an inner join.\n- Update the return interface in the type",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "ebf20dbb4f6858abdd71129e026c96ced7bb610a",
+        "date": "2025-05-08T14:13:23+08:00",
+        "message": "fix(queryHelpers): Group and order operations",
+        "description": "- Fixed an issue with group by when there is an alias\n - Fixed an issue where order by could not recognize the alias",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/5/6": [
+      {
+        "hash": "9c3a6c36f06795cb63485bb3ae8a60b00f961e5a",
+        "date": "2025-05-06T23:43:41+08:00",
+        "message": "feat(queryHelpers):  Support for basic join operations",
+        "description": "- Supports basic join operations; ensures that the schema's table is dragged and dropped at the highest level.\n- Displays null values instead of rendering them as \"null\" in the resulting table.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/30": [
+      {
+        "hash": "8cc90e9a918f1fbb152147a77199b827aed33a7d",
+        "date": "2025-04-30T21:42:29+08:00",
+        "message": "feat(sqlEditor): Style adjustment and error handling of code editing areas",
+        "description": "- Ensure that the query results are also cleared when the SQL statement is illegal;\n- Added animated prompts for correct comparisons;\n- Temporarily cleared redundant functions such as things execution, and adjusted the position of buttons.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "687dce225767bbb4048aefd21eb42baeb6f082a8",
+        "date": "2025-04-30T20:55:21+08:00",
+        "message": "fix(sqlExecutor & sqlEditor): Added aggregate function support for the SQL execution engine",
+        "description": "- Optimized the prompt when there is a syntax error in the query statement;\n- Optimized the style when the query result is empty\n- Avoided the repeated rendering of the schema during code editing",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "27bd4f8d16d21a42ea3e3fd7a9dd51d075b6c8de",
+        "date": "2025-04-30T15:19:22+08:00",
+        "message": "feat(ShareLink): Add ShareButton component for sharing database links",
+        "description": "- Enhance date formatting with error handling\n-  Implement data import from shared links",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "f436be9ab7d5adcb34639bcb052e2fb9636b3222",
+        "date": "2025-04-30T15:05:49+08:00",
+        "message": "feat(Tutorial): Added pre-basic exercises",
+        "description": "- Sidebar has added the function of initialization tutorial;\n- Improved the style of history entries, and added tags for distinction.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "6e759cd7b42828386edf53934dd5331363697ece",
+        "date": "2025-04-30T11:49:09+08:00",
+        "message": "fix(changeLog): Add the ability to generate git information and update related interfaces",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "e6349aa63e0a3d3b26648f9fc964580379a0b5a0",
+        "date": "2025-04-30T00:01:05+08:00",
+        "message": "docs(GuidingModal):",
+        "description": "- Modified the deployment instructions in the README.\n- Added the content of the help module. Temporarily removed the log page.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/29": [
+      {
+        "hash": "e037da525ab951f0909986723e759463b45855f9",
+        "date": "2025-04-29T23:08:35+08:00",
+        "message": "feat(navBar):changelog page & Sidebar updated",
+        "description": "- Added a changelog page to display recent commit records\n- Feature update for the sidebar.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/28": [
+      {
+        "hash": "dec792d0f1df30e7822bd4b61511c03c350b269e",
+        "date": "2025-04-28T23:52:36+08:00",
+        "message": "feat(navBar): Added logo and navigation bar design.",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "5466abea80ad3441708590d0dc92b8be2d416c3d",
+        "date": "2025-04-28T21:41:55+08:00",
+        "message": "fix(README)",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "0fd371d8d18463c4066c1bca87fc4fa8488a888a",
+        "date": "2025-04-28T21:17:02+08:00",
+        "message": "docs(README)",
+        "description": "- explaining the technology stack used by the projectthe\n- main features\n-  method of local deployment.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "b04b8bcf00c819defa2283b50df4d1fcd12ed0ca",
+        "date": "2025-04-28T19:04:33+08:00",
+        "message": "style: Major modifications to the overall style.",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/27": [
+      {
+        "hash": "eee3382a80b1a921a1363b5fe5a9f59b5eb26215",
+        "date": "2025-04-27T23:32:20+08:00",
+        "message": "fix: Update ESLint configuration to disable specific rules, optimize style and component logic",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "1cf9720893ad425830e8df8c2fb5d59b0170ff15",
+        "date": "2025-04-27T22:37:50+08:00",
+        "message": "feat(HistoryPanel): Added search function of search bar and corresponding shortcut",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "0a3021c7b5ff3269162cfffc07e3db2b13c27e23",
+        "date": "2025-04-27T21:04:33+08:00",
+        "message": "fix(problemViewer):Update answer status when switching questions",
+        "description": "- Added management context for switching scenarios such as questions Clear the input area and render area.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "52af636814eed34ac333df281cef950ccb705937",
+        "date": "2025-04-27T20:41:18+08:00",
+        "message": "Style: Styling schema and tuple data.",
+        "description": "- Added edges for foreign key constraints;\n- Adjusted the display of tuple properties",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "05b57412e81b7902138cd6fec54cdc4d90d55d8b",
+        "date": "2025-04-27T14:45:36+08:00",
+        "message": "feat(LLMWindow): Modify the layout format and logic of the LLM window",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "f3d27c5f96e053e2c225c54715d547b055ed7ea1",
+        "date": "2025-04-27T09:03:24+08:00",
+        "message": "feat(resultComparator): Automatically/manually invoke the comparison function between query results and query requirements, adding context relevant to problem completion.",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/26": [
+      {
+        "hash": "2881d344e3cf9f283e813534cde69d023a62e450",
+        "date": "2025-04-26T23:39:00+08:00",
+        "message": "feat(ProblemViewer): Added view switching function to support the display of database structures and tuple tables.",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/25": [
+      {
+        "hash": "73a3d0ad4bd241b03ac13fedf104a663e94070c5",
+        "date": "2025-04-25T22:26:41+08:00",
+        "message": "feat(SQLEditor): Add keyboard shortcut support and tooltips to optimize the query execution experience",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "2b39667993cf3aa529312a03810dde6969e1db38",
+        "date": "2025-04-25T22:09:26+08:00",
+        "message": "feat(sqlCompletionProvider): Enhance SQL editor with dynamic auto-completion and improved suggestion provider",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "dc1d9440f74be5ea99e180b572e823c5d175d0bf",
+        "date": "2025-04-25T00:00:34+08:00",
+        "message": "feat(RenderdArea): Add empty state component and query result title to optimize query area display",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/23": [
+      {
+        "hash": "f1c9c8778ae907db50d53d7e0cb6ed848e4593d4",
+        "date": "2025-04-23T23:33:10+08:00",
+        "message": "refactor(SQLExecutor): Add conditional evaluation, constraint validation, query assistance, and transaction management modules",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "481bf61916a8f55aa6be8bae9bef73d6acb904ea",
+        "date": "2025-04-23T23:11:17+08:00",
+        "message": "fix(sqlExcutor): Perfect basic logical operations and where clauses, etc",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/22": [
+      {
+        "hash": "433dcb14ef05d91f5489154bd89ce23d5929cea9",
+        "date": "2025-04-22T23:49:36+08:00",
+        "message": "feat: integrate SQL query execution and result display",
+        "description": "- Added QueryContext for managing query results across components.\n- Implemented SQLQueryEngine for executing SQL queries with support for SELECT, INSERT, UPDATE, DELETE, CREATE, and DROP operations.\n- Enhanced SQLEditor component to handle SQL execution and transaction management.\n- Created QueryResultTable component to display query results in a structured format.\n- Updated layout to include Que...",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/21": [
+      {
+        "hash": "7b8b52cb5b524754565a4622764ce2ff6a9612ea",
+        "date": "2025-04-21T23:04:18+08:00",
+        "message": "feat(SideBar): Implement sidebar component with guiding modal and theme toggle",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "d89b887b64056e39aeec8650479f5ff473a0d18f",
+        "date": "2025-04-21T22:42:59+08:00",
+        "message": "feat(addNewChat): Added a button for creating a new dialog window",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/20": [
+      {
+        "hash": "1cdf9ed48956bc9014d9ac826ec3c8378df1b5f6",
+        "date": "2025-04-20T15:15:08+08:00",
+        "message": "Style(History): Enhance history panel and item styles with improved UI elements and interactions",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "4de26d2fa843031af00b79d52fa94ef61541ae5f",
+        "date": "2025-04-20T13:59:11+08:00",
+        "message": "feat(History): Implement history management with CRUD operations and UI components",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "17f6c720364a9db5c40654922c026752825d4d57",
+        "date": "2025-04-20T13:35:40+08:00",
+        "message": "feat(LLMInteractive): Refactor LLM components to utilize DifyResponse type and improve context management",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/18": [
+      {
+        "hash": "f136e5be81effb3971c8c7992cd80db1457137ef",
+        "date": "2025-04-18T23:24:48+08:00",
+        "message": "feat(LLMInteractive): Add LLM result view component and implement data storage function",
+        "description": "- 新增LLMResultView组件用于展示LLM返回的结果\n- Added LLMResultView component to display the results returned by LLM\n- Implemented useSimpleStorage hook to support saving problem data to IndexedDB\n- Updated LLMWindow component to integrate new result view and saving capabilities",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/17": [
+      {
+        "hash": "ccd1c83e65f8ed5a00d96b947631c29ef82c7187",
+        "date": "2025-04-17T23:44:49+08:00",
+        "message": "feat(LLMInteractive): Add LLM interaction components and their associated contexts and styles",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/15": [
+      {
+        "hash": "e7bc194c9321b84ce1242ac772d44207f456c0b4",
+        "date": "2025-04-15T23:08:56+08:00",
+        "message": "Style(tableDataTransform): Modify table styles with @mui/x-data-grid to enhance visualization",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/14": [
+      {
+        "hash": "7f7075f4ef3d2a045103c66bd5ca03d9a8b07b02",
+        "date": "2025-04-14T23:59:45+08:00",
+        "message": "feat(LLMInteractive): Add Tuple Viewer Components and Optimize UI Styles",
+        "description": "- Added'TupleViewer 'component to display database tuple data\n- Added'Container' component to integrate'DatabaseFlow 'and'TupleViewer'",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/13": [
+      {
+        "hash": "3f4a89570ce7b3cad9bad18ea450ccc390d841bf",
+        "date": "2025-04-13T23:41:11+08:00",
+        "message": "style(page): Design the overall layout, using antd's scaling components and embedding SQLEditor",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "bfc79018f8ae6a6d8dda151e5bd7d1dccbc17875",
+        "date": "2025-04-13T00:05:04+08:00",
+        "message": "feat: Add SQL editor components and related styles, update dependencies, and modify database process component styles",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/10": [
+      {
+        "hash": "80286f0d308d7878045591e438ccb1300cdef536",
+        "date": "2025-04-10T23:14:35+08:00",
+        "message": "refactor: Centralize type definitions into the Database.ts file",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "9f8c08a04d6b4cbfc5ec87cba511703d1affce7a",
+        "date": "2025-04-10T23:00:10+08:00",
+        "message": "feat: Initialize the project and add a database visualization component",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/4/9": [
+      {
+        "hash": "6431f8d3b7c35caf708bff7e338a32289396dd1a",
+        "date": "2025-04-09T23:21:09+08:00",
+        "message": "Initial commit",
+        "description": "",
+        "author": "junhao Zhuo"
+      }
+    ]
+  },
   "stats": {
-    "totalCommits": 43,
+    "totalCommits": 45,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-08T15:45:00+08:00",
-    "activeBranches": 3,
-    "branchDetails": {
-      "totalBranches": 3,
-      "currentBranch": "main",
-      "branches": [
-        "main",
-        "mobile",
-        "remotes/origin/main"
-      ]
-    }
+    "lastUpdate": "2025-05-10T14:18:39+08:00",
+    "activeBranches": 3
   }
 }

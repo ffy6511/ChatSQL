@@ -17,6 +17,8 @@ import {
   NodeChange,
   NodePositionChange,
   applyNodeChanges,
+  useReactFlow,
+  Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
@@ -128,13 +130,14 @@ const TableNode = ({
               {col.isPrimary && <span className="primary-key-badge">PK</span>}
               {col.foreignKeyRefs && <span className="foreign-key-badge">FK</span>}
             </div>
-            {/* 主键列在右侧添加连接点 */}
+            {/* 主键列添加隐藏的连接点 */}
             {col.isPrimary && (
               <Handle
                 type="target"
                 position={Position.Right}
                 id={`${col.name}`}
-                className="primary-key-handle"
+                className="hidden-primary-key-handle"
+                style={{ opacity: 0, pointerEvents: 'none' }}
               />
             )}
           </div>
@@ -172,6 +175,42 @@ const generateEdges = (tables: Table[]): Edge[] => {
     });
   });
   return edges;
+};
+
+// 添加自定义按钮组件
+const ZoomControls = () => {
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  
+  return (
+    <Panel position="bottom-right" className="custom-zoom-controls">
+      <button 
+        onClick={() => zoomIn({ duration: 800 })} 
+        className="zoom-button"
+        aria-label="放大"
+        title="放大"
+      >
+        +
+      </button>
+      <button 
+        onClick={() => zoomOut({ duration: 800 })} 
+        className="zoom-button"
+        aria-label="缩小"
+        title="缩小"
+      >
+        -
+      </button>
+      <button 
+        onClick={() => fitView({ duration: 800, padding: 0.2 })} 
+        className="zoom-button fit-button"
+        aria-label="适应视图"
+        title="适应视图"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+        </svg>
+      </button>
+    </Panel>
+  );
 };
 
 // 主组件
@@ -251,7 +290,10 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         minZoom={0.2}
         maxZoom={2}
-        fitViewOptions={{ padding: 0.2 }}
+        fitViewOptions={{ 
+          padding: 0.2,
+          duration: 400 // 添加动画持续时间
+        }}
         nodesDraggable={true}
         elementsSelectable={true}
         defaultEdgeOptions={{
@@ -262,23 +304,20 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
             strokeWidth: 2
           }
         }}
+        // 添加平滑过渡效果的配置
+        proOptions={{
+          hideAttribution: true,
+        }}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        panOnScroll={true}
+        panOnDrag={true}
+        // 添加自定义类名以应用CSS过渡效果
+        className="flow-with-transitions"
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '8px',
-            padding: '4px',
-            backgroundColor: 'white',
-            borderRadius: '4px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
-          showZoom={true}
-          showFitView={true}
-          showInteractive={false}
-          position="bottom-right"
-        />
+        {/* 使用自定义缩放控件替代默认控件 */}
+        <ZoomControls />
       </ReactFlow>
     </div>
   );

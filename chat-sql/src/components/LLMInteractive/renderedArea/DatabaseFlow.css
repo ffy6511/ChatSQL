@@ -5,18 +5,24 @@
 }
 
 .table-node {
-  background: rgb(249, 246, 246);
-  border: 1px solid #ddd;
+  background: white;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  min-width: 200px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: 150px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3 ease-out;
+}
+
+.table-node:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .table-header {
   padding: 12px 8px;
   font-weight: bold;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #e0e0e0;
   text-align: center;
   font-size: 1.1em;
 }
@@ -29,8 +35,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 6px 4px;
   gap: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.column-row:last-child {
+  border-bottom: none;
 }
 
 .column-name {
@@ -41,85 +52,101 @@
 
 .column-info {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   margin-left: auto;
 }
 
 .column-type {
+  font-size: 0.8em;
   color: #666;
-  font-size: 0.9em;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .primary-key-badge {
-  background: #ec7d659a;
-  color: #232323c3;
-  padding: 2px 6px;
+  background: rgba(236, 125, 101, 0.604);
+  color: rgba(35, 35, 35, 0.765);
+  font-size: 0.7em;
+  padding: 2px 4px;
   border-radius: 4px;
-  font-size: 0.8em;
   font-weight: bold;
 }
 
 .foreign-key-badge {
-  background: #f0ad48bd;
-  color: #4b4848b1;
-  padding: 2px 6px;
+  background: rgba(240, 173, 72, 0.74);
+  color: rgba(35, 35, 35, 0.765);
+  font-size: 0.7em;
+  padding: 2px 4px;
   border-radius: 4px;
-  font-size: 0.8em;
   font-weight: bold;
 }
 
+/* 隐藏主键连接点 */
+.hidden-primary-key-handle {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+}
+
+/* 保留外键连接点样式 */
 .foreign-key-handle {
   width: 8px !important;
   height: 8px !important;
   background: #ff9900 !important;
   border: 2px solid white !important;
+  transition: transform 0.2s ease, background-color 0.2s ease !important;
 }
 
-.primary-key-handle {
-  width: 8px !important;
-  height: 8px !important;
-  background: #ffd700 !important;
-  border: 2px solid white !important;
+.foreign-key-handle:hover {
+  transform: scale(1.5) !important;
+  background: #ff7700 !important;
 }
 
-/* 基础层级设置 */
-.react-flow__renderer {
-  z-index: 0;
+/* 背景样式 */
+.react-flow__background {
+  opacity: 0.5;
 }
 
-.react-flow__edge {
-  z-index: 1 !important;
+/* 恢复自定义缩放控件样式 */
+.custom-zoom-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.react-flow__node {
-  z-index: 2 !important;
+.zoom-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.react-flow__handle {
-  z-index: 3 !important;
+.zoom-button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* 拖拽中的节点样式 */
-.dragging-node {
-  z-index: 1000 !important; /* 确保拖拽中的节点在最上层 */
+.zoom-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* 为拖拽中的节点添加轻微阴影效果，增强视觉反馈 */
-.dragging-node .table-node {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
-  transform: scale(1.01);
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.react-flow__controls {
-  z-index: 4 !important;
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 4px !important;
-}
-
-.react-flow__edge-path {
-  stroke: #ff9900;
-  stroke-width: 2;
+.fit-button {
+  font-size: 14px;
 }
