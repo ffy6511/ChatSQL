@@ -9,10 +9,15 @@ import { TableStructure } from '@/types/dify';
 /**
  * SQL关键字列表，包含详细的用法说明
  */
-const SQL_KEYWORDS = [
+export const SQL_KEYWORDS = [
   {
     label: 'SELECT',
     documentation: 'Select data columns.  \nSyntax: SELECT column1, column2, ... FROM table WHERE condition;  \nExample: SELECT id, name FROM users WHERE age > 18;'
+  },
+  // 添加NATURAL JOIN关键字
+  {
+    label: 'NATURAL JOIN',
+    documentation: 'automatically create join conditions based on columns with the same name in both tables.  \nSyntax: SELECT * FROM table1 NATURAL JOIN table2;  \nExample: SELECT * FROM employees NATURAL JOIN departments;'
   },
   {
     label: 'FROM',
@@ -177,181 +182,13 @@ const SQL_KEYWORDS = [
 ];
 
 /**
- * 生成唯一的建议项ID
- * @param type 建议项类型
- * @param label 建议项标签
+ * 创建唯一的建议ID
+ * @param type 建议类型
+ * @param label 建议标签
  * @returns 唯一ID
  */
 function createSuggestionId(type: string, label: string): string {
-  return `${type}:${label.toUpperCase()}`; // 使用大写形式确保不区分大小写
-}
-
-/**
- * 检查是否为SQL关键字
- * @param label 标签
- * @returns 是否为SQL关键字
- */
-function isSQLKeyword(label: string): boolean {
-  return SQL_KEYWORDS.some(keyword =>
-    keyword.label.toUpperCase() === label.toUpperCase()
-  );
-}
-
-/**
- * 创建一个唯一的自动补全提供器
- * 该提供器会过滤掉重复的候选项，并确保SQL关键字、表名和列名按照合理的顺序排列
- * @param monaco Monaco编辑器实例
- * @param tableStructures 表结构数组
- * @returns 自动补全提供器
- */
-/**
- * 创建SQL悬停提示提供器
- * 当用户将鼠标悬停在SQL关键字、表名或列名上时，显示相关文档
- * @param monaco Monaco编辑器实例
- * @param tableStructures 表结构数组
- * @returns 悬停提示提供器
- */
-export function createSQLHoverProvider(monaco: any, tableStructures: TableStructure[] | undefined) {
-  return {
-    provideHover: (model: any, position: any) => {
-      // 获取当前光标所在的单词
-      const word = model.getWordAtPosition(position);
-      if (!word) return null;
-
-      const wordText = word.word.toUpperCase();
-      
-      // 获取当前行内容，用于检测多词关键字
-      const lineContent = model.getLineContent(position.lineNumber);
-      const lineUntilPosition = lineContent.substring(0, position.column);
-      const lineAfterPosition = lineContent.substring(position.column);
-      
-      // 检查是否是SQL关键字（单个词）
-      const keyword = SQL_KEYWORDS.find(k => k.label.toUpperCase() === wordText);
-      if (keyword) {
-        return {
-          contents: [
-            { value: `**${keyword.label}**` },
-            { value: keyword.documentation }
-          ],
-          range: {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endColumn: word.endColumn
-          }
-        };
-      }
-      
-      // 检查是否是多词SQL关键字（如"GROUP BY"）
-      // 向前查找可能的关键字开始
-      for (const keyword of SQL_KEYWORDS) {
-        if (keyword.label.includes(' ')) {
-          const parts = keyword.label.split(' ');
-          // 如果当前单词匹配多词关键字的任何部分
-          if (parts.some(part => part.toUpperCase() === wordText)) {
-            // 尝试在当前行查找完整的多词关键字
-            const keywordPattern = new RegExp(`\\b${keyword.label.replace(/ /g, '\\s+')}\\b`, 'i');
-            const match = lineContent.match(keywordPattern);
-            
-            if (match) {
-              const startIndex = match.index || 0;
-              const endIndex = startIndex + match[0].length;
-              
-              // 检查当前光标是否在多词关键字范围内
-              const cursorPos = position.column - 1; // 转为0-based索引
-              if (cursorPos >= startIndex && cursorPos <= endIndex) {
-                return {
-                  contents: [
-                    { value: `**${keyword.label}**` },
-                    { value: keyword.documentation }
-                  ],
-                  range: {
-                    startLineNumber: position.lineNumber,
-                    endLineNumber: position.lineNumber,
-                    startColumn: startIndex + 1, // 转回1-based索引
-                    endColumn: endIndex + 1
-                  }
-                };
-              }
-            }
-          }
-        }
-      }
-
-      // 如果没有表结构，只检查关键字
-      if (!tableStructures || tableStructures.length === 0) {
-        return null;
-      }
-
-      // 检查是否是表名
-      const table = tableStructures.find(t => t.tableName.toUpperCase() === wordText);
-      if (table) {
-        const columnsList = table.columns.map(col =>
-          `- **${col.name}** (${col.type})${col.isPrimary ? ' [Primary Key]' : ''}`
-        ).join('\n');
-
-        return {
-          contents: [
-            { value: `**Table: ${table.tableName}**` },
-            { value: `Contains the following columns:\n${columnsList}` }
-          ],
-          range: {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endColumn: word.endColumn
-          }
-        };
-      }
-
-      // 检查是否是列名（不带表名前缀）
-      for (const table of tableStructures) {
-        const column = table.columns.find(col => col.name.toUpperCase() === wordText);
-        if (column) {
-          return {
-            contents: [
-              { value: `**Column: ${column.name}**` },
-              { value: `Type: ${column.type}${column.isPrimary ? ' [Primary Key]' : ''}\nFrom table: ${table.tableName}` }
-            ],
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: word.startColumn,
-              endColumn: word.endColumn
-            }
-          };
-        }
-      }
-
-      // 检查是否是带表名前缀的列名（如 table.column）
-      const dotMatch = lineContent.substring(0, position.column).match(/([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)$/);
-      if (dotMatch) {
-        const tableName = dotMatch[1];
-        const columnName = dotMatch[2];
-
-        const table = tableStructures.find(t => t.tableName.toUpperCase() === tableName.toUpperCase());
-        if (table) {
-          const column = table.columns.find(col => col.name.toUpperCase() === columnName.toUpperCase());
-          if (column) {
-            return {
-              contents: [
-                { value: `**Column: ${column.name}**` },
-                { value: `Type: ${column.type}${column.isPrimary ? ' [Primary Key]' : ''}\nFrom table: ${table.tableName}` }
-              ],
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: word.startColumn - tableName.length - 1,
-                endColumn: word.endColumn
-              }
-            };
-          }
-        }
-      }
-
-      return null;
-    }
-  };
+  return `${type}:${label.toUpperCase()}`;
 }
 
 /**
@@ -367,7 +204,7 @@ export function createSQLCompletionProvider(monaco: any, tableStructures: TableS
 
   return {
     // 定义触发自动补全的字符
-    triggerCharacters: [' ', '.', ',', '(', '=', '>', '<', '!', '*'],
+    triggerCharacters: [' ', '.', ',', '(', '=', '>', '<', '!',],
 
     provideCompletionItems: (model: any, position: any) => {
       // 清空已添加标签集合
@@ -381,8 +218,378 @@ export function createSQLCompletionProvider(monaco: any, tableStructures: TableS
       const wordUntilPosition = model.getWordUntilPosition(position);
       // 获取光标前的文本，用于判断上下文
       const textBefore = lineContent.substring(0, wordUntilPosition.startColumn - 1);
+      
+      // 检查是否是空格触发的补全
+      const isSpaceTrigger = textBefore.endsWith(' ');
+      
+      // 判断当前SQL语句的上下文
+      const isSelectStatement = /\bSELECT\b/i.test(textBefore);
+      const isAfterSelect = /\bSELECT\s+$/i.test(textBefore);
+      const isAfterFrom = /\bFROM\s+$/i.test(textBefore);
+      const isAfterWhere = /\bWHERE\s+$/i.test(textBefore);
+      const isAfterJoin = /\b(JOIN|INNER\s+JOIN|LEFT\s+JOIN|RIGHT\s+JOIN|NATURAL\s+JOIN)\s+$/i.test(textBefore);
+      const isAfterGroupBy = /\bGROUP\s+BY\s+$/i.test(textBefore);
+      const isAfterOrderBy = /\bORDER\s+BY\s+$/i.test(textBefore);
+      
+      // 判断是否在表名后面的点号后面，用于决定是否只显示该表的列
+      const tableNameMatch = textBefore.match(/\b([A-Za-z0-9_]+)\.\s*$/);
+      const currentTableName = tableNameMatch ? tableNameMatch[1] : null;
 
-      // 添加SQL关键字
+      // 根据上下文定义相关的关键字
+      const SELECT_CONTEXT_KEYWORDS = ['DISTINCT', 'AS', 'FROM', '*'];
+      const FROM_CONTEXT_KEYWORDS = ['JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'NATURAL JOIN', 'WHERE', 'GROUP BY', 'ORDER BY', 'LIMIT'];
+      const WHERE_CONTEXT_KEYWORDS = ['AND', 'OR', 'NOT', 'IN', 'BETWEEN', 'LIKE', 'IS NULL', 'IS NOT NULL'];
+      const JOIN_CONTEXT_KEYWORDS = ['ON', 'USING'];
+      const GROUP_BY_CONTEXT_KEYWORDS = ['HAVING', 'ORDER BY', 'LIMIT'];
+      const ORDER_BY_CONTEXT_KEYWORDS = ['ASC', 'DESC', 'LIMIT'];
+      
+      // 如果是空格触发的补全，但不在任何特定上下文中，则不提供建议
+      if (isSpaceTrigger) {
+        // 检查是否在特定关键字后面
+        const isInSpecificContext = isAfterSelect || 
+                                   isAfterFrom || 
+                                   isAfterWhere || 
+                                   isAfterJoin || 
+                                   isAfterGroupBy || 
+                                   isAfterOrderBy;
+                                   
+        // 检查是否在表名后面（不带点号）
+        // 匹配表名后面跟着空格的情况
+        const isAfterTableName = tableStructures?.some(table => {
+          const tableNameRegex = new RegExp(`\\b${table.tableName}\\s+$`, 'i');
+          return tableNameRegex.test(textBefore);
+        }) || false;
+        
+        // 检查是否在列名后面
+        const isAfterColumnName = tableStructures?.some(table => 
+          table.columns.some(column => {
+            const columnNameRegex = new RegExp(`\\b${column.name}\\s+$`, 'i');
+            return columnNameRegex.test(textBefore);
+          })
+        ) || false;
+        
+        // 检查是否在SQL语句的开头（可能需要输入SELECT等关键字）
+        const isAtStatementStart = /^\s*$/.test(textBefore) || 
+                                  /;\s*$/.test(textBefore);
+                                  
+        // 如果不在任何有意义的上下文中，则不提供建议
+        if (!isInSpecificContext && !isAfterTableName && !isAfterColumnName && !isAtStatementStart) {
+          return { suggestions: [] };
+        }
+        
+        // 如果在表名后面，提供适当的关键字（如WHERE, JOIN等）
+        if (isAfterTableName && !isInSpecificContext) {
+          // 添加适合表名后面的关键字
+          for (const keyword of SQL_KEYWORDS) {
+            if (FROM_CONTEXT_KEYWORDS.includes(keyword.label)) {
+              const id = createSuggestionId('keyword', keyword.label);
+              suggestionsMap.set(id, {
+                label: keyword.label,
+                kind: monaco.languages.CompletionItemKind.Keyword,
+                insertText: keyword.label,
+                documentation: keyword.documentation,
+                sortText: '0' + keyword.label, // 关键字排在最前面
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+            }
+          }
+          
+          // 如果有建议，直接返回
+          if (suggestionsMap.size > 0) {
+            return { suggestions: Array.from(suggestionsMap.values()) };
+          }
+        }
+        
+        // 如果在列名后面，提供适当的操作符和关键字
+        if (isAfterColumnName && !isInSpecificContext) {
+          // 添加适合列名后面的操作符和关键字
+          const COLUMN_CONTEXT_KEYWORDS = ['=', '>', '<', '>=', '<=', '<>', '!=', 'IS NULL', 'IS NOT NULL', 'LIKE', 'IN', 'BETWEEN', 'ASC', 'DESC'];
+          
+          for (const keyword of SQL_KEYWORDS) {
+            if (COLUMN_CONTEXT_KEYWORDS.includes(keyword.label)) {
+              const id = createSuggestionId('keyword', keyword.label);
+              suggestionsMap.set(id, {
+                label: keyword.label,
+                kind: monaco.languages.CompletionItemKind.Keyword,
+                insertText: keyword.label,
+                documentation: keyword.documentation,
+                sortText: '0' + keyword.label, // 关键字排在最前面
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+            }
+          }
+          
+          // 添加常见的聚合函数关键字
+          const AGGREGATE_KEYWORDS = ['COUNT', 'SUM', 'AVG', 'MAX', 'MIN'];
+          for (const keyword of SQL_KEYWORDS) {
+            if (AGGREGATE_KEYWORDS.includes(keyword.label)) {
+              const id = createSuggestionId('keyword', keyword.label);
+              suggestionsMap.set(id, {
+                label: keyword.label,
+                kind: monaco.languages.CompletionItemKind.Function,
+                insertText: keyword.label,
+                documentation: keyword.documentation,
+                sortText: '1' + keyword.label, // 函数排在关键字后面
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+            }
+          }
+          
+          // 如果有建议，直接返回
+          if (suggestionsMap.size > 0) {
+            return { suggestions: Array.from(suggestionsMap.values()) };
+          }
+        }
+      }
+
+      // 如果在表名后面的点号后面，只显示该表的列
+      if (currentTableName) {
+        // 查找匹配的表
+        const table = tableStructures?.find(t => 
+          t.tableName.toUpperCase() === currentTableName.toUpperCase()
+        );
+        
+        if (table) {
+          // 添加该表的所有列
+          for (const column of table.columns) {
+            const columnId = createSuggestionId('column', column.name);
+            suggestionsMap.set(columnId, {
+              label: column.name,
+              kind: monaco.languages.CompletionItemKind.Field,
+              insertText: column.name,
+              documentation: `列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}`,
+              sortText: '0' + column.name, // 列名排在最前面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+          }
+          
+          // 直接返回列建议，不显示其他内容
+          return { suggestions: Array.from(suggestionsMap.values()) };
+        }
+      }
+      
+      // 如果在FROM或JOIN后面，优先提示表名
+      if (isAfterFrom || isAfterJoin) {
+        // 添加所有表名
+        if (tableStructures) {
+          for (const table of tableStructures) {
+            const tableId = createSuggestionId('table', table.tableName);
+            suggestionsMap.set(tableId, {
+              label: table.tableName,
+              kind: monaco.languages.CompletionItemKind.Class,
+              insertText: table.tableName,
+              documentation: `表: ${table.tableName}`,
+              sortText: '0' + table.tableName, // 表名排在最前面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+          }
+        }
+        
+        // 在FROM后面，只添加相关的关键字（如JOIN等）
+        for (const keyword of SQL_KEYWORDS) {
+          if (FROM_CONTEXT_KEYWORDS.includes(keyword.label)) {
+            const id = createSuggestionId('keyword', keyword.label);
+            suggestionsMap.set(id, {
+              label: keyword.label,
+              kind: monaco.languages.CompletionItemKind.Keyword,
+              insertText: keyword.label,
+              documentation: keyword.documentation,
+              sortText: '1' + keyword.label, // 关键字排在表名后面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+          }
+        }
+        
+        // 如果是JOIN后面，只添加表名和ON/USING关键字
+        if (isAfterJoin) {
+          // 清除所有非表名和JOIN_CONTEXT_KEYWORDS的建议
+          for (const [key, suggestion] of suggestionsMap.entries()) {
+            if (suggestion.kind !== monaco.languages.CompletionItemKind.Class && 
+                !JOIN_CONTEXT_KEYWORDS.includes(suggestion.label)) {
+              suggestionsMap.delete(key);
+            }
+          }
+        }
+        
+        // 如果有建议，直接返回
+        if (suggestionsMap.size > 0) {
+          return { suggestions: Array.from(suggestionsMap.values()) };
+        }
+      }
+      
+      // 如果在SELECT后面，优先提示列名和特定关键字
+      if (isAfterSelect) {
+        // 添加所有列名（如果有表结构）
+        if (tableStructures) {
+          for (const table of tableStructures) {
+            for (const column of table.columns) {
+              // 添加带表名的列
+              const qualifiedColumnId = createSuggestionId('qualified_column', `${table.tableName}.${column.name}`);
+              suggestionsMap.set(qualifiedColumnId, {
+                label: `${table.tableName}.${column.name}`,
+                kind: monaco.languages.CompletionItemKind.Field,
+                insertText: `${table.tableName}.${column.name}`,
+                documentation: `表: ${table.tableName}, 列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}`,
+                sortText: '1' + table.tableName + '.' + column.name,
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+              
+              // 添加不带表名的列（确保不重复）
+              if (!addedLabels.has(`COLUMN:${column.name.toUpperCase()}`)) {
+                const columnId = createSuggestionId('column', column.name);
+                suggestionsMap.set(columnId, {
+                  label: column.name,
+                  kind: monaco.languages.CompletionItemKind.Field,
+                  insertText: column.name,
+                  documentation: `列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}, 来自表: ${table.tableName}`,
+                  sortText: '0' + column.name, // 不带表名的列排在最前面
+                  range: {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: wordUntilPosition.startColumn,
+                    endColumn: wordUntilPosition.endColumn
+                  }
+                });
+                addedLabels.add(`COLUMN:${column.name.toUpperCase()}`);
+              }
+            }
+          }
+        }
+        
+        // 添加SELECT上下文关键字
+        for (const keyword of SQL_KEYWORDS) {
+          if (SELECT_CONTEXT_KEYWORDS.includes(keyword.label)) {
+            const id = createSuggestionId('keyword', keyword.label);
+            suggestionsMap.set(id, {
+              label: keyword.label,
+              kind: monaco.languages.CompletionItemKind.Keyword,
+              insertText: keyword.label,
+              documentation: keyword.documentation,
+              sortText: '2' + keyword.label, // 关键字排在列名后面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+          }
+        }
+        
+        // 如果有建议，直接返回
+        if (suggestionsMap.size > 0) {
+          return { suggestions: Array.from(suggestionsMap.values()) };
+        }
+      }
+      
+      // 如果在WHERE后面，优先提示列名和条件关键字
+      if (isAfterWhere) {
+        // 添加所有列名（如果有表结构）
+        if (tableStructures) {
+          for (const table of tableStructures) {
+            for (const column of table.columns) {
+              // 添加带表名的列
+              const qualifiedColumnId = createSuggestionId('qualified_column', `${table.tableName}.${column.name}`);
+              suggestionsMap.set(qualifiedColumnId, {
+                label: `${table.tableName}.${column.name}`,
+                kind: monaco.languages.CompletionItemKind.Field,
+                insertText: `${table.tableName}.${column.name}`,
+                documentation: `表: ${table.tableName}, 列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}`,
+                sortText: '0' + table.tableName + '.' + column.name, // 带表名的列排在最前面
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+              
+              // 添加不带表名的列（确保不重复）
+              if (!addedLabels.has(`COLUMN:${column.name.toUpperCase()}`)) {
+                const columnId = createSuggestionId('column', column.name);
+                suggestionsMap.set(columnId, {
+                  label: column.name,
+                  kind: monaco.languages.CompletionItemKind.Field,
+                  insertText: column.name,
+                  documentation: `列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}, 来自表: ${table.tableName}`,
+                  sortText: '1' + column.name, // 不带表名的列排在次前面
+                  range: {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: wordUntilPosition.startColumn,
+                    endColumn: wordUntilPosition.endColumn
+                  }
+                });
+                addedLabels.add(`COLUMN:${column.name.toUpperCase()}`);
+              }
+            }
+          }
+        }
+        
+        // 添加WHERE上下文关键字
+        for (const keyword of SQL_KEYWORDS) {
+          if (WHERE_CONTEXT_KEYWORDS.includes(keyword.label)) {
+            const id = createSuggestionId('keyword', keyword.label);
+            suggestionsMap.set(id, {
+              label: keyword.label,
+              kind: monaco.languages.CompletionItemKind.Keyword,
+              insertText: keyword.label,
+              documentation: keyword.documentation,
+              sortText: '2' + keyword.label, // 关键字排在列名后面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+          }
+        }
+        
+        // 如果有建议，直接返回
+        if (suggestionsMap.size > 0) {
+          return { suggestions: Array.from(suggestionsMap.values()) };
+        }
+      }
+      
+      // 如果没有匹配任何特定上下文，添加所有SQL关键字和表名/列名
+      
+      // 1. 首先添加所有SQL关键字
       for (const keyword of SQL_KEYWORDS) {
         // 检查是否已经添加过这个标签
         if (addedLabels.has(keyword.label.toUpperCase())) {
@@ -396,7 +603,6 @@ export function createSQLCompletionProvider(monaco: any, tableStructures: TableS
           insertText: keyword.label,
           documentation: keyword.documentation,
           sortText: '0' + keyword.label, // 确保关键字排在前面
-          // 添加范围信息，帮助编辑器更好地处理补全
           range: {
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
@@ -409,114 +615,39 @@ export function createSQLCompletionProvider(monaco: any, tableStructures: TableS
         addedLabels.add(keyword.label.toUpperCase());
       }
 
-      // 如果没有表结构，只返回关键字
-      if (!tableStructures || tableStructures.length === 0) {
-        return { suggestions: Array.from(suggestionsMap.values()) };
-      }
-
-      // 判断是否在FROM子句后面，用于决定是否优先显示表名
-      const isAfterFrom = /\bFROM\s+$/i.test(textBefore);
-      // 判断是否在表名后面的点号后面，用于决定是否只显示该表的列
-      const tableNameMatch = textBefore.match(/\b([A-Za-z0-9_]+)\.\s*$/);
-      const currentTableName = tableNameMatch ? tableNameMatch[1] : null;
-
-      // 添加表名
-      for (const table of tableStructures) {
-        // 检查是否已经添加过这个表名
-        if (addedLabels.has(`TABLE:${table.tableName.toUpperCase()}`)) {
-          continue;
-        }
-
-        const tableId = createSuggestionId('table', table.tableName);
-        suggestionsMap.set(tableId, {
-          label: table.tableName,
-          kind: monaco.languages.CompletionItemKind.Class,
-          insertText: table.tableName,
-          documentation: `表: ${table.tableName}`,
-          sortText: isAfterFrom ? '0' + table.tableName : '1' + table.tableName, // 如果在FROM后面，表名优先级提高
-          range: {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: wordUntilPosition.startColumn,
-            endColumn: wordUntilPosition.endColumn
+      // 2. 如果有表结构，添加表名和列名
+      if (tableStructures && tableStructures.length > 0) {
+        // 添加表名
+        for (const table of tableStructures) {
+          if (!addedLabels.has(`TABLE:${table.tableName.toUpperCase()}`)) {
+            const tableId = createSuggestionId('table', table.tableName);
+            suggestionsMap.set(tableId, {
+              label: table.tableName,
+              kind: monaco.languages.CompletionItemKind.Class,
+              insertText: table.tableName,
+              documentation: `表: ${table.tableName}`,
+              sortText: '1' + table.tableName, // 表名排在关键字后面
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: wordUntilPosition.startColumn,
+                endColumn: wordUntilPosition.endColumn
+              }
+            });
+            addedLabels.add(`TABLE:${table.tableName.toUpperCase()}`);
           }
-        });
-
-        // 记录已添加的表名
-        addedLabels.add(`TABLE:${table.tableName.toUpperCase()}`);
-
-        // 收集所有列名，以便后续去重
-        const columnSet = new Set<string>();
-
-        // 如果在特定表名后面的点号后面，只显示该表的列
-        if (currentTableName && table.tableName.toUpperCase() !== currentTableName.toUpperCase()) {
-          continue;
-        }
-
-        // 添加列名（带表名前缀）
-        for (const column of table.columns) {
-          // 如果已经添加过这个带表名的列，则跳过
-          const qualifiedColumnKey = `${table.tableName}.${column.name}`.toUpperCase();
-          if (addedLabels.has(`QUALIFIED_COLUMN:${qualifiedColumnKey}`)) {
-            continue;
-          }
-
-          // 完整列名（带表名）
-          const qualifiedColumnId = createSuggestionId('qualified_column', `${table.tableName}.${column.name}`);
-          suggestionsMap.set(qualifiedColumnId, {
-            label: `${table.tableName}.${column.name}`,
-            kind: monaco.languages.CompletionItemKind.Field,
-            insertText: `${table.tableName}.${column.name}`,
-            documentation: `表: ${table.tableName}, 列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}`,
-            sortText: '2' + table.tableName + '.' + column.name, // 带表名的列排在表名后面
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: wordUntilPosition.startColumn,
-              endColumn: wordUntilPosition.endColumn
-            }
-          });
-
-          // 记录已添加的带表名的列
-          addedLabels.add(`QUALIFIED_COLUMN:${qualifiedColumnKey}`);
-
-          // 记录列名，用于后续添加不重复的单独列名
-          columnSet.add(column.name);
-        }
-
-        // 如果在表名后面的点号后面，不显示单独的列名
-        if (currentTableName) {
-          continue;
-        }
-
-        // 添加单独的列名（不带表名前缀）
-        for (const columnName of columnSet) {
-          // 跳过与SQL关键字同名的列名，避免重复
-          if (isSQLKeyword(columnName)) {
-            continue;
-          }
-
-          // 如果已经添加过这个列名，则跳过
-          if (addedLabels.has(`COLUMN:${columnName.toUpperCase()}`)) {
-            continue;
-          }
-
-          // 查找该列名在当前表中的完整信息
-          const column = table.columns.find(col => col.name === columnName);
-          if (column) {
-            const columnId = createSuggestionId('column', columnName);
-
-            // 如果已经存在这个列名，则合并文档信息
-            if (suggestionsMap.has(columnId)) {
-              const existingSuggestion = suggestionsMap.get(columnId);
-              existingSuggestion.documentation += `\n也来自表: ${table.tableName}`;
-            } else {
-              suggestionsMap.set(columnId, {
-                label: columnName,
+          
+          // 添加列名
+          for (const column of table.columns) {
+            // 添加带表名的列
+            if (!addedLabels.has(`QUALIFIED_COLUMN:${table.tableName.toUpperCase()}.${column.name.toUpperCase()}`)) {
+              const qualifiedColumnId = createSuggestionId('qualified_column', `${table.tableName}.${column.name}`);
+              suggestionsMap.set(qualifiedColumnId, {
+                label: `${table.tableName}.${column.name}`,
                 kind: monaco.languages.CompletionItemKind.Field,
-                insertText: columnName,
-                documentation: `列: ${columnName}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}, 来自表: ${table.tableName}`,
-                sortText: '3' + columnName, // 单独的列名排在最后
+                insertText: `${table.tableName}.${column.name}`,
+                documentation: `表: ${table.tableName}, 列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}`,
+                sortText: '3' + table.tableName + '.' + column.name, // 带表名的列排在后面
                 range: {
                   startLineNumber: position.lineNumber,
                   endLineNumber: position.lineNumber,
@@ -524,10 +655,27 @@ export function createSQLCompletionProvider(monaco: any, tableStructures: TableS
                   endColumn: wordUntilPosition.endColumn
                 }
               });
+              addedLabels.add(`QUALIFIED_COLUMN:${table.tableName.toUpperCase()}.${column.name.toUpperCase()}`);
             }
-
-            // 记录已添加的列名
-            addedLabels.add(`COLUMN:${columnName.toUpperCase()}`);
+            
+            // 添加不带表名的列
+            if (!addedLabels.has(`COLUMN:${column.name.toUpperCase()}`)) {
+              const columnId = createSuggestionId('column', column.name);
+              suggestionsMap.set(columnId, {
+                label: column.name,
+                kind: monaco.languages.CompletionItemKind.Field,
+                insertText: column.name,
+                documentation: `列: ${column.name}, 类型: ${column.type}${column.isPrimary ? ' (主键)' : ''}, 来自表: ${table.tableName}`,
+                sortText: '2' + column.name, // 不带表名的列排在表名后面
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn: wordUntilPosition.startColumn,
+                  endColumn: wordUntilPosition.endColumn
+                }
+              });
+              addedLabels.add(`COLUMN:${column.name.toUpperCase()}`);
+            }
           }
         }
       }
