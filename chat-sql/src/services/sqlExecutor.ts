@@ -425,37 +425,97 @@ export class SQLQueryEngine {
     if (!ast.from || ast.from.length === 0) {
       throw new Error('FROM子句不能为空');
     }
-    
+
     const tableAliases = new Map<string, string>();
+    const fromArr = ast.from;
+    // 检查是否为隐式笛卡尔积（多个表且没有join字段）
+    const isImplicitCrossJoin = fromArr.length > 1 && fromArr.every((item: any) => !item.join);
+
+    if (isImplicitCrossJoin) {
+      // 依次做笛卡尔积
+      let resultRows: Record<string, any>[] = [];
+      let columnMetadata: ColumnMetadata[] = [];
+      for (let i = 0; i < fromArr.length; i++) {
+        const tableItem = fromArr[i];
+        const tableName = tableItem.table;
+        const tableAlias = tableItem.as || tableItem.alias || tableName;
+        tableAliases.set(tableAlias, tableName);
+
+        const table = this.getTable(tableName);
+        if (!table) {
+          throw new Error(`表 ${tableName} 不存在`);
+        }
+
+        // 为当前表数据添加别名前缀
+        const tableRows = table.data.map(row => {
+          const newRow: Record<string, any> = {};
+          Object.entries(row).forEach(([key, value]) => {
+            newRow[`${tableAlias}.${key}`] = value;
+            newRow[key] = value;
+          });
+          return newRow;
+        });
+
+        // 生成列元数据
+        const tableColMeta: ColumnMetadata[] = table.structure.columns.map(col => ({
+          tableAlias: tableAlias,
+          columnName: col.name,
+          outputName: col.name
+        }));
+
+        if (i === 0) {
+          resultRows = tableRows;
+          columnMetadata = tableColMeta;
+        } else {
+          // 做笛卡尔积
+          const newRows: Record<string, any>[] = [];
+          for (const leftRow of resultRows) {
+            for (const rightRow of tableRows) {
+              newRows.push({ ...leftRow, ...rightRow });
+            }
+          }
+          resultRows = newRows;
+          columnMetadata = [...columnMetadata, ...tableColMeta];
+        }
+      }
+      return {
+        rows: resultRows,
+        metadata: {
+          tableAliases,
+          columnMetadata
+        }
+      };
+    }
+
     const mainTable = ast.from[0];
-    
+
     console.log('处理FROM子句:', JSON.stringify(mainTable, null, 2));
-    
+
     // 处理子查询 - 检查新的AST结构
     if (mainTable.expr) {
       console.log('检测到可能的子查询:', JSON.stringify(mainTable.expr, null, 2));
-      
+
       // 检查是否是子查询的新结构
       if (mainTable.expr.ast || (mainTable.expr.type === 'select')) {
         return this.processSubquery(mainTable);
       }
     }
-    
+
     console.log('主表信息:', mainTable);
     const mainTableName = mainTable.table;
-    
+
     if (!mainTableName) {
       throw new Error('无法识别的表名: ' + JSON.stringify(mainTable));
     }
-    
+
     const mainTableAlias = mainTable.as || mainTable.alias || mainTable.table;
     tableAliases.set(mainTableAlias, mainTableName);
-    
+
     const table = this.getTable(mainTableName);
     if (!table) {
       throw new Error(`表 ${mainTableName} 不存在`);
     }
-    
+
     // 为主表数据添加别名前缀
     const rows = table.data.map(row => {
       const newRow: Record<string, any> = {};
@@ -466,14 +526,14 @@ export class SQLQueryEngine {
       });
       return newRow;
     });
-    
+
     // 初始化列元数据
     const columnMetadata: ColumnMetadata[] = table.structure.columns.map(col => ({
       tableAlias: mainTableAlias,
       columnName: col.name,
       outputName: col.name
     }));
-    
+
     return {
       rows,
       metadata: {

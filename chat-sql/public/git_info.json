@@ -1,6 +1,13 @@
 {
   "history": [
     {
+      "hash": "31ae25ca709d6a363bfb5b082ae0deca20215248",
+      "date": "2025-05-10T15:52:59+08:00",
+      "message": "style: Improve the display of schema and changelog page",
+      "description": " - improve the style of database files, set the appropriate animation time for scaling transformations\n - improve the card display of changelog (add detailed description)",
+      "author": "ffy6511"
+    },
+    {
       "hash": "4cbd89a5614825a8f7848a37bb681cbb1f230330",
       "date": "2025-05-10T14:18:39+08:00",
       "message": "feat(sqlCompletionProvider):  Improve the complete settings: .Define relevant keywords according to the context.",
@@ -318,6 +325,13 @@
   ],
   "commitsByDate": {
     "2025/5/10": [
+      {
+        "hash": "31ae25ca709d6a363bfb5b082ae0deca20215248",
+        "date": "2025-05-10T15:52:59+08:00",
+        "message": "style: Improve the display of schema and changelog page",
+        "description": " - improve the style of database files, set the appropriate animation time for scaling transformations\n - improve the card display of changelog (add detailed description)",
+        "author": "ffy6511"
+      },
       {
         "hash": "4cbd89a5614825a8f7848a37bb681cbb1f230330",
         "date": "2025-05-10T14:18:39+08:00",
@@ -674,12 +688,12 @@
     ]
   },
   "stats": {
-    "totalCommits": 45,
+    "totalCommits": 46,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-10T14:18:39+08:00",
+    "lastUpdate": "2025-05-10T15:52:59+08:00",
     "activeBranches": 3
   }
 }

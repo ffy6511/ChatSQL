@@ -153,15 +153,10 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
       ) : (
         <>
           <div className={styles.titleContainer}>
-            <Tooltip 
-              title={record.title} // 显示完整标题
-              placement="topLeft"
-              mouseEnterDelay={0.5} // 添加延迟显示
-            >
+           {/* 移除悬浮的标题显示 */}
               <Text ellipsis className={styles.title}>
                 {truncateTitle(record.title!)} {/* 显示截断的标题 */}
               </Text>
-            </Tooltip>
             <div className={styles.infoContainer}>
               <div className={styles.dateInfo}>
                 {/* <ClockCircleOutlined /> */}
@@ -171,7 +166,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               </div>
               <div className={styles.tagsContainer}>
                 {record.data?.isBuiltIn && (
-                  <Tag color="blue" className={styles.tag}>教程 {record.data.order}</Tag>
+                  <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
                 )}
                 {record.data?.category && (
                   <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>

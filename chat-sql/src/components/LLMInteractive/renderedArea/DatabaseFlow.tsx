@@ -12,6 +12,7 @@ import {
   Position,
   MarkerType,
   getBezierPath,
+  getSmoothStepPath,
   Node as FlowNode,
   Edge as FlowEdge,
   NodeChange,
@@ -20,6 +21,7 @@ import {
   useReactFlow,
   Panel,
 } from "@xyflow/react";
+import { Tooltip } from "antd";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
 
@@ -35,12 +37,15 @@ type TableNodeData = {
 type CustomNode = FlowNode<TableNodeData>;
 type CustomEdge = FlowEdge;
 
+// 添加边样式类型定义
+type EdgeStyle = 'bezier' | 'step';
+
 // 生成随机颜色
 const getRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
   const g = Math.floor(Math.random() * 256);
   const b = Math.floor(Math.random() * 256);
-  return `rgba(${r}, ${g}, ${b}, 0.5)`; // 添加 80% 透明度
+  return `rgba(${r}, ${g}, ${b}, 0.5)`; // 添加 50% 透明度
 };
 
 // 自定义边组件
@@ -53,6 +58,7 @@ const CustomEdge = ({
   sourcePosition,
   targetPosition,
   style = {},
+  data,
 }: {
   id: string;
   sourceX: number;
@@ -62,23 +68,41 @@ const CustomEdge = ({
   sourcePosition: Position;
   targetPosition: Position;
   style?: React.CSSProperties;
+  data?: { edgeStyle: EdgeStyle };
 }) => {
-  const [edgePath] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
-  });
+  // 根据样式类型选择路径生成函数
+  let edgePath = '';
+  
+  if (data?.edgeStyle === 'bezier') {
+    const [path] = getBezierPath({
+      sourceX,
+      sourceY,
+      sourcePosition,
+      targetX,
+      targetY,
+      targetPosition,
+    });
+    edgePath = path;
+  } else {
+    const [path] = getSmoothStepPath({
+      sourceX,
+      sourceY,
+      sourcePosition,
+      targetX,
+      targetY,
+      targetPosition,
+      borderRadius: 6,
+    });
+    edgePath = path;
+  }
 
   return (
     <path
       id={id}
       style={{
         ...style,
-        strokeWidth: 2,
-        stroke: '#ff9900',
+        strokeWidth: 1,
+        stroke: '#e8b05c',
       }}
       className="react-flow__edge-path"
       d={edgePath}
@@ -165,10 +189,6 @@ const generateEdges = (tables: Table[]): Edge[] => {
             sourceHandle: col.name,
             targetHandle: ref.columnName,
             type: 'custom',
-            style: {
-              stroke: '#ff9900',
-              strokeWidth: 2
-            }
           });
         });
       }
@@ -178,37 +198,68 @@ const generateEdges = (tables: Table[]): Edge[] => {
 };
 
 // 添加自定义按钮组件
-const ZoomControls = () => {
+const ZoomControls = ({ 
+  edgeStyle, 
+  onEdgeStyleChange 
+}: {
+  edgeStyle: EdgeStyle;
+  onEdgeStyleChange: (style: EdgeStyle) => void;
+}) => {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   
   return (
+    // 添加tooltip提示
     <Panel position="bottom-right" className="custom-zoom-controls">
-      <button 
-        onClick={() => zoomIn({ duration: 800 })} 
-        className="zoom-button"
-        aria-label="放大"
-        title="放大"
-      >
-        +
-      </button>
-      <button 
-        onClick={() => zoomOut({ duration: 800 })} 
-        className="zoom-button"
-        aria-label="缩小"
-        title="缩小"
-      >
-        -
-      </button>
-      <button 
-        onClick={() => fitView({ duration: 800, padding: 0.2 })} 
-        className="zoom-button fit-button"
-        aria-label="适应视图"
-        title="适应视图"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-        </svg>
-      </button>
+      <Tooltip title="放大" placement="bottom">
+        <button 
+          onClick={() => zoomIn({ duration: 800 })} 
+          className="zoom-button"
+          aria-label="放大"
+          title="放大"
+        >
+          +
+        </button>
+      </Tooltip>
+      <Tooltip title="缩小" placement="bottom">
+        <button 
+          onClick={() => zoomOut({ duration: 800 })} 
+          className="zoom-button"
+          aria-label="缩小"
+          title="缩小"
+        >
+          -
+        </button>
+      </Tooltip>
+      <Tooltip title="适应视图" placement="bottom">
+        <button 
+          onClick={() => fitView({ duration: 800, padding: 0.2 })} 
+          className="zoom-button fit-button"
+          aria-label="适应视图"
+          title="适应视图"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+          </svg>
+        </button>
+      </Tooltip>
+      <Tooltip title={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"} placement="bottom">
+        <button 
+          onClick={() => onEdgeStyleChange(edgeStyle === 'bezier' ? 'step' : 'bezier')} 
+          className="zoom-button style-button"
+          aria-label={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"}
+          title={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {edgeStyle === 'bezier' ? (
+              // 折线图标
+              <path d="M3 3v18h18 M3 12h18 M12 3v18" />
+            ) : (
+              // 曲线图标
+              <path d="M3 18c3 0 6-4 9-4s6 4 9 4" />
+            )}
+          </svg>
+        </button>
+      </Tooltip>
     </Panel>
   );
 };
@@ -220,6 +271,9 @@ interface DatabaseFlowProps {
 }
 
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
+  // 添加边样式状态
+  const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>('step');
+  
   const initialNodes = tables.map((table, index) => ({
     id: table.id,
     type: "table",
@@ -235,7 +289,12 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
     draggable: true,
   }));
 
-  const initialEdges = generateEdges(tables);
+  const initialEdges = useMemo(() => {
+    return generateEdges(tables).map(edge => ({
+      ...edge,
+      data: { edgeStyle },
+    }));
+  }, [tables, edgeStyle]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(initialEdges);
@@ -269,13 +328,23 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
     }
   }, [onNodesChange, setNodes]);
 
+  // 处理边样式变化
+  useEffect(() => {
+    setEdges(eds => 
+      eds.map(edge => ({
+        ...edge,
+        data: { ...edge.data, edgeStyle },
+      }))
+    );
+  }, [edgeStyle, setEdges]);
+
   // 只在 tables 变化时更新节点和边
   useEffect(() => {
     if (tables && tables.length > 0) {
       setNodes(initialNodes);
       setEdges(initialEdges);
     }
-  }, [tables]);
+  }, [tables, initialEdges]);
 
   return (
     <div className="database-flow-container" style={styles}>
@@ -299,6 +368,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         defaultEdgeOptions={{
           type: 'custom',
           animated: false,
+          data: { edgeStyle },
           style: { 
             stroke: '#ff9900', 
             strokeWidth: 2
@@ -317,7 +387,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         {/* 使用自定义缩放控件替代默认控件 */}
-        <ZoomControls />
+        <ZoomControls edgeStyle={edgeStyle} onEdgeStyleChange={setEdgeStyle} />
       </ReactFlow>
     </div>
   );

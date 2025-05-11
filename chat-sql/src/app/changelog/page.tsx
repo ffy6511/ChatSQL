@@ -205,7 +205,7 @@ const ChangelogPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.parallaxBackground} />
-      <div className={styles.content}>
+      <div className={`${styles.content} content-container`}>
         <TimelineCard sx={{ mt: 3, p: 3 }}>
           <Typography variant="h5" gutterBottom sx={{fontSize:'1.7rem', textAlign:'center', fontWeight:'bold', mb: 4}}>
             <ClockCircleOutlined /> 更新日志

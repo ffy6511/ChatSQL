@@ -150,3 +150,9 @@
 .fit-button {
   font-size: 14px;
 }
+
+/* 添加样式切换按钮样式 */
+.style-button svg {
+  width: 16px;
+  height: 16px;
+}

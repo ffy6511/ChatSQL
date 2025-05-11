@@ -45,8 +45,8 @@ const Page: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="app-container"> {/* 添加上边距以避免被导航栏遮挡 */}
+    <div className="content-container">
+      <div className="app-container">
         <Splitter className="main-splitter">
           {/* 左侧侧边栏 */}
           <Splitter.Panel
@@ -127,7 +127,7 @@ const Page: React.FC = () => {
           </Splitter.Panel>
         </Splitter>
       </div>
-    </>
+    </div>
   );
 };
 

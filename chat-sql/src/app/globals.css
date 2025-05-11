@@ -88,3 +88,36 @@ body {
 .monaco-editor .view-line * {
     font-family: var(--font-mono) !important;
 }
+
+/* 添加页面过渡动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 骨架屏动画 */
+@keyframes skeletonPulse {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s infinite ease-in-out;
+}
