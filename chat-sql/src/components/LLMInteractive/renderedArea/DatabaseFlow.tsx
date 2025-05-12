@@ -21,9 +21,12 @@ import {
   useReactFlow,
   Panel,
 } from "@xyflow/react";
-import { Tooltip } from "antd";
 import "@xyflow/react/dist/style.css";
 import './DatabaseFlow.css';
+import { styled } from '@mui/material/styles';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 
 // 删除原有的类型定义，改为导入
 import { Column, Table, Edge } from '@/types/database';
@@ -110,13 +113,126 @@ const CustomEdge = ({
   );
 };
 
-// 表节点组件
+// 修改自定义 Tooltip 样式
+const ConstraintTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 'none', // 覆盖默认的 maxWidth
+    minWidth: '80px', // 设置最小宽度
+    width: 'fit-content', // 根据内容自适应宽度
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+    padding: '12px',
+  },
+}));
+
+// 修改 ConstraintContent 组件
+const ConstraintContent = ({ columns, tableName, tables }: { 
+  columns: Column[], 
+  tableName: string,
+  tables: Table[]
+}) => {
+  const primaryKeys = columns.filter(col => col.isPrimary);
+  const foreignKeys = columns.filter(col => col.foreignKeyRefs && col.foreignKeyRefs.length > 0);
+
+  return (
+    <Box sx={{ 
+      width: 'fit-content', // 让容器宽度适应内容
+      minWidth: '80px', // 设置最小宽度
+    }}>
+      {/* 主键约束 */}
+      <Box sx={{ mb: 1 }}>
+        <Typography 
+          component="span" 
+          sx={{ 
+            color: '#d32f2f',
+            fontWeight: 'bold',
+            fontSize: '1em',
+            display: 'block',
+            mb: 0.5,
+            // textAlign: 'center',
+          }}
+        >
+          Primary Key
+        </Typography>
+        {primaryKeys.length >= 1 ? (
+          <Typography component="span" sx={{ fontSize: '0.9em' }}>
+            {primaryKeys[0].name}
+          </Typography>
+        ) : (
+          <Typography component="span" sx={{ fontSize: '0.9em', fontStyle: 'italic' }}>
+            No primary key
+          </Typography>
+        )}
+      </Box>
+
+      {/* 外键约束 */}
+      {foreignKeys.length > 0 && (
+        <Box>
+          <Typography 
+            component="span" 
+            sx={{ 
+              color: '#ed6c02',
+              fontWeight: 'bold',
+              fontSize: '1em',
+              display: 'block',
+              mt: 1,
+              mb: 0.5,
+              // textAlign:'center'
+            }}
+          >
+            Foreign Key
+          </Typography>
+          {foreignKeys.map((col, index) => (
+            col.foreignKeyRefs?.map((ref, refIndex) => {
+              const targetTable = tables.find(t => t.id === ref.tableId);
+              return (
+                <Typography 
+                  key={`fk-${index}-${refIndex}`}
+                  component="div"
+                  sx={{ 
+                    fontSize: '0.9em',
+                    mb: 0.5,
+                    '&:last-child': { mb: 0 },
+                    whiteSpace: 'nowrap', // 防止换行
+                  }}
+                >
+                  {col.name} → <Box component="span" sx={{ textDecoration: 'underline', fontWeight: 'bold' }}>
+                    {targetTable?.tableName || ref.tableId}
+                  </Box>.{ref.columnName}
+                </Typography>
+              );
+            })
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+// 修改 TableNode 组件
 const TableNode = ({
   data,
 }: {
   data: { tableName: string; columns: Column[]; isReferenced: boolean };
 }) => {
   const headerColorRef = useRef<string | null>(null);
+  const { getNodes } = useReactFlow();
+
+  // 正确处理类型转换
+  const tables = useMemo(() => {
+    const nodes = getNodes();
+    return nodes.map(node => ({
+      id: node.id,
+      tableName: node.data.tableName as string,
+      columns: node.data.columns as Column[],
+      isReferenced: node.data.isReferenced as boolean,
+      position: node.position, // 添加 position 属性
+    })) as Table[]; // 确保类型匹配
+  }, [getNodes]);
 
   if (headerColorRef.current === null) {
     headerColorRef.current = getRandomColor();
@@ -124,17 +240,23 @@ const TableNode = ({
 
   return (
     <div className="table-node">
-      <div
-        className="table-header"
+      <div 
+        className="table-header" 
         style={{ 
           background: headerColorRef.current,
-          textAlign: 'center',
-          padding: '12px 8px',
+          position: 'relative',
           fontSize: '1.1em',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
         }}
       >
-        {data.tableName}
+        <div className="table-name">{data.tableName}</div>
+        <ConstraintTooltip
+          title={<ConstraintContent columns={data.columns} tableName={data.tableName} tables={tables} />}
+          placement="right"
+          arrow
+        >
+          <span className="constraint-icon">?</span>
+        </ConstraintTooltip>
       </div>
       <div className="table-content">
         {data.columns.map((col, index) => (
@@ -171,16 +293,28 @@ const TableNode = ({
   );
 };
 
-// 注册自定义组件
+// 注册节点类型
 const nodeTypes = { table: TableNode };
 const edgeTypes = { custom: CustomEdge };
 
-// 生成边
+// 修改生成边的函数
 const generateEdges = (tables: Table[]): Edge[] => {
   const edges: Edge[] = [];
+  const tableMap = new Map(tables.map(table => [table.id, table])); // 创建表ID到表对象的映射
+
   tables.forEach((sourceTable) => {
     sourceTable.columns.forEach((col) => {
       if (col.foreignKeyRefs) {
+        // 更新外键引用信息，添加表名
+        col.foreignKeyRefs = col.foreignKeyRefs.map(ref => {
+          const targetTable = tableMap.get(ref.tableId);
+          return {
+            ...ref,
+            tableName: targetTable?.tableName || ref.tableId // 如果找不到表名，使用表ID作为后备
+          };
+        });
+
+        // 生成边
         col.foreignKeyRefs.forEach((ref) => {
           edges.push({
             id: `${sourceTable.id}-${ref.tableId}-${col.name}`,

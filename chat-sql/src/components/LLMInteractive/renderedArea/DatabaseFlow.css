@@ -16,15 +16,26 @@
 
 .table-node:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  /* transform: translateY(-2px); */
 }
 
 .table-header {
-  padding: 12px 8px;
-  font-weight: bold;
-  border-bottom: 1px solid #e0e0e0;
+  position: relative;
+  min-height: 24px;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.table-name {
+  flex: 1;
   text-align: center;
-  font-size: 1.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgb(55, 54, 54);
 }
 
 .table-content {
@@ -155,4 +166,116 @@
 .style-button svg {
   width: 16px;
   height: 16px;
+}
+
+/* 约束图标样式 */
+.constraint-icon {
+  position: absolute;
+  right: -24px;
+  top: 50%;
+  transform: translateY(-50%) translateX(0);
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: rgb(92, 90, 90);
+  font-size: 12px;
+  cursor: help;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  opacity: 0;
+}
+
+.table-node:hover .constraint-icon {
+  right: 8px;
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.constraint-icon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* 约束提示框样式 */
+.constraint-tooltip-overlay {
+  max-width: 300px !important;
+}
+
+.constraint-tooltip {
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.constraint-row {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.constraint-row:last-child {
+  border-bottom: none;
+}
+
+.constraint-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.constraint-section:last-child {
+  margin-bottom: 0;
+}
+
+.constraint-section h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+
+.constraint-tooltip ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.constraint-tooltip li {
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.constraint-column {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.constraint-type {
+  font-size: 0.85em;
+  color: #666;
+  font-family: monospace;
+}
+
+.foreign-key-refs {
+  margin-top: 2px;
+  padding-left: 12px;
+}
+
+.foreign-key-ref {
+  font-size: 0.85em;
+  color: #666;
+  font-style: italic;
+}
+
+/* 确保提示框在节点上方显示 */
+.ant-tooltip {
+  z-index: 1000;
 }

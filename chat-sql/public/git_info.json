@@ -1,6 +1,13 @@
 {
   "history": [
     {
+      "hash": "bcf12e6e850998e5097f10f246fac782396e7766",
+      "date": "2025-05-11T10:52:58+08:00",
+      "message": "feat(loading&Databaseflow): Skeleton diagram effect , Better schema foreign key display, Supplement the schema of the textbook.",
+      "description": "- Use the Skeleton component of MUI to design animation effects of loading state\n- Add style selection of edges with foreign key constraints to provide more appropriate fold lines for complex schemas\n- The schema of the implementation textbook imported from the database system\n- Handle implicit join (Cartesian product)",
+      "author": "ffy6511"
+    },
+    {
       "hash": "31ae25ca709d6a363bfb5b082ae0deca20215248",
       "date": "2025-05-10T15:52:59+08:00",
       "message": "style: Improve the display of schema and changelog page",
@@ -324,6 +331,15 @@
     }
   ],
   "commitsByDate": {
+    "2025/5/11": [
+      {
+        "hash": "bcf12e6e850998e5097f10f246fac782396e7766",
+        "date": "2025-05-11T10:52:58+08:00",
+        "message": "feat(loading&Databaseflow): Skeleton diagram effect , Better schema foreign key display, Supplement the schema of the textbook.",
+        "description": "- Use the Skeleton component of MUI to design animation effects of loading state\n- Add style selection of edges with foreign key constraints to provide more appropriate fold lines for complex schemas\n- The schema of the implementation textbook imported from the database system\n- Handle implicit join (Cartesian product)",
+        "author": "ffy6511"
+      }
+    ],
     "2025/5/10": [
       {
         "hash": "31ae25ca709d6a363bfb5b082ae0deca20215248",
@@ -688,12 +704,12 @@
     ]
   },
   "stats": {
-    "totalCommits": 46,
+    "totalCommits": 47,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-10T15:52:59+08:00",
+    "lastUpdate": "2025-05-11T10:52:58+08:00",
     "activeBranches": 3
   }
 }

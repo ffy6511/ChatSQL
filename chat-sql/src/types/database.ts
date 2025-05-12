@@ -1,8 +1,14 @@
+export interface ForeignKeyRef {
+  tableId: string;
+  tableName?: string;
+  columnName: string;
+}
+
 export interface Column {
   name: string;
   type: string;
   isPrimary: boolean;
-  foreignKeyRefs?: { tableId: string; columnName: string }[];
+  foreignKeyRefs?: ForeignKeyRef[];
 }
 
 export interface Table {
