@@ -1,6 +1,13 @@
 {
   "history": [
     {
+      "hash": "d8ac28495465c114e1307854f9837addf167d4d8",
+      "date": "2025-05-13T00:27:42+08:00",
+      "message": "feat(DatabaseFlow): Enhance constraint icon and prompt box style, optimize foreign key display",
+      "description": "- Add constraint icons and prompt boxes to provide details for primary and foreign keys\n- Update foreign key reference information to ensure table names are displayed correctly\n- Modify styles to improve user experience and ensure prompt boxes are displayed above nodes\n- Update database type definitions to support new foreign key structures",
+      "author": "ffy6511"
+    },
+    {
       "hash": "bcf12e6e850998e5097f10f246fac782396e7766",
       "date": "2025-05-11T10:52:58+08:00",
       "message": "feat(loading&Databaseflow): Skeleton diagram effect , Better schema foreign key display, Supplement the schema of the textbook.",
@@ -331,6 +338,15 @@
     }
   ],
   "commitsByDate": {
+    "2025/5/13": [
+      {
+        "hash": "d8ac28495465c114e1307854f9837addf167d4d8",
+        "date": "2025-05-13T00:27:42+08:00",
+        "message": "feat(DatabaseFlow): Enhance constraint icon and prompt box style, optimize foreign key display",
+        "description": "- Add constraint icons and prompt boxes to provide details for primary and foreign keys\n- Update foreign key reference information to ensure table names are displayed correctly\n- Modify styles to improve user experience and ensure prompt boxes are displayed above nodes\n- Update database type definitions to support new foreign key structures",
+        "author": "ffy6511"
+      }
+    ],
     "2025/5/11": [
       {
         "hash": "bcf12e6e850998e5097f10f246fac782396e7766",
@@ -704,12 +720,12 @@
     ]
   },
   "stats": {
-    "totalCommits": 47,
+    "totalCommits": 48,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-11T10:52:58+08:00",
+    "lastUpdate": "2025-05-13T00:27:42+08:00",
     "activeBranches": 3
   }
 }

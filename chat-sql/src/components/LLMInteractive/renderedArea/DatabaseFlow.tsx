@@ -27,6 +27,7 @@ import { styled } from '@mui/material/styles';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { TableNavigator } from './TableNavigator';
 
 // 删除原有的类型定义，改为导入
 import { Column, Table, Edge } from '@/types/database';
@@ -495,7 +496,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         maxZoom={2}
         fitViewOptions={{ 
           padding: 0.2,
-          duration: 400 // 添加动画持续时间
+          duration: 400
         }}
         nodesDraggable={true}
         elementsSelectable={true}
@@ -508,7 +509,6 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
             strokeWidth: 2
           }
         }}
-        // 添加平滑过渡效果的配置
         proOptions={{
           hideAttribution: true,
         }}
@@ -516,12 +516,11 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         zoomOnPinch={true}
         panOnScroll={true}
         panOnDrag={true}
-        // 添加自定义类名以应用CSS过渡效果
         className="flow-with-transitions"
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        {/* 使用自定义缩放控件替代默认控件 */}
         <ZoomControls edgeStyle={edgeStyle} onEdgeStyleChange={setEdgeStyle} />
+        <TableNavigator tables={tables} />
       </ReactFlow>
     </div>
   );
