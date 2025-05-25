@@ -3,19 +3,19 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  background-color: rgb(251, 248, 248);
+  background-color: var(--card-bg);
   border-radius: 10px!important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--divider-color);
   margin-left: 6px;
   margin-right: 6px;
 }
 
 .historyItem:hover {
-  background-color: #e2e3e4b7;
+  background-color: var(--button-hover);
 }
 
 .active {
-  background-color: #e2e3e4;
+  background-color: var(--button-hover);
 }
 
 .titleContainer {
@@ -26,7 +26,7 @@
 
 .title {
   font-size: 14px;
-  color: #333;
+  color: var(--primary-text);
   padding-left: 6px;
   width: 100%;
 }
@@ -37,7 +37,7 @@
   padding-left: 6px;
   gap: 8px;
   font-size: 12px;
-  color: #999;
+  color: var(--tertiary-text);
 }
 
 .dateInfo {
@@ -130,4 +130,44 @@
 
 .historyItem:hover .moreButton{
   opacity: 1;
+}
+
+/* dropdown的暗色模式适配样式 */
+
+/* 添加一个全局样式容器类 */
+.globalStylesContainer {
+  /* 可以为空，仅用于包装全局样式 */
+}
+
+/* 下拉菜单适配暗色模式 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu) {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+}
+
+/* 菜单项文字颜色 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item) {
+  color: #e0e0e0 !important;
+}
+
+/* 菜单项悬停样式 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item:hover) {
+  background-color: #333 !important;
+}
+
+/* 危险操作菜单项 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item-danger) {
+  color: #ff7875 !important;
+}
+
+/* 确认删除对话框 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-modal-content),
+.globalStylesContainer [data-theme="dark"] :global(.ant-modal-header) {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+}
+
+.globalStylesContainer [data-theme="dark"] :global(.ant-modal-title),
+.globalStylesContainer [data-theme="dark"] :global(.ant-modal-body) {
+  color: #e0e0e0 !important;
 }

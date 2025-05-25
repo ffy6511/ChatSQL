@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   height: var(--navbar-height);
-  background-color: #ffffff;
+  background-color: var(--background);
   box-shadow: 0 1px 0px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -52,12 +52,24 @@
 
 .navButton{
   border-radius: 50%; 
-  border: 1px solid #f4f5f4;
+  border: 1px solid var(--button-border);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   height: 30px;
   width: 30px;
+  color: var(--icon-color) !important;
 }
 
 .navButton:hover {
-  background-color: #e9ebe9 !important;
+  background-color: var(--button-hover) !important;
+  color: var(--icon-color-hover) !important;
+}
+
+[data-theme="dark"] .navButton {
+  color: var(--icon-color-dark) !important;
+  border-color: var(--button-border);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .navButton:hover {
+  color: var(--icon-color-hover) !important;
 }

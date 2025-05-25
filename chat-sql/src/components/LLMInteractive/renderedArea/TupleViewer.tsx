@@ -48,7 +48,7 @@ export default function TupleViewer() {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#f8f4f4',
+      backgroundColor: 'var(--card-border)',
       p: 0,
       overflow: 'auto', // 允许内容滚动
       gap: 0, // 移除子元素之间的间距

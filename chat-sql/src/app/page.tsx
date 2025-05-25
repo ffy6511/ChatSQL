@@ -79,8 +79,13 @@ const Page: React.FC = () => {
               {/* 右侧大区域 */}
               <Splitter.Panel>
                 {showLLMWindow ? (
-                  // 当显示LLM窗口时，占据整个区域
-                  <div className="full-height-llm-container">
+                  // 当显示LLM窗口时，占据整个区域并垂直居中
+                  <div className="full-height-llm-container" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%'
+                  }}>
                     <LLMWindow />
                   </div>
                 ) : (
@@ -111,12 +116,12 @@ const Page: React.FC = () => {
                         </Splitter.Panel>
 
                         {/* 下部右侧区域 */}
-                        <Splitter.Panel className="lower-right-panel">
-                          <div className="lower-right-content">
-                            <SQLEditor
-                              onExecute={handleQueryResult}
-                            />
-                          </div>
+                        <Splitter.Panel>
+                        <div style={{ height: '100%' }}>
+                          <SQLEditor
+                            onExecute={handleQueryResult}
+                          />
+                        </div>
                         </Splitter.Panel>
                       </Splitter>
                     </Splitter.Panel>

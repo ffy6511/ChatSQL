@@ -27,7 +27,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
   return (
     <div className={styles.searchContainer}>
-      <Tooltip 
+      <Tooltip
         title={
           <div className="shortcut-tooltip">
             <span>搜索 </span>
@@ -36,7 +36,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
             <span>K</span> )
           </div>
         }
-        arrow
         placement="top"
       >
         <Input

@@ -1,0 +1,100 @@
+.container {
+  padding: 20px;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--background);
+}
+
+.tableContainer {
+  margin-bottom: 30px;
+  background-color: var(--card-bg) ;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .tableContainer {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tableHeader {
+  background-color: var(--link-color);
+  color: var(--card-bg) !important;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tableContent {
+  overflow-x: auto;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataTable th {
+  background-color: var(--card-bg);
+  color: var(--primary-text);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--divider-color);
+}
+
+.dataTable td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--divider-color);
+  color: var(--secondary-text);
+}
+
+.dataTable tr:nth-child(even) {
+  background-color: var(--button-hover);
+}
+
+.dataTable tr:hover {
+  background-color: var(--button-hover);
+}
+
+.emptyTable {
+  padding: 20px;
+  text-align: center;
+  color: var(--tertiary-text);
+}
+
+.tableCount {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.primaryKey {
+  position: relative;
+  padding-left: 16px;
+}
+
+.primaryKey::before {
+  content: "🔑";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+}
+
+.foreignKey {
+  position: relative;
+  padding-left: 16px;
+}
+
+.foreignKey::before {
+  content: "🔗";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+}

@@ -7,20 +7,31 @@
   font-size: 1em;
   padding: 8px;
   transition: all 0.3s;
+  color: var(--icon-color);
 }
 
 .searchIcon:hover {
-  color: #1890ff;
+  color: var(--link-color);
+}
+
+.searchInput input::placeholder {
+  color: var(--tertiary-text) !important;
+  opacity: 1 !important;
 }
 
 .searchInput {
   width: 8em;
   transition: all 0.3s;
   border-radius: 10px;
-  background-color: #f7f3f3;
+  background-color: var(--input-bg) ;
+  border: 1px solid var(--input-border);
 }
 
-.searchInput:focus {
+.searchInput:hover {
+  background-color: var(--input-bg);
+}
+
+/* .searchInput:focus {
   width: 10em;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-}
+} */

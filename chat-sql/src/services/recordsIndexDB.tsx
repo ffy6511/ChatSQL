@@ -3,9 +3,10 @@
 export type LLMProblem = {
   id?: number; // IndexedDB自动生成的键
   data: any; // 直接存储整个LLM返回的数据
-  createdAt: Date;
+  createdAt: Date; // 必需字段
   title?: string; // 自定义标题
   isFavorite?: boolean; // 是否收藏
+  isTutorial?: boolean; // 是否为教程
 };
 
 const DB_NAME = 'llm_problems_db';

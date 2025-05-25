@@ -100,8 +100,12 @@ const HistoryPanel: React.FC = () => {
       return <Spin className={styles.spinner} />;
     }
 
-    if (records.length === 0) {
-      return <Empty description="暂无记录" className={styles.empty} />;
+    if (records.length === 0 && !loading) {
+      return <Empty 
+        description="暂无记录" 
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        className={styles.empty}
+      />;
     }
 
     return (
@@ -163,10 +167,7 @@ const HistoryPanel: React.FC = () => {
                   <ClockCircleOutlined />
                   最近
                   <Badge
-                    count={filterRecords(recentRecords).length}
-                    className={styles.countBadge}
                     size="small"
-                    style={{ backgroundColor: '#52c41a' }}
                   />
                 </span>
               ),
@@ -179,10 +180,7 @@ const HistoryPanel: React.FC = () => {
                   <HeartOutlined />
                   收藏
                   <Badge
-                    count={filterRecords(favoriteRecords).length}
-                    className={styles.countBadge}
                     size="small"
-                    style={{ backgroundColor: '#faad14' }}
                   />
                 </span>
               ),

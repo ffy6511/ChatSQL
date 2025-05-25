@@ -1,6 +1,13 @@
 {
   "history": [
     {
+      "hash": "00b51ecaf34af5689d8019d898b4ba67aec3a6f1",
+      "date": "2025-05-16T00:04:25+08:00",
+      "message": "feat(TableNavigator & share):  A table navigation  to quickly locate tables; new share for File-mediated database interaction patterns",
+      "description": "- Added TableNavigator component to provide the function of searching and locating tables;\n- Added the sharing function of sharing database resources by exporting and importing files",
+      "author": "ffy6511"
+    },
+    {
       "hash": "d8ac28495465c114e1307854f9837addf167d4d8",
       "date": "2025-05-13T00:27:42+08:00",
       "message": "feat(DatabaseFlow): Enhance constraint icon and prompt box style, optimize foreign key display",
@@ -338,6 +345,15 @@
     }
   ],
   "commitsByDate": {
+    "2025/5/16": [
+      {
+        "hash": "00b51ecaf34af5689d8019d898b4ba67aec3a6f1",
+        "date": "2025-05-16T00:04:25+08:00",
+        "message": "feat(TableNavigator & share):  A table navigation  to quickly locate tables; new share for File-mediated database interaction patterns",
+        "description": "- Added TableNavigator component to provide the function of searching and locating tables;\n- Added the sharing function of sharing database resources by exporting and importing files",
+        "author": "ffy6511"
+      }
+    ],
     "2025/5/13": [
       {
         "hash": "d8ac28495465c114e1307854f9837addf167d4d8",
@@ -720,12 +736,12 @@
     ]
   },
   "stats": {
-    "totalCommits": 48,
+    "totalCommits": 49,
     "contributors": [
       "ffy6511",
       "junhao Zhuo"
     ],
-    "lastUpdate": "2025-05-13T00:27:42+08:00",
+    "lastUpdate": "2025-05-16T00:04:25+08:00",
     "activeBranches": 3
   }
 }

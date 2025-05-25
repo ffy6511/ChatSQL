@@ -11,6 +11,7 @@ import { useLLMContext } from '@/contexts/LLMContext';
 import styles from './SideBar.module.css';
 import GuidingModal from './GuidingModal';
 import InitTutorialButton from '../Tutorial/InitTutorialButton';
+import ThemeToggle from './ThemeToggle';
 
 const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -79,12 +80,12 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
       </div>
 
       <div className={styles.menuContainer}>
-        <div className={styles.menuItems}>
-            <InitTutorialButton className={styles.actionButton} />
-        </div>
+          <div className={styles.menuItems}><ThemeToggle /></div>
+          <div className={styles.menuItems}><InitTutorialButton className={styles.actionButton} /></div>
       </div>
       
       <div className={styles.bottomButtons}>
+        
         <Tooltip title="帮助" placement="right">
           <Button 
             type="text" 

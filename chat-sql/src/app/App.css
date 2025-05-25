@@ -7,99 +7,121 @@
     margin-top: var(--navbar-height);
 }
 
-/* 添加主分割器容器样式 */
-.main-splitter {
-    height: 100% !important;  /* 使用100%填充app-container的剩余空间 */
-    width: 100% !important;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.sidebar-container {
+  width: 50px;
+  height: 100%;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
-/* 侧边栏样式 */
-.sidebar-panel .sidebar-content {
-    display: flex;
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding-top: var(--navbar-height);
+}
+
+.content-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.history-panel-container {
+  width: 250px;
+  height: 100%;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.history-panel-collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.editor-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.sql-editor {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.result-area {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  padding: 10px;
+  background-color: var(--background);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .editor-area {
     flex-direction: column;
-    height: 100%;
-    background: #f5f5d5;
-    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sql-editor, .result-area {
+    flex: none;
+    height: 50%;
+    width: 100%;
+  }
+  
+  .sql-editor {
+    border-right: none;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
 }
 
-.sidebar-header {
-    padding: 1em;
-    background: #f5f5d5;
-    text-align: center;
-    font-size: 1.2em;
-    color: #333;
-    border-bottom: 1px solid #ddd;
-}
-
-.sidebar-body {
-    flex: 1;
-    padding: 1em;
-    overflow-y: auto;
-}
-
-/* 历史记录区域样式 */
-.history-panel .history-content {
-    height: 100%;
-    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
-    padding: 0;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* 右侧上部区域样式 */
-.upper-panel .upper-content {
-    height: 100%;
-    background: #f6f3f3;
-    padding: 1em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-}
-
-/* 全高度LLM容器样式 */
+/* 确保 LLM 窗口垂直居中 */
 .full-height-llm-container {
-    height: 100%;
-    width: 100%;
-    background: #f6f3f3;
-    padding: 1em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: var(--background);
 }
 
-/* 右侧下部左侧区域样式 */
-.lower-left-panel .lower-left-content {
-    height: 100%;
-    /* background: #f2f4f2; */
-    background-color: transparent;
-    padding: 0.5em;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
+/* 确保内容区域有正确的高度 */
+.upper-content, .lower-content {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
-/* 右侧下部右侧区域样式 */
-.lower-right-panel .lower-right-content {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    /* background: #e6f4e6; */
-    padding: 0.5em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
+/* 确保 DatabaseFlow 容器有正确的高度 */
+.database-flow-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
 }
 
-/* 调整 Splitter 的分割线样式 */
-.ant-splitter-horizontal>.ant-splitter-bar,
-.ant-splitter-vertical>.ant-splitter-bar {
-    background: #ddd;
+
+.lower-left-panel{
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
-.ant-splitter-horizontal>.ant-splitter-bar:hover,
-.ant-splitter-vertical>.ant-splitter-bar:hover {
-    background: #bbb;
+.lower-left-content{
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }

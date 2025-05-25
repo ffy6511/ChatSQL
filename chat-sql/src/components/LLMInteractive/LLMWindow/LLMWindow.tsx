@@ -1,8 +1,6 @@
-'use client'
-
 import React, { useState, useEffect } from 'react';
 import styles from './LLMWindow.module.css';
-import { Input, Tag, message, Spin, Button, Popover } from 'antd';
+import { message, Spin } from 'antd';
 import {
   SendOutlined,
   CheckOutlined,
@@ -18,18 +16,23 @@ import { useSimpleStorage } from '@/hooks/useRecords';
 import { DifyResponse } from '@/types/dify';
 import {
   Typography,
+  TextField,
+  Button,
+  Popover,
+  Chip,
+  Box,
+  Paper,
+  IconButton,
 } from '@mui/material';
 import { useEditorContext } from '@/contexts/EditorContext';
 import ShinyText from '@/components/utils/ShinyText';
 import { useTagsManager } from '@/hooks/useTagsManager';
-
 
 const difficultyOptions = [
   { label: '简单', value: 'simple' },
   { label: '中等', value: 'medium' },
   { label: '困难', value: 'hard' },
 ];
-
 
 const LLMWindow: React.FC = () => {
   const { setShowLLMWindow, setLLMResult, setCurrentProblemId } = useLLMContext();
@@ -45,9 +48,9 @@ const LLMWindow: React.FC = () => {
   const {storeProblem, isSaving} = useSimpleStorage();
 
   // 弹出框状态
-  const [tagsPopoverOpen, setTagsPopoverOpen] = useState(false);
-  const [difficultyPopoverOpen, setDifficultyPopoverOpen] = useState(false);
-  const [countPopoverOpen, setCountPopoverOpen] = useState(false);
+  const [tagsAnchorEl, setTagsAnchorEl] = useState<null | HTMLElement>(null);
+  const [difficultyAnchorEl, setDifficultyAnchorEl] = useState<null | HTMLElement>(null);
+  const [countAnchorEl, setCountAnchorEl] = useState<null | HTMLElement>(null);
 
   // 添加新状态用于管理新标签输入
   const [newTagInput, setNewTagInput] = useState('');
@@ -136,108 +139,35 @@ const LLMWindow: React.FC = () => {
     }
   };
 
-  // 标签选择弹出框内容
-  const tagsPopoverContent = (
-    <div style={{ padding: '16px', width: 300 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-        选择标签
-      </Typography>
-      
-      <div className={styles.tagContainer}>
-        {Object.entries(tags).map(([tag, color]) => (
-          <Tag
-            key={tag}
-            className={`${styles.tag} ${checkedTags.includes(tag) ? styles.checked : ''}`}
-            closable={false}
-            style={checkedTags.includes(tag) ? { backgroundColor: color, borderColor: color } : {}}
-            onClick={() => handleTagCheck(tag, !checkedTags.includes(tag))}
-          >
-            {tag}
-            <CloseOutlined
-              className={styles.closeBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteTag(tag);
-              }}
-            />
-          </Tag>
-        ))}
-      </div>
+  // 打开/关闭弹出框
+  const handleTagsClick = (event: React.MouseEvent<HTMLElement>) => {
+    setTagsAnchorEl(event.currentTarget);
+  };
 
-      <div className={styles.tagInputContainer}>
-        <Input
-          className={styles.tagInput}
-          placeholder="输入新标签"
-          value={newTagInput}
-          onChange={e => setNewTagInput(e.target.value)}
-          onPressEnter={() => {
-            if (newTagInput.trim()) {
-              addTag(newTagInput.trim());
-              setNewTagInput('');
-            }
-          }}
-        />
-        <Button 
-          type="primary"
-          onClick={() => {
-            if (newTagInput.trim()) {
-              addTag(newTagInput.trim());
-              setNewTagInput('');
-            }
-          }}
-          disabled={!newTagInput.trim()}
-        >
-          添加
-        </Button>
-      </div>
-    </div>
-  );
+  const handleDifficultyClick = (event: React.MouseEvent<HTMLElement>) => {
+    setDifficultyAnchorEl(event.currentTarget);
+  };
 
-  // 难度选择弹出框内容
-  const difficultyPopoverContent = (
-    <div style={{ padding: '16px', width: 200 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择难度</Typography>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {difficultyOptions.map(opt => (
-          <Button
-            key={opt.value}
-            onClick={() => {
-              setDifficulty(opt.value);
-              setDifficultyPopoverOpen(false);
-            }}
-            type={difficulty === opt.value ? 'primary' : 'default'}
-            block
-            size="middle"
-          >
-            {opt.label}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
+  const handleCountClick = (event: React.MouseEvent<HTMLElement>) => {
+    setCountAnchorEl(event.currentTarget);
+  };
 
-  // 数量选择弹出框内容
-  const countPopoverContent = (
-    <div style={{ padding: '16px', width: 250 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>选择题目数量</Typography>
-      <div style={{ padding: '0 16px' }}>
-        <Input
-          type="number"
-          value={problemCnt}
-          onChange={e => setProblemCnt(Number(e.target.value))}
-          min={1}
-          max={10}
-          style={{ width: '100%', marginBottom: '12px', height: '36px', borderRadius: '8px' }}
-        />
-        <Typography variant="caption" style={{ color: 'rgba(0, 0, 0, 0.45)', display: 'block', textAlign: 'center' }}>
-          范围: 1-10 题
-        </Typography>
-      </div>
-    </div>
-  );
+  const handleClose = () => {
+    setTagsAnchorEl(null);
+    setDifficultyAnchorEl(null);
+    setCountAnchorEl(null);
+  };
+
+  // 添加新标签
+  const handleAddTag = () => {
+    if (newTagInput.trim()) {
+      addTag(newTagInput.trim());
+      setNewTagInput('');
+    }
+  };
 
   return (
-    <div className={styles.container} id="llm-window-container">
+    <div className={`${styles.container} ${styles.globalStylesContainer}`}>
       <div className={`${styles.windowContainer} ${result ? styles.withResult : ''}`}>
         <div className={`${styles.contentWrapper} ${result ? styles.withResultContent : ''}`}>
           {/* 顶部标题区域 */}
@@ -245,9 +175,10 @@ const LLMWindow: React.FC = () => {
             <Typography
               variant="h4"
               sx={{
-                fontWeight: 'bold',
+                fontWeight: 'normal',
                 textAlign: 'center',
-                flex: 1
+                flex: 1,
+                color: 'var(-secondary-text)',
               }}
             >
               {loading ? (
@@ -258,117 +189,368 @@ const LLMWindow: React.FC = () => {
             </Typography>
           </div>
 
-
           {/* 结果展示区域 - 有结果时显示 */}
           {result && (
             <div className={styles.resultArea}>
-              <div className={styles.chatBubble}>
+              <Paper 
+                className={styles.chatBubble} 
+                elevation={3}
+                sx={{
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                }}
+              >
                 <div className={styles.resultHeader}>
-                  <Typography variant="h6">
-                    <RobotOutlined style={{ marginRight: '8px' }} /> 这个问题如何?
+                  <Typography 
+                    variant="h6"
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: 'var(--primary-text)',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <RobotOutlined style={{ marginRight: '12px', color: 'var(--link-color)' }} /> 
+                    这个问题如何?
                   </Typography>
 
                   <Button
-                    type="primary"
+                    variant="contained"
+                    color="success"
                     size="small"
                     onClick={handleConfirm}
-                    loading={isSaving}
-                    icon={<CheckOutlined />}
-                    style={{ backgroundColor: '#52c41a' }}
+                    disabled={isSaving}
+                    startIcon={<CheckOutlined />}
+                    sx={{
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                      padding: '6px 16px',
+                      '&.Mui-disabled': {
+                        backgroundColor: 'var(--button-hover)',
+                        color: 'var(--tertiary-text)',
+                      }
+                    }}
                   >
                     确认并保存
                   </Button>
                 </div>
 
                 {result?.data?.outputs && (
-                  <LLMResultView outputs={result.data.outputs} />
+                  <div style={{ 
+                    backgroundColor: 'var(--card-bg)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    color: 'var(--primary-text)',
+                  }}>
+                    <LLMResultView outputs={result.data.outputs} />
+                  </div>
                 )}
-              </div>
+              </Paper>
             </div>
           )}
 
           {/* 输入区域 - 始终显示 */}
           <div className={`${styles.inputArea} ${result ? styles.inputAreaWithResult : ''}`}>
-
-
-          {/* 输入框区域 */}
-          <div className={styles.textAreaWrapper}>
-            <Input.TextArea
-              placeholder="请输入你想要训练的内容描述..."
-              value={declare}
-              onChange={e => setDeclare(e.target.value)}
-              autoSize={{ minRows: 3, maxRows: 6 }}
-              className={styles.textAreaContainer}
-            />
-
-            <div className={styles.actionButtonContainer}>
-              <Button
-                type="primary"
-                loading={loading}
-                onClick={handleSubmit}
-                icon={<SendOutlined />}
-                shape="circle"
-                size="large"
-                style={{ backgroundColor: '#1677ff', fontSize: '18px' }}
+            {/* 输入框区域 */}
+            <div className={styles.textAreaWrapper}>
+              <TextField
+                placeholder="您的任务描述"
+                value={declare}
+                onChange={e => setDeclare(e.target.value)}
+                multiline
+                minRows={3}
+                maxRows={6}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                    backgroundColor: 'var(--card-bg)',
+                    color: 'var(--primary-text)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                    '& fieldset': {
+                      borderColor: 'transparent', // 移除边框
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // 悬浮时不改变边框颜色
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // 选中时不改变边框颜色
+                    },
+                  },
+                  '& .MuiInputBase-input::placeholder': {
+                    color: 'var(--tertiary-text)',
+                    opacity: 1,
+                  },
+                  marginBottom: '20px',
+                  position: 'relative', // 确保相对定位
+                }}
               />
-            </div>
+
+              <div className={styles.actionButtonContainer}>
+                <IconButton
+                  color="primary"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  sx={{
+                    backgroundColor: 'var(--link-color)',
+                    fontSize: '1.2em',
+                    color: 'white',
+                    position: 'absolute', // 绝对定位
+                    right: '8px', // 右侧距离
+                    bottom: '8px', // 底部距离
+                    '&:hover': {
+                      backgroundColor: 'var(--link-hover)',
+                    },
+                  }}
+                >
+                  <SendOutlined />
+                </IconButton>
+              </div>
             </div>
             
-                        <div className={styles.buttonGroup}>
-              {/* 快捷按钮区域 */}
-              <Popover
-                open={tagsPopoverOpen}
-                onOpenChange={setTagsPopoverOpen}
-                content={tagsPopoverContent}
-                trigger="click"
-                placement="bottom"
-                destroyTooltipOnHide={false}
+            <div className={styles.buttonGroup}>
+              {/* 标签按钮 */}
+              <Button
+                variant="outlined"
+                onClick={handleTagsClick}
+                startIcon={<TagOutlined />}
+                sx={{
+                  borderRadius: '20px',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  borderColor: 'var(--card-border)',
+                  '&:hover': {
+                    backgroundColor: 'var(--button-hover)',
+                    borderColor: 'var(--card-border)', // 悬浮时不改变边框颜色
+                  },
+                }}
               >
-                <Button
-                  type="default"
-                  size="small"
-                  icon={<TagOutlined />}
-                >
-                  {checkedTags.length > 0 ? `${checkedTags.length}个标签` : '标签'}
-                </Button>
-              </Popover>
-
-              <Popover
-                open={difficultyPopoverOpen}
-                onOpenChange={setDifficultyPopoverOpen}
-                content={difficultyPopoverContent}
-                trigger="click"
-                placement="bottom"
-                destroyTooltipOnHide={false}
+                {checkedTags.length > 0 ? `${checkedTags.length}个标签` : '标签'}
+              </Button>
+              
+              {/* 难度按钮 */}
+              <Button
+                variant="outlined"
+                onClick={handleDifficultyClick}
+                startIcon={<BarChartOutlined />}
+                sx={{
+                  borderRadius: '20px',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  borderColor: 'var(--card-border)',
+                  '&:hover': {
+                    backgroundColor: 'var(--button-hover)',
+                    borderColor: 'var(--card-border)', // 悬浮时不改变边框颜色
+                  },
+                }}
               >
-                <Button
-                  type="default"
-                  size="small"
-                  icon={<BarChartOutlined />}
-                >
-                  {difficultyOptions.find(opt => opt.value === difficulty)?.label || '难度'}
-                </Button>
-              </Popover>
-
-              <Popover
-                open={countPopoverOpen}
-                onOpenChange={setCountPopoverOpen}
-                content={countPopoverContent}
-                trigger="click"
-                placement="bottom"
-                destroyTooltipOnHide={false}
+                {difficultyOptions.find(opt => opt.value === difficulty)?.label || '难度'}
+              </Button>
+              
+              {/* 数量按钮 */}
+              <Button
+                variant="outlined"
+                onClick={handleCountClick}
+                startIcon={<NumberOutlined />}
+                sx={{
+                  borderRadius: '20px',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  borderColor: 'var(--card-border)',
+                  '&:hover': {
+                    backgroundColor: 'var(--button-hover)',
+                    borderColor: 'var(--card-border)', // 悬浮时不改变边框颜色
+                  },
+                }}
               >
-                <Button
-                  type="default"
-                  size="small"
-                  icon={<NumberOutlined />}
-                >
-                  {problemCnt}题
-                </Button>
-              </Popover>
+                {problemCnt}题
+              </Button>
             </div>
             
-        </div>
+            {/* 标签弹出框 */}
+            <Popover
+              open={Boolean(tagsAnchorEl)}
+              anchorEl={tagsAnchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+              PaperProps={{
+                sx: {
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  width: '300px',
+                }
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 2 }}>
+                选择标签
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center', mb: 2 }}>
+                {Object.entries(tags).map(([tag, color]) => (
+                  <Chip
+                    key={tag}
+                    label={tag}
+                    onClick={() => handleTagCheck(tag, !checkedTags.includes(tag))}
+                    onDelete={() => deleteTag(tag)}
+                    color={checkedTags.includes(tag) ? "primary" : "default"}
+                    sx={{
+                      backgroundColor: checkedTags.includes(tag) ? color : 'var(--card-bg)',
+                      color: checkedTags.includes(tag) ? 'white' : 'var(--primary-text)',
+                      borderColor: 'var(--card-border)',
+                      '&:hover': {
+                        backgroundColor: checkedTags.includes(tag) ? color : 'var(--button-hover)',
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+
+              <Box sx={{ 
+                display: 'flex', 
+                gap: '8px', 
+                borderTop: '1px solid var(--card-border)', 
+                paddingTop: '16px' 
+              }}>
+                <TextField
+                  placeholder="输入新标签"
+                  value={newTagInput}
+                  onChange={e => setNewTagInput(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && handleAddTag()}
+                  size="small"
+                  fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--input-text)',
+                      '& fieldset': {
+                        borderColor: 'var(--input-border)',
+                      },
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'var(--secondary-text)',
+                      opacity: 1,
+                    },
+                  }}
+                />
+                <Button 
+                  variant="contained"
+                  onClick={handleAddTag}
+                  disabled={!newTagInput.trim()}
+                >
+                  添加
+                </Button>
+              </Box>
+            </Popover>
+            
+            {/* 难度弹出框 */}
+            <Popover
+              open={Boolean(difficultyAnchorEl)}
+              anchorEl={difficultyAnchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+              PaperProps={{
+                sx: {
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  width: '200px',
+                }
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 2 }}>
+                选择难度
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {difficultyOptions.map(opt => (
+                  <Button
+                    key={opt.value}
+                    onClick={() => {
+                      setDifficulty(opt.value);
+                      handleClose();
+                    }}
+                    variant={difficulty === opt.value ? "contained" : "outlined"}
+                    fullWidth
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </Box>
+            </Popover>
+            
+            {/* 数量弹出框 */}
+            <Popover
+              open={Boolean(countAnchorEl)}
+              anchorEl={countAnchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+              PaperProps={{
+                sx: {
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  width: '250px',
+                }
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 2 }}>
+                选择题目数量
+              </Typography>
+              <Box sx={{ padding: '0 16px' }}>
+                <TextField
+                  type="number"
+                  value={problemCnt}
+                  onChange={e => setProblemCnt(Number(e.target.value))}
+                  inputProps={{ min: 1, max: 10 }}
+                  fullWidth
+                  sx={{
+                    mb: 1.5,
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--input-text)',
+                      '& fieldset': {
+                        borderColor: 'var(--input-border)',
+                      },
+                    },
+                  }}
+                />
+                <Typography variant="caption" sx={{ color: 'var(--secondary-text)', display: 'block', textAlign: 'center' }}>
+                  范围: 1-10 题
+                </Typography>
+              </Box>
+            </Popover>
+          </div>
         </div>
       </div>
     </div>

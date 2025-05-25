@@ -17,7 +17,7 @@ interface QueryResultTableProps {
 
 const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
   const { checkQueryResult } = useCompletionContext();
-  const [messageApi, contextHolder] = antdMessage.useMessage();
+  const [messageApi, contextHolder] = antdMessage.useMessage({});
   const [showSuccess, setShowSuccess] = useState(false);
 
   // 包装检查结果函数
@@ -52,7 +52,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
   }, [handleCheckResult]);
 
   return (
-    <Box sx={{ mt: 1, height: 400, borderRadius: 1, position: 'relative' }}>
+    <Box sx={{ height: '100%', borderRadius: 1, position: 'relative' }}>
       {contextHolder}
       
       {/* 成功动画效果 */}
@@ -126,19 +126,26 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
             alignItems: 'center', 
             justifyContent: 'center',
             flexDirection: 'column',
-            gap: 2
+            gap: 2,
+            backgroundColor: 'var(--card-bg)',
+            borderColor: 'var(--card-border)',
           }}
         >
-          <AssessmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />
-          <Typography variant="h6" color="text.secondary">
+          <AssessmentIcon sx={{ fontSize: 48, color: 'var(--tertiary-text)' }} />
+          <Typography variant="h6" sx={{ color: 'var(--secondary-text)' }}>
             暂无查询结果
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: 'var(--tertiary-text)' }}>
             请执行查询语句获取数据
           </Typography>
         </Paper>
       ) : (
-        <Paper sx={{ height: '100%', width: '100%' }}>
+        <Paper sx={{ 
+          height: '100%', 
+          width: '100%',
+          backgroundColor: 'var(--card-bg)',
+          borderColor: 'var(--card-border)',
+        }}>
           <div className={styles.resultHeader}>
             <AssessmentIcon className={styles.resultIcon} />
             <Typography className={styles.resultTitle}>
@@ -161,7 +168,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
                 size="small"
                 startIcon={<CompareArrowsIcon />}
                 onClick={handleCheckResult}
-                sx={{ ml: 2 }}
+                sx={{ mr: 2 }}
               >
                 比较
               </Button>
@@ -196,7 +203,55 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
               }}
               sx={{
                 border: 0,
-                height: '100%'
+                height: '100%',
+                backgroundColor: 'var(--card-bg)',
+                color: 'var(--primary-text)',
+                '& .MuiDataGrid-cell': {
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--secondary-text)',
+                  borderColor: 'var(--divider-color)',
+                },
+                '& .MuiDataGrid-columnHeader': {
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--primary-text)',
+                  borderColor: 'var(--divider-color)',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  color: 'var(--primary-text)',
+                  fontWeight: 600,
+                },
+                '& .MuiDataGrid-row': {
+                  backgroundColor: 'var(--card-bg)',
+                  '&:hover': {
+                    backgroundColor: 'var(--button-hover)',
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: 'var(--button-hover)',
+                  },
+                },
+                '& .MuiDataGrid-footerContainer': {
+                  backgroundColor: 'var(--card-bg)',
+                  borderColor: 'var(--divider-color)',
+                  color: 'var(--secondary-text)',
+                },
+                '& .MuiTablePagination-root': {
+                  color: 'var(--secondary-text)',
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'var(--secondary-text)',
+                },
+                '& .MuiSelect-select': {
+                  color: 'var(--secondary-text)',
+                },
+                '& .MuiIconButton-root': {
+                  color: 'var(--icon-color)',
+                  '&:hover': {
+                    color: 'var(--icon-color-hover)',
+                  },
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  overflow: 'auto',
+                },
               }}
             />
           </div>

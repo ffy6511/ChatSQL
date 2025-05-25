@@ -5,25 +5,81 @@
 
 .titleSection {
   margin-top: 24px;
+  color: var(--primary-text);
 }
 
 .tagContainer {
   margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .tableContainer {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .tableTitle {
   display: block;
   text-align: center;
+  padding: 12px;
+  background-color: var(--link-color);
+  color: white;
+  font-weight: 600;
 }
 
 .tableList {
   margin-top: 8px;
+  padding: 16px;
 }
 
 .listSection {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .tableContainer {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tableTitle {
+  background-color: var(--link-color);
+}
+
+/* 表格样式 */
+.tableStyles :global(.ant-table) {
+  background-color: var(--card-bg) !important;
+  color: var(--primary-text) !important;
+}
+
+.tableStyles :global(.ant-table-thead > tr > th) {
+  background-color: var(--button-hover) !important;
+  color: var(--primary-text) !important;
+  border-bottom: 1px solid var(--divider-color) !important;
+}
+
+.tableStyles :global(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid var(--divider-color) !important;
+  color: var(--secondary-text) !important;
+}
+
+.tableStyles :global(.ant-table-tbody > tr:hover > td) {
+  background-color: var(--button-hover) !important;
+}
+
+.tableStyles :global(.ant-typography) {
+  color: var(--primary-text) !important;
+}
+
+.tableStyles :global(.ant-list-item) {
+  border-bottom: none !important;
+}
+
+.tableStyles :global(.ant-divider) {
+  border-top: 1px solid var(--divider-color) !important;
 }

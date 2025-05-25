@@ -9,6 +9,8 @@ import Popover from '@mui/material/Popover';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import ListIcon from '@mui/icons-material/List';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 import { styled } from '@mui/material/styles';
 import { Table } from '@/types/database';
 import styles from './TableNavigator.module.css';
@@ -26,9 +28,10 @@ const FloatingButton = styled(IconButton)(({ theme }) => ({
   zIndex: 20,
   background: theme.palette.background.paper,
   backgroundColor: 'transparent',
+  color:'var(--secondary-text)',
   boxShadow: theme.shadows[3],
   '&:hover': {
-    background: theme.palette.grey[200],
+    color:'var(--primary-text)',
   },
   width: 30,
   height: 30,
@@ -113,12 +116,25 @@ export const TableNavigator: React.FC<TableNavigatorProps> = ({ tables }) => {
       >
         <TextField
           size="small"
-          placeholder="定位table"
+          placeholder=""
           value={search}
           onChange={e => setSearch(e.target.value)}
           fullWidth
-          className={styles.searchInput}
-          sx={{ m: 1, mb: 0.5, minWidth: 0, maxWidth: '100%' }} // 保证输入框宽度自适应
+          className={styles.searchInput} 
+          sx={{ m: 1, mb: 0.5, minWidth: 0, maxWidth: '100%' }} // 应用外边距和宽度约束
+          InputProps={{ // 定制输入框内部样式和内容
+            startAdornment: ( // 在输入框开头添加搜索图标
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+            sx: { // 应用样式到输入框容器，移除边框、轮廓和下划线
+              border: 'none',
+              outline: 'none',
+              '& fieldset': { border: 'none' }, // 移除 Outline variant 的边框
+              '&::before, &::after': { display: 'none' }, // 移除 Standard/Filled variants 的下划线
+            },
+          }}
         />
         <List dense className={styles.tableList}>
           {filteredTables.length === 0 ? (

@@ -31,3 +31,43 @@
 .monaco-editor .cursor {
   z-index: 3 !important; /* 光标层级 */
 }
+
+/* 自动补全提示文字颜色 - 确保在黑色背景下文字为白色 */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  color: #ffffff !important; /* 强制设置为白色 */
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-highlighted-label {
+  color: #ffffff !important; /* 高亮文字也设置为白色 */
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon {
+  color: #ffffff !important; /* 图标颜色也设置为白色 */
+}
+
+/* 悬停提示文字颜色 */
+.monaco-editor .monaco-hover .hover-contents {
+  color: #ffffff !important; /* 悬停提示文字为白色 */
+}
+
+.monaco-editor .monaco-hover .hover-contents .monaco-tokenized-source {
+  color: #ffffff !important; /* 代码示例文字为白色 */
+}
+
+/* 参数提示文字颜色 */
+.monaco-editor .parameter-hints-widget .parameter-hints-widget-wrapper {
+  color: #ffffff !important; /* 参数提示文字为白色 */
+}
+
+/* 自动补全详情面板文字颜色 */
+.monaco-editor .suggest-widget .details {
+  color: #ffffff !important; /* 详情面板文字为白色 */
+}
+
+.monaco-editor .suggest-widget .details .header {
+  color: #ffffff !important; /* 详情面板标题为白色 */
+}
+
+.monaco-editor .suggest-widget .details .body {
+  color: #ffffff !important; /* 详情面板内容为白色 */
+}

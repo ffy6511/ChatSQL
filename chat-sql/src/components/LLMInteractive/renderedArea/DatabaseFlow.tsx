@@ -28,9 +28,11 @@ import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { TableNavigator } from './TableNavigator';
+import { useThemeContext } from '@/contexts/ThemeContext';
 
 // 删除原有的类型定义，改为导入
 import { Column, Table, Edge } from '@/types/database';
+
 
 type TableNodeData = {
   tableName: string;
@@ -74,6 +76,9 @@ const CustomEdge = ({
   style?: React.CSSProperties;
   data?: { edgeStyle: EdgeStyle };
 }) => {
+  // 在组件内部使用 hook
+  const { theme } = useThemeContext();
+  
   // 根据样式类型选择路径生成函数
   let edgePath = '';
   
@@ -106,7 +111,7 @@ const CustomEdge = ({
       style={{
         ...style,
         strokeWidth: 1,
-        stroke: '#e8b05c',
+        stroke: theme === 'dark' ? '#f0a050' : '#e8b05c',
       }}
       className="react-flow__edge-path"
       d={edgePath}
@@ -115,53 +120,65 @@ const CustomEdge = ({
 };
 
 // 修改自定义 Tooltip 样式
-const ConstraintTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: '#f5f5f9',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 'none', // 覆盖默认的 maxWidth
-    minWidth: '80px', // 设置最小宽度
-    width: 'fit-content', // 根据内容自适应宽度
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-    padding: '12px',
-  },
-}));
+const ConstraintTooltip = styled(({ className, ...props }: TooltipProps) => {
+  // 在组件内部使用 hook
+  const { theme } = useThemeContext();
+  
+  return (
+    <Tooltip {...props} classes={{ popper: className }} />
+  );
+})(({ theme: muiTheme }) => {
+  // 使用组件内部的 useThemeContext 获取的 theme
+  const { theme: appTheme } = useThemeContext();
+  
+  return {
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: 'var(--card-bg)',
+      color: 'var(--primary-text)',
+      maxWidth: 'none',
+      minWidth: '80px',
+      width: 'fit-content',
+      fontSize: muiTheme.typography.pxToRem(12),
+      padding: '12px',
+    },
+  };
+});
 
 // 修改 ConstraintContent 组件
-const ConstraintContent = ({ columns, tableName, tables }: { 
-  columns: Column[], 
+const ConstraintContent = ({ columns, tableName, tables }: {
+  columns: Column[],
   tableName: string,
   tables: Table[]
 }) => {
+  // 在组件内部正确使用 hook
+  const { theme } = useThemeContext();
+  
   const primaryKeys = columns.filter(col => col.isPrimary);
   const foreignKeys = columns.filter(col => col.foreignKeyRefs && col.foreignKeyRefs.length > 0);
 
   return (
-    <Box sx={{ 
-      width: 'fit-content', // 让容器宽度适应内容
-      minWidth: '80px', // 设置最小宽度
+    <Box sx={{
+      width: 'fit-content',
+      minWidth: '80px',
     }}>
       {/* 主键约束 */}
       <Box sx={{ mb: 1 }}>
-        <Typography 
-          component="span" 
-          sx={{ 
+        <Typography
+          component="span"
+          sx={{
+            // 使用组件内部获取的 theme
             color: '#d32f2f',
             fontWeight: 'bold',
             fontSize: '1em',
             display: 'block',
             mb: 0.5,
-            // textAlign: 'center',
           }}
         >
           Primary Key
         </Typography>
         {primaryKeys.length >= 1 ? (
-          <Typography component="span" sx={{ fontSize: '0.9em' }}>
-            {primaryKeys[0].name}
+          <Typography component="span" sx={{ fontSize: '0.9em', color: 'var(--secondary-text)' }}>
+            {primaryKeys.map(col => col.name).join(', ')}
           </Typography>
         ) : (
           <Typography component="span" sx={{ fontSize: '0.9em', fontStyle: 'italic' }}>
@@ -173,16 +190,16 @@ const ConstraintContent = ({ columns, tableName, tables }: {
       {/* 外键约束 */}
       {foreignKeys.length > 0 && (
         <Box>
-          <Typography 
-            component="span" 
-            sx={{ 
-              color: '#ed6c02',
+          <Typography
+            component="span"
+            sx={{
+              // 使用组件内部获取的 theme
+              color:  '#ed6c02',
               fontWeight: 'bold',
               fontSize: '1em',
               display: 'block',
               mt: 1,
               mb: 0.5,
-              // textAlign:'center'
             }}
           >
             Foreign Key
@@ -196,12 +213,13 @@ const ConstraintContent = ({ columns, tableName, tables }: {
                   component="div"
                   sx={{ 
                     fontSize: '0.9em',
+                    color: 'var(--secondary-text)',
                     mb: 0.5,
                     '&:last-child': { mb: 0 },
-                    whiteSpace: 'nowrap', // 防止换行
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  {col.name} → <Box component="span" sx={{ textDecoration: 'underline', fontWeight: 'bold' }}>
+                  {col.name} → <Box component="span" sx={{ textDecoration: 'underline', fontWeight: 'bold', color: 'var(--secondary-text)' }}>
                     {targetTable?.tableName || ref.tableId}
                   </Box>.{ref.columnName}
                 </Typography>
@@ -343,14 +361,12 @@ const ZoomControls = ({
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   
   return (
-    // 添加tooltip提示
     <Panel position="bottom-right" className="custom-zoom-controls">
       <Tooltip title="放大" placement="bottom">
         <button 
           onClick={() => zoomIn({ duration: 800 })} 
           className="zoom-button"
           aria-label="放大"
-          title="放大"
         >
           +
         </button>
@@ -360,7 +376,6 @@ const ZoomControls = ({
           onClick={() => zoomOut({ duration: 800 })} 
           className="zoom-button"
           aria-label="缩小"
-          title="缩小"
         >
           -
         </button>
@@ -370,7 +385,6 @@ const ZoomControls = ({
           onClick={() => fitView({ duration: 800, padding: 0.2 })} 
           className="zoom-button fit-button"
           aria-label="适应视图"
-          title="适应视图"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
@@ -382,7 +396,6 @@ const ZoomControls = ({
           onClick={() => onEdgeStyleChange(edgeStyle === 'bezier' ? 'step' : 'bezier')} 
           className="zoom-button style-button"
           aria-label={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"}
-          title={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             {edgeStyle === 'bezier' ? (
@@ -408,6 +421,9 @@ interface DatabaseFlowProps {
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   // 添加边样式状态
   const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>('step');
+
+  // 监听主题的变化
+  const {theme: themeContext} = useThemeContext();
   
   const initialNodes = tables.map((table, index) => ({
     id: table.id,
@@ -482,7 +498,15 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   }, [tables, initialEdges]);
 
   return (
-    <div className="database-flow-container" style={styles}>
+    <div 
+      className="database-flow-container" 
+      style={{ 
+        width: '100%', 
+        height: '100%', 
+        position: 'relative',
+        ...styles 
+      }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -505,7 +529,7 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
           animated: false,
           data: { edgeStyle },
           style: { 
-            stroke: '#ff9900', 
+            stroke: themeContext === 'dark' ? '#ffb74d' : '#ff9900', 
             strokeWidth: 2
           }
         }}
@@ -518,7 +542,12 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         panOnDrag={true}
         className="flow-with-transitions"
       >
-        <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={16} 
+          size={1} 
+          color={themeContext === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'} 
+        />
         <ZoomControls edgeStyle={edgeStyle} onEdgeStyleChange={setEdgeStyle} />
         <TableNavigator tables={tables} />
       </ReactFlow>

@@ -33,7 +33,7 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
       height: 'auto', // 改为自适应高度
       overflow: 'hidden',
       borderRadius: '0 0 8px 8px', // 添加底部圆角
-      border: '1px solid #e0e0e0', // 添加边框
+      border: '0.5px solid var(--card-bg)', // 添加边框
       borderTop: 'none', // 移除顶部边框，与表名区域连接
     }}>
       <DataGrid
@@ -52,7 +52,8 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
         sx={{
           border: 'none',
           '.MuiDataGrid-cell': {
-            borderColor: 'divider',
+            borderColor: 'var(--inverted-text)',
+            borderBottom: 'none',
           },
           height: '350px', // 设置固定高度
           '& .MuiDataGrid-main': {
@@ -65,7 +66,14 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
           },
           '& .MuiDataGrid-footerContainer': {
             // 确保页脚区域正确显示
-            borderTop: '1px solid #e0e0e0',
+            // borderTop: '1px solid #e0e0e0',
+          },
+          '& .MuiDataGrid-columnHeader': {
+            backgroundColor: 'var(--card-bg) !important',
+            border: 'none',
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            color: 'var(--primary-text)',
           },
         }}
         disableRowSelectionOnClick

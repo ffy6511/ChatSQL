@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #fff;
-  border-right: 1px solid #f0f0f0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   padding: 8px;
 }
 
@@ -15,11 +15,11 @@
 }
 
 .topButtons {
-  border-bottom: 1px solid #eae5e5;
+  border-bottom: 1px solid var(--sidebar-border);
 }
 
 .bottomButtons {
-  border-top: 1px solid #eae5e5;
+  border-top: 1px solid var(--sidebar-border);
 }
 
 .actionButton {
@@ -31,13 +31,21 @@
   justify-content: center;
   border-radius: 8px;
   transition: all 0.3s ease;
-  color: #666 !important;
+  color: var(--icon-color) !important;
   background: transparent;
 }
 
 .actionButton:hover {
-  background: #f5f5f5;
-  /* color: #1677ff; */
+  background: var(--button-hover);
+  color: var(--icon-color-hover) !important;
+}
+
+[data-theme="dark"] .actionButton {
+  color: var(--icon-color-dark) !important;
+}
+
+[data-theme="dark"] .actionButton:hover {
+  color: var(--icon-color-hover) !important;
 }
 
 
@@ -48,7 +56,8 @@
 }
 
 .menuItems {
-  padding: 8px 0;
+  padding: 4px 0;
+  font-size: 14px !important;
 }
 
 .bottomButtons {
@@ -56,7 +65,6 @@
   flex-direction: column;
   gap: 8px;
   padding: 8px 0;
-  border-top: 1px solid #f0f0f0;
 }
 
 .bottomButtons button {

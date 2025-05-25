@@ -1,0 +1,73 @@
+.container {
+  padding: 20px;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--background);
+}
+
+.problemCard {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+[data-theme="dark"] .problemCard {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--primary-text);
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: var(--secondary-text);
+}
+
+.problemList {
+  margin-bottom: 20px;
+}
+
+.problemItem {
+  background-color: var(--button-hover);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  color: var(--primary-text);
+}
+
+.hintTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--primary-text);
+}
+
+.hint {
+  background-color: rgba(66, 133, 244, 0.1);
+  border-left: 4px solid var(--link-color);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  color: var(--secondary-text);
+}
+
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.tag {
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}

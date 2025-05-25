@@ -5,14 +5,24 @@
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 12px;
-  background: #fff;
+  background: var(--card-bg) !important;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   padding: 8px 0 8px 0;
+  color: var(--primary-text);
 }
 
 .searchInput {
   padding: 4px 12px;
   width: 190px !important;
+  background-color: var(--button-bg); 
+  border-radius: 15px;
+  border: none !important;
+  color: var(--primary-text) !important;
+  transition: all 0.3s !important;
+}
+
+[data-theme="dark"] .searchInput {
+  background-color: #504d4d; 
 }
 
 .tableList {
@@ -40,7 +50,7 @@
 .tableListText {
   font-size: 1.08em;
   font-weight: 500;
-  color: #222;
+  color: var(--secondary-text);
   letter-spacing: 0.01em;
 }
 

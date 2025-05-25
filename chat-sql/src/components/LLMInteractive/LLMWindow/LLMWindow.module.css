@@ -10,7 +10,6 @@
 
 .windowContainer {
   padding: 24px;
-  /* background: #fff; */
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -18,7 +17,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  /* max-width: 800px; */
   margin: 0 auto;
   transition: all 0.3s ease;
 }
@@ -45,37 +43,10 @@
   align-items: center !important;
   justify-content: center!important;
   margin-bottom: 24px;
-  border-bottom: 1px solid #f0f0f0;
   padding-bottom: 12px;
   text-align: center;
   width: 100%;
   transition: all 0.5s ease;
-}
-
-.headerIcon {
-  font-size: 24px;
-  margin-right: 8px;
-  color: #1677ff;
-}
-
-.iconArea {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0 30px;
-  gap: 30px;
-}
-
-.themeIcon {
-  font-size: 48px;
-  color: #f3e741;
-  opacity: 0.8;
-  transition: all 0.3s ease;
-}
-
-.themeIcon:hover {
-  transform: scale(1.1);
-  opacity: 1;
 }
 
 .inputArea {
@@ -99,6 +70,7 @@
   min-width: 45vw;
   margin-left: auto;
   margin-right: auto;
+  color: var(--card-bg);
 }
 
 .buttonGroup {
@@ -106,55 +78,14 @@
   align-items: center;
   margin-top: 12px;
   gap: 2em;
-  justify-content: center;
-}
-
-.buttonGroup button{
-  border-radius: 20px!important;
-  padding: 8px 16px!important;
-  height: 35px!important;
-}
-
-.textAreaContainer {
-  border-radius: 24px !important;
-  margin-bottom: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  padding-right: 60px; /* 为发送按钮留出空间 */
-  min-height: 120px;
-  position: relative;
-  border: 1px solid #e8e8e8;
-  margin-top: auto;
-  margin-bottom: 20px;
-  width: 100%;
+  justify-content: center; /* 确保按钮居中对齐 */
 }
 
 .actionButtonContainer {
   position: absolute;
-  right: 2em;
-  bottom: 3em;
+  right: 8px;
+  bottom: 24px;
   z-index: 2;
-}
-
-.actionButtonContainer button {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s;
-}
-
-.actionButtonContainer button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.hiddenPopoverTrigger {
-  display: none;
 }
 
 .resultArea {
@@ -166,7 +97,7 @@
 }
 
 .chatBubble {
-  background-color: #f6f2f2;
+  background-color: var(--card-bg);
   border-radius: 18px;
   padding: 16px;
   margin-bottom: 20px;
@@ -175,21 +106,8 @@
   max-width: 95%;
   margin-left: auto;
   margin-right: auto;
-  border: none;
+  border: 1px solid var(--card-border);
 }
-
-/* .chatBubble::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 20px;
-  width: 0;
-  height: 0;
-  border: 10px solid transparent;
-  border-bottom-color: #f0f8ff;
-  border-top: 0;
-  margin-top: -10px;
-} */
 
 .resultHeader {
   display: flex;
@@ -198,50 +116,35 @@
   margin-bottom: 16px;
 }
 
-.tagContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  margin-bottom: 16px;
+/* 添加一个全局样式容器类 */
+.globalStylesContainer {
+  /* 可以为空，仅用于包装全局样式 */
 }
 
-.tag {
-  cursor: pointer;
-  -webkit-user-select: none;
-  user-select: none;
-  position: relative;
-  padding-right: 10px !important;
-  border-color: #d9d9d9 !important;
-  color: rgba(0, 0, 0, 0.65) !important;
-  background: #fff!important;
+/* 修复弹出框样式 */
+.globalStylesContainer :global(.ant-popover-inner) {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
 }
 
-.tag.checked {
-  color: #373636 !important;
-  font-weight: bold;
-  background: #f5f2f2 !important;
+.globalStylesContainer :global(.ant-popover-title),
+.globalStylesContainer :global(.ant-popover-inner-content) {
+  color: var(--primary-text) !important;
 }
 
-.closeBtn {
-  margin-left: 6px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  font-size: 10px;
+.globalStylesContainer :global(.ant-popover-arrow-content) {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
 }
 
-.tag:hover .closeBtn {
-  opacity: 1;
+/* 修复标签输入框样式 */
+.tagInputContainer input {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
 }
 
-.tagInputContainer {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 16px;
-}
-
-.tagInput {
-  flex: 1;
+.tagInputContainer input::placeholder {
+  color: var(--secondary-text) !important;
+  opacity: 1 !important;
 }

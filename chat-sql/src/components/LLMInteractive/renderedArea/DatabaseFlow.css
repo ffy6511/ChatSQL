@@ -35,11 +35,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: rgb(55, 54, 54);
+  color: var(--primary-text);
 }
 
 .table-content {
   padding: 8px;
+  color: var(--secondary-text);
 }
 
 .column-row {
@@ -71,14 +72,14 @@
 .column-type {
   font-size: 0.8em;
   color: #666;
-  background: #f5f5f5;
+  background: var(--card-bg);
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .primary-key-badge {
   background: rgba(236, 125, 101, 0.604);
-  color: rgba(35, 35, 35, 0.765);
+  color: var(--secondary-text);
   font-size: 0.7em;
   padding: 2px 4px;
   border-radius: 4px;
@@ -87,7 +88,7 @@
 
 .foreign-key-badge {
   background: rgba(240, 173, 72, 0.74);
-  color: rgba(35, 35, 35, 0.765);
+  color: var(--secondary-text);
   font-size: 0.7em;
   padding: 2px 4px;
   border-radius: 4px;
@@ -126,7 +127,8 @@
   display: flex;
   gap: 8px;
   padding: 8px;
-  background-color: rgba(255, 255, 255, 0.8);
+  /* background-color: var(--card-bg) !important; */
+  background-color: transparent !important;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -136,8 +138,7 @@
   height: 32px;
   border: none;
   border-radius: 4px;
-  background-color: white;
-  color: #333;
+  color: var(--secondary-text);
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -148,7 +149,6 @@
 }
 
 .zoom-button:hover {
-  background-color: #f0f0f0;
   transform: translateY(-1px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
@@ -278,4 +278,106 @@
 /* 确保提示框在节点上方显示 */
 .ant-tooltip {
   z-index: 1000;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .database-flow-container {
+  background-color: rgb(83, 82, 80) ;
+}
+
+[data-theme="dark"] .table-node {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .table-node:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .table-header {
+  background-color: var(--link-color);
+}
+
+[data-theme="dark"] .column-row {
+  border-color: var(--divider-color);
+}
+
+[data-theme="dark"] .column-name {
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .column-type {
+  color: var(--tertiary-text);
+}
+
+[data-theme="dark"] .primary-key-icon {
+  color: #ffb74d;
+}
+
+[data-theme="dark"] .foreign-key-icon {
+  color: #64b5f6;
+}
+
+[data-theme="dark"] .react-flow__edge-path {
+  stroke: var(--link-color);
+}
+
+[data-theme="dark"] .react-flow__node {
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .react-flow__background {
+  background-color: var(--background);
+}
+
+[data-theme="dark"] .react-flow__controls {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .react-flow__controls-button {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .react-flow__controls-button:hover {
+  background-color: var(--button-hover);
+}
+
+[data-theme="dark"] .custom-zoom-controls {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+
+[data-theme="dark"] .table-navigator {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .table-navigator-title {
+  color: var(--primary-text);
+  border-color: var(--divider-color);
+}
+
+[data-theme="dark"] .table-navigator-list {
+  border-color: var(--divider-color);
+}
+
+[data-theme="dark"] .table-navigator-item {
+  color: var(--secondary-text);
+}
+
+[data-theme="dark"] .table-navigator-item:hover {
+  background-color: var(--button-hover);
+}
+
+[data-theme="dark"] .table-navigator-item.active {
+  background-color: rgba(66, 133, 244, 0.2);
+  color: var(--link-color);
 }

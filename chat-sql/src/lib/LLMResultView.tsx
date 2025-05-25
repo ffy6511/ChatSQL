@@ -69,34 +69,49 @@ const renderTupleTable = (table: TableTuple) => {
 
 const LLMResultView: React.FC<LLMResultViewProps> = ({ outputs }) => {
   return (
-    <Card bordered className={styles.resultCard}>
+    <div className={`${styles.resultCard} ${styles.tableStyles}`}>
       {/* 描述 */}
-      <Title level={4}>题目描述</Title>
-      <Paragraph>{outputs.description}</Paragraph>
+      <Typography.Title level={4} style={{ color: 'var(--primary-text)' }}>题目描述</Typography.Title>
+      <Typography.Paragraph style={{ color: 'var(--secondary-text)' }}>{outputs.description}</Typography.Paragraph>
 
       {/* 题目要求 */}
-      <Title level={5} className={styles.titleSection}>题目要求</Title>
+      <Typography.Title level={5} className={styles.titleSection} style={{ color: 'var(--primary-text)' }}>题目要求</Typography.Title>
       <List
         size="small"
         dataSource={outputs.problem}
-        renderItem={item => <List.Item>{item}</List.Item>}
+        renderItem={item => (
+          <List.Item style={{ 
+            color: 'var(--secondary-text)',
+            backgroundColor: 'var(--button-hover)',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '8px'
+          }}>
+            {item}
+          </List.Item>
+        )}
         className={styles.listSection}
       />
 
       {/* 标签 */}
-      <Title level={5}>标签</Title>
+      <Typography.Title level={5} style={{ color: 'var(--primary-text)' }}>标签</Typography.Title>
       <div className={styles.tagContainer}>
         {outputs.tags.map((tag, idx) =>
-          <Tag color={getTagColor(idx)} key={tag}>{tag}</Tag>
+          <Tag color={getTagColor(idx)} key={tag} style={{ 
+            margin: '4px',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontSize: '14px'
+          }}>{tag}</Tag>
         )}
       </div>
 
-      <Divider />
+      <Divider style={{ borderColor: 'var(--divider-color)' }} />
 
       {/* 表结构 */}
       {outputs.tableStructure && (
         <>
-          <Title level={5}>表结构</Title>
+          <Typography.Title level={5} style={{ color: 'var(--primary-text)' }}>表结构</Typography.Title>
           {outputs.tableStructure.map(table => renderTable(table))}
         </>
       )}
@@ -104,7 +119,7 @@ const LLMResultView: React.FC<LLMResultViewProps> = ({ outputs }) => {
       {/* 样例数据 */}
       {outputs.tuples && (
         <>
-          <Title level={5}>样例数据</Title>
+          <Title level={5} style={{ color: 'var(--primary-text)' }}>样例数据</Title>
           {outputs.tuples.map(table => renderTupleTable(table))}
         </>
       )}
@@ -112,7 +127,7 @@ const LLMResultView: React.FC<LLMResultViewProps> = ({ outputs }) => {
       {/* 期望结果 */}
       {outputs.expected_result && (
         <>
-          <Title level={5}>期望结果</Title>
+          <Title level={5} style={{ color: 'var(--primary-text)' }}>期望结果</Title>
           {outputs.expected_result.map(table => renderTupleTable(table))}
         </>
       )}
@@ -120,12 +135,12 @@ const LLMResultView: React.FC<LLMResultViewProps> = ({ outputs }) => {
       {/* 提示 */}
       {outputs.hint && (
         <>
-          <Divider />
-          <Title level={5}>提示</Title>
-          <Paragraph>{outputs.hint}</Paragraph>
+          <Divider style={{ borderColor: 'var(--divider-color)' }} />
+          <Title level={5} style={{ color: 'var(--primary-text)' }}>提示</Title>
+          <Paragraph style={{ color: 'var(--secondary-text)' }}>{outputs.hint}</Paragraph>
         </>
       )}
-    </Card>
+    </div>
   );
 };
 

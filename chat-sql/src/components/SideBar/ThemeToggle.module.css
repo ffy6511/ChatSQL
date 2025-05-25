@@ -2,4 +2,49 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px!important;
+}
+
+
+.actionButton svg {
+  font-size: 14px !important;
+  /* 直接设置 SVG 的字体大小 */
+}
+
+.actionButton {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: var(--icon-color) !important;
+  background: transparent;
+}
+
+.actionButton:hover {
+  background: var(--button-hover);
+}
+
+[data-theme="dark"] .actionButton {
+  color: var(--icon-color-dark) !important;
+}
+
+/* 添加全局样式容器 */
+.globalStylesContainer {
+  /* 可以为空，仅用于包装全局样式 */
+}
+
+/* 下拉菜单暗色模式适配 */
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu) {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+}
+
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item) {
+  color: #e0e0e0 !important;
+}
+
+.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item:hover) {
+  background-color: #333 !important;
 }

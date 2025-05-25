@@ -52,13 +52,15 @@ const ProblemViewer: React.FC = () => {
         </Box>
 
         {description && (
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4  }}>
             <Typography 
               variant="h6" 
               component="h3" 
               gutterBottom
-              color="text.secondary"
               fontSize="1rem"
+              sx={{
+                color:"var(--secondary-text)"
+              }}
             >
               问题描述
             </Typography>
@@ -68,6 +70,7 @@ const ProblemViewer: React.FC = () => {
                 backgroundColor: 'action.hover',
                 p: 2,
                 borderRadius: 1,
+                color:"var(--primary-text)"
               }}
             >
               {description}
@@ -79,8 +82,10 @@ const ProblemViewer: React.FC = () => {
               variant="h6" 
               component="h3" 
               gutterBottom
-              color="text.secondary"
               fontSize="1rem"
+              sx={{
+                color:"var(--secondary-text)"
+              }}
             >
               具体要求
             </Typography>
@@ -96,8 +101,8 @@ const ProblemViewer: React.FC = () => {
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 textDecoration: 'underline', // 添加下划线
-                textDecorationColor: 'secondary.main', // 设置下划线颜色
-                textDecorationThickness: '1px', // 设置下划线粗细
+                textDecorationColor: 'var(--tertiary-text)', // 设置下划线颜色
+                textDecorationThickness: '0.5px', // 设置下划线粗细
                 textUnderlineOffset: '5px', // 设置下划线与文字的距离
                 '&::after': completedProblems.has(index) ? {
                   content: '"✓"',
@@ -113,7 +118,7 @@ const ProblemViewer: React.FC = () => {
                 primaryTypographyProps={{
                   style: { 
                     textDecoration: completedProblems.has(index) ? 'line-through' : 'none',
-                    color: completedProblems.has(index) ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.87)',
+                    color: completedProblems.has(index) ? 'var(--tertiary-text)': 'var(--primary-text)',
                     fontStyle: completedProblems.has(index) ? 'italic' : 'normal',
                   }
                 }}

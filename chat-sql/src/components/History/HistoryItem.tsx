@@ -127,81 +127,83 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   };
 
   return (
-    <List.Item
-      className={`${styles.historyItem} ${isActive ? styles.active : ''}`}
-      onClick={() => onSelect(record.id!)}
-    >
-      {isEditing ? (
-        <div className={styles.editingContainer} onClick={e => e.stopPropagation()}>
-          <Input
-            value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
-            onPressEnter={handleRenameSubmit}
-            maxLength={50} // 添加输入长度限制
-            showCount // 显示字数统计
-            autoFocus
-          />
-          <Space>
-            <Button size="small" type="primary" onClick={handleRenameSubmit}>
-              确定
-            </Button>
-            <Button size="small" onClick={handleRenameCancel}>
-              取消
-            </Button>
-          </Space>
-        </div>
-      ) : (
-        <>
-          <div className={styles.titleContainer}>
-           {/* 移除悬浮的标题显示 */}
-              <Text ellipsis className={styles.title}>
-                {truncateTitle(record.title!)} {/* 显示截断的标题 */}
-              </Text>
-            <div className={styles.infoContainer}>
-              <div className={styles.dateInfo}>
-                {/* <ClockCircleOutlined /> */}
-                <span>
-                  {record.createdAt ? formatDate(record.createdAt) : '未知时间'}
-                </span>
-              </div>
-              <div className={styles.tagsContainer}>
-                {record.data?.isBuiltIn && (
-                  <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
-                )}
-                {record.data?.category && (
-                  <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>
-                )}
+    <div className={`${styles.globalStylesContainer}`}>
+      <List.Item
+        className={`${styles.historyItem} ${isActive ? styles.active : ''} ${record.isTutorial ? styles.tutorial : ''}`}
+        onClick={() => onSelect(record.id!)}
+      >
+        {isEditing ? (
+          <div className={styles.editingContainer} onClick={e => e.stopPropagation()}>
+            <Input
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              onPressEnter={handleRenameSubmit}
+              maxLength={50} // 添加输入长度限制
+              showCount // 显示字数统计
+              autoFocus
+            />
+            <Space>
+              <Button size="small" type="primary" onClick={handleRenameSubmit}>
+                确定
+              </Button>
+              <Button size="small" onClick={handleRenameCancel}>
+                取消
+              </Button>
+            </Space>
+          </div>
+        ) : (
+          <>
+            <div className={styles.titleContainer}>
+             {/* 移除悬浮的标题显示 */}
+                <Text ellipsis className={styles.title}>
+                  {truncateTitle(record.title!)} {/* 显示截断的标题 */}
+                </Text>
+              <div className={styles.infoContainer}>
+                <div className={styles.dateInfo}>
+                  {/* <ClockCircleOutlined /> */}
+                  <span>
+                    {record.createdAt ? formatDate(record.createdAt) : '未知时间'}
+                  </span>
+                </div>
+                <div className={styles.tagsContainer}>
+                  {record.data?.isBuiltIn && (
+                    <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
+                  )}
+                  {record.data?.category && (
+                    <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className={styles.actionButton} onClick={e => e.stopPropagation()}>
-            <Dropdown
-              menu={{ items }}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <Button
-                type="text"
-                icon={<MoreOutlined />}
-                className={styles.moreButton}
-              />
-            </Dropdown>
-          </div>
-        </>
-      )}
+            <div className={styles.actionButton} onClick={e => e.stopPropagation()}>
+              <Dropdown
+                menu={{ items }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  icon={<MoreOutlined />}
+                  className={styles.moreButton}
+                />
+              </Dropdown>
+            </div>
+          </>
+        )}
 
-      <Modal
-        title="确认删除"
-        open={isDeleteConfirmVisible}
-        onOk={confirmDelete}
-        onCancel={() => setIsDeleteConfirmVisible(false)}
-        okText="确认"
-        cancelText="取消"
-      >
-        <p>确定要删除这条记录吗？</p>
-      </Modal>
-    </List.Item>
+        <Modal
+          title="确认删除"
+          open={isDeleteConfirmVisible}
+          onOk={confirmDelete}
+          onCancel={() => setIsDeleteConfirmVisible(false)}
+          okText="确认"
+          cancelText="取消"
+        >
+          <p>确定要删除这条记录吗？</p>
+        </Modal>
+      </List.Item>
+    </div>
   );
 };
 

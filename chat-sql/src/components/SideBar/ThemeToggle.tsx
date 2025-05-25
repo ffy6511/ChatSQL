@@ -1,76 +1,107 @@
 'use client'
 
-import React, { useState, type ReactElement } from 'react';
-import { Switch } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Tooltip, Dropdown } from 'antd';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { 
+  DesktopOutlined 
+} from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import styles from './ThemeToggle.module.css';
 
-// 自定义 Switch 组件样式
-const MaterialUISwitch = styled(Switch)(({ theme }) => ({
-  width: 62,
-  height: 34,
-  padding: 7,
-  '& .MuiSwitch-switchBase': {
-    margin: 1,
-    padding: 0,
-    transform: 'translateX(6px)',
-    '&.Mui-checked': {
-      color: '#fff',
-      transform: 'translateX(22px)',
-      '& .MuiSwitch-thumb:before': {
-        backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-          '#fff',
-        )}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')`,
-      },
-      '& + .MuiSwitch-track': {
-        opacity: 1,
-        backgroundColor: '#8796A5',
-      },
-    },
-  },
-  '& .MuiSwitch-thumb': {
-    backgroundColor: '#4285f4',
-    width: 32,
-    height: 32,
-    '&:before': {
-      content: "''",
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      left: 0,
-      top: 0,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-        '#fff',
-      )}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`,
-    },
-  },
-  '& .MuiSwitch-track': {
-    opacity: 1,
-    backgroundColor: '#aab4be',
-    borderRadius: 20 / 2,
-  },
-}));
+type ThemeType = 'light' | 'dark' | 'system';
 
 const ThemeToggle: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [theme, setTheme] = useState<ThemeType>('system');
+  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
 
-  const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsDarkMode(event.target.checked);
-    // 这里可以添加实际的主题切换逻辑
-    // 例如: document.body.setAttribute('data-theme', event.target.checked ? 'dark' : 'light');
+  // 初始化主题
+  useEffect(() => {
+    // 从localStorage读取主题设置
+    const savedTheme = localStorage.getItem('theme') as ThemeType || 'system';
+    setTheme(savedTheme);
+    
+    // 应用主题
+    applyTheme(savedTheme);
+    
+    // 如果是system主题，添加媒体查询监听器
+    if (savedTheme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        setActualTheme(e.matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      };
+      
+      // 初始设置
+      setActualTheme(mediaQuery.matches ? 'dark' : 'light');
+      
+      // 添加监听器
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, []);
+
+  // 应用主题
+  const applyTheme = (themeType: ThemeType) => {
+    if (themeType === 'system') {
+      // 系统
+      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+      setActualTheme(isDarkMode ? 'dark' : 'light');
+    } else {
+      // 手动设置
+      document.documentElement.setAttribute('data-theme', themeType);
+      setActualTheme(themeType);
+    }
   };
 
+  // 切换主题
+  const handleThemeChange = (type: ThemeType) => {
+    setTheme(type);
+    localStorage.setItem('theme', type);
+    applyTheme(type);
+  };
+
+  // 获取当前主题图标
+  const getThemeIcon = () => {
+    if (actualTheme === 'dark') {
+      return <DarkModeIcon />;
+    }
+    return <LightModeIcon />;
+  };
+
+  // 下拉菜单项
+  const items: MenuProps['items'] = [
+    {
+      key: 'light',
+      icon: <LightModeIcon />,
+      label: '浅色',
+      onClick: () => handleThemeChange('light'),
+    },
+    {
+      key: 'dark',
+      icon: <DarkModeIcon />,
+      label: '深色',
+      onClick: () => handleThemeChange('dark'),
+    },
+    {
+      key: 'system',
+      icon: <DesktopOutlined />,
+      label: '系统',
+      onClick: () => handleThemeChange('system'),
+    },
+  ];
+
   return (
-    <div className={styles.themeToggleContainer}>
-      <Tooltip title={isDarkMode ? "切换到亮色模式" : "切换到暗色模式"}>
-        <MaterialUISwitch
-          checked={isDarkMode}
-          onChange={handleThemeChange}
-        />
-      </Tooltip>
+    <div className={`${styles.themeToggleContainer} ${styles.globalStylesContainer}`}>
+      <Dropdown menu={{ items }} placement="bottomRight" overlayClassName={styles.themeDropdown}>
+          <Button
+            type="text"
+            icon={getThemeIcon()}
+            className={styles.actionButton}
+          />
+      </Dropdown>
     </div>
   );
 };

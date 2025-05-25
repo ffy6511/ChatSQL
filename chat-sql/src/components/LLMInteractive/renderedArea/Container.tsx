@@ -69,13 +69,17 @@ export const Container: React.FC = () => {
             '& .MuiSpeedDial-fab': {
               width: 30,
               height: 30,
-              color: 'text.secondary',
+              color: 'var(--tertiary-text)',
               backgroundColor: 'transparent',
               boxShadow: 1,
               '&:hover': {
-                backgroundColor: 'action.hover',
+                backgroundColor: 'var(--button-hover)',
               },
             },
+            '& .MuiSpeedDial-icon': {
+             color: 'var(--tertiary-text)',
+            }
+
           }}
           icon={<SpeedDialIcon />}
           direction="right"
@@ -109,12 +113,17 @@ export const Container: React.FC = () => {
           flex: 1,
           position: 'relative',
           minHeight: 0,
+          height: '100%', // 确保高度为100%
           backgroundColor: 'background.paper',
           borderRadius: 1,
           overflow: 'auto',
           mt: 0, 
         }}>
-          {viewMode === 'schema' ? schemaContent : (
+          {viewMode === 'schema' ? (
+            <Box sx={{ height: '100%', width: '100%' }}> {/* 添加明确的宽高 */}
+              <DatabaseFlow tables={tables} styles={{ height: '100%', width: '100%' }} />
+            </Box>
+          ) : (
             <Box sx={{ height: '100%' }}>
               <TupleViewer />
             </Box>

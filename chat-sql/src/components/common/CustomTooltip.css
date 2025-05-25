@@ -1,0 +1,69 @@
+/* 自定义 Tooltip 样式 */
+.custom-tooltip .ant-tooltip-inner {
+  background-color: var(--card-bg);
+  color: var(--primary-text);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 自定义 Tooltip 箭头样式 */
+.custom-tooltip .ant-tooltip-arrow .ant-tooltip-arrow-content {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
+/* 全局覆盖所有 Antd Tooltip 样式 */
+:global(.ant-tooltip-inner) {
+  background-color: var(--card-bg) !important;
+  color: var(--primary-text) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+:global(.ant-tooltip-arrow-content) {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: none !important;
+}
+
+/* 暗色模式下的 Tooltip 样式调整 */
+[data-theme="dark"] :global(.ant-tooltip-inner) {
+  background-color: #1e1e1e !important; /* 使用固定的深色背景 */
+  color: #f0f0f0 !important; /* 使用固定的浅色文字 */
+  border-color: #333333 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] :global(.ant-tooltip-arrow-content) {
+  background-color: #1e1e1e !important; /* 使用固定的深色背景 */
+  border-color: #333333 !important;
+}
+
+/* 快捷键提示样式 */
+.shortcut-tooltip {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  color: var(--primary-text);
+}
+
+.shortcut-icon {
+  font-size: 1em !important;
+  margin-left: 4px;
+  margin-right: 2px;
+  color: var(--primary-text);
+}
+
+.shortcut-plus {
+  margin: 0 2px;
+  opacity: 0.7;
+}
+
+/* 确保信息提示图标在暗色模式下可见 */
+[data-theme="dark"] :global(.anticon-info-circle) {
+  color: #1677ff !important;
+}
+
+/* 确保所有 Tooltip 内容在暗色模式下可见 */
+[data-theme="dark"] :global(.ant-tooltip-inner *) {
+  color: #f0f0f0 !important;
+}

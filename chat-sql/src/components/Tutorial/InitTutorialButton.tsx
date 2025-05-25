@@ -4,6 +4,8 @@ import { ReadOutlined } from '@ant-design/icons';
 import { tutorials } from './tutorialData';
 import { useSimpleStorage } from '@/hooks/useRecords';
 import { useLLMContext } from '@/contexts/LLMContext';
+import { LLMProblem } from '@/services/recordsIndexDB';
+
 
 const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -48,7 +50,15 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
           category: tutorial.data.category
         };
         
-        lastSavedId = await storeProblem(formattedTutorial);
+        // 创建完整的记录对象，包括 isTutorial 标志
+        const tutorialRecord: LLMProblem = {
+          title: tutorial.title,
+          isTutorial: true, // 设置教程标志
+          createdAt: new Date(),
+          data: formattedTutorial
+        };
+        
+        lastSavedId = await storeProblem(formattedTutorial, tutorialRecord);
       }
       
       // 使用最后保存的教程 ID 触发更新
