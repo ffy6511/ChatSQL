@@ -1,109 +1,64 @@
-/* CSS变量定义 */
-:root {
-  /* 亮色主题 */
-  --bpt-bg-light: #ffffff;
-  --bpt-text-light: #333333;
-  --bpt-internal-node-bg-light: #e0f2f7; /* 浅蓝色 */
-  --bpt-leaf-node-bg-light: #fbe9e7; /* 浅红色 */
-  --bpt-cell-border-light: #999999;
-  --bpt-handle-bg-light: #4caf50; /* 绿色 */
-  --bpt-key-bg-light: #f5f5f5;
-  --bpt-value-bg-light: #fff3e0;
-  --bpt-pointer-bg-light: #e8f5e8;
-  --bpt-shadow-light: rgba(0, 0, 0, 0.1);
-  --bpt-border-light: #ddd;
-  --bpt-info-bg-light: #f9f9f9;
-}
-
-.dark-mode {
-  /* 暗色主题 */
-  --bpt-bg-dark: #222222;
-  --bpt-text-dark: #f0f0f0;
-  --bpt-internal-node-bg-dark: #37474f; /* 深蓝灰色 */
-  --bpt-leaf-node-bg-dark: #4e342e; /* 深棕色 */
-  --bpt-cell-border-dark: #666666;
-  --bpt-handle-bg-dark: #81c784; /* 浅绿色 */
-  --bpt-key-bg-dark: #2a2a2a;
-  --bpt-value-bg-dark: #3a2f2a;
-  --bpt-pointer-bg-dark: #2a3a2a;
-  --bpt-shadow-dark: rgba(0, 0, 0, 0.3);
-  --bpt-border-dark: #555;
-  --bpt-info-bg-dark: #2a2a2a;
-}
+/* B+树可视化组件样式 */
 
 /* 主容器 */
 .bplus-visualizer {
   width: 100%;
   height: 100vh;
   position: relative;
-  background: var(--bpt-bg-light);
-  color: var(--bpt-text-light);
+  background: #ffffff;
+  color: #333333;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* React Flow 画布容器 */
+.bplus-canvas-container {
+  flex: 1;
+  position: relative;
 }
 
 .bplus-visualizer.dark-mode {
-  background: var(--bpt-bg-dark);
-  color: var(--bpt-text-dark);
+  background: #222222;
+  color: #f0f0f0;
 }
 
 /* 内部节点样式 */
 .bplus-internal-node {
-  background: var(--bpt-internal-node-bg-light);
-  border: 2px solid var(--bpt-cell-border-light);
+  background: #e0f2f7;
+  border: 2px solid #999999;
   border-radius: 8px;
   padding: 2px;
-  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .dark-mode .bplus-internal-node {
-  background: var(--bpt-internal-node-bg-dark);
-  border-color: var(--bpt-cell-border-dark);
-  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
-}
-
-.bplus-internal-node:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--bpt-shadow-light);
-}
-
-.dark-mode .bplus-internal-node:hover {
-  box-shadow: 0 4px 12px var(--bpt-shadow-dark);
+  background: #37474f;
+  border-color: #666666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 叶子节点样式 */
 .bplus-leaf-node {
-  background: var(--bpt-leaf-node-bg-light);
-  border: 2px solid var(--bpt-cell-border-light);
+  background: #fbe9e7;
+  border: 2px solid #999999;
   border-radius: 8px;
   padding: 2px;
-  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .dark-mode .bplus-leaf-node {
-  background: var(--bpt-leaf-node-bg-dark);
-  border-color: var(--bpt-cell-border-dark);
-  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
-}
-
-.bplus-leaf-node:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--bpt-shadow-light);
-}
-
-.dark-mode .bplus-leaf-node:hover {
-  box-shadow: 0 4px 12px var(--bpt-shadow-dark);
+  background: #4e342e;
+  border-color: #666666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 节点内容 */
 .bplus-node-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  position: relative;
 }
-
-/* 移除节点头部样式，不再需要 */
 
 /* 内部节点布局 */
 .bplus-internal-layout {
@@ -114,8 +69,6 @@
   position: relative;
   padding: 0px;
 }
-
-/* 移除指针位置样式，不再需要 */
 
 /* 叶子节点布局 */
 .bplus-leaf-layout {
@@ -139,22 +92,18 @@
   justify-content: flex-start;
 }
 
-.dark-mode .bplus-slot-container {
-  border-left-color: var(--bpt-cell-border-dark);
-}
-
 /* 单个槽位样式 */
 .bplus-slot {
   position: relative;
   min-width: 60px;
   height: 45px;
-  border: 2px solid var(--bpt-cell-border-light);
-  background: var(--bpt-key-bg-light);
+  border: 2px solid #999999;
+  background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px var(--bpt-shadow-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-left: -2px;
 }
 
@@ -170,169 +119,50 @@
 }
 
 .dark-mode .bplus-slot {
-  border-color: var(--bpt-cell-border-dark);
-  background: var(--bpt-key-bg-dark);
-  box-shadow: 0 1px 3px var(--bpt-shadow-dark);
-}
-
-.bplus-slot:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 6px var(--bpt-shadow-light);
-}
-
-.dark-mode .bplus-slot:hover {
-  box-shadow: 0 3px 6px var(--bpt-shadow-dark);
+  border-color: #666666;
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* 空槽位样式 */
 .bplus-slot-empty {
-  background: var(--bpt-bg-light);
+  background: #ffffff;
   border-style: dashed;
   opacity: 0.6;
 }
 
 .dark-mode .bplus-slot-empty {
-  background: var(--bpt-bg-dark);
+  background: #222222;
 }
 
 /* 槽位内容 */
 .bplus-slot-content {
   font-size: 16px;
   font-weight: bold;
-  color: var(--bpt-text-light);
+  color: #333333;
   -webkit-user-select: none;
   user-select: none;
 }
 
 .dark-mode .bplus-slot-content {
-  color: var(--bpt-text-dark);
+  color: #f0f0f0;
 }
-
-/* 键槽位 */
-.bplus-key-cell {
-  position: relative;
-  min-width: 50px;
-  height: 40px;
-  border: 2px solid var(--bpt-cell-border-light);
-  border-radius: 6px;
-  background: var(--bpt-key-bg-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.dark-mode .bplus-key-cell {
-  border-color: var(--bpt-cell-border-dark);
-  background: var(--bpt-key-bg-dark);
-}
-
-.bplus-key-cell:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px var(--bpt-shadow-light);
-}
-
-.dark-mode .bplus-key-cell:hover {
-  box-shadow: 0 2px 4px var(--bpt-shadow-dark);
-}
-
-.bplus-key-content {
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--bpt-text-light);
-}
-
-.dark-mode .bplus-key-content {
-  color: var(--bpt-text-dark);
-}
-
-/* 移除值槽位样式，不再需要 */
-
-/* 指针槽位 */
-.bplus-pointer-cell {
-  position: relative;
-  min-width: 30px;
-  height: 30px;
-  border: 1px solid var(--bpt-cell-border-light);
-  border-radius: 4px;
-  background: var(--bpt-pointer-bg-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dark-mode .bplus-pointer-cell {
-  border-color: var(--bpt-cell-border-dark);
-  background: var(--bpt-pointer-bg-dark);
-}
-
-.bplus-pointer-content {
-  font-size: 16px;
-  color: var(--bpt-handle-bg-light);
-  font-weight: bold;
-}
-
-.dark-mode .bplus-pointer-content {
-  color: var(--bpt-handle-bg-dark);
-}
-
-/* 兄弟指针区域 */
-.bplus-sibling-pointer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  position: relative;
-}
-
-.dark-mode .bplus-sibling-pointer {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.bplus-sibling-label {
-  font-size: 10px;
-  color: #666;
-}
-
-.dark-mode .bplus-sibling-label {
-  color: #aaa;
-}
-
-.bplus-sibling-content {
-  font-size: 16px;
-  color: var(--bpt-handle-bg-light);
-  font-weight: bold;
-}
-
-.dark-mode .bplus-sibling-content {
-  color: var(--bpt-handle-bg-dark);
-}
-
-/* 移除节点信息样式，不再需要 */
 
 /* Handle样式 */
 .bplus-handle {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  
-  border: none !important;
-  background: transparent !important;
-}
-
-.dark-mode .bplus-handle {
-  border-color: var(--bpt-handle-bg-dark);
-  background: var(--bpt-handle-bg-dark);
+  width: 8px !important;
+  height: 8px !important;
+  border: 2px solid #4caf50 !important;
+  background: #4caf50 !important;
+  border-radius: 50% !important;
 }
 
 .bplus-handle-target {
   background: white;
 }
 
-.dark-mode .bplus-handle-target {
-  background: #333;
+.bplus-handle-source {
+  background: #4caf50;
 }
 
 .bplus-handle-sibling {
@@ -345,29 +175,29 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: var(--bpt-info-bg-light);
-  border: 1px solid var(--bpt-border-light);
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
   padding: 12px;
   min-width: 200px;
-  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 
 .dark-mode .bplus-info-panel {
-  background: var(--bpt-info-bg-dark);
-  border-color: var(--bpt-border-dark);
-  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
+  background: #2a2a2a;
+  border-color: #555;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .bplus-tree-stats h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: var(--bpt-text-light);
+  color: #333333;
 }
 
 .dark-mode .bplus-tree-stats h3 {
-  color: var(--bpt-text-dark);
+  color: #f0f0f0;
 }
 
 .bplus-tree-stats p {
@@ -382,31 +212,119 @@
 
 /* React Flow控件样式 */
 .bplus-controls {
-  background: var(--bpt-info-bg-light);
-  border: 1px solid var(--bpt-border-light);
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
 }
 
 .dark-mode .bplus-controls {
-  background: var(--bpt-info-bg-dark);
-  border-color: var(--bpt-border-dark);
+  background: #2a2a2a;
+  border-color: #555;
 }
 
 .bplus-minimap {
-  background: var(--bpt-info-bg-light);
-  border: 1px solid var(--bpt-border-light);
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
 }
 
 .dark-mode .bplus-minimap {
-  background: var(--bpt-info-bg-dark);
-  border-color: var(--bpt-border-dark);
+  background: #2a2a2a;
+  border-color: #555;
 }
 
 .bplus-background {
-  background: var(--bpt-bg-light);
+  background: #ffffff;
 }
 
 .dark-mode .bplus-background {
-  background: var(--bpt-bg-dark);
+  background: #222222;
+}
+
+/* 动画效果样式 */
+.nodeHighlighted {
+  animation: nodeHighlight 0.5s ease-in-out;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.6) !important;
+  border: 2px solid #4caf50 !important;
+}
+
+.edgeHighlighted {
+  stroke: #4caf50 !important;
+  stroke-width: 3px !important;
+  animation: edgeHighlight 0.5s ease-in-out;
+}
+
+.nodeNew {
+  animation: nodeAppear 0.6s ease-out;
+}
+
+.nodeRemoving {
+  animation: nodeDisappear 0.4s ease-in;
+}
+
+/* 动画关键帧 */
+@keyframes nodeHighlight {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(76, 175, 80, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+  }
+}
+
+@keyframes edgeHighlight {
+  0% {
+    stroke-width: 1px;
+    opacity: 0.7;
+  }
+  50% {
+    stroke-width: 4px;
+    opacity: 1;
+  }
+  100% {
+    stroke-width: 3px;
+    opacity: 1;
+  }
+}
+
+@keyframes nodeAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  60% {
+    opacity: 0.8;
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes nodeDisappear {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* 平滑过渡效果 */
+.bplus-internal-node,
+.bplus-leaf-node {
+  transition: all 0.3s ease-in-out;
+}
+
+.react-flow__edge {
+  transition: stroke 0.3s ease-in-out, stroke-width 0.3s ease-in-out;
 }

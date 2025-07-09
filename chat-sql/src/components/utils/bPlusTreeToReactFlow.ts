@@ -11,11 +11,12 @@ interface BPlusTreeNode {
 }
 
 // React Flow节点数据接口
-export interface BPlusNodeData {
+export interface BPlusNodeData extends Record<string, unknown> {
   keys: (number | string | null)[];
   pointers: (string | null)[];
   isLeaf: boolean;
   level: number;
+  order: number;
 }
 
 // 简化的B+树类
@@ -191,7 +192,8 @@ class BPlusTree {
           keys: [...node.keys],
           pointers: [...node.pointers],
           isLeaf: node.isLeaf,
-          level: node.level
+          level: node.level,
+          order: this.order
         }
       });
     });

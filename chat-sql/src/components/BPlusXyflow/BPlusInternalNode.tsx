@@ -7,14 +7,12 @@ interface BPlusNodeData {
   pointers: (string | null)[];
   isLeaf: boolean;
   level: number;
+  order: number;
 }
 
 const BPlusInternalNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;
-  const { keys, pointers } = nodeData;
-
-  // 获取阶数（从keys数组长度推断）
-  const order = keys.length + 1;
+  const { keys, pointers, order } = nodeData;
 
   return (
     <div className={styles['bplus-internal-node']}>
