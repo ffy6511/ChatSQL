@@ -1,17 +1,21 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { BPlusNodeData } from '../utils/bPlusTreeToReactFlow';
 import styles from './BPlusTreeVisualizer.module.css';
 
-interface BPlusInternalNodeProps extends NodeProps<BPlusNodeData> {}
+interface BPlusNodeData {
+  keys: (number | string | null)[];
+  pointers: (string | null)[];
+  isLeaf: boolean;
+  level: number;
+}
 
-const BPlusInternalNode: React.FC<BPlusInternalNodeProps> = ({ data }) => {
-  const { keys, pointers, isLeaf } = data;
-  
-  // 计算实际的键和指针数量
-  const actualKeys = keys.filter(k => k !== null);
-  const actualPointers = pointers.filter(p => p !== null);
-  
+const BPlusInternalNode: React.FC<NodeProps> = ({ data }) => {
+  const nodeData = data as unknown as BPlusNodeData;
+  const { keys, pointers } = nodeData;
+
+  // 获取阶数（从keys数组长度推断）
+  const order = keys.length + 1;
+
   return (
     <div className={styles['bplus-internal-node']}>
       {/* 顶部连接点 */}
@@ -22,63 +26,42 @@ const BPlusInternalNode: React.FC<BPlusInternalNodeProps> = ({ data }) => {
         className={`${styles['bplus-handle']} ${styles['bplus-handle-target']}`}
       />
 
+      {/* 第一个指针位置（左侧） */}
+      {pointers[0] && (
+        <Handle
+          type="source"
+          position={Position.Left}
+          id="pointer-0"
+          className={`${styles['bplus-handle']} ${styles['bplus-handle-source']}`}
+          style={{ top: '50%', left: '-4px' }}
+        />
+      )}
+
       <div className={styles['bplus-node-content']}>
-        <div className={styles['bplus-node-header']}>
-          <span className={styles['bplus-node-type']}>内部节点</span>
-          <span className={styles['bplus-node-level']}>Level {data.level}</span>
-        </div>
-
         <div className={styles['bplus-internal-layout']}>
-          {/* 第一个指针 */}
-          <div className={styles['bplus-pointer-cell']}>
-            <div className={styles['bplus-pointer-content']}>
-              {actualPointers[0] ? '●' : '_'}
-            </div>
-            {actualPointers[0] && (
-              <Handle
-                type="source"
-                position={Position.Bottom}
-                id="pointer-0"
-                className={`${styles['bplus-handle']} ${styles['bplus-handle-source']}`}
-                style={{ left: '50%', transform: 'translateX(-50%)' }}
-              />
-            )}
-          </div>
-
-          {/* 键和指针的交替布局 */}
-          {keys.map((key, index) => (
-            <React.Fragment key={index}>
-              {/* 键槽位 */}
-              <div className={styles['bplus-key-cell']}>
-                <div className={styles['bplus-key-content']}>
-                  {key !== null ? key : '_'}
+          {/* 槽位容器 */}
+          <div className={styles['bplus-slot-container']}>
+            {Array.from({ length: order - 1 }, (_, index) => (
+              <div
+                key={index}
+                className={`${styles['bplus-slot']} ${keys[index] === null ? styles['bplus-slot-empty'] : ''}`}
+              >
+                <div className={styles['bplus-slot-content']}>
+                  {keys[index] !== null ? keys[index] : '\u00A0'}
                 </div>
+                {/* 键下方的指针连接点 */}
+                {pointers[index + 1] && (
+                  <Handle
+                    type="source"
+                    position={Position.Bottom}
+                    id={`pointer-${index + 1}`}
+                    className={`${styles['bplus-handle']} ${styles['bplus-handle-source']}`}
+                    style={{ left: '50%', transform: 'translateX(-50%)', bottom: '-8px' }}
+                  />
+                )}
               </div>
-
-              {/* 对应的指针槽位 */}
-              {index + 1 < pointers.length && (
-                <div className={styles['bplus-pointer-cell']}>
-                  <div className={styles['bplus-pointer-content']}>
-                    {pointers[index + 1] ? '●' : '_'}
-                  </div>
-                  {pointers[index + 1] && (
-                    <Handle
-                      type="source"
-                      position={Position.Bottom}
-                      id={`pointer-${index + 1}`}
-                      className={`${styles['bplus-handle']} ${styles['bplus-handle-source']}`}
-                      style={{ left: '50%', transform: 'translateX(-50%)' }}
-                    />
-                  )}
-                </div>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-
-        <div className={styles['bplus-node-info']}>
-          <span>键: {actualKeys.length}/{keys.length}</span>
-          <span>指针: {actualPointers.length}/{pointers.length}</span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

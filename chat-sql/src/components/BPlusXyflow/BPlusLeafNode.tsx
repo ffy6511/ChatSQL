@@ -1,17 +1,22 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { BPlusNodeData } from '../utils/bPlusTreeToReactFlow';
 import styles from './BPlusTreeVisualizer.module.css';
 
-interface BPlusLeafNodeProps extends NodeProps<BPlusNodeData> {}
+interface BPlusNodeData {
+  keys: (number | string | null)[];
+  pointers: (string | null)[];
+  isLeaf: boolean;
+  level: number;
+}
 
-const BPlusLeafNode: React.FC<BPlusLeafNodeProps> = ({ data }) => {
-  const { keys, pointers, isLeaf } = data;
-  
-  // 计算实际的键数量
-  const actualKeys = keys.filter(k => k !== null);
+const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
+  const nodeData = data as unknown as BPlusNodeData;
+  const { keys, pointers } = nodeData;
+
+  // 获取阶数（从keys数组长度推断）
+  const order = keys.length + 1;
   const siblingPointer = pointers[pointers.length - 1]; // 最后一个指针是兄弟指针
-  
+
   return (
     <div className={styles['bplus-leaf-node']}>
       {/* 顶部连接点 */}
@@ -32,52 +37,32 @@ const BPlusLeafNode: React.FC<BPlusLeafNodeProps> = ({ data }) => {
       />
 
       <div className={styles['bplus-node-content']}>
-        <div className={styles['bplus-node-header']}>
-          <span className={styles['bplus-node-type']}>叶子节点</span>
-          <span className={styles['bplus-node-level']}>Level {data.level}</span>
-        </div>
-
         <div className={styles['bplus-leaf-layout']}>
-          {/* 键值对布局 */}
-          <div className={styles['bplus-key-value-pairs']}>
-            {keys.map((key, index) => (
-              <div key={index} className={styles['bplus-key-value-pair']}>
-                <div className={styles['bplus-key-cell']}>
-                  <div className={styles['bplus-key-content']}>
-                    {key !== null ? key : '_'}
-                  </div>
-                </div>
-                <div className={styles['bplus-value-cell']}>
-                  <div className={styles['bplus-value-content']}>
-                    {key !== null ? `V${key}` : '_'}
-                  </div>
+          {/* 槽位容器 */}
+          <div className={styles['bplus-slot-container']}>
+            {Array.from({ length: order - 1 }, (_, index) => (
+              <div
+                key={index}
+                className={`${styles['bplus-slot']} ${keys[index] === null ? styles['bplus-slot-empty'] : ''}`}
+              >
+                <div className={styles['bplus-slot-content']}>
+                  {keys[index] !== null ? keys[index] : '\u00A0'}
                 </div>
               </div>
             ))}
           </div>
-
-          {/* 兄弟指针区域 */}
-          <div className={styles['bplus-sibling-pointer']}>
-            <div className={styles['bplus-sibling-label']}>Next</div>
-            <div className={styles['bplus-sibling-content']}>
-              {siblingPointer ? '→' : '∅'}
-            </div>
-            {siblingPointer && (
-              <Handle
-                type="source"
-                position={Position.Right}
-                id="sibling"
-                className={`${styles['bplus-handle']} ${styles['bplus-handle-sibling']}`}
-                style={{ top: '50%' }}
-              />
-            )}
-          </div>
         </div>
 
-        <div className={styles['bplus-node-info']}>
-          <span>键: {actualKeys.length}/{keys.length}</span>
-          <span>兄弟: {siblingPointer ? '有' : '无'}</span>
-        </div>
+        {/* 兄弟指针 */}
+        {siblingPointer && (
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="sibling"
+            className={`${styles['bplus-handle']} ${styles['bplus-handle-sibling']}`}
+            style={{ top: '50%' }}
+          />
+        )}
       </div>
     </div>
   );

@@ -51,8 +51,7 @@
   background: var(--bpt-internal-node-bg-light);
   border: 2px solid var(--bpt-cell-border-light);
   border-radius: 8px;
-  padding: 8px;
-  min-width: 200px;
+  padding: 2px;
   box-shadow: 0 2px 8px var(--bpt-shadow-light);
   transition: all 0.3s ease;
 }
@@ -77,8 +76,7 @@
   background: var(--bpt-leaf-node-bg-light);
   border: 2px solid var(--bpt-cell-border-light);
   border-radius: 8px;
-  padding: 8px;
-  min-width: 250px;
+  padding: 2px;
   box-shadow: 0 2px 8px var(--bpt-shadow-light);
   transition: all 0.3s ease;
 }
@@ -105,77 +103,123 @@
   gap: 8px;
 }
 
-/* 节点头部 */
-.bplus-node-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.dark-mode .bplus-node-header {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.bplus-node-type {
-  color: var(--bpt-text-light);
-}
-
-.dark-mode .bplus-node-type {
-  color: var(--bpt-text-dark);
-}
-
-.bplus-node-level {
-  color: #666;
-  font-size: 10px;
-}
-
-.dark-mode .bplus-node-level {
-  color: #aaa;
-}
+/* 移除节点头部样式，不再需要 */
 
 /* 内部节点布局 */
 .bplus-internal-layout {
   display: flex;
   align-items: center;
-  gap: 2px;
-  flex-wrap: wrap;
+  gap: 0px;
   justify-content: center;
+  position: relative;
+  padding: 0px;
 }
+
+/* 移除指针位置样式，不再需要 */
 
 /* 叶子节点布局 */
 .bplus-leaf-layout {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0px;
+  padding: 0px;
 }
 
-.bplus-key-value-pairs {
+/* 键行布局 */
+.bplus-key-row {
   display: flex;
-  flex-direction: column;
   gap: 2px;
+  justify-content: center;
 }
 
-.bplus-key-value-pair {
+/* 槽位容器 */
+.bplus-slot-container {
   display: flex;
-  gap: 2px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.dark-mode .bplus-slot-container {
+  border-left-color: var(--bpt-cell-border-dark);
+}
+
+/* 单个槽位样式 */
+.bplus-slot {
+  position: relative;
+  min-width: 60px;
+  height: 45px;
+  border: 2px solid var(--bpt-cell-border-light);
+  background: var(--bpt-key-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px var(--bpt-shadow-light);
+  margin-left: -2px;
+}
+
+.bplus-slot:first-child {
+  margin-left: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.bplus-slot:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.dark-mode .bplus-slot {
+  border-color: var(--bpt-cell-border-dark);
+  background: var(--bpt-key-bg-dark);
+  box-shadow: 0 1px 3px var(--bpt-shadow-dark);
+}
+
+.bplus-slot:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px var(--bpt-shadow-light);
+}
+
+.dark-mode .bplus-slot:hover {
+  box-shadow: 0 3px 6px var(--bpt-shadow-dark);
+}
+
+/* 空槽位样式 */
+.bplus-slot-empty {
+  background: var(--bpt-bg-light);
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.dark-mode .bplus-slot-empty {
+  background: var(--bpt-bg-dark);
+}
+
+/* 槽位内容 */
+.bplus-slot-content {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--bpt-text-light);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.dark-mode .bplus-slot-content {
+  color: var(--bpt-text-dark);
 }
 
 /* 键槽位 */
 .bplus-key-cell {
   position: relative;
-  min-width: 40px;
-  height: 30px;
-  border: 1px solid var(--bpt-cell-border-light);
-  border-radius: 4px;
+  min-width: 50px;
+  height: 40px;
+  border: 2px solid var(--bpt-cell-border-light);
+  border-radius: 6px;
   background: var(--bpt-key-bg-light);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .dark-mode .bplus-key-cell {
@@ -183,8 +227,17 @@
   background: var(--bpt-key-bg-dark);
 }
 
+.bplus-key-cell:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--bpt-shadow-light);
+}
+
+.dark-mode .bplus-key-cell:hover {
+  box-shadow: 0 2px 4px var(--bpt-shadow-dark);
+}
+
 .bplus-key-content {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--bpt-text-light);
 }
@@ -193,32 +246,7 @@
   color: var(--bpt-text-dark);
 }
 
-/* 值槽位 */
-.bplus-value-cell {
-  position: relative;
-  min-width: 50px;
-  height: 30px;
-  border: 1px solid var(--bpt-cell-border-light);
-  border-radius: 4px;
-  background: var(--bpt-value-bg-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dark-mode .bplus-value-cell {
-  border-color: var(--bpt-cell-border-dark);
-  background: var(--bpt-value-bg-dark);
-}
-
-.bplus-value-content {
-  font-size: 12px;
-  color: #666;
-}
-
-.dark-mode .bplus-value-content {
-  color: #aaa;
-}
+/* 移除值槽位样式，不再需要 */
 
 /* 指针槽位 */
 .bplus-pointer-cell {
@@ -282,29 +310,16 @@
   color: var(--bpt-handle-bg-dark);
 }
 
-/* 节点信息 */
-.bplus-node-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: #666;
-  padding: 2px 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-}
-
-.dark-mode .bplus-node-info {
-  color: #aaa;
-  background: rgba(0, 0, 0, 0.2);
-}
+/* 移除节点信息样式，不再需要 */
 
 /* Handle样式 */
 .bplus-handle {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 2px solid var(--bpt-handle-bg-light);
-  background: var(--bpt-handle-bg-light);
+  
+  border: none !important;
+  background: transparent !important;
 }
 
 .dark-mode .bplus-handle {
