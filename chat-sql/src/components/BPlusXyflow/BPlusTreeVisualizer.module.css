@@ -1,0 +1,397 @@
+/* CSS变量定义 */
+:root {
+  /* 亮色主题 */
+  --bpt-bg-light: #ffffff;
+  --bpt-text-light: #333333;
+  --bpt-internal-node-bg-light: #e0f2f7; /* 浅蓝色 */
+  --bpt-leaf-node-bg-light: #fbe9e7; /* 浅红色 */
+  --bpt-cell-border-light: #999999;
+  --bpt-handle-bg-light: #4caf50; /* 绿色 */
+  --bpt-key-bg-light: #f5f5f5;
+  --bpt-value-bg-light: #fff3e0;
+  --bpt-pointer-bg-light: #e8f5e8;
+  --bpt-shadow-light: rgba(0, 0, 0, 0.1);
+  --bpt-border-light: #ddd;
+  --bpt-info-bg-light: #f9f9f9;
+}
+
+.dark-mode {
+  /* 暗色主题 */
+  --bpt-bg-dark: #222222;
+  --bpt-text-dark: #f0f0f0;
+  --bpt-internal-node-bg-dark: #37474f; /* 深蓝灰色 */
+  --bpt-leaf-node-bg-dark: #4e342e; /* 深棕色 */
+  --bpt-cell-border-dark: #666666;
+  --bpt-handle-bg-dark: #81c784; /* 浅绿色 */
+  --bpt-key-bg-dark: #2a2a2a;
+  --bpt-value-bg-dark: #3a2f2a;
+  --bpt-pointer-bg-dark: #2a3a2a;
+  --bpt-shadow-dark: rgba(0, 0, 0, 0.3);
+  --bpt-border-dark: #555;
+  --bpt-info-bg-dark: #2a2a2a;
+}
+
+/* 主容器 */
+.bplus-visualizer {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background: var(--bpt-bg-light);
+  color: var(--bpt-text-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bplus-visualizer.dark-mode {
+  background: var(--bpt-bg-dark);
+  color: var(--bpt-text-dark);
+}
+
+/* 内部节点样式 */
+.bplus-internal-node {
+  background: var(--bpt-internal-node-bg-light);
+  border: 2px solid var(--bpt-cell-border-light);
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  transition: all 0.3s ease;
+}
+
+.dark-mode .bplus-internal-node {
+  background: var(--bpt-internal-node-bg-dark);
+  border-color: var(--bpt-cell-border-dark);
+  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
+}
+
+.bplus-internal-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--bpt-shadow-light);
+}
+
+.dark-mode .bplus-internal-node:hover {
+  box-shadow: 0 4px 12px var(--bpt-shadow-dark);
+}
+
+/* 叶子节点样式 */
+.bplus-leaf-node {
+  background: var(--bpt-leaf-node-bg-light);
+  border: 2px solid var(--bpt-cell-border-light);
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 250px;
+  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  transition: all 0.3s ease;
+}
+
+.dark-mode .bplus-leaf-node {
+  background: var(--bpt-leaf-node-bg-dark);
+  border-color: var(--bpt-cell-border-dark);
+  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
+}
+
+.bplus-leaf-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--bpt-shadow-light);
+}
+
+.dark-mode .bplus-leaf-node:hover {
+  box-shadow: 0 4px 12px var(--bpt-shadow-dark);
+}
+
+/* 节点内容 */
+.bplus-node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 节点头部 */
+.bplus-node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.dark-mode .bplus-node-header {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.bplus-node-type {
+  color: var(--bpt-text-light);
+}
+
+.dark-mode .bplus-node-type {
+  color: var(--bpt-text-dark);
+}
+
+.bplus-node-level {
+  color: #666;
+  font-size: 10px;
+}
+
+.dark-mode .bplus-node-level {
+  color: #aaa;
+}
+
+/* 内部节点布局 */
+.bplus-internal-layout {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* 叶子节点布局 */
+.bplus-leaf-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bplus-key-value-pairs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bplus-key-value-pair {
+  display: flex;
+  gap: 2px;
+}
+
+/* 键槽位 */
+.bplus-key-cell {
+  position: relative;
+  min-width: 40px;
+  height: 30px;
+  border: 1px solid var(--bpt-cell-border-light);
+  border-radius: 4px;
+  background: var(--bpt-key-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode .bplus-key-cell {
+  border-color: var(--bpt-cell-border-dark);
+  background: var(--bpt-key-bg-dark);
+}
+
+.bplus-key-content {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--bpt-text-light);
+}
+
+.dark-mode .bplus-key-content {
+  color: var(--bpt-text-dark);
+}
+
+/* 值槽位 */
+.bplus-value-cell {
+  position: relative;
+  min-width: 50px;
+  height: 30px;
+  border: 1px solid var(--bpt-cell-border-light);
+  border-radius: 4px;
+  background: var(--bpt-value-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode .bplus-value-cell {
+  border-color: var(--bpt-cell-border-dark);
+  background: var(--bpt-value-bg-dark);
+}
+
+.bplus-value-content {
+  font-size: 12px;
+  color: #666;
+}
+
+.dark-mode .bplus-value-content {
+  color: #aaa;
+}
+
+/* 指针槽位 */
+.bplus-pointer-cell {
+  position: relative;
+  min-width: 30px;
+  height: 30px;
+  border: 1px solid var(--bpt-cell-border-light);
+  border-radius: 4px;
+  background: var(--bpt-pointer-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode .bplus-pointer-cell {
+  border-color: var(--bpt-cell-border-dark);
+  background: var(--bpt-pointer-bg-dark);
+}
+
+.bplus-pointer-content {
+  font-size: 16px;
+  color: var(--bpt-handle-bg-light);
+  font-weight: bold;
+}
+
+.dark-mode .bplus-pointer-content {
+  color: var(--bpt-handle-bg-dark);
+}
+
+/* 兄弟指针区域 */
+.bplus-sibling-pointer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  position: relative;
+}
+
+.dark-mode .bplus-sibling-pointer {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.bplus-sibling-label {
+  font-size: 10px;
+  color: #666;
+}
+
+.dark-mode .bplus-sibling-label {
+  color: #aaa;
+}
+
+.bplus-sibling-content {
+  font-size: 16px;
+  color: var(--bpt-handle-bg-light);
+  font-weight: bold;
+}
+
+.dark-mode .bplus-sibling-content {
+  color: var(--bpt-handle-bg-dark);
+}
+
+/* 节点信息 */
+.bplus-node-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #666;
+  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.dark-mode .bplus-node-info {
+  color: #aaa;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Handle样式 */
+.bplus-handle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--bpt-handle-bg-light);
+  background: var(--bpt-handle-bg-light);
+}
+
+.dark-mode .bplus-handle {
+  border-color: var(--bpt-handle-bg-dark);
+  background: var(--bpt-handle-bg-dark);
+}
+
+.bplus-handle-target {
+  background: white;
+}
+
+.dark-mode .bplus-handle-target {
+  background: #333;
+}
+
+.bplus-handle-sibling {
+  background: #ff9800;
+  border-color: #ff9800;
+}
+
+/* 信息面板 */
+.bplus-info-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--bpt-info-bg-light);
+  border: 1px solid var(--bpt-border-light);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 200px;
+  box-shadow: 0 2px 8px var(--bpt-shadow-light);
+  z-index: 1000;
+}
+
+.dark-mode .bplus-info-panel {
+  background: var(--bpt-info-bg-dark);
+  border-color: var(--bpt-border-dark);
+  box-shadow: 0 2px 8px var(--bpt-shadow-dark);
+}
+
+.bplus-tree-stats h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--bpt-text-light);
+}
+
+.dark-mode .bplus-tree-stats h3 {
+  color: var(--bpt-text-dark);
+}
+
+.bplus-tree-stats p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.dark-mode .bplus-tree-stats p {
+  color: #aaa;
+}
+
+/* React Flow控件样式 */
+.bplus-controls {
+  background: var(--bpt-info-bg-light);
+  border: 1px solid var(--bpt-border-light);
+  border-radius: 8px;
+}
+
+.dark-mode .bplus-controls {
+  background: var(--bpt-info-bg-dark);
+  border-color: var(--bpt-border-dark);
+}
+
+.bplus-minimap {
+  background: var(--bpt-info-bg-light);
+  border: 1px solid var(--bpt-border-light);
+  border-radius: 8px;
+}
+
+.dark-mode .bplus-minimap {
+  background: var(--bpt-info-bg-dark);
+  border-color: var(--bpt-border-dark);
+}
+
+.bplus-background {
+  background: var(--bpt-bg-light);
+}
+
+.dark-mode .bplus-background {
+  background: var(--bpt-bg-dark);
+}
