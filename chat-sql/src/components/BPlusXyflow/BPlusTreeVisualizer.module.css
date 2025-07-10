@@ -152,8 +152,8 @@
 .bplus-handle {
   width: 8px !important;
   height: 8px !important;
-  border: 2px solid #4caf50 !important;
-  background: #4caf50 !important;
+  border: 2px solid #9daf9e !important;
+  background: #a2c0a3 !important;
   border-radius: 50% !important;
 }
 
@@ -327,4 +327,67 @@
 
 .react-flow__edge {
   transition: stroke 0.3s ease-in-out, stroke-width 0.3s ease-in-out;
+}
+
+/* 自定义横向排列的操作按钮容器 */
+.bplus-custom-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: transparent !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+}
+
+.bplus-zoom-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  color: var(--secondary-text);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.6);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bplus-zoom-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  background: rgba(255,255,255,0.85);
+}
+
+.bplus-zoom-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.bplus-fit-button {
+  font-size: 14px;
+}
+
+.bplus-style-button svg,
+.bplus-reset-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 暗色模式适配 */
+.dark-mode .bplus-custom-controls {
+  background-color: transparent !important;
+}
+.dark-mode .bplus-zoom-button {
+  background: rgba(40,40,40,0.7);
+  color: #f0f0f0;
+}
+.dark-mode .bplus-zoom-button:hover {
+  background: rgba(40,40,40,0.95);
 }

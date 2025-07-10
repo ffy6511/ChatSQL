@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ReactFlow,
-  ReactFlowProvider,
   useNodesState,
   useEdgesState,
   Controls,
@@ -9,7 +8,8 @@ import {
   Background,
   Node,
   Edge,
-  BackgroundVariant
+  BackgroundVariant,
+  MarkerType
 } from '@xyflow/react';
 import {
   Box,
@@ -30,6 +30,10 @@ import BPlusLeafNode from './BPlusLeafNode';
 import SettingsPanel from './SettingsPanel';
 import styles from './BPlusTreeVisualizer.module.css';
 import '@xyflow/react/dist/style.css';
+import { message } from 'antd';
+import { RedoOutlined, ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined } from '@ant-design/icons';
+import { Panel, ReactFlowProvider, useReactFlow } from '@xyflow/react';
+import { Tooltip } from 'antd';
 
 // 自定义节点类型
 const nodeTypes = {
@@ -52,7 +56,6 @@ interface Settings {
 const layoutNodes = (nodes: Node<BPlusNodeData>[], edges: Edge[]): Node<BPlusNodeData>[] => {
   if (nodes.length === 0) return nodes;
 
-  // 简单的层级布局
   const levelGroups: { [level: number]: Node<BPlusNodeData>[] } = {};
   nodes.forEach(node => {
     const level = node.data.level;
@@ -61,49 +64,81 @@ const layoutNodes = (nodes: Node<BPlusNodeData>[], edges: Edge[]): Node<BPlusNod
   });
 
   const layoutedNodes: Node<BPlusNodeData>[] = [];
-  const levels = Object.keys(levelGroups).map(Number).sort((a, b) => b - a); // 从高到低排序
+  const levels = Object.keys(levelGroups).map(Number).sort((a, b) => b - a);
 
   levels.forEach((level, levelIndex) => {
     const nodesInLevel = levelGroups[level];
 
-    // --- 关键修复：按键值对同层节点排序 ---
     nodesInLevel.sort((a, b) => {
-      // 找到每个节点的第一个非空键值用于比较
       const firstKeyA = a.data.keys.find(k => k !== null) as number | undefined ?? Infinity;
       const firstKeyB = b.data.keys.find(k => k !== null) as number | undefined ?? Infinity;
       return firstKeyA - firstKeyB;
     });
-    // --- 修复结束 ---
 
-    let currentX = 0; // 当前X坐标
-    const nodeSpacing = 40; // 节点间距
+    // --- 核心布局逻辑重构 ---
+    const logicalSlotWidth = 200; // 为每个节点分配一个固定的“逻辑槽位”宽度
+    const levelWidth = nodesInLevel.length * logicalSlotWidth;
+    const startX = -levelWidth / 2;
 
-    // 计算总宽度以便居中
-    const totalWidth = nodesInLevel.reduce((sum, node, index) => {
-      const nodeWidth = (node.data.keys.filter(k => k !== null).length || 1) * 65 + 30;
-      return sum + nodeWidth + (index > 0 ? nodeSpacing : 0);
-    }, 0);
-
-    const startX = -totalWidth / 2; // 居中对齐
-    currentX = startX;
-
-    nodesInLevel.forEach((node, nodeIndex) => {
-      // 动态计算节点宽度
-      const nodeWidth = (node.data.keys.filter(k => k !== null).length || 1) * 65 + 30;
-      const x = currentX + nodeWidth / 2;
-      const y = levelIndex * 180; // 层级间距
+    nodesInLevel.forEach((node, index) => {
+      // 计算每个节点在自己的逻辑槽位中的中心X坐标
+      const x = startX + index * logicalSlotWidth + logicalSlotWidth / 2;
+      const y = levelIndex * 180;
 
       layoutedNodes.push({
         ...node,
         position: { x, y }
       });
-
-      // 更新下一个节点的X坐标
-      currentX += nodeWidth + nodeSpacing;
     });
+    // --- 重构结束 ---
   });
 
   return layoutedNodes;
+};
+
+// 自定义横向排列的操作按钮组件
+const CustomZoomControls: React.FC<{ onReset: () => void }> = ({ onReset }) => {
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  return (
+    <Panel position="bottom-right" className={styles['bplus-custom-controls']}>
+      <Tooltip title="放大" placement="top">
+        <button
+          className={styles['bplus-zoom-button']}
+          onClick={() => zoomIn({ duration: 800 })}
+          aria-label="放大"
+        >
+          <ZoomInOutlined />
+        </button>
+      </Tooltip>
+      <Tooltip title="缩小" placement="top">
+        <button
+          className={styles['bplus-zoom-button']}
+          onClick={() => zoomOut({ duration: 800 })}
+          aria-label="缩小"
+        >
+          <ZoomOutOutlined />
+        </button>
+      </Tooltip>
+      <Tooltip title="适应视图" placement="top">
+        <button
+          className={styles['bplus-zoom-button'] + ' ' + styles['bplus-fit-button']}
+          onClick={() => fitView({ duration: 800, padding: 0.2 })}
+          aria-label="适应视图"
+        >
+          <FullscreenOutlined />
+        </button>
+      </Tooltip>
+      <Tooltip title="重置为初始状态" placement="top">
+        <button
+          className={styles['bplus-zoom-button'] + ' ' + styles['bplus-reset-button']}
+          onClick={onReset}
+          aria-label="重置为初始状态"
+        >
+          <RedoOutlined />
+        </button>
+      </Tooltip>
+    </Panel>
+  );
 };
 
 const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
@@ -126,6 +161,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
   const [deleteValue, setDeleteValue] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState(false);
   const [error, setError] = useState<string>('');
+  const [messageApi, contextHolder] = message.useMessage();
 
   // 将B+树转换为React Flow数据
   const convertTreeToReactFlow = useMemo(() => {
@@ -144,7 +180,8 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
             pointers: [...node.pointers, ...Array(order - node.pointers.length).fill(null)],
             isLeaf: node.isLeaf,
             level: node.level,
-            order: order
+            order: order,
+            next: node.next // 添加next属性
           }
         });
 
@@ -157,8 +194,13 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
               target: pointerId,
               sourceHandle: node.isLeaf ? 'sibling' : `pointer-${index}`,
               targetHandle: 'top',
-              type: 'default',
-              animated: false
+              type: 'straight',
+              animated: false,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 15,
+                height: 15,
+              },
             });
           }
         });
@@ -171,9 +213,14 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
             target: node.next,
             sourceHandle: 'sibling',
             targetHandle: 'sibling-target',
-            type: 'default',
+            type: 'straight',
             animated: false,
-            style: { stroke: '#999', strokeDasharray: '5,5' }
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 15,
+              height: 15,
+            },
+            style: { stroke: '#999' }
           });
         }
       });
@@ -373,7 +420,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
   // 插入处理函数
   const handleInsert = async () => {
     if (!validateInput(insertValue)) {
-      setError('请输入有效的正整数');
+      messageApi.warning('请输入有效的正整数');
       return;
     }
 
@@ -383,7 +430,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
 
     // 前置校验：检查键是否已存在
     if (bPlusTree.find(key)) {
-      setError(`键 ${key} 已存在，无法插入。`);
+      messageApi.warning(`键 ${key} 已存在，无法插入。`);
       setIsAnimating(false);
       return;
     }
@@ -413,7 +460,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
       updateView();
       setInsertValue('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '插入失败');
+      messageApi.warning(err instanceof Error ? err.message : '插入失败');
     } finally {
       setIsAnimating(false);
     }
@@ -422,7 +469,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
   // 删除处理函数
   const handleDelete = async () => {
     if (!validateInput(deleteValue)) {
-      setError('请输入有效的正整数');
+      messageApi.warning('请输入有效的正整数');
       return;
     }
 
@@ -432,7 +479,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
 
     // 前置校验：检查键是否存在
     if (!bPlusTree.find(key)) {
-      setError(`键 ${key} 不存在，无法删除。`);
+      messageApi.warning(`键 ${key} 不存在，无法删除。`);
       setIsAnimating(false);
       return;
     }
@@ -462,10 +509,30 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
       updateView();
       setDeleteValue('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '删除失败');
+      messageApi.warning(err instanceof Error ? err.message : '删除失败');
     } finally {
       setIsAnimating(false);
     }
+  };
+
+  // 重新渲染（重置）到初始状态
+  const handleReset = () => {
+    // 重新生成初始树
+    bPlusTree.clear();
+    initialKeys.forEach(key => {
+      if (typeof key === 'number') {
+        const generator = bPlusTree.insert(key);
+        let result = generator.next();
+        while (!result.done) {
+          result = generator.next();
+        }
+      }
+    });
+    updateView();
+    setInsertValue('');
+    setDeleteValue('');
+    setError('');
+    messageApi.success('已重置为初始状态');
   };
 
   // 检测系统主题
@@ -482,104 +549,105 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
   }, []);
 
   return (
-    <div className={`${styles['bplus-visualizer']} ${isDarkMode ? styles['dark-mode'] : ''}`}>
-      {/* 操作面板 */}
-      <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
-        {/* 设置面板 */}
-        <SettingsPanel
-          settings={settings}
-          onSettingsChange={setSettings}
-        />
+    <ReactFlowProvider>
+      <div className={`${styles['bplus-visualizer']} ${isDarkMode ? styles['dark-mode'] : ''}`}>
+        {contextHolder}
+        {/* 操作面板 */}
+        <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
+          {/* 设置面板 */}
+          <SettingsPanel
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
 
-        <Paper elevation={1} sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            B+树操作
-          </Typography>
+          <Paper elevation={1} sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              B+树操作
+            </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
 
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* 插入操作 */}
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: '250px' }}>
-              <TextField
-                label="插入值"
-                value={insertValue}
-                onChange={(e) => setInsertValue(e.target.value)}
-                type="number"
-                size="small"
-                disabled={isAnimating}
-                slotProps={{
-                  htmlInput: { min: 1, step: 1 }
-                }}
-                sx={{ width: '120px' }}
-              />
-              <Button
-                variant="contained"
-                startIcon={isAnimating ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
-                onClick={handleInsert}
-                disabled={isAnimating || !insertValue}
-                size="small"
-              >
-                {isAnimating ? '插入中...' : '插入'}
-              </Button>
-            </Box>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* 插入操作 */}
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: '250px' }}>
+                <TextField
+                  label="插入值"
+                  value={insertValue}
+                  onChange={(e) => setInsertValue(e.target.value)}
+                  type="number"
+                  size="small"
+                  disabled={isAnimating}
+                  slotProps={{
+                    htmlInput: { min: 1, step: 1 }
+                  }}
+                  sx={{ width: '120px' }}
+                />
+                <Button
+                  variant="contained"
+                  startIcon={isAnimating ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
+                  onClick={handleInsert}
+                  disabled={isAnimating || !insertValue}
+                  size="small"
+                >
+                  {isAnimating ? '插入中...' : '插入'}
+                </Button>
+              </Box>
 
-            {/* 删除操作 */}
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: '250px' }}>
-              <TextField
-                label="删除值"
-                value={deleteValue}
-                onChange={(e) => setDeleteValue(e.target.value)}
-                type="number"
-                size="small"
-                disabled={isAnimating}
-                slotProps={{
-                  htmlInput: { min: 1, step: 1 }
-                }}
-                sx={{ width: '120px' }}
-              />
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={isAnimating ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon />}
-                onClick={handleDelete}
-                disabled={isAnimating || !deleteValue}
-                size="small"
-              >
-                {isAnimating ? '删除中...' : '删除'}
-              </Button>
-            </Box>
-          </Box>
-
-          {/* 当前键显示 */}
-          {bPlusTree.getAllKeys().length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                当前键 ({bPlusTree.getAllKeys().length}个):
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                {bPlusTree.getAllKeys().map(key => (
-                  <Chip
-                    key={key}
-                    label={key}
-                    size="small"
-                    variant="outlined"
-                    color="primary"
-                  />
-                ))}
+              {/* 删除操作 */}
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: '250px' }}>
+                <TextField
+                  label="删除值"
+                  value={deleteValue}
+                  onChange={(e) => setDeleteValue(e.target.value)}
+                  type="number"
+                  size="small"
+                  disabled={isAnimating}
+                  slotProps={{
+                    htmlInput: { min: 1, step: 1 }
+                  }}
+                  sx={{ width: '120px' }}
+                />
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={isAnimating ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon />}
+                  onClick={handleDelete}
+                  disabled={isAnimating || !deleteValue}
+                  size="small"
+                >
+                  {isAnimating ? '删除中...' : '删除'}
+                </Button>
               </Box>
             </Box>
-          )}
-        </Paper>
-      </Box>
 
-      {/* React Flow 画布 */}
-      <div className={styles['bplus-canvas-container']}>
-        <ReactFlowProvider>
+            {/* 当前键显示 */}
+            {bPlusTree.getAllKeys().length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  当前键 ({bPlusTree.getAllKeys().length}个):
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                  {bPlusTree.getAllKeys().map(key => (
+                    <Chip
+                      key={key}
+                      label={key}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+          </Paper>
+        </Box>
+
+        {/* React Flow 画布 */}
+        <div className={styles['bplus-canvas-container']}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -595,19 +663,14 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
             maxZoom={2}
             defaultViewport={{ x: 0, y: 0, zoom: 1 }}
           >
+            <CustomZoomControls onReset={handleReset} />
             <Controls
               className={styles['bplus-controls']}
-              showZoom={true}
-              showFitView={true}
+              showZoom={false}
+              showFitView={false}
               showInteractive={true}
             />
-            <MiniMap
-              className={styles['bplus-minimap']}
-              nodeColor={(node) => {
-                return node.type === 'bPlusLeafNode' ? '#fbe9e7' : '#e0f2f7';
-              }}
-              maskColor="rgba(0, 0, 0, 0.1)"
-            />
+            {/* MiniMap 已移除 */}
             <Background
               variant={BackgroundVariant.Dots}
               gap={20}
@@ -615,20 +678,20 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerProps> = ({
               className={styles['bplus-background']}
             />
           </ReactFlow>
-        </ReactFlowProvider>
-      </div>
+        </div>
 
-      <div className={styles['bplus-info-panel']}>
-        <div className={styles['bplus-tree-stats']}>
-          <h3>B+树统计信息</h3>
-          <p>阶数 (M): {order}</p>
-          <p>节点总数: {nodes.length}</p>
-          <p>叶子节点: {nodes.filter(n => n.data.isLeaf).length}</p>
-          <p>内部节点: {nodes.filter(n => !n.data.isLeaf).length}</p>
-          <p>键总数: {bPlusTree.getAllKeys().length}</p>
+        <div className={styles['bplus-info-panel']}>
+          <div className={styles['bplus-tree-stats']}>
+            <h3>B+树统计信息</h3>
+            <p>阶数 (M): {order}</p>
+            <p>节点总数: {nodes.length}</p>
+            <p>叶子节点: {nodes.filter(n => n.data.isLeaf).length}</p>
+            <p>内部节点: {nodes.filter(n => !n.data.isLeaf).length}</p>
+            <p>键总数: {bPlusTree.getAllKeys().length}</p>
+          </div>
         </div>
       </div>
-    </div>
+    </ReactFlowProvider>
   );
 };
 

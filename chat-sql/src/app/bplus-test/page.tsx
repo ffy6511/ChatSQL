@@ -21,10 +21,6 @@ const BPlusTestPage: React.FC = () => {
       </Paper>
       
       <Box sx={{ flex: 1, position: 'relative', m: 2, mt: 1 }}>
-        {/* 
-          2. 渲染核心可视化组件。
-          这个组���内部已经包含了所有插入、删除的输入框和逻辑。
-        */}
         <BPlusTreeVisualizer 
           initialKeys={initialKeys} 
           order={order} 

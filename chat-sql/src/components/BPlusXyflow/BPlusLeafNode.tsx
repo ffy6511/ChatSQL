@@ -2,18 +2,19 @@ import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import styles from './BPlusTreeVisualizer.module.css';
 
+// 1. 更新接口定义
 interface BPlusNodeData {
   keys: (number | string | null)[];
   pointers: (string | null)[];
   isLeaf: boolean;
   level: number;
+  next?: string | null; // <-- 已添加
   order: number;
 }
 
 const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;
-  const { keys, pointers, order } = nodeData;
-  const siblingPointer = pointers[pointers.length - 1]; // 最后一个指针是兄弟指针
+  const { keys, order } = nodeData;
 
   return (
     <div className={styles['bplus-leaf-node']}>
@@ -25,7 +26,7 @@ const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
         className={`${styles['bplus-handle']} ${styles['bplus-handle-target']}`}
       />
 
-      {/* 兄弟节点连接点 */}
+      {/* 兄弟节点连接点 (用于被指向) */}
       <Handle
         type="target"
         position={Position.Left}
@@ -51,8 +52,8 @@ const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
           </div>
         </div>
 
-        {/* 兄弟指针 */}
-        {siblingPointer && (
+        {/* 2. 使用正确的条件渲染兄弟指针Handle */}
+        {nodeData.next && (
           <Handle
             type="source"
             position={Position.Right}
