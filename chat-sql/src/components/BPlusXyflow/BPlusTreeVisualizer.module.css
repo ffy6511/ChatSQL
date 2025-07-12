@@ -23,6 +23,91 @@
   color: #f0f0f0;
 }
 
+/* 统计信息面板样式 */
+.bplus-stats-panel {
+  z-index: 1000;
+}
+
+.bplus-stats-panel .MuiPaper-root {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .bplus-stats-panel .MuiPaper-root {
+  background: rgba(42, 42, 42, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 操作面板样式 */
+.bplus-operations-panel {
+  z-index: 1000;
+}
+
+.bplus-operations-panel .MuiPaper-root {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .bplus-operations-panel .MuiPaper-root {
+  background: rgba(42, 42, 42, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 拖拽手柄样式 */
+.bplus-resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #d9d9d9;
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.bplus-resize-handle:hover {
+  background: #bfbfbf;
+}
+
+.bplus-resize-handle:active {
+  background: #999;
+}
+
+.dark-mode .bplus-resize-handle {
+  background: #404040;
+}
+
+.dark-mode .bplus-resize-handle:hover {
+  background: #595959;
+}
+
+.dark-mode .bplus-resize-handle:active {
+  background: #737373;
+}
+
+.bplus-resize-handle-indicator {
+  width: 40px;
+  height: 2px;
+  background: #999;
+  border-radius: 1px;
+  transition: background-color 0.2s ease;
+}
+
+.dark-mode .bplus-resize-handle-indicator {
+  background: #d9d9d9;
+}
+
 /* 内部节点样式 */
 .bplus-internal-node {
   background: #e0f2f7;
@@ -260,6 +345,19 @@
 
 .nodeRemoving {
   animation: nodeDisappear 0.4s ease-in;
+}
+
+.nodeOnPath {
+  box-shadow: 0 0 10px 2px #2196f3 !important;
+  border: 2.5px solid #2196f3 !important;
+  background: #e3f2fd !important;
+  z-index: 2;
+}
+
+.dark-mode .nodeOnPath {
+  box-shadow: 0 0 10px 2px #90caf9 !important;
+  border: 2.5px solid #90caf9 !important;
+  background: #263238 !important;
 }
 
 /* 动画关键帧 */

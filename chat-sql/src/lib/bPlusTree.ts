@@ -87,21 +87,68 @@ export class BPlusTree {
       return;
     }
 
-    // 找到要插入的叶子节点
-    const leafNode = yield* this.findLeafNode(key);
+    // 阶段1：查找阶段 - 完整执行findLeafNode生成器
+    const findGenerator = this.findLeafNode(key);
+    let findResult = findGenerator.next();
+
+    // 消费所有traverse步骤
+    while (!findResult.done) {
+      yield findResult.value; // yield traverse步骤
+      findResult = findGenerator.next();
+    }
+
+    // 获取查找结果：叶子节点
+    const leafNode = findResult.value;
 
     // 检查键是否已存在
     if (leafNode.keys.includes(key)) {
       throw new Error(`键 ${key} 已存在`);
     }
 
-    // 在叶子节点中插入键
+    // 阶段2：更新阶段 - 自底向上
+    // 1. 插入到叶子节点
     yield { type: 'insert_key', nodeId: leafNode.id, key };
     this.insertKeyIntoNode(leafNode, key);
 
-    // 检查是否需要分裂
-    if (leafNode.keys.length >= this.order) {
-      yield* this.splitLeafNode(leafNode);
+    // 2. 逐层向上处理分裂
+    let currentNode = leafNode;
+
+    while (currentNode.keys.length >= this.order) {
+      // 需要分裂当前节点
+      const splitResult = this.performSplit(currentNode);
+      yield {
+        type: 'split',
+        originalNodeId: currentNode.id,
+        newNodeId: splitResult.newNode.id,
+        promotedKey: splitResult.promotedKey
+      };
+
+      // 处理父节点
+      if (!currentNode.parent) {
+        // 根节点分裂，创建新根
+        const newRoot = this.createNode(false, currentNode.level + 1);
+        newRoot.keys.push(splitResult.promotedKey);
+        newRoot.pointers.push(currentNode.id, splitResult.newNode.id);
+        currentNode.parent = newRoot.id;
+        splitResult.newNode.parent = newRoot.id;
+        this.root = newRoot;
+        break;
+      } else {
+        // 向父节点插入提升的键
+        const parent = this.allNodes.get(currentNode.parent)!;
+        this.insertKeyIntoNode(parent, splitResult.promotedKey);
+
+        // 找到插入位置并插入指针
+        let insertIndex = 0;
+        while (insertIndex < parent.keys.length - 1 && splitResult.promotedKey > parent.keys[insertIndex]) {
+          insertIndex++;
+        }
+        parent.pointers.splice(insertIndex + 1, 0, splitResult.newNode.id);
+        splitResult.newNode.parent = parent.id;
+
+        // 继续向上检查父节点
+        currentNode = parent;
+      }
     }
   }
 
@@ -114,115 +161,61 @@ export class BPlusTree {
     node.keys.splice(insertIndex, 0, key);
   }
 
-  // 分裂叶子节点
-  private *splitLeafNode(node: BPlusTreeNode): Generator<AnimationStep, void, unknown> {
-    const mid = Math.ceil(node.keys.length / 2);
-    const newNode = this.createNode(true, node.level);
-    
-    // 分配键
-    newNode.keys = node.keys.splice(mid);
-    
-    // 更新兄弟指针
-    newNode.next = node.next;
-    node.next = newNode.id;
-    
-    // 提升的键是新节点的第一个键
-    const promotedKey = newNode.keys[0];
-    
-    yield { 
-      type: 'split', 
-      originalNodeId: node.id, 
-      newNodeId: newNode.id, 
-      promotedKey 
-    };
+  // 获取从根到指定节点的路径
+  private getPathToNode(nodeId: string): BPlusTreeNode[] {
+    const path: BPlusTreeNode[] = [];
+    let current = this.allNodes.get(nodeId);
 
-    // 如果是根节点，创建新的根节点
-    if (!node.parent) {
-      const newRoot = this.createNode(false, node.level + 1);
-      newRoot.keys.push(promotedKey);
-      newRoot.pointers.push(node.id, newNode.id);
-      
-      node.parent = newRoot.id;
-      newNode.parent = newRoot.id;
-      this.root = newRoot;
-    } else {
-      // 向父节点插入提升的键
-      const parent = this.allNodes.get(node.parent)!;
-      newNode.parent = node.parent;
-      yield* this.insertIntoInternalNode(parent, promotedKey, newNode.id);
-    }
-  }
+    if (!current) return path;
 
-  // 向内部节点插入键
-  private *insertIntoInternalNode(
-    node: BPlusTreeNode, 
-    key: number, 
-    rightChildId: string
-  ): Generator<AnimationStep, void, unknown> {
-    yield { type: 'insert_key', nodeId: node.id, key };
-    
-    // 找到插入位置
-    let insertIndex = 0;
-    while (insertIndex < node.keys.length && node.keys[insertIndex] < key) {
-      insertIndex++;
-    }
-    
-    // 插入键和指针
-    node.keys.splice(insertIndex, 0, key);
-    node.pointers.splice(insertIndex + 1, 0, rightChildId);
-
-    // 检查是否需要分裂
-    if (node.keys.length >= this.order) {
-      yield* this.splitInternalNode(node);
-    }
-  }
-
-  // 分裂内部节点
-  private *splitInternalNode(node: BPlusTreeNode): Generator<AnimationStep, void, unknown> {
-    const mid = Math.floor(node.keys.length / 2);
-    const newNode = this.createNode(false, node.level);
-    
-    // 提升中间键
-    const promotedKey = node.keys[mid];
-    
-    // 分配键和指针
-    newNode.keys = node.keys.splice(mid + 1);
-    newNode.pointers = node.pointers.splice(mid + 1);
-    node.keys.splice(mid, 1); // 移除提升的键
-    
-    // 更新子节点的父指针
-    newNode.pointers.forEach(pointerId => {
-      if (pointerId) {
-        const child = this.allNodes.get(pointerId);
-        if (child) {
-          child.parent = newNode.id;
-        }
+    // 从叶子节点向上构建路径
+    while (current) {
+      path.unshift(current);
+      if (current.parent) {
+        current = this.allNodes.get(current.parent);
+      } else {
+        break;
       }
-    });
-    
-    yield { 
-      type: 'split', 
-      originalNodeId: node.id, 
-      newNodeId: newNode.id, 
-      promotedKey 
-    };
+    }
 
-    // 如果是根节点，创建新的根节点
-    if (!node.parent) {
-      const newRoot = this.createNode(false, node.level + 1);
-      newRoot.keys.push(promotedKey);
-      newRoot.pointers.push(node.id, newNode.id);
-      
-      node.parent = newRoot.id;
-      newNode.parent = newRoot.id;
-      this.root = newRoot;
-    } else {
-      // 向父节点插入提升的键
-      const parent = this.allNodes.get(node.parent)!;
+    return path;
+  }
+
+  // 执行节点分裂操作
+  private performSplit(node: BPlusTreeNode): { newNode: BPlusTreeNode; promotedKey: number } {
+    if (node.isLeaf) {
+      // 叶子节点分裂
+      const mid = Math.ceil(node.keys.length / 2);
+      const newNode = this.createNode(true, node.level);
+      newNode.keys = node.keys.splice(mid);
+      newNode.next = node.next;
+      node.next = newNode.id;
       newNode.parent = node.parent;
-      yield* this.insertIntoInternalNode(parent, promotedKey, newNode.id);
+      const promotedKey = newNode.keys[0];
+      return { newNode, promotedKey };
+    } else {
+      // 内部节点分裂
+      const mid = Math.floor(node.keys.length / 2);
+      const newNode = this.createNode(false, node.level);
+      const promotedKey = node.keys[mid];
+      newNode.keys = node.keys.splice(mid + 1);
+      newNode.pointers = node.pointers.splice(mid + 1);
+      node.keys.splice(mid, 1); // 移除提升的键
+      newNode.parent = node.parent;
+
+      // 更新子节点的父指针
+      newNode.pointers.forEach(pointerId => {
+        if (pointerId) {
+          const child = this.allNodes.get(pointerId);
+          if (child) child.parent = newNode.id;
+        }
+      });
+
+      return { newNode, promotedKey };
     }
   }
+
+
 
   // 删除键值的生成器函数
   public *delete(key: number): Generator<AnimationStep, void, unknown> {
@@ -230,8 +223,18 @@ export class BPlusTree {
       throw new Error('树为空');
     }
 
-    // 找到包含键的叶子节点
-    const leafNode = yield* this.findLeafNode(key);
+    // 阶段1：查找阶段 - 完整执行findLeafNode生成器
+    const findGenerator = this.findLeafNode(key);
+    let findResult = findGenerator.next();
+
+    // 消费所有traverse步骤
+    while (!findResult.done) {
+      yield findResult.value; // yield traverse步骤
+      findResult = findGenerator.next();
+    }
+
+    // 获取查找结果：叶子节点
+    const leafNode = findResult.value;
 
     // 检查键是否存在
     const keyIndex = leafNode.keys.indexOf(key);
@@ -239,25 +242,203 @@ export class BPlusTree {
       throw new Error(`键 ${key} 不存在`);
     }
 
-    // 记录是否删除的是第一个键
-    const isFirstKey = keyIndex === 0;
-
-    // 从叶子节点删除键
+    // 阶段2：更新阶段 - 自底向上
+    // 1. 删除叶子节点的键
     yield { type: 'delete_key', nodeId: leafNode.id, key };
     leafNode.keys.splice(keyIndex, 1);
 
-    // 如果删除的是第一个键且节点还有其他键，需要更新父节点索引
-    if (isFirstKey && leafNode.keys.length > 0 && leafNode.parent) {
+    // 2. 如果删除的是第一个键且节点还有其他键，需要更新父节点索引
+    if (leafNode.keys.length > 0 && leafNode.parent && keyIndex === 0) {
       const newFirstKey = leafNode.keys[0];
       this.updateParentIndexKey(leafNode.id, newFirstKey);
       yield { type: 'update_parent', nodeId: leafNode.parent, newKey: newFirstKey };
     }
 
-    // 检查是否需要重新平衡
-    const minKeys = Math.ceil((this.order - 1) / 2);
-    if (leafNode.keys.length < minKeys && leafNode !== this.root) {
-      yield* this.rebalanceAfterDeletion(leafNode);
+    // 3. 逐层向上处理重平衡
+    let currentNode = leafNode;
+
+    while (currentNode !== this.root) {
+      const minKeys = Math.ceil((this.order - 1) / 2);
+
+      if (currentNode.keys.length >= minKeys) {
+        // 当前节点键数足够，无需重平衡
+        break;
+      }
+
+      // 需要重平衡
+      const parent = this.allNodes.get(currentNode.parent!)!;
+      const nodeIndex = parent.pointers.indexOf(currentNode.id);
+
+      // 尝试从兄弟节点借键
+      const borrowResult = this.tryBorrowFromSibling(currentNode, parent, nodeIndex);
+      if (borrowResult.success) {
+        yield* borrowResult.steps;
+        break; // 借键成功，无需继续向上
+      }
+
+      // 无法借键，需要合并
+      const mergeResult = this.performMerge(currentNode, parent, nodeIndex);
+      yield* mergeResult.steps;
+
+      // 继续向上检查父节点
+      currentNode = parent;
     }
+
+    // 检查根节点是否需要调整
+    if (this.root && this.root.keys.length === 0 && this.root.pointers.length > 0) {
+      const newRoot = this.allNodes.get(this.root.pointers[0]!)!;
+      newRoot.parent = null;
+      this.allNodes.delete(this.root.id);
+      this.root = newRoot;
+    }
+  }
+
+  // 尝试从兄弟节点借键
+  private tryBorrowFromSibling(node: BPlusTreeNode, parent: BPlusTreeNode, nodeIndex: number):
+    { success: boolean; steps: Generator<AnimationStep, void, unknown> } {
+    const minKeys = Math.ceil((this.order - 1) / 2);
+
+    // 尝试从右兄弟借键
+    const rightSiblingId = parent.pointers[nodeIndex + 1];
+    if (rightSiblingId) {
+      const rightSibling = this.allNodes.get(rightSiblingId)!;
+      if (rightSibling.keys.length > minKeys) {
+        return {
+          success: true,
+          steps: this.borrowFromRightSibling(node, rightSibling, parent, nodeIndex)
+        };
+      }
+    }
+
+    // 尝试从左兄弟借键
+    const leftSiblingId = parent.pointers[nodeIndex - 1];
+    if (leftSiblingId) {
+      const leftSibling = this.allNodes.get(leftSiblingId)!;
+      if (leftSibling.keys.length > minKeys) {
+        return {
+          success: true,
+          steps: this.borrowFromLeftSibling(node, leftSibling, parent, nodeIndex)
+        };
+      }
+    }
+
+    return { success: false, steps: (function*(){})() };
+  }
+
+  // 从右兄弟借键
+  private *borrowFromRightSibling(node: BPlusTreeNode, rightSibling: BPlusTreeNode,
+    parent: BPlusTreeNode, nodeIndex: number): Generator<AnimationStep, void, unknown> {
+    const keyToMove = rightSibling.keys.shift()!;
+    yield { type: 'redistribute', fromNodeId: rightSibling.id, toNodeId: node.id, key: keyToMove };
+
+    if (node.isLeaf) {
+      node.keys.push(keyToMove);
+      parent.keys[nodeIndex] = rightSibling.keys[0];
+    } else {
+      const pointerToMove = rightSibling.pointers.shift()!;
+      node.keys.push(parent.keys[nodeIndex]);
+      parent.keys[nodeIndex] = keyToMove;
+      node.pointers.push(pointerToMove);
+      const child = this.allNodes.get(pointerToMove);
+      if (child) child.parent = node.id;
+    }
+
+    yield { type: 'update_parent', nodeId: parent.id, newKey: parent.keys[nodeIndex] };
+  }
+
+  // 从左兄弟借键
+  private *borrowFromLeftSibling(node: BPlusTreeNode, leftSibling: BPlusTreeNode,
+    parent: BPlusTreeNode, nodeIndex: number): Generator<AnimationStep, void, unknown> {
+    const keyToMove = leftSibling.keys.pop()!;
+    yield { type: 'redistribute', fromNodeId: leftSibling.id, toNodeId: node.id, key: keyToMove };
+
+    if (node.isLeaf) {
+      node.keys.unshift(keyToMove);
+      parent.keys[nodeIndex - 1] = node.keys[0];
+    } else {
+      const pointerToMove = leftSibling.pointers.pop()!;
+      node.keys.unshift(parent.keys[nodeIndex - 1]);
+      parent.keys[nodeIndex - 1] = keyToMove;
+      node.pointers.unshift(pointerToMove);
+      const child = this.allNodes.get(pointerToMove);
+      if (child) child.parent = node.id;
+    }
+
+    yield { type: 'update_parent', nodeId: parent.id, newKey: parent.keys[nodeIndex - 1] };
+  }
+
+  // 执行合并操作
+  private performMerge(node: BPlusTreeNode, parent: BPlusTreeNode, nodeIndex: number):
+    { steps: Generator<AnimationStep, void, unknown> } {
+    // 优先与右兄弟合并
+    const rightSiblingId = parent.pointers[nodeIndex + 1];
+    if (rightSiblingId) {
+      const rightSibling = this.allNodes.get(rightSiblingId)!;
+      return { steps: this.mergeWithRightSibling(node, rightSibling, parent, nodeIndex) };
+    }
+
+    // 与左兄弟合并
+    const leftSiblingId = parent.pointers[nodeIndex - 1];
+    if (leftSiblingId) {
+      const leftSibling = this.allNodes.get(leftSiblingId)!;
+      return { steps: this.mergeWithLeftSibling(node, leftSibling, parent, nodeIndex) };
+    }
+
+    return { steps: (function*(){})() };
+  }
+
+  // 与右兄弟合并
+  private *mergeWithRightSibling(node: BPlusTreeNode, rightSibling: BPlusTreeNode,
+    parent: BPlusTreeNode, nodeIndex: number): Generator<AnimationStep, void, unknown> {
+    yield { type: 'merge', nodeId1: node.id, nodeId2: rightSibling.id, resultNodeId: node.id };
+
+    if (node.isLeaf) {
+      node.keys.push(...rightSibling.keys);
+      node.next = rightSibling.next;
+    } else {
+      node.keys.push(parent.keys[nodeIndex]);
+      node.keys.push(...rightSibling.keys);
+      node.pointers.push(...rightSibling.pointers);
+
+      // 更新子节点的父指针
+      rightSibling.pointers.forEach(pointerId => {
+        if (pointerId) {
+          const child = this.allNodes.get(pointerId);
+          if (child) child.parent = node.id;
+        }
+      });
+    }
+
+    parent.keys.splice(nodeIndex, 1);
+    parent.pointers.splice(nodeIndex + 1, 1);
+    this.allNodes.delete(rightSibling.id);
+  }
+
+  // 与左兄弟合并
+  private *mergeWithLeftSibling(node: BPlusTreeNode, leftSibling: BPlusTreeNode,
+    parent: BPlusTreeNode, nodeIndex: number): Generator<AnimationStep, void, unknown> {
+    yield { type: 'merge', nodeId1: leftSibling.id, nodeId2: node.id, resultNodeId: leftSibling.id };
+
+    if (node.isLeaf) {
+      leftSibling.keys.push(...node.keys);
+      leftSibling.next = node.next;
+    } else {
+      leftSibling.keys.push(parent.keys[nodeIndex - 1]);
+      leftSibling.keys.push(...node.keys);
+      leftSibling.pointers.push(...node.pointers);
+
+      // 更新子节点的父指针
+      node.pointers.forEach(pointerId => {
+        if (pointerId) {
+          const child = this.allNodes.get(pointerId);
+          if (child) child.parent = leftSibling.id;
+        }
+      });
+    }
+
+    parent.keys.splice(nodeIndex - 1, 1);
+    parent.pointers.splice(nodeIndex, 1);
+    this.allNodes.delete(node.id);
   }
 
   // 更新父节点中指向该节点的索引键
@@ -285,156 +466,11 @@ export class BPlusTree {
     }
   }
 
-  // 删除后重新平衡
-  private *rebalanceAfterDeletion(node: BPlusTreeNode): Generator<AnimationStep, void, unknown> {
-    // 如果是叶子节点且还有键，检查是否需要更新父节点索引
-    if (node.isLeaf && node.keys.length > 0 && node.parent) {
-      const newFirstKey = node.keys[0];
-      this.updateParentIndexKey(node.id, newFirstKey);
-      yield { type: 'update_parent', nodeId: node.parent, newKey: newFirstKey };
-    }
 
-    if (!node.parent) {
-      // 如果是根节点且变空，则删除
-      if (node.keys.length === 0 && node.pointers.length > 0) {
-        this.root = this.allNodes.get(node.pointers[0]!)!;
-        this.root.parent = null;
-        this.allNodes.delete(node.id);
-      }
-      return;
-    }
 
-    const parent = this.allNodes.get(node.parent)!;
-    const nodeIndex = parent.pointers.indexOf(node.id);
 
-    // 尝试从右兄弟借
-    const rightSiblingId = parent.pointers[nodeIndex + 1];
-    if (rightSiblingId) {
-      const rightSibling = this.allNodes.get(rightSiblingId)!;
-      if (rightSibling.keys.length > Math.ceil((this.order - 1) / 2)) {
-        yield* this.redistributeFromRight(node, rightSibling, parent, nodeIndex);
-        return;
-      }
-    }
 
-    // 尝试从左兄弟借
-    const leftSiblingId = parent.pointers[nodeIndex - 1];
-    if (leftSiblingId) {
-      const leftSibling = this.allNodes.get(leftSiblingId)!;
-      if (leftSibling.keys.length > Math.ceil((this.order - 1) / 2)) {
-        yield* this.redistributeFromLeft(node, leftSibling, parent, nodeIndex);
-        return;
-      }
-    }
 
-    // 如果无法借用，则合并
-    if (rightSiblingId) {
-      const rightSibling = this.allNodes.get(rightSiblingId)!;
-      yield* this.mergeNodes(node, rightSibling, parent, nodeIndex);
-    } else if (leftSiblingId) {
-      const leftSibling = this.allNodes.get(leftSiblingId)!;
-      // 合并左兄弟时，将左兄弟合并到当前节点，然后删除左兄弟
-      yield* this.mergeNodes(leftSibling, node, parent, nodeIndex - 1);
-    }
-  }
-
-  // 从右兄弟借键
-  private *redistributeFromRight(
-    node: BPlusTreeNode,
-    rightSibling: BPlusTreeNode,
-    parent: BPlusTreeNode,
-    parentIndex: number
-  ): Generator<AnimationStep, void, unknown> {
-    const keyToMove = rightSibling.keys.shift()!;
-    yield { type: 'redistribute', fromNodeId: rightSibling.id, toNodeId: node.id, key: keyToMove };
-    
-    if (node.isLeaf) {
-      node.keys.push(keyToMove);
-      parent.keys[parentIndex] = rightSibling.keys[0];
-    } else {
-      const pointerToMove = rightSibling.pointers.shift()!;
-      node.keys.push(parent.keys[parentIndex]);
-      parent.keys[parentIndex] = keyToMove;
-      node.pointers.push(pointerToMove);
-      const child = this.allNodes.get(pointerToMove);
-      if (child) child.parent = node.id;
-    }
-    yield { type: 'update_parent', nodeId: parent.id, newKey: parent.keys[parentIndex] };
-  }
-
-  // 从左兄弟借键
-  private *redistributeFromLeft(
-    node: BPlusTreeNode,
-    leftSibling: BPlusTreeNode,
-    parent: BPlusTreeNode,
-    parentIndex: number
-  ): Generator<AnimationStep, void, unknown> {
-    const keyToMove = leftSibling.keys.pop()!;
-    yield { type: 'redistribute', fromNodeId: leftSibling.id, toNodeId: node.id, key: keyToMove };
-
-    if (node.isLeaf) {
-      node.keys.unshift(keyToMove);
-      parent.keys[parentIndex - 1] = node.keys[0];
-    } else {
-      const pointerToMove = leftSibling.pointers.pop()!;
-      node.keys.unshift(parent.keys[parentIndex - 1]);
-      parent.keys[parentIndex - 1] = keyToMove;
-      node.pointers.unshift(pointerToMove);
-      const child = this.allNodes.get(pointerToMove);
-      if (child) child.parent = node.id;
-    }
-    yield { type: 'update_parent', nodeId: parent.id, newKey: parent.keys[parentIndex - 1] };
-  }
-
-  // 合并节点
-  private *mergeNodes(
-    leftNode: BPlusTreeNode,
-    rightNode: BPlusTreeNode,
-    parent: BPlusTreeNode,
-    parentKeyIndex: number
-  ): Generator<AnimationStep, void, unknown> {
-    yield { type: 'merge', nodeId1: leftNode.id, nodeId2: rightNode.id, resultNodeId: leftNode.id };
-
-    // 如果不是叶子节点，需要把父节点的key���拉下来
-    if (!leftNode.isLeaf) {
-      leftNode.keys.push(parent.keys[parentKeyIndex]);
-    }
-
-    // 合并键和指针
-    leftNode.keys.push(...rightNode.keys);
-    leftNode.pointers.push(...rightNode.pointers);
-
-    // 更新子节点的父指针
-    rightNode.pointers.forEach(pointerId => {
-      if (pointerId) {
-        const child = this.allNodes.get(pointerId);
-        if (child) child.parent = leftNode.id;
-      }
-    });
-
-    // 更新叶子节点的兄弟指针
-    if (leftNode.isLeaf) {
-      leftNode.next = rightNode.next;
-    }
-
-    // 从父节点删除key和指针
-    parent.keys.splice(parentKeyIndex, 1);
-    parent.pointers.splice(parentKeyIndex + 1, 1);
-
-    // 删除右侧节点
-    this.allNodes.delete(rightNode.id);
-
-    // 递归检查父节点是否需要重新平衡
-    const minKeys = Math.ceil((this.order - 1) / 2);
-    if (parent.keys.length < minKeys && parent !== this.root) {
-      yield* this.rebalanceAfterDeletion(parent);
-    } else if (parent === this.root && parent.keys.length === 0) {
-      // 如果根节点变空，更新根节点
-      this.root = leftNode;
-      leftNode.parent = null;
-      this.allNodes.delete(parent.id);
-    }
-  }
 
   // 获取所有节点（用于可视化）
   public getAllNodes(): BPlusTreeNode[] {

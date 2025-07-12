@@ -6,7 +6,8 @@ import {
   Switch,
   Slider,
   FormControlLabel,
-  Divider
+  Divider,
+  TextField
 } from '@mui/material';
 import { Settings as SettingsIcon } from '@mui/icons-material';
 
@@ -14,6 +15,7 @@ import { Settings as SettingsIcon } from '@mui/icons-material';
 interface Settings {
   isAnimationEnabled: boolean;
   animationSpeed: number; // 毫秒
+  order: number; // 阶数M
 }
 
 // 组件Props接口
@@ -42,6 +44,17 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     });
   };
 
+  // 处理阶数变化
+  const handleOrderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newOrder = parseInt(event.target.value);
+    if (newOrder >= 3 && newOrder <= 10) { // 限制阶数范围
+      onSettingsChange({
+        ...settings,
+        order: newOrder
+      });
+    }
+  };
+
   // 速度标记
   const speedMarks = [
     { value: 100, label: '快' },
@@ -55,27 +68,48 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <SettingsIcon sx={{ mr: 1, color: 'text.secondary' }} />
         <Typography variant="h6">
-          动画设置
+          设置
         </Typography>
       </Box>
       
       <Divider sx={{ mb: 2 }} />
       
-      {/* 动画开关 */}
-      <Box sx={{ mb: 3 }}>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={settings.isAnimationEnabled}
-              onChange={handleAnimationToggle}
-              color="primary"
-            />
-          }
-          label="开启动画"
-        />
-        <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
-          {settings.isAnimationEnabled ? '动画模式：逐步显示操作过程' : '静态模式：直接显示最终结果'}
-        </Typography>
+      {/* 动画开关和阶数设置 - 水平排列 */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, mb: 3 }}>
+        {/* 动画开关 */}
+        <Box>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={settings.isAnimationEnabled}
+                onChange={handleAnimationToggle}
+                color="primary"
+              />
+            }
+            label="开启动画"
+          />
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
+            {settings.isAnimationEnabled ? '动画模式：逐步显示操作过程' : '静态模式：直接显示最终结果'}
+          </Typography>
+        </Box>
+
+        {/* 阶数设置 */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body1">
+            B+树阶数 (M):
+          </Typography>
+          <TextField
+            type="number"
+            value={settings.order}
+            onChange={handleOrderChange}
+            size="small"
+            inputProps={{ min: 3, max: 10, step: 1 }}
+            sx={{ width: '80px' }}
+          />
+          <Typography variant="body2" color="text.secondary">
+            (3-10)
+          </Typography>
+        </Box>
       </Box>
       
       {/* 动画速度滑块 */}
