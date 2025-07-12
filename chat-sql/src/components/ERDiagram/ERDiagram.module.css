@@ -1,0 +1,273 @@
+/* ER图主容器样式 */
+.erDiagram {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #f8f4f4;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 自定义控制面板 - 参考DatabaseFlow样式 */
+.customControls {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: transparent !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.controlButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  color: var(--secondary-text, #666);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--card-bg, white);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.controlButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.controlButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.fitButton {
+  font-size: 14px;
+}
+
+.styleButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 信息面板 */
+.infoPanel {
+  z-index: 10;
+}
+
+.infoButton {
+  background: white !important;
+  border: 1px solid #e0e0e0 !important;
+  color: #666 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.infoButton:hover {
+  background: #f5f5f5 !important;
+  border-color: #2196f3 !important;
+  color: #2196f3 !important;
+}
+
+.infoContent {
+  margin-top: 8px;
+  padding: 16px;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+.infoTitle {
+  color: #1976d2;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.infoDescription {
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.version {
+  color: #999;
+  display: block;
+  margin-top: 8px;
+}
+
+/* 背景样式 */
+.background {
+  background-color: #f8f4f4;
+  opacity: 0.5;
+}
+
+/* React Flow 样式覆盖 - 参考DatabaseFlow */
+.erDiagram .react-flow__edge-path {
+  stroke: #ff9900;
+  stroke-width: 2;
+}
+
+.erDiagram .react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff7700;
+  stroke-width: 3;
+}
+
+.erDiagram .react-flow__edge-label {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.erDiagram .react-flow__edge-labelBg {
+  fill: white;
+  fill-opacity: 0.9;
+}
+
+/* 连接线动画 */
+.erDiagram .react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* 选择框样式 */
+.erDiagram .react-flow__selection {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid #2196f3;
+}
+
+/* 节点拖拽样式 */
+.erDiagram .react-flow__node.dragging {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* 暗色主题支持 */
+[data-theme="dark"] .erDiagram {
+  background: var(--bg-color);
+}
+
+[data-theme="dark"] .controlButton {
+  background: var(--card-bg) !important;
+  color: var(--secondary-text) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .controlButton:hover {
+  background: var(--hover-bg) !important;
+  border-color: #ff9900 !important;
+  color: #ff9900 !important;
+}
+
+[data-theme="dark"] .infoButton {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--secondary-text) !important;
+}
+
+[data-theme="dark"] .infoButton:hover {
+  background: var(--hover-bg) !important;
+  border-color: #ff9900 !important;
+  color: #ff9900 !important;
+}
+
+[data-theme="dark"] .infoContent {
+  background: var(--card-bg) !important;
+  color: var(--primary-text) !important;
+}
+
+[data-theme="dark"] .infoTitle {
+  color: #ff9900;
+}
+
+[data-theme="dark"] .infoDescription {
+  color: var(--secondary-text);
+}
+
+[data-theme="dark"] .background {
+  background-color: var(--bg-color);
+}
+
+[data-theme="dark"] .react-flow__edge-path {
+  stroke: #ffb74d;
+}
+
+[data-theme="dark"] .react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ff9800;
+}
+
+[data-theme="dark"] .react-flow__edge-label {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: #ff9900;
+}
+
+[data-theme="dark"] .react-flow__edge-labelBg {
+  fill: var(--card-bg);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .customControls {
+    padding: 6px;
+    gap: 2px;
+  }
+  
+  .infoContent {
+    min-width: 200px;
+    max-width: 250px;
+    padding: 12px;
+  }
+  
+  .infoTitle {
+    font-size: 1rem;
+  }
+  
+  .infoDescription {
+    font-size: 0.875rem;
+  }
+  
+  .statsContainer {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .infoContent {
+    min-width: 180px;
+    max-width: 220px;
+    padding: 10px;
+  }
+  
+  .customControls {
+    padding: 4px;
+  }
+  
+  .controlButton,
+  .infoButton {
+    min-width: 32px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
