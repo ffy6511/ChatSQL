@@ -1,0 +1,124 @@
+.inspectorContainer {
+  height: 100%;
+  background: var(--card-bg);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.viewTitle {
+  color: var(--primary-text);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.componentsView,
+.entitiesView,
+.relationshipsView {
+  height: 100%;
+}
+
+.componentGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.componentCard {
+  cursor: grab;
+  transition: all 0.3s ease;
+  border: 1px solid var(--card-border);
+}
+
+.componentCard:hover {
+  border-color: #1677ff;
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
+}
+
+.componentCard:active {
+  cursor: grabbing;
+}
+
+.componentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+}
+
+.componentIcon {
+  font-size: 20px;
+  color: var(--icon-color);
+  flex-shrink: 0;
+}
+
+.componentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.componentDescription {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+}
+
+.entityItem,
+.relationshipItem {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.entityItem:last-child,
+.relationshipItem:last-child {
+  border-bottom: none;
+}
+
+.entityInfo,
+.relationshipInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.entityDescription,
+.relationshipDescription {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+}
+
+.instructionText {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  border-left: 3px solid #1677ff;
+}
+
+.instructionText p {
+  color: var(--secondary-text);
+  font-size: 12px;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+/* 暗色主题支持 */
+[data-theme="dark"] .componentCard {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .componentCard:hover {
+  border-color: #1677ff;
+  background: rgba(22, 119, 255, 0.05);
+}
+
+[data-theme="dark"] .instructionText {
+  background: rgba(255, 255, 255, 0.05);
+}

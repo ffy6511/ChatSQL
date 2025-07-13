@@ -1,0 +1,52 @@
+.pageContainer {
+  height: calc(100vh - var(--navbar-height));
+  margin-top: var(--navbar-height);
+  background: var(--background);
+  overflow: hidden;
+}
+
+.contentContainer {
+  height: 100%;
+  width: 100%;
+}
+
+.mainSplitter {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.sidebarPanel {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.canvasPanel {
+  background: #fafafa;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inspectorPanel {
+  background: var(--card-bg);
+  border-left: 1px solid var(--card-border);
+  min-width: 200px;
+}
+
+/* 暗色主题支持 */
+[data-theme="dark"] .canvasPanel {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .sidebarPanel {
+  background: var(--sidebar-bg);
+  border-right-color: var(--sidebar-border);
+}
+
+[data-theme="dark"] .inspectorPanel {
+  background: var(--card-bg);
+  border-left-color: var(--card-border);
+}

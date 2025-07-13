@@ -84,8 +84,8 @@ const ConstraintContent: React.FC<{ description?: string; entityName: string }> 
 };
 
 // 实体节点组件
-const EntityNode: React.FC<NodeProps<EntityNodeData>> = ({ data, selected }) => {
-  const { label, description, attributes } = data;
+const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
+  const { label, description, attributes } = data as EntityNodeData;
   const headerColorRef = useRef<string | null>(null);
 
   if (headerColorRef.current === null) {

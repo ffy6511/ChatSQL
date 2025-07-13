@@ -202,7 +202,7 @@ export default function ERDiagramTestPage() {
         </Typography>
         <Grid container spacing={3}>
           {examples.map((example) => (
-            <Grid item xs={12} md={4} key={example.id}>
+            <Grid size={{ xs: 12, md: 4 }} key={example.id}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -270,7 +270,6 @@ export default function ERDiagramTestPage() {
           <ERDiagram
             key={selectedExample} // 强制重新挂载组件
             data={currentData}
-            showMiniMap={true}
             showControls={true}
             showBackground={true}
             onNodeClick={(node) => {
@@ -289,7 +288,7 @@ export default function ERDiagramTestPage() {
           使用说明
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" gutterBottom color="primary">
               功能特性
             </Typography>
@@ -302,7 +301,7 @@ export default function ERDiagramTestPage() {
               <li>响应式设计</li>
             </ul>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" gutterBottom color="primary">
               操作指南
             </Typography>

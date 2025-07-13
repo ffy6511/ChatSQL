@@ -23,6 +23,45 @@
   align-items: center;
 }
 
+.navTabs {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--card-border);
+}
+
+.tabButton {
+  height: 32px !important;
+  padding: 0 16px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  color: var(--secondary-text) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.tabButton:hover {
+  background: var(--button-hover) !important;
+  color: var(--primary-text) !important;
+}
+
+.activeTab {
+  background: #1677ff !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(22, 119, 255, 0.3) !important;
+}
+
+.activeTab:hover {
+  background: #4096ff !important;
+  color: white !important;
+}
+
 .rightSection {
   flex: 0 0 auto;
   display: flex;
@@ -72,4 +111,18 @@
 
 [data-theme="dark"] .navButton:hover {
   color: var(--icon-color-hover) !important;
+}
+
+[data-theme="dark"] .navTabs {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .tabButton {
+  color: var(--secondary-text) !important;
+}
+
+[data-theme="dark"] .tabButton:hover {
+  background: var(--button-hover) !important;
+  color: var(--primary-text) !important;
 }

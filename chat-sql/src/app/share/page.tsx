@@ -32,7 +32,7 @@ const ImportHandler: React.FC = () => {
   useEffect(() => {
     const importSharedData = async () => {
       try {
-        const sharedData = searchParams.get('data');
+        const sharedData = searchParams?.get('data');
         if (!sharedData) {
           messageApi.error('无效的分享链接');
           return;

@@ -32,8 +32,8 @@ const RelationTooltipContent: React.FC<{ description?: string; attributes?: Diam
 );
 
 // 菱形节点组件
-const DiamondNode: React.FC<NodeProps<DiamondNodeData>> = ({ data, selected }) => {
-  const { label, description, attributes } = data;
+const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
+  const { label, description, attributes } = data as DiamondNodeData;
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   
