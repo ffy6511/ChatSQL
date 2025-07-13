@@ -48,7 +48,7 @@ const businessERData: ERDiagramData = {
         { id: "attr_order_date", name: "订单日期", dataType: "DATE", isRequired: true },
         { id: "attr_order_total", name: "订单总额", dataType: "DECIMAL(10,2)", isRequired: true },
         { id: "attr_order_status", name: "订单状态", dataType: "VARCHAR(20)" },
-        { id: "attr_cust_id_fk", name: "客户ID", isForeignKey: true, dataType: "VARCHAR(20)", isRequired: true }
+        { id: "attr_cust_id_fk", name: "客户ID", dataType: "VARCHAR(20)", isRequired: true }
       ]
     },
     {
@@ -70,8 +70,8 @@ const businessERData: ERDiagramData = {
       name: "下单",
       description: "客户下订单的关系",
       connections: [
-        { entityId: "ent_customer", cardinality: "1", role: "下单客户" },
-        { entityId: "ent_order", cardinality: "N", role: "客户订单" }
+        { entityId: "ent_customer", cardinality: "1..1", role: "下单客户" },
+        { entityId: "ent_order", cardinality: "0..*", role: "客户订单" }
       ]
     },
     {
@@ -79,8 +79,8 @@ const businessERData: ERDiagramData = {
       name: "包含",
       description: "订单包含产品的关系",
       connections: [
-        { entityId: "ent_order", cardinality: "M", role: "相关订单" },
-        { entityId: "ent_product", cardinality: "N", role: "订单产品" }
+        { entityId: "ent_order", cardinality: "0..*", role: "相关订单" },
+        { entityId: "ent_product", cardinality: "0..*", role: "订单产品" }
       ],
       attributes: [
         { id: "attr_quantity", name: "数量", dataType: "INT", isRequired: true },
@@ -122,8 +122,8 @@ const libraryERData: ERDiagramData = {
       id: "rel_borrows",
       name: "借阅",
       connections: [
-        { entityId: "ent_reader", cardinality: "N", role: "借阅者" },
-        { entityId: "ent_book", cardinality: "M", role: "被借图书" }
+        { entityId: "ent_reader", cardinality: "0..*", role: "借阅者" },
+        { entityId: "ent_book", cardinality: "0..*", role: "被借图书" }
       ],
       attributes: [
         { id: "attr_borrow_date", name: "借阅日期", dataType: "DATE", isRequired: true },

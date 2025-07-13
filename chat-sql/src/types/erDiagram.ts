@@ -5,7 +5,6 @@ export interface ERAttribute {
   id: string;
   name: string;
   isPrimaryKey?: boolean;
-  isForeignKey?: boolean;
   dataType?: string;
   isRequired?: boolean;
   description?: string;
@@ -26,9 +25,9 @@ export interface EREntity {
 // 关系连接接口
 export interface ERConnection {
   entityId: string;
-  cardinality: '1' | 'N' | 'M' | '0..1' | '1..N' | '0..N';
-  isTotalParticipation?: boolean; // 是否为完全参与约束，默认为false（部分参与）
-  role?: string; // 角色描述，如"学生"、"课程"
+  // 使用 (min, max) 表示法，其中 '*' 代表 '多'
+  cardinality: '0..1' | '1..1' | '0..*' | '1..*';
+  role?: string;
 }
 
 // 关系接口
@@ -171,14 +170,12 @@ export const sampleERData: ERDiagramData = {
       connections: [
         {
           entityId: "ent_student",
-          cardinality: "N",
-          isTotalParticipation: false, // 学生可以不选修任何课程（部分参与）
+          cardinality: "0..*",
           role: "选修者"
         },
         {
           entityId: "ent_course",
-          cardinality: "M",
-          isTotalParticipation: false, // 课程可以没有学生选修（部分参与）
+          cardinality: "0..*",
           role: "被选修课程"
         }
       ],
@@ -204,14 +201,12 @@ export const sampleERData: ERDiagramData = {
       connections: [
         {
           entityId: "ent_teacher",
-          cardinality: "1",
-          isTotalParticipation: false, // 教师可以不授课（部分参与）
+          cardinality: "0..1",
           role: "授课教师"
         },
         {
           entityId: "ent_course",
-          cardinality: "N",
-          isTotalParticipation: true, // 每门课程必须有教师授课（完全参与）
+          cardinality: "1..*",
           role: "授课课程"
         }
       ],
@@ -300,7 +295,6 @@ export const employeeDepartmentERData: ERDiagramData = {
         {
           id: "attr_dept_id_fk",
           name: "部门编号",
-          isForeignKey: true,
           dataType: "VARCHAR(10)",
           isRequired: true,
           description: "员工所属部门"
@@ -344,14 +338,12 @@ export const employeeDepartmentERData: ERDiagramData = {
       connections: [
         {
           entityId: "ent_employee",
-          cardinality: "N",
-          isTotalParticipation: true, // 每个员工必须属于一个部门（完全参与）
+          cardinality: "1..*",
           role: "部门员工"
         },
         {
           entityId: "ent_department",
-          cardinality: "1",
-          isTotalParticipation: false, // 部门可以没有员工（部分参与）
+          cardinality: "0..1",
           role: "所属部门"
         }
       ]
@@ -363,14 +355,12 @@ export const employeeDepartmentERData: ERDiagramData = {
       connections: [
         {
           entityId: "ent_employee",
-          cardinality: "N",
-          isTotalParticipation: false, // 员工可以不参与任何项目（部分参与）
+          cardinality: "0..*",
           role: "项目成员"
         },
         {
           entityId: "ent_project",
-          cardinality: "M",
-          isTotalParticipation: true, // 每个项目必须有员工参与（完全参与）
+          cardinality: "1..*",
           role: "参与项目"
         }
       ],

@@ -23,43 +23,25 @@ const defaultLayoutConfig: LayoutConfig = {
 // 简单的自动布局算法
 function calculateLayout(entities: EREntity[], relationships: ERRelationship[], config: LayoutConfig) {
   const positions = new Map<string, { x: number; y: number }>();
-  
-  // 计算实体位置 - 左右两列布局
+
+  const leftColumnX = config.startX;
+  const middleColumnX = config.startX + config.levelSpacing;
+  const rightColumnX = config.startX + 2 * config.levelSpacing;
+
+  // 放置实体到左右两列
   entities.forEach((entity, index) => {
-    const column = index % 2; // 0 = 左列, 1 = 右列
-    const row = Math.floor(index / 2);
-    
-    positions.set(entity.id, {
-      x: config.startX + column * config.levelSpacing,
-      y: config.startY + row * config.entitySpacing
-    });
+    const isLeft = index % 2 === 0;
+    const x = isLeft ? leftColumnX : rightColumnX;
+    const y = config.startY + Math.floor(index / 2) * config.entitySpacing;
+    positions.set(entity.id, { x, y });
   });
-  
-  // 计算关系位置 - 放在中间
+
+  // 放置所有关系到中间列
   relationships.forEach((relationship, index) => {
-    // 尝试将关系放在相关实体的中间
-    const connectedEntities = relationship.connections.map(conn => conn.entityId);
-    let avgX = config.startX + config.levelSpacing / 2; // 默认中间位置
-    let avgY = config.startY + index * config.relationshipSpacing;
-    
-    if (connectedEntities.length > 0) {
-      const entityPositions = connectedEntities
-        .map(entityId => positions.get(entityId))
-        .filter(pos => pos !== undefined);
-      
-      if (entityPositions.length > 0) {
-        avgX = entityPositions.reduce((sum, pos) => sum + pos!.x, 0) / entityPositions.length;
-        avgY = entityPositions.reduce((sum, pos) => sum + pos!.y, 0) / entityPositions.length;
-        
-        // 稍微偏移避免重叠
-        avgX += (index % 2 === 0 ? 50 : -50);
-        avgY += 150; // 向下偏移
-      }
-    }
-    
-    positions.set(relationship.id, { x: avgX, y: avgY });
+    const y = config.startY + index * config.relationshipSpacing + 50; // Y轴上错开
+    positions.set(relationship.id, { x: middleColumnX, y });
   });
-  
+
   return positions;
 }
 
@@ -115,18 +97,34 @@ export function convertERJsonToFlow(
   
   // 3. 创建边（连接实体和关系）
   erData.relationships.forEach((relationship) => {
-    // 统计每个实体已分配的handle数
-    const entityHandleCount: Record<string, number> = {};
     relationship.connections.forEach((connection, index) => {
       const edgeId = `edge-${connection.entityId}-${relationship.id}-${index}`;
-      // 强制顺序分配 handle
-      const handleOrder = ['top', 'right', 'bottom', 'left'];
-      const count = entityHandleCount[connection.entityId] || 0;
-      const sourceHandle = handleOrder[count % 4];
-      const targetHandle = handleOrder[count % 4];
-      entityHandleCount[connection.entityId] = count + 1;
-      // 根据参与约束确定边的类型
-      const edgeType = connection.isTotalParticipation ? 'totalParticipationEdge' : 'smoothstep';
+
+      const entityNode = nodes.find(n => n.id === connection.entityId);
+      const relationshipNode = nodes.find(n => n.id === relationship.id);
+
+      if (!entityNode || !relationshipNode) {
+        return; // Skip if nodes are not found
+      }
+
+      // With a 3-column layout, connections are always horizontal.
+      // We just need to determine if the entity is on the left or right column.
+      let sourceHandle: string;
+      let targetHandle: string;
+
+      if (entityNode.position.x < relationshipNode.position.x) {
+        // Entity is on the left of the relationship
+        sourceHandle = 'right';
+        targetHandle = 'left';
+      } else {
+        // Entity is on the right of the relationship
+        sourceHandle = 'left';
+        targetHandle = 'right';
+      }
+
+      const isTotal = connection.cardinality.startsWith('1');
+      const edgeType = isTotal ? 'totalParticipationEdge' : 'default';
+
       const edge: Edge = {
         id: edgeId,
         source: connection.entityId,
@@ -152,7 +150,6 @@ export function convertERJsonToFlow(
           strokeWidth: 1
         },
         data: {
-          isTotalParticipation: connection.isTotalParticipation || false,
           role: connection.role
         }
       };

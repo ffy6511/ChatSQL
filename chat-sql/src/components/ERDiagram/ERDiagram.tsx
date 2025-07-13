@@ -197,7 +197,8 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     // 应用边样式
     const styledEdges = result.edges.map(edge => ({
       ...edge,
-      type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
+      // type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
+      type: edgeStyle,
       data: { ...edge.data, edgeStyle }
     }));
     return { nodes: result.nodes, edges: styledEdges };
@@ -218,7 +219,8 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     setEdges(eds =>
       eds.map(edge => ({
         ...edge,
-        type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
+        // type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
+        type: edgeStyle,
         data: { ...edge.data, edgeStyle }
       }))
     );

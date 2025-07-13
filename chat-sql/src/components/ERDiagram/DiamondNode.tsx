@@ -77,57 +77,21 @@ const DiamondNode: React.FC<NodeProps<DiamondNodeData>> = ({ data, selected }) =
     >
       <div className={`${styles.diamondNode} ${selected ? styles.selected : ''}`}> 
         {/* 上方连接点 */}
-        <Handle
-          type="target"
-          position={Position.Top}
-          id="top"
-          className={styles.handle}
-          style={{ 
-            top: '10px', 
-            left: '50%', 
-            transform: 'translateX(-50%)',
-            background: '#555'
-          }}
-        />
+        <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
+        <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
+        
         {/* 右侧连接点 */}
-        <Handle
-          type="source"
-          position={Position.Right}
-          id="right"
-          className={styles.handle}
-          style={{ 
-            top: '50%', 
-            right: '10px', 
-            transform: 'translateY(-50%)',
-            background: '#555'
-          }}
-        />
+        <Handle type="source" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', background: '#555' }} />
+        <Handle type="target" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', background: '#555' }} />
+
         {/* 下方连接点 */}
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          id="bottom"
-          className={styles.handle}
-          style={{ 
-            bottom: '10px', 
-            left: '50%', 
-            transform: 'translateX(-50%)',
-            background: '#555'
-          }}
-        />
+        <Handle type="source" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
+        <Handle type="target" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
+
         {/* 左侧连接点 */}
-        <Handle
-          type="target"
-          position={Position.Left}
-          id="left"
-          className={styles.handle}
-          style={{ 
-            top: '50%', 
-            left: '10px', 
-            transform: 'translateY(-50%)',
-            background: '#555'
-          }}
-        />
+        <Handle type="source" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '10px', transform: 'translateY(-50%)', background: '#555' }} />
+        <Handle type="target" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '10px', transform: 'translateY(-50%)', background: '#555' }} />
+        
         {/* SVG 菱形 */}
         <svg 
           width={width} 
