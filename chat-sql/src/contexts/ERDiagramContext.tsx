@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { ERDiagramData, sampleERData } from '@/types/erDiagram';
+import { ERDiagramData, sampleERData, EREntity, ERRelationship } from '@/types/erDiagram';
 
 type ActiveTab = 'components' | 'entities' | 'relationships';
 
@@ -17,7 +17,13 @@ type ERDiagramAction =
   | { type: 'SET_ACTIVE_TAB'; payload: ActiveTab }
   | { type: 'SET_SELECTED_ELEMENT'; payload: string | null }
   | { type: 'NEW_DIAGRAM' }
-  | { type: 'LOAD_SAMPLE_DATA' };
+  | { type: 'LOAD_SAMPLE_DATA' }
+  | { type: 'ADD_ENTITY'; payload: { entity: EREntity } }
+  | { type: 'ADD_RELATIONSHIP'; payload: { relationship: ERRelationship } }
+  | { type: 'UPDATE_ENTITY'; payload: { id: string; entity: Partial<EREntity> } }
+  | { type: 'UPDATE_RELATIONSHIP'; payload: { id: string; relationship: Partial<ERRelationship> } }
+  | { type: 'DELETE_ENTITY'; payload: { id: string } }
+  | { type: 'DELETE_RELATIONSHIP'; payload: { id: string } };
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
@@ -64,6 +70,92 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
         ...state,
         diagramData: sampleERData,
       };
+    case 'ADD_ENTITY':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: [...state.diagramData.entities, action.payload.entity],
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'ADD_RELATIONSHIP':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: [...state.diagramData.relationships, action.payload.relationship],
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'UPDATE_ENTITY':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.map(entity =>
+            entity.id === action.payload.id
+              ? { ...entity, ...action.payload.entity }
+              : entity
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'UPDATE_RELATIONSHIP':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(relationship =>
+            relationship.id === action.payload.id
+              ? { ...relationship, ...action.payload.relationship }
+              : relationship
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'DELETE_ENTITY':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.filter(entity => entity.id !== action.payload.id),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'DELETE_RELATIONSHIP':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.filter(relationship => relationship.id !== action.payload.id),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
     default:
       return state;
   }
@@ -78,6 +170,13 @@ interface ERDiagramContextType {
   setSelectedElement: (id: string | null) => void;
   newDiagram: () => void;
   loadSampleData: () => void;
+  // 新增的便捷方法
+  addEntity: (entity: EREntity) => void;
+  addRelationship: (relationship: ERRelationship) => void;
+  updateEntity: (id: string, entity: Partial<EREntity>) => void;
+  updateRelationship: (id: string, relationship: Partial<ERRelationship>) => void;
+  deleteEntity: (id: string) => void;
+  deleteRelationship: (id: string) => void;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(undefined);
@@ -117,6 +216,30 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'LOAD_SAMPLE_DATA' });
   };
 
+  const addEntity = (entity: EREntity) => {
+    dispatch({ type: 'ADD_ENTITY', payload: { entity } });
+  };
+
+  const addRelationship = (relationship: ERRelationship) => {
+    dispatch({ type: 'ADD_RELATIONSHIP', payload: { relationship } });
+  };
+
+  const updateEntity = (id: string, entity: Partial<EREntity>) => {
+    dispatch({ type: 'UPDATE_ENTITY', payload: { id, entity } });
+  };
+
+  const updateRelationship = (id: string, relationship: Partial<ERRelationship>) => {
+    dispatch({ type: 'UPDATE_RELATIONSHIP', payload: { id, relationship } });
+  };
+
+  const deleteEntity = (id: string) => {
+    dispatch({ type: 'DELETE_ENTITY', payload: { id } });
+  };
+
+  const deleteRelationship = (id: string) => {
+    dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
+  };
+
   const value: ERDiagramContextType = {
     state,
     dispatch,
@@ -125,6 +248,12 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     setSelectedElement,
     newDiagram,
     loadSampleData,
+    addEntity,
+    addRelationship,
+    updateEntity,
+    updateRelationship,
+    deleteEntity,
+    deleteRelationship,
   };
 
   return (

@@ -32,15 +32,23 @@
   cursor: grab;
   transition: all 0.3s ease;
   border: 1px solid var(--card-border);
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .componentCard:hover {
   border-color: #1677ff;
   box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .componentCard:active {
   cursor: grabbing;
+  transform: translateY(0);
+}
+
+.componentCard[draggable="true"]:hover {
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.25);
 }
 
 .componentItem {

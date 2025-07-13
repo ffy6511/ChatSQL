@@ -4,12 +4,57 @@
   height: 100%;
   background: #fafafa;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* 拖拽悬浮状态 */
+.canvasContainer.dragOver {
+  background: rgba(22, 119, 255, 0.05);
+  border: 2px dashed #1677ff;
 }
 
 /* 当包含 ERDiagram 组件时的样式 */
 .canvasContainer > div:first-child:not(.canvasContent) {
   width: 100%;
   height: 100%;
+}
+
+/* 拖放覆盖层 */
+.dropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(22, 119, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.dropMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #1677ff;
+}
+
+.dropIcon {
+  font-size: 48px;
+  color: #1677ff;
+}
+
+.dropMessage span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1677ff;
 }
 
 .canvasContent {
@@ -65,8 +110,30 @@
   background: #1a1a1a;
 }
 
+[data-theme="dark"] .canvasContainer.dragOver {
+  background: rgba(22, 119, 255, 0.1);
+  border-color: #4096ff;
+}
+
+[data-theme="dark"] .dropOverlay {
+  background: rgba(22, 119, 255, 0.15);
+}
+
+[data-theme="dark"] .dropMessage {
+  background: #2a2a2a;
+  border-color: #4096ff;
+}
+
+[data-theme="dark"] .dropIcon {
+  color: #4096ff;
+}
+
+[data-theme="dark"] .dropMessage span {
+  color: #4096ff;
+}
+
 [data-theme="dark"] .gridBackground {
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
 }

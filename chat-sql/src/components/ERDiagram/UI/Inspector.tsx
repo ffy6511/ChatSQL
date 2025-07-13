@@ -24,6 +24,16 @@ const ComponentsView: React.FC = () => {
   const handleDragStart = (event: React.DragEvent, componentType: string) => {
     event.dataTransfer.setData('application/reactflow', componentType);
     event.dataTransfer.effectAllowed = 'move';
+
+    // 添加拖拽时的视觉反馈
+    const target = event.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (event: React.DragEvent) => {
+    // 恢复拖拽元素的透明度
+    const target = event.currentTarget as HTMLElement;
+    target.style.opacity = '1';
   };
 
   const components = [
@@ -66,6 +76,7 @@ const ComponentsView: React.FC = () => {
             size="small"
             draggable
             onDragStart={(e) => handleDragStart(e, component.type)}
+            onDragEnd={handleDragEnd}
           >
             <div className={styles.componentItem}>
               {component.icon}
