@@ -1,25 +1,36 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Empty, Divider, Typography, Button, Tag, Space } from 'antd';
 import {
-  AppstoreOutlined,
-  TableOutlined,
-  ShareAltOutlined,
-  BorderOutlined,
-  GoldOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  KeyOutlined,
-  DownOutlined,
-  RightOutlined
-} from '@ant-design/icons';
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  IconButton,
+  Chip,
+  Stack,
+  Divider,
+  Typography,
+  Tooltip,
+  Collapse
+} from '@mui/material';
+import {
+  Apps as AppsIcon,
+  TableChart as TableChartIcon,
+  Share as ShareIcon,
+  BorderAll as BorderAllIcon,
+  Diamond as DiamondIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Key as KeyIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
+} from '@mui/icons-material';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import PropertyEditor from './PropertyEditor';
 import { EREntity, ERRelationship } from '@/types/erDiagram';
 import styles from './Inspector.module.css';
-
-const { Text } = Typography;
 
 type ActiveTab = 'components' | 'entities' | 'relationships';
 
@@ -31,78 +42,73 @@ const ComponentsView: React.FC = () => {
   const handleDragStart = (event: React.DragEvent, componentType: string) => {
     event.dataTransfer.setData('application/reactflow', componentType);
     event.dataTransfer.effectAllowed = 'move';
-
-    // 添加拖拽时的视觉反馈
-    const target = event.currentTarget as HTMLElement;
-    target.style.opacity = '0.5';
+    (event.currentTarget as HTMLElement).style.opacity = '0.5';
   };
-
   const handleDragEnd = (event: React.DragEvent) => {
-    // 恢复拖拽元素的透明度
-    const target = event.currentTarget as HTMLElement;
-    target.style.opacity = '1';
+    (event.currentTarget as HTMLElement).style.opacity = '1';
   };
-
   const components = [
     {
       id: 'strong-entity',
-      name: '强实体集',
-      icon: <BorderOutlined className={styles.componentIcon} />,
+      name: 'Strong entity set',
+      icon: BorderAllIcon,
       type: 'entity',
-      description: '标准的实线矩形实体'
+      description: 'an entity type that can exist independently and has its own primary key',
+      color: '#448fd6', // 蓝色
     },
     {
       id: 'weak-entity',
-      name: '弱实体集',
-      icon: <BorderOutlined className={styles.componentIcon} />,
+      name: 'Weak entity set',
+      icon: BorderAllIcon,
       type: 'entity',
-      description: '双实线矩形实体'
+      description: 'its existence depends on another (strong) entity set',
+      color: '#bd62eb', // 紫色
     },
     {
       id: 'relationship',
-      name: '关系',
-      icon: <GoldOutlined className={styles.componentIcon} />,
+      name: 'Relationship',
+      icon: DiamondIcon,
       type: 'diamond',
-      description: '菱形关系节点'
-    }
+      description: 'represents a connection or association between different entity sets',
+      color: '#ebcd62', // 绿色
+    },
   ];
-
   return (
-    <div className={styles.componentsView}>
-      <h3 className={styles.viewTitle}>
-        <AppstoreOutlined /> 组件库
-      </h3>
-      <Divider />
-
-      <div className={styles.componentGrid}>
+    <Box>
+      <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <AppsIcon sx={{ color: '#1976d2', mr: 1 }} /> Component Library
+      </Typography>
+      <Divider sx={{ my: 1 }} />
+      <Stack spacing={1} sx={{ mb: 2 }}>
         {components.map((component) => (
           <Card
             key={component.id}
-            className={styles.componentCard}
-            hoverable
-            size="small"
+            sx={{
+              cursor: 'grab',
+              borderLeft: `6px solid ${component.color}`,
+              borderRadius: 2,
+              height: 80,
+              bgcolor:'var(--component-card)' 
+            }}
             draggable
             onDragStart={(e) => handleDragStart(e, component.type)}
             onDragEnd={handleDragEnd}
           >
-            <div className={styles.componentItem}>
-              {component.icon}
-              <div className={styles.componentInfo}>
-                <Text strong>{component.name}</Text>
-                <Text type="secondary" className={styles.componentDescription}>
-                  {component.description}
-                </Text>
-              </div>
-            </div>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 , p:1}}>
+              <component.icon sx={{ color: component.color }} />
+              <Box>
+                <Typography fontWeight="bold" color='var(--primary-text)'>{component.name}</Typography>
+                <Typography variant="body2" color="var(--secondary-text)">{component.description}</Typography>
+              </Box>
+            </CardContent>
           </Card>
         ))}
-      </div>
-
-      <div className={styles.instructionText}>
-        <p>拖拽组件到画布上开始创建ER图</p>
-        <p>双击画布上的节点可以编辑名称</p>
-      </div>
-    </div>
+      </Stack>
+      <Box sx={{ mt: 2, p: 1.5, borderRadius: 1, borderLeft: 3,  bgcolor:'var(--card-border)'  }}>
+        <Typography variant="body2" color="var(--secondary-text)">Drag and drop the component on the canvas.. </Typography>
+        <Typography variant="body2" color="var(--secondary-text)">Double-click the node on the canvas to edit the name.</Typography>
+      </Box>
+    </Box>
   );
 };
 
@@ -134,118 +140,110 @@ const EntitiesView: React.FC = () => {
   const renderAttributeItem = (attribute: any, entityId: string) => (
     <div key={attribute.id} className={styles.attributeItem}>
       <div className={styles.attributeInfo}>
-        <Space>
+        <Stack direction="row" alignItems="center" spacing={0.5}>
           {attribute.isPrimaryKey && (
-            <KeyOutlined className={styles.primaryKeyIcon} />
+            <KeyIcon color="error" />
           )}
-          <Text strong>{attribute.name}</Text>
+          <Typography fontWeight="bold">{attribute.name}</Typography>
           {attribute.isPrimaryKey && (
-            <Tag color="red">
-              {entities.find(e => e.id === entityId)?.isWeakEntity ? 'DIS' : 'PK'}
-            </Tag>
+            <Chip label={entities.find(e => e.id === entityId)?.isWeakEntity ? 'DIS' : 'PK'} color="error" />
           )}
           {attribute.isRequired && (
-            <Tag color="orange">必填</Tag>
+            <Chip label="必填" color="warning" />
           )}
-        </Space>
-        <Text type="secondary" className={styles.attributeType}>
-          {attribute.dataType}
-        </Text>
+        </Stack>
+        <Typography variant="body2" color="text.secondary">{attribute.dataType}</Typography>
       </div>
     </div>
   );
 
   return (
-    <div className={styles.entitiesView}>
-      <h3 className={styles.viewTitle}>
-        <TableOutlined /> 实体列表
-      </h3>
-      <Divider />
-
+    <Box>
+      <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <TableChartIcon /> 实体列表
+      </Typography>
+      <Divider sx={{ my: 1 }} />
       {entities.length === 0 ? (
-        <Empty
-          description="暂无实体"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="body2" color="text.secondary">暂无实体</Typography>
+        </Box>
       ) : (
-        <div className={styles.entityList}>
+        <Stack spacing={1}>
           {entities.map((entity) => (
             <Card
               key={entity.id}
               className={`${styles.entityCard} ${state.selectedElementId === entity.id ? styles.selected : ''}`}
-              size="small"
+              sx={{ border: 1, borderColor: 'primary.light', '&:hover': { borderColor: 'primary.main', boxShadow: 1 } }}
             >
-              <div
-                className={styles.entityHeader}
-                onClick={() => handleExpand(entity.id)}
-              >
-                <div className={styles.entityInfo}>
-                  <Space>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} onClick={() => handleExpand(entity.id)}>
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
                     {expandedEntities.includes(entity.id) ?
-                      <DownOutlined className={styles.expandIcon} /> :
-                      <RightOutlined className={styles.expandIcon} />
+                      <ExpandMoreIcon /> :
+                      <ExpandLessIcon />
                     }
-                    <Text strong>{entity.name}</Text>
+                    <Typography fontWeight="bold">{entity.name}</Typography>
                     {entity.isWeakEntity && (
-                      <Tag color="purple">弱实体</Tag>
+                      <Chip label="弱实体" color="secondary" />
                     )}
-                  </Space>
-                  <Text type="secondary" className={styles.entityDescription}>
-                    {entity.attributes.length} 个属性
-                  </Text>
-                </div>
-                <div className={styles.entityActions}>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<EditOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedElement(entity.id);
-                    }}
-                  />
-                  <Button
-                    type="text"
-                    size="small"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteEntity(entity.id);
-                    }}
-                  />
-                </div>
-              </div>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary">{entity.attributes.length} 个属性</Typography>
+                </Box>
+                <Stack direction="row" spacing={0.5}>
+                  <Tooltip title="编辑">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedElement(entity.id);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="删除">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteEntity(entity.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Box>
 
-              {expandedEntities.includes(entity.id) && (
-                <div className={styles.entityContent}>
+              <Collapse in={expandedEntities.includes(entity.id)} timeout="auto" unmountOnExit>
+                <CardContent>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div className={styles.attributesList}>
-                    <Text type="secondary" className={styles.sectionTitle}>属性列表：</Text>
+                  <Stack spacing={0.5}>
+                    <Typography variant="body2" color="text.secondary">属性列表：</Typography>
                     {entity.attributes.length === 0 ? (
-                      <Text type="secondary" className={styles.emptyText}>暂无属性</Text>
+                      <Typography variant="body2" color="text.secondary">暂无属性</Typography>
                     ) : (
                       entity.attributes.map(attr => renderAttributeItem(attr, entity.id))
                     )}
-                  </div>
+                  </Stack>
                   {entity.description && (
-                    <div className={styles.entityDescriptionFull}>
-                      <Text type="secondary" className={styles.sectionTitle}>描述：</Text>
-                      <Text>{entity.description}</Text>
-                    </div>
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary">描述：</Typography>
+                      <Typography>{entity.description}</Typography>
+                    </Box>
                   )}
-                </div>
-              )}
+                </CardContent>
+              </Collapse>
             </Card>
           ))}
-        </div>
+        </Stack>
       )}
 
-      <div className={styles.instructionText}>
-        <p>从组件库添加实体后，将在此处显示</p>
-        <p>点击实体可展开查看和编辑属性</p>
-      </div>
-    </div>
+      <Box sx={{ mt: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1, borderLeft: 3, borderColor: 'primary.main' }}>
+        <Typography variant="body2" color="text.secondary">从组件库添加实体后，将在此处显示</Typography>
+        <Typography variant="body2" color="text.secondary">点击实体可展开查看和编辑属性</Typography>
+      </Box>
+    </Box>
   );
 };
 
@@ -290,132 +288,120 @@ const RelationshipsView: React.FC = () => {
   };
 
   const renderConnectionItem = (connection: any) => (
-    <div key={connection.entityId} className={styles.connectionItem}>
-      <Space>
-        <Text>{getEntityName(connection.entityId)}</Text>
-        <Tag color="blue">{connection.cardinality}</Tag>
-        {connection.role && (
-          <Text type="secondary">({connection.role})</Text>
-        )}
-      </Space>
-    </div>
+    <Box key={connection.entityId} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography>{getEntityName(connection.entityId)}</Typography>
+      <Chip label={connection.cardinality} color="info" />
+      {connection.role && (
+        <Typography variant="body2" color="text.secondary">({connection.role})</Typography>
+      )}
+    </Box>
   );
 
   const renderAttributeItem = (attribute: any) => (
-    <div key={attribute.id} className={styles.attributeItem}>
-      <div className={styles.attributeInfo}>
-        <Space>
-          <Text strong>{attribute.name}</Text>
-          {attribute.isPrimaryKey && (
-            <Tag color="red">PK</Tag>
-          )}
-          {attribute.isRequired && (
-            <Tag color="orange">必填</Tag>
-          )}
-        </Space>
-        <Text type="secondary" className={styles.attributeType}>
-          {attribute.dataType}
-        </Text>
-      </div>
-    </div>
+    <Box key={attribute.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography fontWeight="bold">{attribute.name}</Typography>
+      {attribute.isPrimaryKey && (
+        <Chip label="PK" color="error" />
+      )}
+      {attribute.isRequired && (
+        <Chip label="必填" color="warning" />
+      )}
+      <Typography variant="body2" color="text.secondary">{attribute.dataType}</Typography>
+    </Box>
   );
 
   return (
-    <div className={styles.relationshipsView}>
-      <h3 className={styles.viewTitle}>
-        <ShareAltOutlined /> 关系列表
-      </h3>
-      <Divider />
-
+    <Box>
+      <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <ShareIcon /> 关系列表
+      </Typography>
+      <Divider sx={{ my: 1 }} />
       {relationships.length === 0 ? (
-        <Empty
-          description="暂无关系"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Typography variant="body2" color="text.secondary">暂无关系</Typography>
+        </Box>
       ) : (
-        <div className={styles.relationshipList}>
+        <Stack spacing={1}>
           {relationships.map((relationship) => (
             <Card
               key={relationship.id}
               className={`${styles.relationshipCard} ${state.selectedElementId === relationship.id ? styles.selected : ''}`}
-              size="small"
+              sx={{ border: 1, borderColor: 'primary.light', '&:hover': { borderColor: 'primary.main', boxShadow: 1 } }}
             >
-              <div
-                className={styles.relationshipHeader}
-                onClick={() => handleExpand(relationship.id)}
-              >
-                <div className={styles.relationshipInfo}>
-                  <Space>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={() => handleExpand(relationship.id)}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
                     {expandedRelationships.includes(relationship.id) ?
-                      <DownOutlined className={styles.expandIcon} /> :
-                      <RightOutlined className={styles.expandIcon} />
+                      <ExpandMoreIcon /> :
+                      <ExpandLessIcon />
                     }
-                    <Text strong>{relationship.name}</Text>
+                    <Typography fontWeight="bold">{relationship.name}</Typography>
                     {isWeakRelationship(relationship) && (
-                      <Tag color="purple">弱关系</Tag>
+                      <Chip label="弱关系" color="secondary" />
                     )}
-                  </Space>
-                  <Text type="secondary" className={styles.relationshipDescription}>
-                    {relationship.connections.length} 个连接
-                  </Text>
-                </div>
-                <div className={styles.relationshipActions}>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<EditOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedElement(relationship.id);
-                    }}
-                  />
-                  <Button
-                    type="text"
-                    size="small"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteRelationship(relationship.id);
-                    }}
-                  />
-                </div>
-              </div>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary">{relationship.connections.length} 个连接</Typography>
+                </Box>
+                <Stack direction="row" spacing={0.5}>
+                  <Tooltip title="编辑">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedElement(relationship.id);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="删除">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteRelationship(relationship.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Box>
 
-              {expandedRelationships.includes(relationship.id) && (
-                <div className={styles.relationshipContent}>
+              <Collapse in={expandedRelationships.includes(relationship.id)} timeout="auto" unmountOnExit>
+                <CardContent>
                   <Divider style={{ margin: '8px 0' }} />
 
-                  <div className={styles.connectionsList}>
-                    <Text type="secondary" className={styles.sectionTitle}>连接实体：</Text>
+                  <Stack spacing={0.5}>
+                    <Typography variant="body2" color="text.secondary">连接实体：</Typography>
                     {relationship.connections.map(renderConnectionItem)}
-                  </div>
+                  </Stack>
 
                   {relationship.attributes && relationship.attributes.length > 0 && (
-                    <div className={styles.attributesList}>
-                      <Text type="secondary" className={styles.sectionTitle}>关系属性：</Text>
+                    <Stack spacing={0.5}>
+                      <Typography variant="body2" color="text.secondary">关系属性：</Typography>
                       {relationship.attributes.map(renderAttributeItem)}
-                    </div>
+                    </Stack>
                   )}
 
                   {relationship.description && (
-                    <div className={styles.relationshipDescriptionFull}>
-                      <Text type="secondary" className={styles.sectionTitle}>描述：</Text>
-                      <Text>{relationship.description}</Text>
-                    </div>
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary">描述：</Typography>
+                      <Typography>{relationship.description}</Typography>
+                    </Box>
                   )}
-                </div>
-              )}
+                </CardContent>
+              </Collapse>
             </Card>
           ))}
-        </div>
+        </Stack>
       )}
 
-      <div className={styles.instructionText}>
-        <p>连接实体和关系后，将在此处显示</p>
-        <p>可以编辑基数约束和参与约束</p>
-      </div>
-    </div>
+      <Box sx={{ mt: 2, p: 1.5, bgcolor: 'grey.100', borderRadius: 1, borderLeft: 3, borderColor: 'primary.main' }}>
+        <Typography variant="body2" color="text.secondary">连接实体和关系后，将在此处显示</Typography>
+        <Typography variant="body2" color="text.secondary">可以编辑基数约束和参与约束</Typography>
+      </Box>
+    </Box>
   );
 };
 
@@ -442,13 +428,13 @@ const Inspector: React.FC<InspectorProps> = ({ activeTab }) => {
   // 如果有选中的节点且处于属性编辑模式，显示属性编辑器
   if (selectedElement && state.nodeEditMode === 'properties') {
     return (
-      <div className={styles.inspectorContainer}>
+      <Box sx={{ p: 2 }}>
         <PropertyEditor
           selectedElement={selectedElement}
           onUpdateEntity={updateEntity}
           onUpdateRelationship={updateRelationship}
         />
-      </div>
+      </Box>
     );
   }
 
@@ -466,9 +452,9 @@ const Inspector: React.FC<InspectorProps> = ({ activeTab }) => {
   };
 
   return (
-    <div className={styles.inspectorContainer}>
+    <Box sx={{ p: 2 }}>
       {renderContent()}
-    </div>
+    </Box>
   );
 };
 

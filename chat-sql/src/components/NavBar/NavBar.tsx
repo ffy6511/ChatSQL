@@ -28,7 +28,7 @@ const NavBar: React.FC = () => {
 
       <div className={styles.middleSection}>
         <div className={styles.navTabs}>
-          <Tooltip title="SQL编程">
+          <Tooltip title="SQL练习">
             <Button
               type={isActive('/') ? 'primary' : 'text'}
               icon={<CodeOutlined />}

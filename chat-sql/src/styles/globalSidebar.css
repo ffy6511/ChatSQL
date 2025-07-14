@@ -67,4 +67,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.global-sidebar-action-button.selected {
+  background: var(--button-hover) !important;
+  color: var(--icon-color-hover) !important;
 } 

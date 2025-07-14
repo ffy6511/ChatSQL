@@ -10,11 +10,11 @@
   /* 侧边栏 */
   --sidebar-bg: #fff;
   --sidebar-border: #f0f0f0;
-  --button-hover: #f5f5f5;
   
   /* 卡片 */
   --card-bg: #fff;
   --card-border: #eaeaea;
+  --component-card: #f3f1f1;
   
   /* 文本颜色 */
   --primary-text: #171717;
@@ -31,6 +31,7 @@
   --button-text: #666666;
   --button-bg: transparent;
   --button-border: #eaeaea;
+  --button-hover: #E5E7EB;
   
   /* 输入框 */
   --input-bg: #ffffff;
@@ -67,12 +68,13 @@
   /* 卡片 */
   --card-bg: #1e1e1e;
   --card-border: #333333;
+  --component-card: #252424;
   
   /* 文本颜色 */
   --primary-text: #f0f0f0;
   --secondary-text: #b0b0b0;
   --tertiary-text: #808080;
-  --inverted-text: #666666;
+  --inverted-text: #6e6d6d;
   
   /* 图标颜色 */
   --icon-color-dark: #b0b0b0;

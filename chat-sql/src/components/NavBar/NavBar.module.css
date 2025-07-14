@@ -21,6 +21,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 16px;
 }
 
 .navTabs {
@@ -34,7 +35,7 @@
 }
 
 .tabButton {
-  height: 32px !important;
+  height: 24px !important;
   padding: 0 16px !important;
   border-radius: 6px !important;
   font-weight: 500 !important;
@@ -43,7 +44,7 @@
   border: none !important;
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 8px !important;
 }
 
 .tabButton:hover {
@@ -52,15 +53,11 @@
 }
 
 .activeTab {
-  background: #1677ff !important;
-  color: white !important;
-  box-shadow: 0 2px 4px rgba(22, 119, 255, 0.3) !important;
+  background: var(--button-hover) !important;
+  border: var(--button-border) !important;
+  box-shadow: 0 2px 4px var(--button-border) !important;
 }
 
-.activeTab:hover {
-  background: #4096ff !important;
-  color: white !important;
-}
 
 .rightSection {
   flex: 0 0 auto;
@@ -92,7 +89,7 @@
 .navButton{
   border-radius: 50%; 
   border: 1px solid var(--button-border);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(136, 134, 134, 0.1);
   height: 30px;
   width: 30px;
   color: var(--icon-color) !important;

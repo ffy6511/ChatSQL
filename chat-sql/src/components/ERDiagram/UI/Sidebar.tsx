@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
             <Button
               type="text"
               icon={<AppstoreOutlined />}
-              className={`global-sidebar-action-button ${activeTab === 'components' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button${activeTab === 'components' ? ' selected' : ''}`}
               onClick={handleComponentsClick}
             />
           </Tooltip>
@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
             <Button
               type="text"
               icon={<TableOutlined />}
-              className={`global-sidebar-action-button ${activeTab === 'entities' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button${activeTab === 'entities' ? ' selected' : ''}`}
               onClick={handleEntitiesClick}
             />
           </Tooltip>
@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
             <Button
               type="text"
               icon={<ShareAltOutlined />}
-              className={`global-sidebar-action-button ${activeTab === 'relationships' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button${activeTab === 'relationships' ? ' selected' : ''}`}
               onClick={handleRelationshipsClick}
             />
           </Tooltip>

@@ -127,7 +127,7 @@ const InfoPanel: React.FC<{ data: ERDiagramData }> = ({ data }) => {
 
   return (
     <Panel position="top-left" className={styles.infoPanel}>
-      <Tooltip title={showInfo ? "隐藏信息" : "显示信息"}>
+      {/* <Tooltip title={showInfo ? "隐藏信息" : "显示信息"}>
         <IconButton 
           size="small" 
           onClick={() => setShowInfo(!showInfo)}
@@ -135,7 +135,7 @@ const InfoPanel: React.FC<{ data: ERDiagramData }> = ({ data }) => {
         >
           <InfoIcon />
         </IconButton>
-      </Tooltip>
+      </Tooltip> */}
       
       {showInfo && (
         <Paper className={styles.infoContent} elevation={3}>
