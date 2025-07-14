@@ -9,6 +9,25 @@
   cursor: pointer;
   transition: all 0.3s ease-out;
   overflow: hidden;
+  position: relative;
+}
+
+/* 弱实体集双边框样式 */
+.entityNode.weakEntity {
+  border: 2px dashed #cbc8c8;
+}
+
+.entityNode.weakEntity::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 3px dashed #cbc8c8;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .entityNode:hover {
@@ -17,7 +36,17 @@
 
 .entityNode.selected {
   border-color: #2196f3;
+  box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3);
+}
+
+/* 弱实体集选中状态 */
+.entityNode.weakEntity.selected {
+  border-color: #2196f3;
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+}
+
+.entityNode.weakEntity.selected::before {
+  border-color: #2196f3;
 }
 
 /* 拖拽中的节点样式 */
@@ -113,6 +142,16 @@
   display: inline-block;
 }
 
+.disBadge {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0 8px;
+  margin-left: 8px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
 .required {
   color: #f44336;
   font-weight: bold;
@@ -198,6 +237,15 @@
   background: var(--card-bg);
   border-color: var(--border-color);
   color: var(--primary-text);
+}
+
+/* 暗色主题下的弱实体集样式 */
+[data-theme="dark"] .entityNode.weakEntity {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .entityNode.weakEntity::before {
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] .entityNode:hover {

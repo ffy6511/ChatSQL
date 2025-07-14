@@ -68,7 +68,8 @@ export function convertERJsonToFlow(
       data: {
         label: entity.name,
         description: entity.description,
-        attributes: entity.attributes
+        attributes: entity.attributes,
+        isWeakEntity: entity.isWeakEntity,
       },
       draggable: true
     };
@@ -79,7 +80,13 @@ export function convertERJsonToFlow(
   // 2. 创建关系节点
   erData.relationships.forEach((relationship) => {
     const position = positions.get(relationship.id) || { x: 0, y: 0 };
-    
+
+    // 判断关系是否连接了弱实体集
+    const isWeakRelationship = relationship.connections.some(connection => {
+      const entity = erData.entities.find(e => e.id === connection.entityId);
+      return entity?.isWeakEntity === true;
+    });
+
     const relationshipNode: Node<DiamondNodeData> = {
       id: relationship.id,
       type: 'diamond',
@@ -87,11 +94,12 @@ export function convertERJsonToFlow(
       data: {
         label: relationship.name,
         description: relationship.description,
-        attributes: relationship.attributes
+        attributes: relationship.attributes,
+        isWeakRelationship
       },
       draggable: true
     };
-    
+
     nodes.push(relationshipNode);
   });
   

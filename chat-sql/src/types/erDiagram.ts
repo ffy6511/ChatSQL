@@ -10,10 +10,11 @@ export interface ERAttribute {
   description?: string;
 }
 
-// 实体接口
+// 实体接口, 需要遍历其中的属性, 判断是否存在
 export interface EREntity {
   id: string;
   name: string;
+  isWeakEntity?: boolean; // 是否为弱实体集
   attributes: ERAttribute[];
   description?: string;
   position?: {
@@ -35,6 +36,7 @@ export interface ERRelationship {
   id: string;
   name: string;
   connections: ERConnection[];
+  isWeakRelation?: boolean;  // 是否连接了弱实体集
   attributes?: ERAttribute[]; // 关系也可以有属性
   description?: string;
   position?: {
@@ -383,6 +385,136 @@ export const employeeDepartmentERData: ERDiagramData = {
   metadata: {
     title: "员工部门项目ER图",
     description: "展示员工、部门、项目之间关系的实体关系图，包含完全参与和部分参与约束",
+    version: "1.0.0",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+};
+
+// 弱实体集示例数据，展示弱实体集和双边框渲染
+export const weakEntityERData: ERDiagramData = {
+  entities: [
+    {
+      id: "ent_employee",
+      name: "员工",
+      description: "员工实体，包含员工的基本信息",
+      attributes: [
+        {
+          id: "attr_emp_id",
+          name: "员工编号",
+          isPrimaryKey: true,
+          dataType: "VARCHAR(10)",
+          isRequired: true,
+          description: "员工的唯一标识符"
+        },
+        {
+          id: "attr_emp_name",
+          name: "姓名",
+          dataType: "VARCHAR(50)",
+          isRequired: true,
+          description: "员工的姓名"
+        }
+      ]
+    },
+    {
+      id: "ent_dependent",
+      name: "家属",
+      isWeakEntity: true, // 弱实体集
+      description: "员工家属信息，依赖于员工实体",
+      attributes: [
+        {
+          id: "attr_dep_name",
+          name: "家属姓名",
+          isPrimaryKey: true, // 在弱实体集中，这是判别符
+          dataType: "VARCHAR(50)",
+          isRequired: true,
+          description: "家属的姓名（判别符）"
+        },
+        {
+          id: "attr_dep_relationship",
+          name: "关系",
+          dataType: "VARCHAR(20)",
+          isRequired: true,
+          description: "与员工的关系"
+        },
+        {
+          id: "attr_dep_age",
+          name: "年龄",
+          dataType: "INT",
+          description: "家属的年龄"
+        }
+      ]
+    },
+    {
+      id: "ent_project",
+      name: "项目",
+      description: "公司项目信息",
+      attributes: [
+        {
+          id: "attr_proj_id",
+          name: "项目编号",
+          isPrimaryKey: true,
+          dataType: "VARCHAR(10)",
+          isRequired: true,
+          description: "项目的唯一标识符"
+        },
+        {
+          id: "attr_proj_name",
+          name: "项目名称",
+          dataType: "VARCHAR(100)",
+          isRequired: true,
+          description: "项目的名称"
+        }
+      ]
+    }
+  ],
+  relationships: [
+    {
+      id: "rel_has_dependent",
+      name: "拥有家属",
+      description: "员工拥有家属的关系（标识关系）",
+      connections: [
+        {
+          entityId: "ent_employee",
+          cardinality: "1..1",
+          role: "员工"
+        },
+        {
+          entityId: "ent_dependent",
+          cardinality: "0..*",
+          role: "家属"
+        }
+      ]
+    },
+    {
+      id: "rel_works_on",
+      name: "参与项目",
+      description: "员工参与项目的关系",
+      connections: [
+        {
+          entityId: "ent_employee",
+          cardinality: "0..*",
+          role: "项目成员"
+        },
+        {
+          entityId: "ent_project",
+          cardinality: "1..*",
+          role: "参与项目"
+        }
+      ],
+      attributes: [
+        {
+          id: "attr_hours",
+          name: "工作小时",
+          dataType: "DECIMAL(5,2)",
+          description: "员工在项目上的工作小时数"
+        }
+      ]
+    }
+  ],
+  metadata: {
+    title: "弱实体集示例ER图",
+    description: "展示弱实体集（家属）和标识关系的ER图，用于测试双边框渲染",
     version: "1.0.0",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()

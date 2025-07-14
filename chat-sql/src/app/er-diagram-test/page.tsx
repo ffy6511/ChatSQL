@@ -18,11 +18,12 @@ import {
   AccountTree as DiagramIcon,
   School as SchoolIcon,
   Business as BusinessIcon,
-  LocalLibrary as LibraryIcon
+  LocalLibrary as LibraryIcon,
+  FamilyRestroom as FamilyIcon
 } from '@mui/icons-material';
 
 import ERDiagram from '../../components/ERDiagram/ERDiagram';
-import { ERDiagramData, sampleERData, employeeDepartmentERData } from '../../types/erDiagram';
+import { ERDiagramData, sampleERData, employeeDepartmentERData, weakEntityERData } from '../../types/erDiagram';
 
 // 额外的示例数据
 const businessERData: ERDiagramData = {
@@ -174,6 +175,14 @@ export default function ERDiagramTestPage() {
       icon: <BusinessIcon />,
       data: employeeDepartmentERData,
       color: 'info'
+    },
+    {
+      id: 'weakEntity',
+      title: '弱实体集示例',
+      description: '展示弱实体集和双边框渲染效果',
+      icon: <FamilyIcon />,
+      data: weakEntityERData,
+      color: 'warning'
     }
   ];
 

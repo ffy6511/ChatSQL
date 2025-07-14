@@ -29,16 +29,40 @@
   transition: all 0.2s ease;
 }
 
+/* 弱关系双边框样式 */
+.weakRelationship .diamondShape {
+  stroke-width: 2;
+}
+
+/* 弱关系内部边框 */
+.weakRelationship .innerDiamondShape {
+  fill: none;
+  stroke: #0277bd;
+  stroke-width: 2;
+}
+
 .diamondNode:hover .diamondShape {
   fill: #b3e5fc;
   stroke: #01579b;
   stroke-width: 3;
 }
 
+.diamondNode.weakRelationship:hover .diamondShape {
+  fill: #b3e5fc;
+  stroke: #01579b;
+  stroke-width: 2;
+}
+
 .diamondNode.selected .diamondShape {
   fill: #81d4fa;
-  stroke: #01579b;
+  stroke: #2877b4;
   stroke-width: 3;
+}
+
+.diamondNode.weakRelationship.selected .diamondShape {
+  fill: #81d4fa;
+  stroke: #1973b8;
+  stroke-width: 2;
 }
 
 .labelContainer {

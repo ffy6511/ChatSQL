@@ -12,6 +12,7 @@ export interface DiamondNodeData {
     name: string;
     dataType?: string;
   }>;
+  isWeakRelationship?: boolean; // 是否为弱关系
   [key: string]: unknown; // 添加索引签名
 }
 
@@ -33,7 +34,7 @@ const RelationTooltipContent: React.FC<{ description?: string; attributes?: Diam
 
 // 菱形节点组件
 const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
-  const { label, description, attributes } = data as DiamondNodeData;
+  const { label, description, attributes, isWeakRelationship } = data as DiamondNodeData;
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   
@@ -75,7 +76,7 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
         }
       }}
     >
-      <div className={`${styles.diamondNode} ${selected ? styles.selected : ''}`}> 
+      <div className={`${styles.diamondNode} ${selected ? styles.selected : ''} ${isWeakRelationship ? styles.weakRelationship : ''}`}>
         {/* 上方连接点 */}
         <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
         <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
@@ -93,9 +94,9 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
         <Handle type="target" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '10px', transform: 'translateY(-50%)', background: '#555' }} />
         
         {/* SVG 菱形 */}
-        <svg 
-          width={width} 
-          height={height} 
+        <svg
+          width={width}
+          height={height}
           className={styles.diamondSvg}
           viewBox={`0 0 ${width} ${height}`}
         >
@@ -104,8 +105,20 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
             className={styles.diamondShape}
             fill="#e1f5fe"
             stroke="#0277bd"
-            strokeWidth="2"
+            strokeWidth={isWeakRelationship ? "4" : "2"}
           />
+          {/* 弱关系的内部边框 */}
+          {isWeakRelationship && (
+            <polygon
+              points={[
+                `${centerX},15`,           // 上顶点（内缩）
+                `${width - 18},${centerY}`, // 右顶点（内缩）
+                `${centerX},${height - 15}`, // 下顶点（内缩）
+                `18,${centerY}`            // 左顶点（内缩）
+              ].join(' ')}
+              className={styles.innerDiamondShape}
+            />
+          )}
         </svg>
         {/* 只显示关系名 */}
         <div className={styles.labelContainer}>

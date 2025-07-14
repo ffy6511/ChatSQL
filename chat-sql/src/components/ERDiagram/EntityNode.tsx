@@ -12,6 +12,7 @@ export interface EntityNodeData {
   label: string;
   description?: string;
   attributes: ERAttribute[];
+  isWeakEntity?: boolean; // 是否为弱实体集
   [key: string]: unknown; // 添加索引签名
 }
 
@@ -85,7 +86,7 @@ const ConstraintContent: React.FC<{ description?: string; entityName: string }> 
 
 // 实体节点组件
 const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
-  const { label, description, attributes } = data as EntityNodeData;
+  const { label, description, attributes, isWeakEntity} = data as EntityNodeData;
   const headerColorRef = useRef<string | null>(null);
 
   if (headerColorRef.current === null) {
@@ -93,7 +94,7 @@ const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
   }
 
   return (
-    <div className={`${styles.entityNode} ${selected ? styles.selected : ''}`}>
+    <div className={`${styles.entityNode} ${selected ? styles.selected : ''} ${isWeakEntity ? styles.weakEntity : ''}`}>
       {/* 连接点：四个方向都可连线，id与erToFlow.ts一致 */}
       <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
       <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
@@ -137,7 +138,9 @@ const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
             <span className={styles.dataType}>{attr.dataType || ''}</span>
             <div className={styles.attributeBadges}>
               {attr.isPrimaryKey && (
-                <span className={styles.pkBadge}>PK</span>
+               isWeakEntity
+                  ? <span className={styles.disBadge}>DIS</span>
+                  : <span className={styles.pkBadge}>PK</span>
               )}
             </div>
           </div>
