@@ -18,8 +18,8 @@ const ERDiagramContent: React.FC = () => {
           {/* 左侧边栏 */}
           <Splitter.Panel
             resizable={false}
-            defaultSize="250px"
-            className={styles.sidebarPanel}
+            defaultSize="100px"
+            className="sidebar-panel"
           >
             <Sidebar
               activeTab={state.activeSidebarTab}

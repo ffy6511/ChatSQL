@@ -55,14 +55,14 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
   };
 
   return (
-    <div className={styles.sideBarContainer}>
+    <div className="global-sidebar-container">
       {contextHolder}
-      <div className={styles.topButtons}>
+      <div className="global-sidebar-top-buttons">
         <Tooltip title="新建对话" placement="right">
           <Button 
             type="text"
             icon={<PlusCircleOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleNewChat}
           />
         </Tooltip>
@@ -71,26 +71,23 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
           <Button
             type="text"
             icon={isHistoryCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleToggleHistory}
           />
         </Tooltip>
-
-
       </div>
 
-      <div className={styles.menuContainer}>
-          <div className={styles.menuItems}><ThemeToggle /></div>
-          <div className={styles.menuItems}><InitTutorialButton className={styles.actionButton} /></div>
+      <div className="global-sidebar-menu-container">
+          <div className="global-sidebar-menu-items"><ThemeToggle /></div>
+          <div className="global-sidebar-menu-items"><InitTutorialButton className="global-sidebar-action-button" /></div>
       </div>
       
-      <div className={styles.bottomButtons}>
-        
+      <div className="global-sidebar-bottom-buttons">
         <Tooltip title="帮助" placement="right">
           <Button 
             type="text" 
             icon={<QuestionCircleOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleOpenGuide}
           />
         </Tooltip>
@@ -99,7 +96,7 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({ onToggleHistory }
           <Button 
             type="text" 
             icon={<GithubOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleGithubClick}
           />
         </Tooltip>

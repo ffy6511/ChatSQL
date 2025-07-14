@@ -12,6 +12,8 @@ import {
   GithubOutlined
 } from '@ant-design/icons';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import NewDiagramModal from './NewDiagramModal';
+import OpenDiagramModal from './OpenDiagramModal';
 import styles from './Sidebar.module.css';
 
 type ActiveTab = 'components' | 'entities' | 'relationships';
@@ -23,16 +25,16 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isNewDiagramModalOpen, setIsNewDiagramModalOpen] = useState(false);
+  const [isOpenDiagramModalOpen, setIsOpenDiagramModalOpen] = useState(false);
   const { newDiagram, loadSampleData } = useERDiagramContext();
 
   const handleNewDiagram = () => {
-    newDiagram();
-    console.log('新建图表');
+    setIsNewDiagramModalOpen(true);
   };
 
   const handleOpenDiagram = () => {
-    loadSampleData();
-    console.log('加载示例数据');
+    setIsOpenDiagramModalOpen(true);
   };
 
   const handleComponentsClick = () => {
@@ -56,13 +58,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   };
 
   return (
-    <div className={styles.sidebarContainer}>
-      <div className={styles.topButtons}>
+    <div className="global-sidebar-container">
+      <div className="global-sidebar-top-buttons">
         <Tooltip title="新建图表" placement="right">
           <Button 
             type="text"
             icon={<PlusOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleNewDiagram}
           />
         </Tooltip>
@@ -71,53 +73,53 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           <Button 
             type="text"
             icon={<FolderOpenOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleOpenDiagram}
           />
         </Tooltip>
       </div>
 
-      <div className={styles.menuContainer}>
-        <div className={styles.menuItems}>
+      <div className="global-sidebar-menu-container">
+        <div className="global-sidebar-menu-items">
           <Tooltip title="组件库" placement="right">
             <Button
               type="text"
               icon={<AppstoreOutlined />}
-              className={`${styles.actionButton} ${activeTab === 'components' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button ${activeTab === 'components' ? styles.activeButton : ''}`}
               onClick={handleComponentsClick}
             />
           </Tooltip>
         </div>
 
-        <div className={styles.menuItems}>
+        <div className="global-sidebar-menu-items">
           <Tooltip title="实体" placement="right">
             <Button
               type="text"
               icon={<TableOutlined />}
-              className={`${styles.actionButton} ${activeTab === 'entities' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button ${activeTab === 'entities' ? styles.activeButton : ''}`}
               onClick={handleEntitiesClick}
             />
           </Tooltip>
         </div>
 
-        <div className={styles.menuItems}>
+        <div className="global-sidebar-menu-items">
           <Tooltip title="关系" placement="right">
             <Button
               type="text"
               icon={<ShareAltOutlined />}
-              className={`${styles.actionButton} ${activeTab === 'relationships' ? styles.activeButton : ''}`}
+              className={`global-sidebar-action-button ${activeTab === 'relationships' ? styles.activeButton : ''}`}
               onClick={handleRelationshipsClick}
             />
           </Tooltip>
         </div>
       </div>
       
-      <div className={styles.bottomButtons}>
+      <div className="global-sidebar-bottom-buttons">
         <Tooltip title="帮助" placement="right">
           <Button 
             type="text" 
             icon={<QuestionCircleOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleHelpClick}
           />
         </Tooltip>
@@ -126,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           <Button 
             type="text" 
             icon={<GithubOutlined />}
-            className={styles.actionButton}
+            className="global-sidebar-action-button"
             onClick={handleGithubClick}
           />
         </Tooltip>
@@ -160,6 +162,18 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           </ol>
         </div>
       </Modal>
+
+      {/* 新建图表模态框 */}
+      <NewDiagramModal
+        open={isNewDiagramModalOpen}
+        onClose={() => setIsNewDiagramModalOpen(false)}
+      />
+
+      {/* 打开图表模态框 */}
+      <OpenDiagramModal
+        open={isOpenDiagramModalOpen}
+        onClose={() => setIsOpenDiagramModalOpen(false)}
+      />
     </div>
   );
 };

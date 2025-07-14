@@ -49,6 +49,13 @@
   border-color: #2196f3;
 }
 
+/* 节点悬停效果 */
+.entityNode:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
 /* 拖拽中的节点样式 */
 .entityNode.dragging {
   transform: scale(1.02);
@@ -76,6 +83,29 @@
   color: var(--primary-text);
   font-size: 1.1em;
   font-weight: bold;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.title:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+/* 内联编辑器样式 */
+.inlineEditor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  min-width: 120px;
+  max-width: 200px;
 }
 
 .attributesList {

@@ -1,0 +1,184 @@
+.propertyEditor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0 !important;
+  color: var(--primary-text);
+  font-weight: 600;
+}
+
+.section {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--secondary-text);
+  padding: 32px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+  color: var(--secondary-text);
+}
+
+.primaryKeyIcon {
+  color: #d32f2f;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.pkBadge {
+  font-size: 10px !important;
+  font-weight: bold !important;
+  letter-spacing: 0.5px;
+  height: 20px !important;
+}
+
+.requiredBadge {
+  font-size: 10px !important;
+  font-weight: bold !important;
+  height: 20px !important;
+}
+
+.description {
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 200px;
+  word-break: break-word;
+  display: block;
+  margin-top: 4px;
+}
+
+/* 列表项动画效果 */
+.section .MuiListItem-root {
+  transition: background-color 0.2s ease;
+}
+
+.section .MuiListItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 按钮动画效果 */
+.section .MuiIconButton-root {
+  transition: all 0.2s ease;
+}
+
+.section .MuiIconButton-root:hover {
+  transform: scale(1.1);
+}
+
+/* 对话框样式 */
+.MuiDialog-paper {
+  border-radius: 12px !important;
+}
+
+/* 卡片样式 */
+.section .MuiCard-root {
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.section .MuiCardHeader-root {
+  padding-bottom: 8px;
+}
+
+.section .MuiCardContent-root {
+  padding-top: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .propertyEditor {
+    padding: 12px;
+  }
+
+  .section {
+    margin-bottom: 12px;
+  }
+
+  .description {
+    max-width: 150px;
+  }
+
+  .emptyIcon {
+    font-size: 48px;
+  }
+}
+
+/* 暗色主题支持 */
+[data-theme="dark"] .propertyEditor {
+  color: var(--primary-text);
+}
+
+[data-theme="dark"] .section {
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .section:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .emptyState {
+  color: var(--secondary-text);
+}
+
+[data-theme="dark"] .primaryKeyIcon {
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .section .MuiListItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 滚动条样式 */
+.section .MuiList-root {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.section .MuiList-root::-webkit-scrollbar {
+  width: 6px;
+}
+
+.section .MuiList-root::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.section .MuiList-root::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+[data-theme="dark"] .section .MuiList-root::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}

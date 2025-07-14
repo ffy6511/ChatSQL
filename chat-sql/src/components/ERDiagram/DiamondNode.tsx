@@ -1,7 +1,9 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import styles from './DiamondNode.module.css';
 import { Tooltip, useTheme } from '@mui/material';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import InlineEditor from './UI/InlineEditor';
+import styles from './DiamondNode.module.css';
 
 // 菱形节点的数据类型
 export interface DiamondNodeData {
@@ -33,10 +35,55 @@ const RelationTooltipContent: React.FC<{ description?: string; attributes?: Diam
 );
 
 // 菱形节点组件
-const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
+const DiamondNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const { label, description, attributes, isWeakRelationship } = data as DiamondNodeData;
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+
+  // 使用ERDiagram上下文
+  const { state, startEditNode, finishEditNode, renameNode, selectNode, setActiveTab, setSelectedElement } = useERDiagramContext();
+
+  // 判断当前节点是否处于编辑状态
+  const isEditing = state.editingNodeId === id && state.nodeEditMode === 'rename';
+
+  // 双击标题重命名
+  const handleTitleDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!isEditing) {
+      startEditNode(id, 'rename');
+    }
+  };
+
+  // 双击关系内部 - 切换到关系列表并选中
+  const handleRelationshipDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setActiveTab('relationships');
+    setSelectedElement(id);
+  };
+
+  // 保存重命名
+  const handleSaveRename = (newName: string) => {
+    renameNode(id, newName);
+  };
+
+  // 取消重命名
+  const handleCancelRename = () => {
+    finishEditNode();
+  };
+
+  // 单击选中节点
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    selectNode(id);
+  };
+
+  // 右键菜单 - 进入属性编辑模式
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    selectNode(id);
+    startEditNode(id, 'properties');
+  };
   
   // 菱形的尺寸
   const width = 160;
@@ -76,7 +123,12 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
         }
       }}
     >
-      <div className={`${styles.diamondNode} ${selected ? styles.selected : ''} ${isWeakRelationship ? styles.weakRelationship : ''}`}>
+      <div
+        className={`${styles.diamondNode} ${selected ? styles.selected : ''} ${isWeakRelationship ? styles.weakRelationship : ''}`}
+        onClick={handleClick}
+        onContextMenu={handleContextMenu}
+        onDoubleClick={handleRelationshipDoubleClick}
+      >
         {/* 上方连接点 */}
         <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
         <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '10px', left: '50%', transform: 'translateX(-50%)', background: '#555' }} />
@@ -120,9 +172,19 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected }) => {
             />
           )}
         </svg>
-        {/* 只显示关系名 */}
-        <div className={styles.labelContainer}>
-          <div className={styles.label}>{label}</div>
+        {/* 关系名称 - 支持双击编辑 */}
+        <div className={styles.labelContainer} onDoubleClick={handleTitleDoubleClick}>
+          {isEditing ? (
+            <InlineEditor
+              nodeId={id}
+              currentName={label}
+              onSave={handleSaveRename}
+              onCancel={handleCancelRename}
+              className={styles.inlineEditor}
+            />
+          ) : (
+            <div className={styles.label}>{label}</div>
+          )}
         </div>
       </div>
     </Tooltip>

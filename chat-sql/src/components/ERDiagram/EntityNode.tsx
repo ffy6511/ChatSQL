@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles';
 import { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import { ERAttribute } from '../../types/erDiagram';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import InlineEditor from './UI/InlineEditor';
 import styles from './EntityNode.module.css';
 
 // 实体节点的数据类型
@@ -85,16 +87,65 @@ const ConstraintContent: React.FC<{ description?: string; entityName: string }> 
 };
 
 // 实体节点组件
-const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
+const EntityNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const { label, description, attributes, isWeakEntity} = data as EntityNodeData;
   const headerColorRef = useRef<string | null>(null);
+
+  // 使用ERDiagram上下文
+  const { state, startEditNode, finishEditNode, renameNode, selectNode, setActiveTab, setSelectedElement } = useERDiagramContext();
+
+  // 判断当前节点是否处于编辑状态
+  const isEditing = state.editingNodeId === id && state.nodeEditMode === 'rename';
 
   if (headerColorRef.current === null) {
     headerColorRef.current = getRandomColor();
   }
 
+  // 双击标题重命名
+  const handleTitleDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!isEditing) {
+      startEditNode(id, 'rename');
+    }
+  };
+
+  // 双击实体内部 - 切换到实体列表并选中
+  const handleEntityDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setActiveTab('entities');
+    setSelectedElement(id);
+  };
+
+  // 保存重命名
+  const handleSaveRename = (newName: string) => {
+    renameNode(id, newName);
+  };
+
+  // 取消重命名
+  const handleCancelRename = () => {
+    finishEditNode();
+  };
+
+  // 单击选中节点
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    selectNode(id);
+  };
+
+  // 右键菜单 - 进入属性编辑模式
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    selectNode(id);
+    startEditNode(id, 'properties');
+  };
+
   return (
-    <div className={`${styles.entityNode} ${selected ? styles.selected : ''} ${isWeakEntity ? styles.weakEntity : ''}`}>
+    <div
+      className={`${styles.entityNode} ${selected ? styles.selected : ''} ${isWeakEntity ? styles.weakEntity : ''}`}
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+    >
       {/* 连接点：四个方向都可连线，id与erToFlow.ts一致 */}
       <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
       <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
@@ -106,16 +157,27 @@ const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
       <Handle type="target" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '-4px', transform: 'translateY(-50%)' }} />
 
       {/* 实体标题 */}
-      <div 
-        className={styles.header} 
-        style={{ 
+      <div
+        className={styles.header}
+        style={{
           background: headerColorRef.current,
           position: 'relative',
           fontSize: '1.1em',
           fontWeight: 'bold',
         }}
+        onDoubleClick={handleTitleDoubleClick}
       >
-        <div className={styles.title}>{label}</div>
+        {isEditing ? (
+          <InlineEditor
+            nodeId={id}
+            currentName={label}
+            onSave={handleSaveRename}
+            onCancel={handleCancelRename}
+            className={styles.inlineEditor}
+          />
+        ) : (
+          <div className={styles.title}>{label}</div>
+        )}
         <ConstraintTooltip
           title={<ConstraintContent description={description} entityName={label} />}
           placement="right"
@@ -126,7 +188,7 @@ const EntityNode: React.FC<NodeProps> = ({ data, selected }) => {
       </div>
 
       {/* 属性列表 */}
-      <div className={styles.attributesList}>
+      <div className={styles.attributesList} onDoubleClick={handleEntityDoubleClick}>
         {attributes.map((attr) => (
           <div
             key={attr.id}

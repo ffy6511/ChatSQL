@@ -2,14 +2,20 @@
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { ERDiagramData, sampleERData, EREntity, ERRelationship } from '@/types/erDiagram';
+import { erDiagramStorage, ERDiagramMetadata } from '@/services/erDiagramStorage';
 
 type ActiveTab = 'components' | 'entities' | 'relationships';
+type NodeEditMode = 'none' | 'rename' | 'properties';
 
 interface ERDiagramState {
   currentDiagramId: string | null;
   diagramData: ERDiagramData | null;
   activeSidebarTab: ActiveTab;
   selectedElementId: string | null;
+  // 新增节点编辑相关状态
+  selectedNodeId: string | null;
+  editingNodeId: string | null;
+  nodeEditMode: NodeEditMode;
 }
 
 type ERDiagramAction =
@@ -23,13 +29,27 @@ type ERDiagramAction =
   | { type: 'UPDATE_ENTITY'; payload: { id: string; entity: Partial<EREntity> } }
   | { type: 'UPDATE_RELATIONSHIP'; payload: { id: string; relationship: Partial<ERRelationship> } }
   | { type: 'DELETE_ENTITY'; payload: { id: string } }
-  | { type: 'DELETE_RELATIONSHIP'; payload: { id: string } };
+  | { type: 'DELETE_RELATIONSHIP'; payload: { id: string } }
+  // 新增节点编辑相关Action
+  | { type: 'SELECT_NODE'; payload: { nodeId: string | null } }
+  | { type: 'START_EDIT_NODE'; payload: { nodeId: string; mode: NodeEditMode } }
+  | { type: 'FINISH_EDIT_NODE' }
+  | { type: 'RENAME_NODE'; payload: { nodeId: string; newName: string } }
+  // 存储相关Action
+  | { type: 'SAVE_DIAGRAM'; payload: { id?: string } }
+  | { type: 'LOAD_DIAGRAM'; payload: { id: string } }
+  | { type: 'NEW_DIAGRAM' }
+  | { type: 'SET_CURRENT_DIAGRAM_ID'; payload: { id: string | null } };
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
   diagramData: sampleERData,
   activeSidebarTab: 'components',
   selectedElementId: null,
+  // 新增节点编辑相关初始状态
+  selectedNodeId: null,
+  editingNodeId: null,
+  nodeEditMode: 'none',
 };
 
 function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDiagramState {
@@ -156,6 +176,74 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
           },
         },
       };
+    // 新增节点编辑相关reducer case
+    case 'SELECT_NODE':
+      return {
+        ...state,
+        selectedNodeId: action.payload.nodeId,
+        // 选择新节点时清除编辑状态
+        editingNodeId: null,
+        nodeEditMode: 'none',
+      };
+    case 'START_EDIT_NODE':
+      return {
+        ...state,
+        editingNodeId: action.payload.nodeId,
+        nodeEditMode: action.payload.mode,
+        selectedNodeId: action.payload.nodeId,
+      };
+    case 'FINISH_EDIT_NODE':
+      return {
+        ...state,
+        editingNodeId: null,
+        nodeEditMode: 'none',
+      };
+    case 'RENAME_NODE':
+      if (!state.diagramData) return state;
+
+      // 查找并更新实体或关系的名称
+      const updatedEntities = state.diagramData.entities.map(entity =>
+        entity.id === action.payload.nodeId
+          ? { ...entity, name: action.payload.newName }
+          : entity
+      );
+
+      const updatedRelationships = state.diagramData.relationships.map(relationship =>
+        relationship.id === action.payload.nodeId
+          ? { ...relationship, name: action.payload.newName }
+          : relationship
+      );
+
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: updatedEntities,
+          relationships: updatedRelationships,
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+        // 重命名完成后清除编辑状态
+        editingNodeId: null,
+        nodeEditMode: 'none',
+      };
+    case 'SET_CURRENT_DIAGRAM_ID':
+      return {
+        ...state,
+        currentDiagramId: action.payload.id,
+      };
+    case 'NEW_DIAGRAM':
+      return {
+        ...state,
+        currentDiagramId: null,
+        diagramData: null,
+        selectedElementId: null,
+        selectedNodeId: null,
+        editingNodeId: null,
+        nodeEditMode: 'none',
+      };
     default:
       return state;
   }
@@ -168,15 +256,25 @@ interface ERDiagramContextType {
   setActiveTab: (tab: ActiveTab) => void;
   setDiagramData: (data: ERDiagramData) => void;
   setSelectedElement: (id: string | null) => void;
-  newDiagram: () => void;
   loadSampleData: () => void;
-  // 新增的便捷方法
+  // 实体和关系操作方法
   addEntity: (entity: EREntity) => void;
   addRelationship: (relationship: ERRelationship) => void;
   updateEntity: (id: string, entity: Partial<EREntity>) => void;
   updateRelationship: (id: string, relationship: Partial<ERRelationship>) => void;
   deleteEntity: (id: string) => void;
   deleteRelationship: (id: string) => void;
+  // 新增节点编辑相关便捷方法
+  selectNode: (nodeId: string | null) => void;
+  startEditNode: (nodeId: string, mode: NodeEditMode) => void;
+  finishEditNode: () => void;
+  renameNode: (nodeId: string, newName: string) => void;
+  // 存储相关方法
+  saveDiagram: (id?: string) => Promise<string>;
+  loadDiagram: (id: string) => Promise<void>;
+  newDiagram: () => void;
+  listDiagrams: () => Promise<ERDiagramMetadata[]>;
+  deleteDiagram: (id: string) => Promise<void>;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(undefined);
@@ -208,10 +306,6 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'SET_SELECTED_ELEMENT', payload: id });
   };
 
-  const newDiagram = () => {
-    dispatch({ type: 'NEW_DIAGRAM' });
-  };
-
   const loadSampleData = () => {
     dispatch({ type: 'LOAD_SAMPLE_DATA' });
   };
@@ -240,13 +334,62 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
   };
 
+  // 新增节点编辑相关便捷方法实现
+  const selectNode = (nodeId: string | null) => {
+    dispatch({ type: 'SELECT_NODE', payload: { nodeId } });
+  };
+
+  const startEditNode = (nodeId: string, mode: NodeEditMode) => {
+    dispatch({ type: 'START_EDIT_NODE', payload: { nodeId, mode } });
+  };
+
+  const finishEditNode = () => {
+    dispatch({ type: 'FINISH_EDIT_NODE' });
+  };
+
+  const renameNode = (nodeId: string, newName: string) => {
+    dispatch({ type: 'RENAME_NODE', payload: { nodeId, newName } });
+  };
+
+  // 存储相关方法实现
+  const saveDiagram = async (id?: string): Promise<string> => {
+    if (!state.diagramData) {
+      throw new Error('No diagram data to save');
+    }
+
+    const savedId = await erDiagramStorage.saveDiagram(state.diagramData, id);
+    dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id: savedId } });
+    return savedId;
+  };
+
+  const loadDiagram = async (id: string): Promise<void> => {
+    const storedDiagram = await erDiagramStorage.loadDiagram(id);
+    dispatch({ type: 'SET_DIAGRAM_DATA', payload: storedDiagram.data });
+    dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id } });
+  };
+
+  const newDiagram = () => {
+    dispatch({ type: 'NEW_DIAGRAM' });
+  };
+
+  const listDiagrams = async (): Promise<ERDiagramMetadata[]> => {
+    return await erDiagramStorage.listDiagrams();
+  };
+
+  const deleteDiagram = async (id: string): Promise<void> => {
+    await erDiagramStorage.deleteDiagram(id);
+    // 如果删除的是当前图表，清空状态
+    if (state.currentDiagramId === id) {
+      dispatch({ type: 'NEW_DIAGRAM' });
+    }
+  };
+
   const value: ERDiagramContextType = {
     state,
     dispatch,
     setActiveTab,
     setDiagramData,
     setSelectedElement,
-    newDiagram,
     loadSampleData,
     addEntity,
     addRelationship,
@@ -254,6 +397,17 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     updateRelationship,
     deleteEntity,
     deleteRelationship,
+    // 新增节点编辑相关方法
+    selectNode,
+    startEditNode,
+    finishEditNode,
+    renameNode,
+    // 存储相关方法
+    saveDiagram,
+    loadDiagram,
+    newDiagram,
+    listDiagrams,
+    deleteDiagram,
   };
 
   return (

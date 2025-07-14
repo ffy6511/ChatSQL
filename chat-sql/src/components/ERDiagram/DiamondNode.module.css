@@ -65,12 +65,31 @@
   stroke-width: 2;
 }
 
+/* 节点悬停效果 */
+.diamondNode:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  transition: all 0.2s ease;
+}
+
 .labelContainer {
   position: relative;
   z-index: 2;
   text-align: center;
   max-width: 120px;
   padding: 0 10px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.labelContainer:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 
 .label {
@@ -156,6 +175,17 @@
 .attributeType {
   color: #666;
   font-style: italic;
+}
+
+/* 内联编辑器样式 */
+.inlineEditor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  min-width: 100px;
+  max-width: 150px;
 }
 
 .handle {

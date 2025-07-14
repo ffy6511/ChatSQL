@@ -1,0 +1,70 @@
+/* ====== Global Sidebar Styles (from SideBar.module.css) ====== */
+.global-sidebar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  padding: 8px;
+}
+
+.global-sidebar-top-buttons, .global-sidebar-bottom-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.global-sidebar-top-buttons {
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.global-sidebar-bottom-buttons {
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.global-sidebar-action-button {
+  width: 2em !important;
+  height: 2em!important;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: var(--icon-color) !important;
+  background: transparent;
+}
+
+.global-sidebar-action-button:hover {
+  background: var(--button-hover);
+  color: var(--icon-color-hover) !important;
+}
+
+[data-theme="dark"] .global-sidebar-action-button {
+  color: var(--icon-color-dark) !important;
+}
+
+[data-theme="dark"] .global-sidebar-action-button:hover {
+  color: var(--icon-color-hover) !important;
+}
+
+.global-sidebar-menu-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-top:2em;
+}
+
+.global-sidebar-menu-items {
+  padding: 4px 0;
+  font-size: 14px !important;
+}
+
+.global-sidebar-bottom-buttons button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 

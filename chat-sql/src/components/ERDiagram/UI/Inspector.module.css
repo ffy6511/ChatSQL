@@ -130,3 +130,141 @@
 [data-theme="dark"] .instructionText {
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* 新增的实体和关系卡片样式 */
+.entityList,
+.relationshipList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entityCard,
+.relationshipCard {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.entityCard:hover,
+.relationshipCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.entityCard.selected,
+.relationshipCard.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.entityHeader,
+.relationshipHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.entityActions,
+.relationshipActions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.entityCard:hover .entityActions,
+.relationshipCard:hover .relationshipActions {
+  opacity: 1;
+}
+
+.expandIcon {
+  font-size: 12px;
+  color: var(--secondary-text);
+  transition: transform 0.2s ease;
+}
+
+.entityContent,
+.relationshipContent {
+  padding: 0 12px 12px;
+}
+
+.attributesList,
+.connectionsList {
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.attributeItem,
+.connectionItem {
+  padding: 4px 8px;
+  margin: 2px 0;
+  background: var(--background-light);
+  border-radius: 4px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.attributeInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attributeType {
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.primaryKeyIcon {
+  color: #d32f2f;
+  font-size: 14px;
+}
+
+.emptyText {
+  font-style: italic;
+  padding: 8px;
+  text-align: center;
+  display: block;
+}
+
+.entityDescriptionFull,
+.relationshipDescriptionFull {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--background-light);
+  border-radius: 4px;
+}
+
+/* 暗色主题下的新样式 */
+[data-theme="dark"] .entityCard,
+[data-theme="dark"] .relationshipCard {
+  border-color: var(--border-color);
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .entityCard.selected,
+[data-theme="dark"] .relationshipCard.selected {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+[data-theme="dark"] .attributeItem,
+[data-theme="dark"] .connectionItem {
+  background: var(--code-bg);
+}
+
+[data-theme="dark"] .entityDescriptionFull,
+[data-theme="dark"] .relationshipDescriptionFull {
+  background: var(--code-bg);
+}
