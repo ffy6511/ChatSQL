@@ -26,6 +26,7 @@ import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import {
   createDefaultEntity,
   createDefaultRelationship,
+  createDefaultWeakEntity,
   validateDragData
 } from './utils/nodeFactory';
 import styles from './ERDiagram.module.css';
@@ -327,10 +328,14 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
 
     try {
       // 根据节点类型创建相应的实体或关系并持久化到 diagramData
-      if (nodeType === 'entity') {
+      if (nodeType === 'strong-entity') {
         const newEntity = createDefaultEntity(position);
         await contextMethods.addEntity(newEntity);
         console.log('创建新实体并持久化:', newEntity);
+      } else if (nodeType === 'weak-entity') {
+        const newEntity = createDefaultWeakEntity(position);
+        await contextMethods.addEntity(newEntity);
+        console.log('创建新弱实体并持久化:', newEntity);
       } else if (nodeType === 'diamond') {
         const newRelationship = createDefaultRelationship(position);
         await contextMethods.addRelationship(newRelationship);

@@ -50,7 +50,7 @@ const NavBar: React.FC = () => {
             </Button>
           </Tooltip>
 
-          <Tooltip title="B+树可视化">
+          {/* <Tooltip title="B+树可视化">
             <Button
               type={isActive('/bplus') ? 'primary' : 'text'}
               icon={<PartitionOutlined />}
@@ -59,7 +59,7 @@ const NavBar: React.FC = () => {
             >
               BPlus
             </Button>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       </div>
 

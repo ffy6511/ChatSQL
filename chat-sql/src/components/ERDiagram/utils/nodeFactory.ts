@@ -13,7 +13,7 @@ export function createDefaultEntity(position: { x: number; y: number }): EREntit
   
   return {
     id,
-    name: '新实体',
+    name: '实体',
     description: '新创建的实体',
     position,
     attributes: [
@@ -23,7 +23,7 @@ export function createDefaultEntity(position: { x: number; y: number }): EREntit
         isPrimaryKey: true,
         dataType: 'VARCHAR(20)',
         isRequired: true,
-        description: '主键标识符'
+        description: '主键'
       }
     ]
   };
@@ -54,6 +54,28 @@ export function createDefaultAttribute(): ERAttribute {
   };
 }
 
+// 创建默认弱实体
+export function createDefaultWeakEntity(position: { x: number; y: number }): EREntity {
+  const id = generateUniqueId('ent');
+  return {
+    id,
+    name: '弱实体',
+    description: '新创建的弱实体',
+    position,
+    isWeakEntity: true,
+    attributes: [
+      {
+        id: generateUniqueId('attr'),
+        name: 'id',
+        isPrimaryKey: true,
+        dataType: 'VARCHAR(20)',
+        isRequired: true,
+        description: '标识符'
+      }
+    ]
+  };
+}
+
 // 计算拖放位置（简化版本）
 export function calculateDropPosition(
   event: DragEvent,
@@ -78,7 +100,7 @@ export function calculateDropPosition(
 // 验证拖拽数据
 export function validateDragData(dataTransfer: DataTransfer): string | null {
   const nodeType = dataTransfer.getData('application/reactflow');
-  if (nodeType === 'entity' || nodeType === 'diamond') {
+  if (['strong-entity', 'weak-entity', 'diamond'].includes(nodeType)) {
     return nodeType;
   }
   return null;

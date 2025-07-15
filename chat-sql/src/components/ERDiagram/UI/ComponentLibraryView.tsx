@@ -31,7 +31,7 @@ const ComponentLibraryView: React.FC = () => {
       id: 'strong-entity',
       name: 'Strong entity set',
       icon: BorderAllIcon,
-      type: 'entity',
+      type: 'strong-entity',
       description: 'an entity type that can exist independently and has its own primary key',
       color: '#448fd6', // 蓝色
     },
@@ -39,7 +39,7 @@ const ComponentLibraryView: React.FC = () => {
       id: 'weak-entity',
       name: 'Weak entity set',
       icon: BorderAllIcon,
-      type: 'entity',
+      type: 'weak-entity',
       description: 'its existence depends on another (strong) entity set',
       color: '#bd62eb', // 紫色
     },

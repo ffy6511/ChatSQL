@@ -87,7 +87,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
+      maxWidth="md"
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
