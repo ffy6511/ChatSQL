@@ -56,6 +56,7 @@ interface ERDiagramProps {
   showBackground?: boolean;
   onNodeClick?: (node: Node) => void;
   onEdgeClick?: (edge: Edge) => void;
+  onNodeDoubleClick?: (node: Node) => void;
 }
 
 // 自定义控制面板组件 - 参考DatabaseFlow的样式
@@ -183,7 +184,8 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   showControls = true,
   showBackground = true,
   onNodeClick,
-  onEdgeClick
+  onEdgeClick,
+  onNodeDoubleClick
 }) => {
   // 边样式状态 - 默认为折线
   const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>('step');
@@ -267,6 +269,12 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     onEdgeClick?.(edge);
   }, [onEdgeClick]);
 
+  // 节点双击处理
+  const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+    console.log('Node double clicked:', node);
+    onNodeDoubleClick?.(node);
+  }, [onNodeDoubleClick]);
+
   return (
     <div className={`${styles.erDiagram} ${className || ''}`}>
       <ReactFlow
@@ -276,6 +284,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
         onEdgeClick={handleEdgeClick}
+        onNodeDoubleClick={handleNodeDoubleClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

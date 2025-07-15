@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { ERDiagramData, sampleERData, EREntity, ERRelationship } from '@/types/erDiagram';
 import { erDiagramStorage, ERDiagramMetadata } from '@/services/erDiagramStorage';
+import { useEffect, useCallback } from 'react';
 
 type ActiveTab = 'components' | 'entities' | 'relationships';
 type NodeEditMode = 'none' | 'rename' | 'properties';
@@ -12,17 +13,17 @@ interface ERDiagramState {
   diagramData: ERDiagramData | null;
   activeSidebarTab: ActiveTab;
   selectedElementId: string | null;
-  // 新增节点编辑相关状态
+  // 节点编辑相关状态
   selectedNodeId: string | null;
   editingNodeId: string | null;
   nodeEditMode: NodeEditMode;
+  diagramList: ERDiagramMetadata[]; 
 }
 
 type ERDiagramAction =
   | { type: 'SET_DIAGRAM_DATA'; payload: ERDiagramData }
   | { type: 'SET_ACTIVE_TAB'; payload: ActiveTab }
   | { type: 'SET_SELECTED_ELEMENT'; payload: string | null }
-  | { type: 'NEW_DIAGRAM' }
   | { type: 'LOAD_SAMPLE_DATA' }
   | { type: 'ADD_ENTITY'; payload: { entity: EREntity } }
   | { type: 'ADD_RELATIONSHIP'; payload: { relationship: ERRelationship } }
@@ -30,16 +31,23 @@ type ERDiagramAction =
   | { type: 'UPDATE_RELATIONSHIP'; payload: { id: string; relationship: Partial<ERRelationship> } }
   | { type: 'DELETE_ENTITY'; payload: { id: string } }
   | { type: 'DELETE_RELATIONSHIP'; payload: { id: string } }
-  // 新增节点编辑相关Action
+  // 节点编辑相关Action
   | { type: 'SELECT_NODE'; payload: { nodeId: string | null } }
   | { type: 'START_EDIT_NODE'; payload: { nodeId: string; mode: NodeEditMode } }
   | { type: 'FINISH_EDIT_NODE' }
   | { type: 'RENAME_NODE'; payload: { nodeId: string; newName: string } }
+  // 属性编辑相关Action
+  | { type: 'UPDATE_ATTRIBUTE'; payload: { entityId: string; attributeId: string; updates: Partial<import('@/types/erDiagram').ERAttribute> } }
+  | { type: 'UPDATE_CONNECTION'; payload: { relationshipId: string; entityId: string; updates: Partial<import('@/types/erDiagram').ERConnection> } }
+  // 连接管理相关Action
+  | { type: 'CREATE_CONNECTION'; payload: { relationshipId: string; connection: import('@/types/erDiagram').ERConnection } }
+  | { type: 'DELETE_CONNECTION'; payload: { relationshipId: string; entityId: string } }
   // 存储相关Action
   | { type: 'SAVE_DIAGRAM'; payload: { id?: string } }
   | { type: 'LOAD_DIAGRAM'; payload: { id: string } }
   | { type: 'NEW_DIAGRAM' }
-  | { type: 'SET_CURRENT_DIAGRAM_ID'; payload: { id: string | null } };
+  | { type: 'SET_CURRENT_DIAGRAM_ID'; payload: { id: string | null } }
+  | { type: 'SET_DIAGRAM_LIST'; payload: ERDiagramMetadata[] };
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
@@ -50,6 +58,7 @@ const initialState: ERDiagramState = {
   selectedNodeId: null,
   editingNodeId: null,
   nodeEditMode: 'none',
+  diagramList: [], // 新增
 };
 
 function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDiagramState {
@@ -118,15 +127,39 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
       };
     case 'UPDATE_ENTITY':
       if (!state.diagramData) return state;
+
+      const updatedEntities = state.diagramData.entities.map(entity =>
+        entity.id === action.payload.id
+          ? { ...entity, ...action.payload.entity }
+          : entity
+      );
+
+      // 如果更新了实体的 isWeakEntity 属性，需要重新检查所有相关关系的弱关系状态
+      const updatedRelationshipsForEntity = state.diagramData.relationships.map(relationship => {
+        const hasUpdatedEntity = relationship.connections.some(conn => conn.entityId === action.payload.id);
+
+        if (hasUpdatedEntity) {
+          // 重新检查是否为弱关系
+          const isWeakRelation = relationship.connections.some(conn => {
+            const entity = updatedEntities.find(e => e.id === conn.entityId);
+            return entity?.isWeakEntity === true;
+          });
+
+          return {
+            ...relationship,
+            isWeakRelation
+          };
+        }
+
+        return relationship;
+      });
+
       return {
         ...state,
         diagramData: {
           ...state.diagramData,
-          entities: state.diagramData.entities.map(entity =>
-            entity.id === action.payload.id
-              ? { ...entity, ...action.payload.entity }
-              : entity
-          ),
+          entities: updatedEntities,
+          relationships: updatedRelationshipsForEntity,
           metadata: {
             ...state.diagramData.metadata,
             updatedAt: new Date().toISOString(),
@@ -202,13 +235,13 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
       if (!state.diagramData) return state;
 
       // 查找并更新实体或关系的名称
-      const updatedEntities = state.diagramData.entities.map(entity =>
+      const renamedEntities = state.diagramData.entities.map(entity =>
         entity.id === action.payload.nodeId
           ? { ...entity, name: action.payload.newName }
           : entity
       );
 
-      const updatedRelationships = state.diagramData.relationships.map(relationship =>
+      const renamedRelationships = state.diagramData.relationships.map(relationship =>
         relationship.id === action.payload.nodeId
           ? { ...relationship, name: action.payload.newName }
           : relationship
@@ -218,8 +251,8 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
         ...state,
         diagramData: {
           ...state.diagramData,
-          entities: updatedEntities,
-          relationships: updatedRelationships,
+          entities: renamedEntities,
+          relationships: renamedRelationships,
           metadata: {
             ...state.diagramData.metadata,
             updatedAt: new Date().toISOString(),
@@ -229,21 +262,129 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
         editingNodeId: null,
         nodeEditMode: 'none',
       };
+    case 'UPDATE_ATTRIBUTE':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.map(entity =>
+            entity.id === action.payload.entityId
+              ? {
+                  ...entity,
+                  attributes: entity.attributes.map(attr =>
+                    attr.id === action.payload.attributeId
+                      ? { ...attr, ...action.payload.updates }
+                      : attr
+                  )
+                }
+              : entity
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'UPDATE_CONNECTION':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(relationship =>
+            relationship.id === action.payload.relationshipId
+              ? {
+                  ...relationship,
+                  connections: relationship.connections.map(conn =>
+                    conn.entityId === action.payload.entityId
+                      ? { ...conn, ...action.payload.updates }
+                      : conn
+                  )
+                }
+              : relationship
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'CREATE_CONNECTION':
+      if (!state.diagramData) return state;
+
+      // 添加连接并检查弱关系
+      const updatedRelationshipsAfterCreate = state.diagramData.relationships.map(relationship => {
+        if (relationship.id === action.payload.relationshipId) {
+          const newConnections = [...relationship.connections, action.payload.connection];
+
+          // 检查是否为弱关系（连接了弱实体）
+          const isWeakRelation = newConnections.some(conn => {
+            const entity = state.diagramData!.entities.find(e => e.id === conn.entityId);
+            return entity?.isWeakEntity === true;
+          });
+
+          return {
+            ...relationship,
+            connections: newConnections,
+            isWeakRelation
+          };
+        }
+        return relationship;
+      });
+
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: updatedRelationshipsAfterCreate,
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'DELETE_CONNECTION':
+      if (!state.diagramData) return state;
+
+      // 删除连接并重新检查弱关系
+      const updatedRelationshipsAfterDelete = state.diagramData.relationships.map(relationship => {
+        if (relationship.id === action.payload.relationshipId) {
+          const newConnections = relationship.connections.filter(conn => conn.entityId !== action.payload.entityId);
+
+          // 重新检查是否为弱关系
+          const isWeakRelation = newConnections.some(conn => {
+            const entity = state.diagramData!.entities.find(e => e.id === conn.entityId);
+            return entity?.isWeakEntity === true;
+          });
+
+          return {
+            ...relationship,
+            connections: newConnections,
+            isWeakRelation
+          };
+        }
+        return relationship;
+      });
+
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: updatedRelationshipsAfterDelete,
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
     case 'SET_CURRENT_DIAGRAM_ID':
       return {
         ...state,
         currentDiagramId: action.payload.id,
       };
-    case 'NEW_DIAGRAM':
-      return {
-        ...state,
-        currentDiagramId: null,
-        diagramData: null,
-        selectedElementId: null,
-        selectedNodeId: null,
-        editingNodeId: null,
-        nodeEditMode: 'none',
-      };
+    case 'SET_DIAGRAM_LIST':
+      return { ...state, diagramList: action.payload };
     default:
       return state;
   }
@@ -269,12 +410,21 @@ interface ERDiagramContextType {
   startEditNode: (nodeId: string, mode: NodeEditMode) => void;
   finishEditNode: () => void;
   renameNode: (nodeId: string, newName: string) => void;
+  // 属性编辑相关方法
+  updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => void;
+  updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => void;
+  // 连接管理相关方法
+  createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => void;
+  deleteConnection: (relationshipId: string, entityId: string) => void;
   // 存储相关方法
   saveDiagram: (id?: string) => Promise<string>;
   loadDiagram: (id: string) => Promise<void>;
   newDiagram: () => void;
   listDiagrams: () => Promise<ERDiagramMetadata[]>;
   deleteDiagram: (id: string) => Promise<void>;
+  // 新增 diagramList 和 fetchDiagramList
+  diagramList: ERDiagramMetadata[];
+  fetchDiagramList: () => Promise<void>;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(undefined);
@@ -351,6 +501,24 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'RENAME_NODE', payload: { nodeId, newName } });
   };
 
+  // 属性编辑相关方法实现
+  const updateAttribute = (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => {
+    dispatch({ type: 'UPDATE_ATTRIBUTE', payload: { entityId, attributeId, updates } });
+  };
+
+  const updateConnection = (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => {
+    dispatch({ type: 'UPDATE_CONNECTION', payload: { relationshipId, entityId, updates } });
+  };
+
+  // 连接管理相关方法实现
+  const createConnection = (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => {
+    dispatch({ type: 'CREATE_CONNECTION', payload: { relationshipId, connection } });
+  };
+
+  const deleteConnection = (relationshipId: string, entityId: string) => {
+    dispatch({ type: 'DELETE_CONNECTION', payload: { relationshipId, entityId } });
+  };
+
   // 存储相关方法实现
   const saveDiagram = async (id?: string): Promise<string> => {
     if (!state.diagramData) {
@@ -359,6 +527,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
 
     const savedId = await erDiagramStorage.saveDiagram(state.diagramData, id);
     dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id: savedId } });
+    // 保存后自动刷新图表列表
+    await fetchDiagramList();
     return savedId;
   };
 
@@ -382,7 +552,25 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     if (state.currentDiagramId === id) {
       dispatch({ type: 'NEW_DIAGRAM' });
     }
+    // 删除后自动刷新图表列表
+    await fetchDiagramList();
   };
+
+  const fetchDiagramList = useCallback(async () => {
+    try {
+      const list = await erDiagramStorage.listDiagrams();
+      dispatch({ type: 'SET_DIAGRAM_LIST', payload: list });
+    } catch (error) {
+      console.error('Failed to fetch diagram list:', error);
+      // 在错误情况下设置空列表，避免UI崩溃
+      dispatch({ type: 'SET_DIAGRAM_LIST', payload: [] });
+    }
+  }, []);
+
+  // 4. useEffect 首次加载时调用 fetchDiagramList
+  useEffect(() => {
+    fetchDiagramList();
+  }, [fetchDiagramList]);
 
   const value: ERDiagramContextType = {
     state,
@@ -397,17 +585,26 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     updateRelationship,
     deleteEntity,
     deleteRelationship,
-    // 新增节点编辑相关方法
+    // 节点编辑相关方法
     selectNode,
     startEditNode,
     finishEditNode,
     renameNode,
+    // 属性编辑相关方法
+    updateAttribute,
+    updateConnection,
+    // 连接管理相关方法
+    createConnection,
+    deleteConnection,
     // 存储相关方法
     saveDiagram,
     loadDiagram,
     newDiagram,
     listDiagrams,
     deleteDiagram,
+    //  diagramList 和 fetchDiagramList
+    diagramList: state.diagramList,
+    fetchDiagramList,
   };
 
   return (

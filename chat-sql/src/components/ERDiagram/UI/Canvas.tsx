@@ -19,7 +19,7 @@ interface CanvasProps {
 
 // 带拖放功能的画布组件
 const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
-  const { state, setSelectedElement, addEntity, addRelationship } = useERDiagramContext();
+  const { state, setSelectedElement, addEntity, addRelationship, startEditNode } = useERDiagramContext();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -59,6 +59,14 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
       addRelationship(newRelationship);
     }
   }, [addEntity, addRelationship]);
+
+  // 处理节点双击事件
+  const handleNodeDoubleClick = useCallback((node: any) => {
+    console.log('Canvas: Node double clicked:', node);
+    // 启动节点编辑模式
+    startEditNode(node.id, 'rename');
+  }, [startEditNode]);
+
   if (!hasData) {
     return (
       <div className={styles.canvasContainer}>
@@ -119,6 +127,7 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
           console.log('边被点击:', edge);
           setSelectedElement(edge.id);
         }}
+        onNodeDoubleClick={handleNodeDoubleClick}
       />
 
       {/* 拖拽提示覆盖层 */}

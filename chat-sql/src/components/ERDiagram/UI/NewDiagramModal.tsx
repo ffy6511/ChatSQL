@@ -16,11 +16,12 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Description as TemplateIcon,
   School as SchoolIcon,
   Business as BusinessIcon,
   LocalLibrary as LibraryIcon
@@ -71,17 +72,21 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   const [diagramName, setDiagramName] = useState<string>('');
   const [diagramDescription, setDiagramDescription] = useState<string>('');
   const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleCreate = async () => {
     if (!diagramName.trim()) {
+      setError('请输入图表名称');
       return;
     }
 
     setIsCreating(true);
-    
+    setError('');
+
     try {
       const template = templates.find(t => t.id === selectedTemplate);
-      
+
       if (template?.data) {
         // 使用模板数据
         const newData = {
@@ -95,7 +100,8 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           }
         };
         setDiagramData(newData);
-        await saveDiagram();
+        const savedId = await saveDiagram();
+        console.log('图表已成功保存，ID:', savedId);
       } else {
         // 创建空白图表
         const emptyData = {
@@ -110,17 +116,22 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           }
         };
         setDiagramData(emptyData);
-        await saveDiagram();
+        const savedId = await saveDiagram();
+        console.log('空白图表已成功保存，ID:', savedId);
       }
-      
+
+      // 显示成功消息
+      setShowSuccess(true);
+
       // 重置表单并关闭模态框
       setDiagramName('');
       setDiagramDescription('');
       setSelectedTemplate('blank');
+      setError('');
       onClose();
     } catch (error) {
       console.error('Failed to create diagram:', error);
-      // 这里可以添加错误提示
+      setError(error instanceof Error ? error.message : '创建图表失败，请重试');
     } finally {
       setIsCreating(false);
     }
@@ -141,8 +152,10 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: { borderRadius: 2 }
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: 2
+        }
       }}
     >
       <DialogTitle>
@@ -155,17 +168,27 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
       </DialogTitle>
       
       <DialogContent>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
         <Box sx={{ mb: 3 }}>
           <TextField
             label="图表名称"
             value={diagramName}
-            onChange={(e) => setDiagramName(e.target.value)}
+            onChange={(e) => {
+              setDiagramName(e.target.value);
+              if (error) setError(''); // 清除错误信息
+            }}
             fullWidth
             required
             sx={{ mb: 2 }}
             placeholder="输入图表名称"
+            error={!!error && !diagramName.trim()}
           />
-          
+
           <TextField
             label="图表描述"
             value={diagramDescription}
@@ -228,6 +251,17 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           {isCreating ? '创建中...' : '创建图表'}
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setShowSuccess(false)}>
+          图表创建成功！
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 };
