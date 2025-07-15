@@ -3,7 +3,6 @@ import {
   ReactFlow,
   useNodesState,
   useEdgesState,
-  Controls,
   Background,
   Panel,
   Node,
@@ -13,22 +12,22 @@ import {
   useReactFlow,
   NodeChange,
   NodePositionChange,
-  applyNodeChanges,
+  Connection,
 } from '@xyflow/react';
-import { Box, Typography, Paper, Chip, Tooltip, IconButton } from '@mui/material';
-import { 
-  ZoomIn as ZoomInIcon, 
-  ZoomOut as ZoomOutIcon, 
-  CenterFocusStrong as CenterIcon,
-  Info as InfoIcon 
-} from '@mui/icons-material';
+import { Box, Typography, Paper, Chip, Tooltip, Snackbar, Alert } from '@mui/material';
 
-import { ERDiagramData } from '../../types/erDiagram';
+import { ERDiagramData, ERConnection } from '../../types/erDiagram';
 import { convertERJsonToFlow, LayoutConfig } from '../../utils/erToFlow';
 import EntityNode from './EntityNode';
 import DiamondNode from './DiamondNode';
 import TotalParticipationEdge from './TotalParticipationEdge';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import {
+  createDefaultEntity,
+  createDefaultRelationship,
+  validateDragData
+} from './utils/nodeFactory';
 import styles from './ERDiagram.module.css';
 
 import '@xyflow/react/dist/style.css';
@@ -189,9 +188,35 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
 }) => {
   // 边样式状态 - 默认为折线
   const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>('step');
-  
+
+  // 消息状态
+  const [message, setMessage] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const showMessage = (msg: string) => {
+    setMessage(msg);
+    setOpen(true);
+  };
+
   // 监听主题的变化
   const { theme: themeContext } = useThemeContext();
+
+  // 获取 React Flow 实例用于坐标转换
+  const { screenToFlowPosition } = useReactFlow();
+
+  // 尝试获取 ERDiagramContext，如果不存在则为 null（用于独立使用的情况）
+  let contextMethods: { addEntity?: any; addRelationship?: any; createConnection?: any } = {};
+  try {
+    const context = useERDiagramContext();
+    contextMethods = {
+      addEntity: context.addEntity,
+      addRelationship: context.addRelationship,
+      createConnection: context.createConnection
+    };
+  } catch (error) {
+    // Context 不存在时，使用空的方法
+    console.warn('ERDiagram: ERDiagramContext not available, drag and connect features disabled');
+  }
   
   // 转换数据为React Flow格式
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -275,6 +300,103 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     onNodeDoubleClick?.(node);
   }, [onNodeDoubleClick]);
 
+  // 拖拽处理函数
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const handleDrop = useCallback(async (event: React.DragEvent) => {
+    event.preventDefault();
+
+    // 如果没有 Context，则不处理拖拽
+    if (!contextMethods.addEntity || !contextMethods.addRelationship) {
+      console.warn('ERDiagram: Cannot handle drop, ERDiagramContext not available');
+      return;
+    }
+
+    // 验证拖拽数据
+    const nodeType = validateDragData(event.dataTransfer);
+    if (!nodeType) return;
+
+    // 将屏幕坐标转换为画布坐标
+    const position = screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    try {
+      // 根据节点类型创建相应的实体或关系并持久化到 diagramData
+      if (nodeType === 'entity') {
+        const newEntity = createDefaultEntity(position);
+        await contextMethods.addEntity(newEntity);
+        console.log('创建新实体并持久化:', newEntity);
+      } else if (nodeType === 'diamond') {
+        const newRelationship = createDefaultRelationship(position);
+        await contextMethods.addRelationship(newRelationship);
+        console.log('创建新关系并持久化:', newRelationship);
+      }
+    } catch (error) {
+      console.error('拖拽创建节点失败:', error);
+    }
+  }, [screenToFlowPosition, contextMethods]);
+
+  // 连接处理函数
+  const handleConnect = useCallback(async (connection: Connection) => {
+    console.log('尝试创建连接:', connection);
+
+    // 如果没有 Context，则不处理连接
+    if (!contextMethods.createConnection) {
+      console.warn('ERDiagram: Cannot handle connect, ERDiagramContext not available');
+      return;
+    }
+
+    // 验证连接的合法性
+    if (!connection.source || !connection.target) {
+      console.warn('连接缺少源节点或目标节点');
+      return;
+    }
+
+    // 检查连接是否符合ER图规则（实体连接关系，关系连接实体）
+    const sourceNode = nodes.find(n => n.id === connection.source);
+    const targetNode = nodes.find(n => n.id === connection.target);
+
+    if (!sourceNode || !targetNode) {
+      console.warn('找不到源节点或目标节点');
+      return;
+    }
+
+    // 确定哪个是实体节点，哪个是关系节点
+    let entityNodeId: string;
+    let relationshipNodeId: string;
+
+    if (sourceNode.type === 'entity' && targetNode.type === 'diamond') {
+      entityNodeId = sourceNode.id;
+      relationshipNodeId = targetNode.id;
+    } else if (sourceNode.type === 'diamond' && targetNode.type === 'entity') {
+      entityNodeId = targetNode.id;
+      relationshipNodeId = sourceNode.id;
+    } else {
+      showMessage('无效的连接：只能在实体和关系之间建立连接');
+      return;
+    }
+
+    try {
+      // 创建 ERConnection 对象
+      const newConnection: ERConnection = {
+        entityId: entityNodeId,
+        cardinality: '1..*', // 默认基数
+        role: undefined // 可选角色
+      };
+
+      // 持久化连接到 diagramData
+      await contextMethods.createConnection(relationshipNodeId, newConnection);
+      console.log('创建连接并持久化:', { relationshipNodeId, connection: newConnection });
+    } catch (error) {
+      console.error('创建连接失败:', error);
+    }
+  }, [nodes, contextMethods, showMessage]);
+
   return (
     <div className={`${styles.erDiagram} ${className || ''}`}>
       <ReactFlow
@@ -285,6 +407,9 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         onNodeClick={handleNodeClick}
         onEdgeClick={handleEdgeClick}
         onNodeDoubleClick={handleNodeDoubleClick}
+        onConnect={handleConnect}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
@@ -300,8 +425,8 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           type: edgeStyle,
           animated: false,
           data: { edgeStyle },
-          style: { 
-            stroke: themeContext === 'dark' ? '#ffb74d' : '#ff9900', 
+          style: {
+            stroke: themeContext === 'dark' ? '#ffb74d' : '#ff9900',
             strokeWidth: 2
           }
         }}
@@ -330,6 +455,19 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
             className={styles.background}
           />
         )}
+
+        {/* 消息提示 */}
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={() => setOpen(false)}
+          // anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx = {{ ml:5}}
+        >
+          <Alert onClose={() => setOpen(false)} severity="warning" sx={{ width: '100%'}}>
+            {message}
+          </Alert>
+        </Snackbar>
       </ReactFlow>
     </div>
   );

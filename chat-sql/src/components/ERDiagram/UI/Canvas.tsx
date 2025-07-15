@@ -1,64 +1,20 @@
 'use client';
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { Empty } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 import ERDiagram from '@/components/ERDiagram/ERDiagram';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
-import {
-  createDefaultEntity,
-  createDefaultRelationship,
-  calculateDropPosition,
-  validateDragData
-} from '@/components/ERDiagram/utils/nodeFactory';
 import styles from './Canvas.module.css';
 
 interface CanvasProps {
   hasData?: boolean;
 }
 
-// 带拖放功能的画布组件
+// 画布组件（移除拖放功能，由ERDiagram组件统一处理）
 const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
-  const { state, setSelectedElement, addEntity, addRelationship, startEditNode } = useERDiagramContext();
+  const { state, setSelectedElement, startEditNode } = useERDiagramContext();
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  // 处理拖拽进入
-  const handleDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    setIsDragOver(true);
-  }, []);
-
-  // 处理拖拽离开
-  const handleDragLeave = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    setIsDragOver(false);
-  }, []);
-
-  // 处理拖放
-  const handleDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    setIsDragOver(false);
-
-    const nodeType = validateDragData(event.dataTransfer);
-    if (!nodeType || !canvasRef.current) return;
-
-    // 获取画布位置信息
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-
-    // 计算拖放位置（简化版本，不考虑viewport）
-    const position = calculateDropPosition(event.nativeEvent, canvasRect);
-
-    // 根据节点类型创建相应的实体或关系
-    if (nodeType === 'entity') {
-      const newEntity = createDefaultEntity(position);
-      addEntity(newEntity);
-    } else if (nodeType === 'diamond') {
-      const newRelationship = createDefaultRelationship(position);
-      addRelationship(newRelationship);
-    }
-  }, [addEntity, addRelationship]);
 
   // 处理节点双击事件
   const handleNodeDoubleClick = useCallback((node: any) => {
@@ -110,10 +66,7 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
   return (
     <div
       ref={canvasRef}
-      className={`${styles.canvasContainer} ${isDragOver ? styles.dragOver : ''}`}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      className={styles.canvasContainer}
     >
       <ERDiagram
         data={state.diagramData}
@@ -129,16 +82,6 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
         }}
         onNodeDoubleClick={handleNodeDoubleClick}
       />
-
-      {/* 拖拽提示覆盖层 */}
-      {isDragOver && (
-        <div className={styles.dropOverlay}>
-          <div className={styles.dropMessage}>
-            <DatabaseOutlined className={styles.dropIcon} />
-            <span>释放以添加组件</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -76,29 +76,15 @@ class ERDiagramStorage {
   // 保存图表
   async saveDiagram(data: ERDiagramData, existingId?: string): Promise<string> {
     const db = await this.initDB();
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-
     const id = existingId || this.generateId();
     const now = new Date().toISOString();
     const stats = this.calculateStats(data);
-
-    // 如果是更新现有图表，获取原始创建时间
-    let createdAt = now;
-    if (existingId) {
-      try {
-        const existing = await this.loadDiagram(existingId);
-        createdAt = existing.metadata.createdAt;
-      } catch {
-        // 如果获取失败，使用当前时间
-      }
-    }
 
     const metadata: ERDiagramMetadata = {
       id,
       name: data.metadata?.title || '未命名图表',
       description: data.metadata?.description,
-      createdAt,
+      createdAt: data.metadata?.createdAt || now,
       updatedAt: now,
       entityCount: stats.entityCount,
       relationshipCount: stats.relationshipCount
@@ -117,14 +103,15 @@ class ERDiagramStorage {
     };
 
     return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
       const request = store.put(storedDiagram);
-      
       request.onsuccess = () => {
         resolve(id);
       };
-      
       request.onerror = () => {
-        reject(new Error('Failed to save diagram'));
+        console.error('保存图表失败:', request.error);
+        reject(request.error);
       };
     });
   }

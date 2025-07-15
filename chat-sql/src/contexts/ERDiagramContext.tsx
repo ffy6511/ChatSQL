@@ -399,8 +399,8 @@ interface ERDiagramContextType {
   setSelectedElement: (id: string | null) => void;
   loadSampleData: () => void;
   // 实体和关系操作方法
-  addEntity: (entity: EREntity) => void;
-  addRelationship: (relationship: ERRelationship) => void;
+  addEntity: (entity: EREntity) => Promise<void>;
+  addRelationship: (relationship: ERRelationship) => Promise<void>;
   updateEntity: (id: string, entity: Partial<EREntity>) => void;
   updateRelationship: (id: string, relationship: Partial<ERRelationship>) => void;
   deleteEntity: (id: string) => void;
@@ -414,8 +414,8 @@ interface ERDiagramContextType {
   updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => void;
   updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => void;
   // 连接管理相关方法
-  createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => void;
-  deleteConnection: (relationshipId: string, entityId: string) => void;
+  createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => Promise<void>;
+  deleteConnection: (relationshipId: string, entityId: string) => Promise<void>;
   // 存储相关方法
   saveDiagram: (diagramData: ERDiagramData, existingId?: string) => Promise<string>;
   loadDiagram: (id: string) => Promise<void>;
@@ -461,12 +461,48 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'LOAD_SAMPLE_DATA' });
   };
 
-  const addEntity = (entity: EREntity) => {
+  const addEntity = async (entity: EREntity) => {
     dispatch({ type: 'ADD_ENTITY', payload: { entity } });
+
+    // 自动保存到 IndexedDB
+    if (state.diagramData && state.currentDiagramId) {
+      try {
+        const updatedData = {
+          ...state.diagramData,
+          entities: [...state.diagramData.entities, entity],
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        };
+        await saveDiagram(updatedData, state.currentDiagramId);
+        console.log('实体添加后自动保存成功');
+      } catch (error) {
+        console.error('实体添加后自动保存失败:', error);
+      }
+    }
   };
 
-  const addRelationship = (relationship: ERRelationship) => {
+  const addRelationship = async (relationship: ERRelationship) => {
     dispatch({ type: 'ADD_RELATIONSHIP', payload: { relationship } });
+
+    // 自动保存到 IndexedDB
+    if (state.diagramData && state.currentDiagramId) {
+      try {
+        const updatedData = {
+          ...state.diagramData,
+          relationships: [...state.diagramData.relationships, relationship],
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        };
+        await saveDiagram(updatedData, state.currentDiagramId);
+        console.log('关系添加后自动保存成功');
+      } catch (error) {
+        console.error('关系添加后自动保存失败:', error);
+      }
+    }
   };
 
   const updateEntity = (id: string, entity: Partial<EREntity>) => {
@@ -512,12 +548,76 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
   };
 
   // 连接管理相关方法实现
-  const createConnection = (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => {
+  const createConnection = async (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => {
     dispatch({ type: 'CREATE_CONNECTION', payload: { relationshipId, connection } });
+
+    // 自动保存到 IndexedDB
+    if (state.diagramData && state.currentDiagramId) {
+      try {
+        // 找到要更新的关系
+        const relationship = state.diagramData.relationships.find(r => r.id === relationshipId);
+        if (!relationship) return;
+
+        // 创建更新后的关系数据
+        const updatedRelationship = {
+          ...relationship,
+          connections: [...relationship.connections, connection]
+        };
+
+        // 创建更新后的图表数据
+        const updatedData = {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(r =>
+            r.id === relationshipId ? updatedRelationship : r
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        };
+
+        await saveDiagram(updatedData, state.currentDiagramId);
+        console.log('连接创建后自动保存成功');
+      } catch (error) {
+        console.error('连接创建后自动保存失败:', error);
+      }
+    }
   };
 
-  const deleteConnection = (relationshipId: string, entityId: string) => {
+  const deleteConnection = async (relationshipId: string, entityId: string) => {
     dispatch({ type: 'DELETE_CONNECTION', payload: { relationshipId, entityId } });
+
+    // 自动保存到 IndexedDB
+    if (state.diagramData && state.currentDiagramId) {
+      try {
+        // 找到要更新的关系
+        const relationship = state.diagramData.relationships.find(r => r.id === relationshipId);
+        if (!relationship) return;
+
+        // 创建更新后的关系数据
+        const updatedRelationship = {
+          ...relationship,
+          connections: relationship.connections.filter(conn => conn.entityId !== entityId)
+        };
+
+        // 创建更新后的图表数据
+        const updatedData = {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(r =>
+            r.id === relationshipId ? updatedRelationship : r
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        };
+
+        await saveDiagram(updatedData, state.currentDiagramId);
+        console.log('连接删除后自动保存成功');
+      } catch (error) {
+        console.error('连接删除后自动保存失败:', error);
+      }
+    }
   };
 
   // 存储相关方法实现

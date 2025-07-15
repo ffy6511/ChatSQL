@@ -153,9 +153,9 @@ const RelationshipListView: React.FC = () => {
                       <ExpandLessIcon />
                     }
                     <Typography fontWeight="bold">{relationship.name}</Typography>
-                    {isWeakRelationship(relationship) && (
+                    {/* {isWeakRelationship(relationship) && (
                       <Chip label="弱关系" color="secondary" />
-                    )}
+                    )} */}
                   </Stack>
                   <Typography variant="body2" color="text.secondary">{relationship.connections.length} 个连接</Typography>
                 </Box>

@@ -147,14 +147,14 @@ const EntityNode: React.FC<NodeProps> = ({ data, selected, id }) => {
       onContextMenu={handleContextMenu}
     >
       {/* 连接点：四个方向都可连线，id与erToFlow.ts一致 */}
-      <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
-      <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
-      <Handle type="source" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '-4px', transform: 'translateY(-50%)' }} />
-      <Handle type="target" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '-4px', transform: 'translateY(-50%)' }} />
-      <Handle type="source" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
-      <Handle type="target" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '-4px', left: '50%', transform: 'translateX(-50%)' }} />
-      <Handle type="source" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '-4px', transform: 'translateY(-50%)' }} />
-      <Handle type="target" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '-4px', transform: 'translateY(-50%)' }} />
+      <Handle type="source" position={Position.Top} id="top" className={styles.handle} style={{ top: '4px', left: '50%', transform: 'translateX(-50%)' }} />
+      <Handle type="target" position={Position.Top} id="top" className={styles.handle} style={{ top: '4px', left: '50%', transform: 'translateX(-50%)' }} />
+      <Handle type="source" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '4px', transform: 'translateY(-50%)' }} />
+      <Handle type="target" position={Position.Right} id="right" className={styles.handle} style={{ top: '50%', right: '4px', transform: 'translateY(-50%)' }} />
+      <Handle type="source" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '4px', left: '50%', transform: 'translateX(-50%)' }} />
+      <Handle type="target" position={Position.Bottom} id="bottom" className={styles.handle} style={{ bottom: '4px', left: '50%', transform: 'translateX(-50%)' }} />
+      <Handle type="source" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '4px', transform: 'translateY(-50%)' }} />
+      <Handle type="target" position={Position.Left} id="left" className={styles.handle} style={{ top: '50%', left: '4px', transform: 'translateY(-50%)' }} />
 
       {/* 实体标题 */}
       <div
