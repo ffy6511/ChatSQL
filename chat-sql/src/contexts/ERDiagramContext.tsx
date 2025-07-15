@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { ERDiagramData, sampleERData, EREntity, ERRelationship } from '@/types/erDiagram';
+import { ERDiagramData, sampleERData, employeeDepartmentERData, weakEntityERData, EREntity, ERRelationship } from '@/types/erDiagram';
 import { erDiagramStorage, ERDiagramMetadata } from '@/services/erDiagramStorage';
 import { useEffect, useCallback } from 'react';
 
@@ -20,6 +20,7 @@ interface ERDiagramState {
   diagramList: ERDiagramMetadata[]; 
 }
 
+// 重构后的 Action 类型，移除异步相关的 Action 类型
 type ERDiagramAction =
   | { type: 'SET_DIAGRAM_DATA'; payload: ERDiagramData }
   | { type: 'SET_ACTIVE_TAB'; payload: ActiveTab }
@@ -42,9 +43,7 @@ type ERDiagramAction =
   // 连接管理相关Action
   | { type: 'CREATE_CONNECTION'; payload: { relationshipId: string; connection: import('@/types/erDiagram').ERConnection } }
   | { type: 'DELETE_CONNECTION'; payload: { relationshipId: string; entityId: string } }
-  // 存储相关Action
-  | { type: 'SAVE_DIAGRAM'; payload: { id?: string } }
-  | { type: 'LOAD_DIAGRAM'; payload: { id: string } }
+  // 纯状态更新的 Action
   | { type: 'NEW_DIAGRAM' }
   | { type: 'SET_CURRENT_DIAGRAM_ID'; payload: { id: string | null } }
   | { type: 'SET_DIAGRAM_LIST'; payload: ERDiagramMetadata[] };
@@ -54,16 +53,17 @@ const initialState: ERDiagramState = {
   diagramData: sampleERData,
   activeSidebarTab: 'components',
   selectedElementId: null,
-  // 新增节点编辑相关初始状态
+  //节点编辑相关初始状态
   selectedNodeId: null,
   editingNodeId: null,
   nodeEditMode: 'none',
-  diagramList: [], // 新增
+  diagramList: [], 
 };
 
 function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDiagramState {
   switch (action.type) {
     case 'SET_DIAGRAM_DATA':
+      // 优化：SET_DIAGRAM_DATA 只负责更新图表数据，不修改 currentDiagramId
       return {
         ...state,
         diagramData: action.payload,
@@ -417,12 +417,13 @@ interface ERDiagramContextType {
   createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => void;
   deleteConnection: (relationshipId: string, entityId: string) => void;
   // 存储相关方法
-  saveDiagram: (id?: string) => Promise<string>;
+  saveDiagram: (diagramData: ERDiagramData, existingId?: string) => Promise<string>;
   loadDiagram: (id: string) => Promise<void>;
   newDiagram: () => void;
+  createNewDiagram: (name: string, description: string, templateId: string) => Promise<string>;
   listDiagrams: () => Promise<ERDiagramMetadata[]>;
   deleteDiagram: (id: string) => Promise<void>;
-  // 新增 diagramList 和 fetchDiagramList
+  // 历史记录的状态更新相关
   diagramList: ERDiagramMetadata[];
   fetchDiagramList: () => Promise<void>;
 }
@@ -520,22 +521,32 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
   };
 
   // 存储相关方法实现
-  const saveDiagram = async (id?: string): Promise<string> => {
-    if (!state.diagramData) {
-      throw new Error('No diagram data to save');
+  const saveDiagram = async (diagramData: ERDiagramData, existingId?: string): Promise<string> => {
+    try {
+      const savedId = await erDiagramStorage.saveDiagram(diagramData, existingId);
+      // 保存成功后自动刷新图表列表
+      await fetchDiagramList();
+      // 更新当前图表ID
+      dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id: savedId } });
+      return savedId;
+    } catch (error) {
+      console.error('保存图表失败:', error);
+      throw error;
     }
-
-    const savedId = await erDiagramStorage.saveDiagram(state.diagramData, id);
-    dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id: savedId } });
-    // 保存后自动刷新图表列表
-    await fetchDiagramList();
-    return savedId;
   };
 
+  // 重构后的 loadDiagram 方法
   const loadDiagram = async (id: string): Promise<void> => {
-    const storedDiagram = await erDiagramStorage.loadDiagram(id);
-    dispatch({ type: 'SET_DIAGRAM_DATA', payload: storedDiagram.data });
-    dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id } });
+    try {
+      const storedDiagram = await erDiagramStorage.loadDiagram(id);
+      // 通过 SET_DIAGRAM_DATA 更新图表数据
+      dispatch({ type: 'SET_DIAGRAM_DATA', payload: storedDiagram.data });
+      // 单独更新当前图表ID
+      dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id } });
+    } catch (error) {
+      console.error('加载图表失败:', error);
+      throw error;
+    }
   };
 
   const newDiagram = () => {
@@ -546,14 +557,20 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     return await erDiagramStorage.listDiagrams();
   };
 
+  // 重构后的 deleteDiagram 方法
   const deleteDiagram = async (id: string): Promise<void> => {
-    await erDiagramStorage.deleteDiagram(id);
-    // 如果删除的是当前图表，清空状态
-    if (state.currentDiagramId === id) {
-      dispatch({ type: 'NEW_DIAGRAM' });
+    try {
+      await erDiagramStorage.deleteDiagram(id);
+      // 如果删除的是当前图表，清空状态
+      if (state.currentDiagramId === id) {
+        dispatch({ type: 'NEW_DIAGRAM' });
+      }
+      // 删除成功后自动刷新图表列表
+      await fetchDiagramList();
+    } catch (error) {
+      console.error('删除图表失败:', error);
+      throw error;
     }
-    // 删除后自动刷新图表列表
-    await fetchDiagramList();
   };
 
   const fetchDiagramList = useCallback(async () => {
@@ -566,6 +583,82 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
       dispatch({ type: 'SET_DIAGRAM_LIST', payload: [] });
     }
   }, []);
+
+  // 新增 createNewDiagram 方法
+  const createNewDiagram = async (
+    name: string,
+    description: string,
+    templateId: string
+  ): Promise<string> => {
+    try {
+      // 根据模板ID构建图表数据
+      let newDiagramData: ERDiagramData;
+
+      if (templateId === 'blank') {
+        // 创建空白图表
+        newDiagramData = {
+          entities: [],
+          relationships: [],
+          metadata: {
+            title: name.trim(),
+            description: description.trim() || '空白ER图',
+            version: '1.0.0',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
+      } else if (templateId === 'sample') {
+        // 使用示例图书馆系统模板
+        newDiagramData = {
+          ...sampleERData,
+          metadata: {
+            ...sampleERData.metadata,
+            title: name.trim(),
+            description: description.trim() || '示例图书馆系统',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
+      } else if (templateId === 'employee') {
+        // 使用员工部门项目模板
+        newDiagramData = {
+          ...employeeDepartmentERData,
+          metadata: {
+            ...employeeDepartmentERData.metadata,
+            title: name.trim(),
+            description: description.trim() || '员工部门项目',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
+      } else if (templateId === 'weak_entity') {
+        // 使用弱实体集示例模板
+        newDiagramData = {
+          ...weakEntityERData,
+          metadata: {
+            ...weakEntityERData.metadata,
+            title: name.trim(),
+            description: description.trim() || '弱实体集示例',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
+      } else {
+        throw new Error('无效的模板ID');
+      }
+
+      // 保存到数据库
+      const savedId = await saveDiagram(newDiagramData);
+
+      // 设置为当前图表
+      dispatch({ type: 'SET_DIAGRAM_DATA', payload: newDiagramData });
+
+      return savedId;
+    } catch (error) {
+      console.error('创建新图表失败:', error);
+      throw error;
+    }
+  };
 
   // 4. useEffect 首次加载时调用 fetchDiagramList
   useEffect(() => {
@@ -600,6 +693,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     saveDiagram,
     loadDiagram,
     newDiagram,
+    createNewDiagram,
     listDiagrams,
     deleteDiagram,
     //  diagramList 和 fetchDiagramList

@@ -28,11 +28,47 @@ import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { ERAttribute } from '@/types/erDiagram';
 import styles from './Inspector.module.css';
 
+// 数据类型参数配置
+const dataTypeParamConfig: Record<string, { paramCount: number; paramLabels: string[] }> = {
+  VARCHAR: { paramCount: 1, paramLabels: ['长度'] },
+  char: { paramCount: 1, paramLabels: ['长度'] },
+  CHAR: { paramCount: 1, paramLabels: ['长度'] },
+  NUMERIC: { paramCount: 2, paramLabels: ['精度', '小数位'] },
+  'DOUBLE PRECISION': { paramCount: 0, paramLabels: [] },
+  // 其他类型如有需要可继续添加
+};
+
 const EntityListView: React.FC = () => {
   const { state, deleteEntity, setSelectedElement, updateAttribute } = useERDiagramContext();
   const entities = state.diagramData?.entities || [];
   const [expandedEntities, setExpandedEntities] = useState<string[]>([]);
   const [editingAttribute, setEditingAttribute] = useState<string | null>(null);
+  // 用于临时存储每个属性的参数输入
+  const [attributeParams, setAttributeParams] = useState<{ [attrId: string]: string[] }>({});
+
+  // 顶层 useEffect 初始化 attributeParams(避免前后属性改变后hook调用 的数量差异)
+  React.useEffect(() => {
+    const newParams: { [attrId: string]: string[] } = {};
+    entities.forEach(entity => {
+      entity.attributes.forEach(attribute => {
+        let typeName = attribute.dataType || 'VARCHAR';
+        let params: string[] = [];
+        const match = typeName.match(/^(\w+)(?:\((.*)\))?$/);
+        if (match) {
+          typeName = match[1];
+          if (match[2]) {
+            params = match[2].split(',').map(s => s.trim());
+          }
+        }
+        if (dataTypeParamConfig[typeName] && !attributeParams[attribute.id]) {
+          newParams[attribute.id] = params.length ? params : Array(dataTypeParamConfig[typeName].paramCount).fill('');
+        }
+      });
+    });
+    if (Object.keys(newParams).length > 0) {
+      setAttributeParams(prev => ({ ...prev, ...newParams }));
+    }
+  }, [entities]);
 
   // 处理展开/收起
   const handleExpand = (entityId: string) => {
@@ -63,35 +99,72 @@ const EntityListView: React.FC = () => {
   };
 
   const handleAttributeTypeChange = (entityId: string, attributeId: string, dataType: string) => {
+    // 切换类型时，初始化参数输入
+    if (dataTypeParamConfig[dataType]) {
+      setAttributeParams(prev => ({
+        ...prev,
+        [attributeId]: Array(dataTypeParamConfig[dataType].paramCount).fill('')
+      }));
+    } else {
+      setAttributeParams(prev => ({ ...prev, [attributeId]: [] }));
+    }
+    // 先只存类型名，参数后续拼接
     updateAttribute(entityId, attributeId, { dataType });
+  };
+
+  // 新增：参数输入变化时，拼接类型字符串并更新
+  const handleParamChange = (entityId: string, attributeId: string, idx: number, value: string) => {
+    setAttributeParams(prev => {
+      const params = [...(prev[attributeId] || [])];
+      params[idx] = value;
+      // 拼接类型字符串
+      const attr = entities.flatMap(e => e.attributes).find(a => a.id === attributeId);
+      let type = attr?.dataType || 'VARCHAR';
+      // 只取类型名部分（去掉可能已有的括号参数）
+      type = type.split('(')[0];
+      const config = dataTypeParamConfig[type];
+      const paramArr = params.slice(0, config?.paramCount || 0).filter(Boolean);
+      const typeStr = paramArr.length ? `${type}(${paramArr.join(',')})` : type;
+      updateAttribute(entityId, attributeId, { dataType: typeStr });
+      return { ...prev, [attributeId]: params };
+    });
   };
 
   // 数据类型选项
   const dataTypeOptions = [
-    'VARCHAR(50)',
-    'VARCHAR(100)',
-    'VARCHAR(255)',
+    'char',
+    'VARCHAR',
     'INT',
-    'BIGINT',
-    'DECIMAL(10,2)',
-    'DECIMAL(5,2)',
+    'SMALLINT',
+    'NUMERIC',
+    'FLOAT',
+    'DOUBLE PRECISION',
     'BOOLEAN',
     'DATE',
-    'DATETIME',
+    'TIME',
     'TIMESTAMP',
-    'TEXT',
-    'LONGTEXT'
+    'INTERVAL',
+    'ENUM'
   ];
 
   const renderAttributeItem = (attribute: ERAttribute, entityId: string) => {
     const isEditing = editingAttribute === attribute.id;
     const isWeakEntity = entities.find(e => e.id === entityId)?.isWeakEntity;
-
+    // 解析当前类型和参数
+    let typeName = attribute.dataType || 'VARCHAR';
+    let params: string[] = [];
+    const match = typeName.match(/^(\w+)(?:\((.*)\))?$/);
+    if (match) {
+      typeName = match[1];
+      if (match[2]) {
+        params = match[2].split(',').map(s => s.trim());
+      }
+    }
     return (
       <Box
         key={attribute.id}
         sx={{
-          p: 1.5,
+          p: 1,
           borderLeft: '4px solid',
           borderLeftColor: 'primary.light',
           borderRadius: 1,
@@ -117,37 +190,21 @@ const EntityListView: React.FC = () => {
           ) : (
             <Typography
               fontWeight="bold"
-              sx={{ flex: 1, cursor: 'pointer' }}
+              sx={{ flex: 1, cursor: 'pointer'}}
               onClick={() => setEditingAttribute(attribute.id)}
             >
               {attribute.name}
             </Typography>
           )}
 
-          {/* 主键标识移到右侧，优化样式 */}
-          <Chip
-            label={isWeakEntity ? 'DIS' : 'PK'}
-            size="small"
-            variant={attribute.isPrimaryKey ? 'filled' : 'outlined'}
-            color={attribute.isPrimaryKey ? 'error' : 'default'}
-            clickable
-            onClick={() => handleAttributeKeyChange(entityId, attribute.id, !attribute.isPrimaryKey)}
-            sx={{
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: attribute.isPrimaryKey ? 'error.dark' : 'action.hover'
-              }
-            }}
-          />
-        </Stack>
-
         {/* 数据类型编辑 */}
-        <Box sx={{ mt: 1 }}>
+        <Box sx={{ minWidth: 100, display: 'flex', alignItems: 'center' }}>
           <FormControl size="small" fullWidth>
             <Select
-              value={attribute.dataType || 'VARCHAR(50)'}
+              value={typeName}
               onChange={(e) => handleAttributeTypeChange(entityId, attribute.id, e.target.value)}
               displayEmpty
+              sx = {{fontSize:'0.8em', fontWeight:'600'}}
             >
               {dataTypeOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -156,7 +213,45 @@ const EntityListView: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+          {/* 动态渲染参数输入框 */}
+          {dataTypeParamConfig[typeName] && dataTypeParamConfig[typeName].paramLabels.map((label, idx) => (
+            <TextField
+              key={label}
+              label={label}
+              value={attributeParams[attribute.id]?.[idx] || ''}
+              onChange={e => handleParamChange(entityId, attribute.id, idx, e.target.value)}
+              size="small"
+              sx={{ width: 90, ml: 1, fontSize:'0.9em' }}
+            />
+          ))}
         </Box>
+
+          {/* 主键标识移到右侧，优化样式 */}
+          <Chip
+            label={isWeakEntity ? 'DIS' : 'PK'}
+            size="small"
+            variant={attribute.isPrimaryKey ? 'filled' : 'outlined'}
+            clickable
+            onClick={() => handleAttributeKeyChange(entityId, attribute.id, !attribute.isPrimaryKey)}
+            sx={{
+              cursor: 'pointer',
+              borderRadius: '8px',
+              border: 'none',
+              background: attribute.isPrimaryKey ? isWeakEntity ? '#e3f2fd' : '#ffeaea' : 'var(--card-border)',
+              // 只改 label 字体颜色
+              '& .MuiChip-label': {
+                color: attribute.isPrimaryKey ? isWeakEntity ? '#1976d2' : '#D3302F': 'var(--secondary-text)',
+                fontWeight: 'bold',
+                // fontSize: 13,
+                letterSpacing: '1px',
+              },
+              '&:hover': {
+                opacity: 0.8,
+                transition: 'all 0.2s ease'
+              }
+            }}
+          />
+        </Stack>
       </Box>
     );
   };
@@ -187,11 +282,11 @@ const EntityListView: React.FC = () => {
                       <ExpandLessIcon />
                     }
                     <Typography fontWeight="bold">{entity.name}</Typography>
-                    {entity.isWeakEntity && (
+                    {/* {entity.isWeakEntity && (
                       <Chip label="弱实体" color="secondary" />
-                    )}
+                    )} */}
                   </Stack>
-                  <Typography variant="body2" color="text.secondary">{entity.attributes.length} 个属性</Typography>
+                  <Typography variant="body2" color="var(--secondary-text)">{entity.attributes.length} attributes</Typography>
                 </Box>
                 <Stack direction="row" spacing={0.5}>
                   <Tooltip title="编辑">
@@ -221,19 +316,17 @@ const EntityListView: React.FC = () => {
 
               <Collapse in={expandedEntities.includes(entity.id)} timeout="auto" unmountOnExit>
                 <CardContent>
-                  <Divider style={{ margin: '8px 0' }} />
-                  <Stack spacing={0.5}>
-                    <Typography variant="body2" color="text.secondary">属性列表：</Typography>
+                  <Stack spacing={0}>
                     {entity.attributes.length === 0 ? (
-                      <Typography variant="body2" color="text.secondary">暂无属性</Typography>
+                      <Typography variant="body2" color="var(--secondary-text)">暂无属性</Typography>
                     ) : (
                       entity.attributes.map(attr => renderAttributeItem(attr, entity.id))
                     )}
                   </Stack>
                   {entity.description && (
                     <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary">描述：</Typography>
-                      <Typography>{entity.description}</Typography>
+                      <Typography variant="body2" color="var(--secondary-text)">描述：</Typography>
+                      <Typography variant="body2" color="var(--primary-text)" sx={{ ml: 2}}>{entity.description}</Typography>
                     </Box>
                   )}
                 </CardContent>

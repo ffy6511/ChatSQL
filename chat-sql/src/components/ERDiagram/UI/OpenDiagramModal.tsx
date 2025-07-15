@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,16 +18,13 @@ import {
   Box,
   IconButton,
   Chip,
-  Alert,
-  CircularProgress
+  Alert
 } from '@mui/material';
 import {
   FolderOpen as OpenIcon,
-  Delete as DeleteIcon,
-  Refresh as RefreshIcon
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
-import { ERDiagramMetadata } from '@/services/erDiagramStorage';
 
 interface OpenDiagramModalProps {
   open: boolean;
@@ -35,35 +32,16 @@ interface OpenDiagramModalProps {
 }
 
 const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) => {
-  const { loadDiagram, listDiagrams, deleteDiagram } = useERDiagramContext();
-  const [diagrams, setDiagrams] = useState<ERDiagramMetadata[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { diagramList, loadDiagram, deleteDiagram } = useERDiagramContext();
   const [error, setError] = useState<string | null>(null);
   const [selectedDiagram, setSelectedDiagram] = useState<string | null>(null);
-  const [isOpening, setIsOpening] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-
-  // 加载图表列表
-  const loadDiagramList = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const diagramList = await listDiagrams();
-      setDiagrams(diagramList);
-    } catch (err) {
-      setError('加载图表列表失败');
-      console.error('Failed to load diagrams:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   // 打开图表
   const handleOpenDiagram = async (id: string) => {
-    setIsOpening(true);
+    setIsLoading(true);
     setError(null);
-    
+
     try {
       await loadDiagram(id);
       onClose();
@@ -71,19 +49,16 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
       setError('打开图表失败');
       console.error('Failed to open diagram:', err);
     } finally {
-      setIsOpening(false);
+      setIsLoading(false);
     }
   };
 
   // 删除图表
   const handleDeleteDiagram = async (id: string) => {
-    setIsDeleting(id);
     setError(null);
-    
+
     try {
       await deleteDiagram(id);
-      // 重新加载列表
-      await loadDiagramList();
       // 如果删除的是选中的图表，清除选中状态
       if (selectedDiagram === id) {
         setSelectedDiagram(null);
@@ -91,8 +66,6 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
     } catch (err) {
       setError('删除图表失败');
       console.error('Failed to delete diagram:', err);
-    } finally {
-      setIsDeleting(null);
     }
   };
 
@@ -108,12 +81,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
     });
   };
 
-  // 模态框打开时加载数据
-  useEffect(() => {
-    if (open) {
-      loadDiagramList();
-    }
-  }, [open]);
+  // 移除手动刷新逻辑，Context 会自动管理列表刷新
 
   return (
     <Dialog
@@ -121,8 +89,11 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
       onClose={onClose}
       maxWidth="lg"
       fullWidth
-      PaperProps={{
-        sx: { borderRadius: 2, minHeight: '60vh' }
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: 2,
+          minHeight: '60vh'
+        }
       }}
     >
       <DialogTitle>
@@ -135,9 +106,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
               选择一个已保存的图表继续编辑
             </Typography>
           </Box>
-          <IconButton onClick={loadDiagramList} disabled={loading}>
-            <RefreshIcon />
-          </IconButton>
+          {/* 移除手动刷新按钮，Context 会自动管理列表刷新 */}
         </Box>
       </DialogTitle>
       
@@ -148,11 +117,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
           </Alert>
         )}
 
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : diagrams.length === 0 ? (
+        {diagramList.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Typography variant="h6" color="textSecondary">
               暂无保存的图表
@@ -176,7 +141,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {diagrams.map((diagram) => (
+                {diagramList.map((diagram) => (
                   <TableRow
                     key={diagram.id}
                     hover
@@ -229,7 +194,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
                             e.stopPropagation();
                             handleOpenDiagram(diagram.id);
                           }}
-                          disabled={isOpening}
+                          disabled={isLoading}
                         >
                           <OpenIcon />
                         </IconButton>
@@ -240,13 +205,8 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
                             e.stopPropagation();
                             handleDeleteDiagram(diagram.id);
                           }}
-                          disabled={isDeleting === diagram.id}
                         >
-                          {isDeleting === diagram.id ? (
-                            <CircularProgress size={16} />
-                          ) : (
-                            <DeleteIcon />
-                          )}
+                          <DeleteIcon />
                         </IconButton>
                       </Box>
                     </TableCell>
@@ -265,10 +225,10 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
         <Button
           onClick={() => selectedDiagram && handleOpenDiagram(selectedDiagram)}
           variant="contained"
-          disabled={!selectedDiagram || isOpening}
+          disabled={!selectedDiagram || isLoading}
           startIcon={<OpenIcon />}
         >
-          {isOpening ? '打开中...' : '打开图表'}
+          {isLoading ? '打开中...' : '打开图表'}
         </Button>
       </DialogActions>
     </Dialog>

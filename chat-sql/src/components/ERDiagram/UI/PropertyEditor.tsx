@@ -41,8 +41,6 @@ import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { EREntity, ERRelationship, ERAttribute } from '@/types/erDiagram';
 import styles from './PropertyEditor.module.css';
 
-// 移除Ant Design的解构，使用Material-UI组件
-
 interface PropertyEditorProps {
   selectedElement: EREntity | ERRelationship | null;
   onUpdateEntity: (id: string, updates: Partial<EREntity>) => void;
@@ -51,19 +49,19 @@ interface PropertyEditorProps {
 
 // 数据类型选项
 const DATA_TYPES = [
-  'VARCHAR(50)',
-  'VARCHAR(100)',
-  'VARCHAR(255)',
+  'char',
+  'VARCHAR',
   'INT',
-  'BIGINT',
-  'DECIMAL(10,2)',
-  'DECIMAL(5,2)',
+  'SMALLINT',
+  'NUMERIC',
+  'FLOAT',
+  'DOUBLE PRECISION',
   'BOOLEAN',
   'DATE',
-  'DATETIME',
+  'TIME',
   'TIMESTAMP',
-  'TEXT',
-  'LONGTEXT'
+  'INTERVAL',
+  'ENUM'
 ];
 
 const PropertyEditor: React.FC<PropertyEditorProps> = ({
@@ -111,7 +109,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     setIsAddingAttribute(false);
     setNewAttribute({
       name: '',
-      dataType: 'VARCHAR(50)',
+      dataType: 'VARCHAR',
       isPrimaryKey: false,
       isRequired: false,
       description: ''

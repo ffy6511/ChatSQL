@@ -67,7 +67,7 @@ const templates = [
 ];
 
 const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
-  const { setDiagramData, saveDiagram } = useERDiagramContext();
+  const { createNewDiagram } = useERDiagramContext();
   const [selectedTemplate, setSelectedTemplate] = useState<string>('blank');
   const [diagramName, setDiagramName] = useState<string>('');
   const [diagramDescription, setDiagramDescription] = useState<string>('');
@@ -75,6 +75,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   const [error, setError] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // 简化后的 handleCreate 方法
   const handleCreate = async () => {
     if (!diagramName.trim()) {
       setError('请输入图表名称');
@@ -85,50 +86,18 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
     setError('');
 
     try {
-      const template = templates.find(t => t.id === selectedTemplate);
-
-      if (template?.data) {
-        // 使用模板数据
-        const newData = {
-          ...template.data,
-          metadata: {
-            ...template.data.metadata,
-            title: diagramName.trim(),
-            description: diagramDescription.trim() || template.description,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        };
-        setDiagramData(newData);
-        const savedId = await saveDiagram();
-        console.log('图表已成功保存，ID:', savedId);
-      } else {
-        // 创建空白图表
-        const emptyData = {
-          entities: [],
-          relationships: [],
-          metadata: {
-            title: diagramName.trim(),
-            description: diagramDescription.trim() || '空白ER图',
-            version: '1.0.0',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        };
-        setDiagramData(emptyData);
-        const savedId = await saveDiagram();
-        console.log('空白图表已成功保存，ID:', savedId);
-      }
+      await createNewDiagram(diagramName, diagramDescription, selectedTemplate);
 
       // 显示成功消息
       setShowSuccess(true);
-
-      // 重置表单并关闭模态框
-      setDiagramName('');
-      setDiagramDescription('');
-      setSelectedTemplate('blank');
-      setError('');
-      onClose();
+      setTimeout(() => {
+        setShowSuccess(false);
+        setDiagramName('');
+        setDiagramDescription('');
+        setSelectedTemplate('blank');
+        setError('');
+        onClose();
+      }, 1200);
     } catch (error) {
       console.error('Failed to create diagram:', error);
       setError(error instanceof Error ? error.message : '创建图表失败，请重试');
@@ -139,6 +108,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
 
   const handleClose = () => {
     if (!isCreating) {
+      setShowSuccess(false);
       setDiagramName('');
       setDiagramDescription('');
       setSelectedTemplate('blank');
