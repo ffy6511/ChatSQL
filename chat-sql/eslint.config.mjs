@@ -10,6 +10,9 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: ["src/cache/**/*"], // 忽略cache目录
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
@@ -17,10 +20,12 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-array-constructor": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
       "prefer-const": "off",
       "react/no-unescaped-entities": "off",
       "react-hooks/exhaustive-deps": "off",
-      
+
       // 如果将来需要启用某些规则，可以设置为 "warn" 或 "error"
       // "@typescript-eslint/no-explicit-any": "warn",
     }

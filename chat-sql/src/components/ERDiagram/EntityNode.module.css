@@ -1,7 +1,6 @@
 /* 实体节点样式 */
 .entityNode {
-  background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--inverted-text);
   border-radius: 8px;
   min-width: 260px;
   max-width: 340px;
