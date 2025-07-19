@@ -9,6 +9,7 @@ export type LLMProblem = {
   isTutorial?: boolean; // 是否为教程
   progress?: number; // 用户完成的问题数量
   totalProblems?: number; // 该记录总共包含的问题数量
+  completedProblems?: boolean[]; // 每个问题的完成状态数组
 };
 
 const DB_NAME = 'llm_problems_db';
@@ -61,13 +62,15 @@ export const saveLLMProblem = async (data: any): Promise<number> => {
           (data.description.length > 15 ? data.description.substring(0, 15) + '...' : data.description) :
           '无标题问题';
 
+        const problemCount = Array.isArray(data.problem) ? data.problem.length : 1;
         problemData = {
           data,
           createdAt: new Date(),
           title: defaultTitle,
           isFavorite: false,
           progress: 0, // 默认进度为0
-          totalProblems: Array.isArray(data.problem) ? data.problem.length : 1 // 根据问题数量设置总数
+          totalProblems: problemCount, // 根据问题数量设置总数
+          completedProblems: new Array(problemCount).fill(false) // 初始化所有问题为未完成
         };
         console.log('saveLLMProblem: 使用原始数据格式', problemData);
       }

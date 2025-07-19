@@ -16,6 +16,7 @@ interface CompletionContextType {
   checkQueryResult: () => boolean;
   resetCompletion: () => void;
   updateProgress: (problemIndex: number) => Promise<void>;
+  loadCompletionState: (recordId: number) => Promise<void>;
 }
 
 const CompletionContext = createContext<CompletionContextType | null>(null);
@@ -39,6 +40,26 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setCompletedProblems(new Set());
   }, []);
 
+  // 加载记录的完成状态
+  const loadCompletionState = useCallback(async (recordId: number) => {
+    try {
+      const completedProblemsArray = await ProgressService.getCompletedProblems(recordId);
+      const completedSet = new Set<number>();
+
+      completedProblemsArray.forEach((isCompleted, index) => {
+        if (isCompleted) {
+          completedSet.add(index);
+        }
+      });
+
+      setCompletedProblems(completedSet);
+    } catch (error) {
+      console.error('加载完成状态失败:', error);
+      // 如果加载失败，重置为空状态
+      setCompletedProblems(new Set());
+    }
+  }, []);
+
   // 更新教程进度
   const updateProgress = useCallback(async (problemIndex: number) => {
     if (!currentProblemId) return;
@@ -59,10 +80,14 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
         // 显示进度更新反馈
         if (statusInfo.status === 'COMPLETED') {
-          messageApi.success(`🎉 恭喜！您已完成所有问题！`);
+          messageApi.success(`您已完成所有问题！`);
         } else {
-          messageApi.success(`✅ 问题 ${problemIndex + 1} 完成！进度: ${result.record.progress}/${result.record.totalProblems}`);
+          messageApi.success(`问题 ${problemIndex + 1} 完成！进度: ${result.record.progress}/${result.record.totalProblems}`);
         }
+
+        // 触发历史记录列表刷新（通过 LLMContext 的 refreshRecords）
+        // 这里我们需要通知父组件刷新记录列表
+        window.dispatchEvent(new CustomEvent('recordsUpdated'));
       }
     } catch (error) {
       console.error('更新进度失败:', error);
@@ -105,12 +130,14 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return isAnyMatch;
   }, [queryResult, llmResult]);
 
-  // 只在问题ID变化时重置完成状态
+  // 当问题ID变化时，加载对应的完成状态
   useEffect(() => {
     if (currentProblemId !== null) {
+      loadCompletionState(currentProblemId);
+    } else {
       resetCompletion();
     }
-  }, [currentProblemId, resetCompletion]);
+  }, [currentProblemId, loadCompletionState, resetCompletion]);
 
   return (
     <CompletionContext.Provider value={{
@@ -119,6 +146,7 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       checkQueryResult,
       resetCompletion,
       updateProgress,
+      loadCompletionState,
     }}>
       {contextHolder}
       {children}

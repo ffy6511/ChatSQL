@@ -171,27 +171,39 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     // 教程记录显示进度状态
                     (() => {
                       const statusInfo = calculateProgressStatus(record);
-                      const getTagColor = () => {
+                      const getTagStyles = () => {
                         switch (statusInfo.status) {
                           case 'NOT_STARTED':
-                            return 'default';
+                            return {
+                              color: 'var(--secondary-text)',
+                              backgroundColor: 'transparent',
+                              borderColor: 'var(--secondary-text)'
+                            };
                           case 'IN_PROGRESS':
-                            return 'processing';
+                            return {
+                              color: '#1976d2',
+                              backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                              borderColor: '#1976d2'
+                            };
                           case 'COMPLETED':
-                            return 'success';
+                            return {
+                              color: '#2e7d32',
+                              backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                              borderColor: '#2e7d32'
+                            };
                           default:
-                            return 'default';
+                            return {
+                              color: 'var(--secondary-text)',
+                              backgroundColor: 'transparent',
+                              borderColor: 'var(--secondary-text)'
+                            };
                         }
                       };
 
                       return (
                         <Tag
-                          color={getTagColor()}
-                          className={styles.tag}
-                          style={{
-                            color: statusInfo.status === 'NOT_STARTED' ? 'var(--secondary-text)' : undefined,
-                            borderColor: statusInfo.status === 'NOT_STARTED' ? 'var(--secondary-text)' : undefined
-                          }}
+                          className={`${styles.tag} ${styles.progressTag}`}
+                          style={getTagStyles()}
                         >
                           {statusInfo.label}
                         </Tag>

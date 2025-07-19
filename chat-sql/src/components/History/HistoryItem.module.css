@@ -3,20 +3,21 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  background-color: var(--card-bg);
+  border: none !important; 
+  background-color: transparent !important; /* 默认状态：透明背景 */
   border-radius: 10px!important;
-  border-bottom: 1px solid var(--divider-color);
   margin-left: 6px;
   margin-right: 6px;
 }
 
-.historyItem:hover {
-  background-color: var(--button-hover);
+.historyItem:hover{
+  background-color: var(--button-hover) !important; /* 悬停状态：浅灰色 */
 }
 
 .active {
-  background-color: var(--button-hover);
+  background-color: var(--button-hover) !important; /* 选中状态：灰色背景 */
 }
+
 
 .titleContainer {
   display: flex;
@@ -56,6 +57,19 @@
   padding: 0 4px;
   font-family: var(--font-mono) !important;
   line-height: 16px;
+}
+
+.progressTag {
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+/* 暗色模式下的进度标签样式已通过内联样式处理 */
+
+/* 进度标签悬停效果 */
+.progressTag:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
 }
 
 .actions {

@@ -60,7 +60,8 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
           isTutorial: true, // 设置教程标志
           createdAt: new Date(),
           progress: 0, // 初始进度为0
-          totalProblems: tutorial.problem.length // 设置总问题数量
+          totalProblems: tutorial.problem.length, // 设置总问题数量
+          completedProblems: new Array(tutorial.problem.length).fill(false) // 初始化所有问题为未完成
           // 注意：这里不包含 data 字段，因为 data 会由 storeProblem 函数设置
         };
 

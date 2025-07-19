@@ -95,6 +95,18 @@ const HistoryPanel: React.FC = () => {
     refreshRecords();
   }, [refreshRecords, currentProblemId]);
 
+  // 监听记录更新事件，自动刷新列表
+  useEffect(() => {
+    const handleRecordsUpdated = () => {
+      refreshRecords();
+    };
+
+    window.addEventListener('recordsUpdated', handleRecordsUpdated);
+    return () => {
+      window.removeEventListener('recordsUpdated', handleRecordsUpdated);
+    };
+  }, [refreshRecords]);
+
   // 过滤记录的函数
   const filterRecords = (records: any[]) => {
     let filteredRecords = records;
