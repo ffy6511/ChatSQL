@@ -1,30 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Button, 
-  Tooltip, 
-  Empty, 
-  List, 
-  Spin, 
-  message, 
+import {
+  Button,
+  Tooltip,
+  Empty,
+  List,
+  Spin,
+  message,
   Tabs,
-  Badge 
+  Badge,
+  Modal
 } from 'antd';
-import { 
-  EditOutlined, 
+import {
+  EditOutlined,
   ClockCircleOutlined,
-  HeartOutlined 
+  HeartOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useCompletionContext } from '@/contexts/CompletionContext';
 import { useEditorContext } from '@/contexts/EditorContext';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 import HistoryItem from './HistoryItem';
+import StatusFilter from './StatusFilter';
 import styles from './HistoryPanel.module.css';
 import SearchBar from './SearchBar';
+import { ProgressStatus, filterRecordsByStatus, isTutorialRecord } from '@/utils/progressUtils';
+import { clearAllProblems } from '@/services/recordsIndexDB';
 
 const HistoryPanel: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ProgressStatus | 'ALL'>('ALL');
+  const [isClearModalVisible, setIsClearModalVisible] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const {
     recentRecords,
     favoriteRecords,
@@ -89,10 +97,41 @@ const HistoryPanel: React.FC = () => {
 
   // 过滤记录的函数
   const filterRecords = (records: any[]) => {
-    if (!searchQuery) return records;
-    return records.filter(record => 
-      record.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let filteredRecords = records;
+
+    // 按搜索查询过滤
+    if (searchQuery.trim()) {
+      filteredRecords = filteredRecords.filter(record =>
+        record.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.data?.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // 按状态过滤（仅对教程记录）
+    if (statusFilter !== 'ALL') {
+      const tutorialRecords = filteredRecords.filter(isTutorialRecord);
+      const nonTutorialRecords = filteredRecords.filter(record => !isTutorialRecord(record));
+      const filteredTutorials = filterRecordsByStatus(tutorialRecords, statusFilter);
+      filteredRecords = [...filteredTutorials, ...nonTutorialRecords];
+    }
+
+    return filteredRecords;
+  };
+
+  // 清除所有记录的功能
+  const handleClearAllRecords = async () => {
+    setIsClearing(true);
+    try {
+      await clearAllProblems();
+      await refreshRecords(); // 刷新记录列表
+      messageApi.success('所有记录已清除');
+      setIsClearModalVisible(false);
+    } catch (error) {
+      console.error('清除记录失败:', error);
+      messageApi.error('清除记录失败，请重试');
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const renderList = (records: any[]) => {
@@ -143,9 +182,23 @@ const HistoryPanel: React.FC = () => {
     <div className={styles.historyPanel}>
       {contextHolder}
       <div className={styles.headerContainer}>
+        {/* 搜索框 */}
         <div className={styles.searchContainer}>
           <SearchBar onSearch={setSearchQuery} />
         </div>
+
+        {/* 一键清除记录 */}
+        <Tooltip title="清除所有记录">
+          <Button
+            type="text"
+            icon={<DeleteOutlined />}
+            className={styles.actionButton}
+            onClick={() => setIsClearModalVisible(true)}
+            style={{ marginRight: '8px' }}
+          />
+        </Tooltip>
+
+        {/* 新建记录 */}
         <Tooltip title="新建对话">
           <Button
             type="primary"
@@ -156,6 +209,17 @@ const HistoryPanel: React.FC = () => {
           />
         </Tooltip>
       </div>
+
+      {/* 状态筛选器 - 仅在有教程记录时显示 */}
+      {recentRecords.some(isTutorialRecord) && (
+        <div style={{ padding: '0 16px', marginBottom: '12px' }}>
+          <StatusFilter
+            value={statusFilter}
+            onChange={setStatusFilter}
+            tutorialCount={recentRecords.filter(isTutorialRecord).length}
+          />
+        </div>
+      )}
       <div className={styles.tabsContainer}>
         <Tabs
           defaultActiveKey="recent"
@@ -189,6 +253,23 @@ const HistoryPanel: React.FC = () => {
           ]}
         />
       </div>
+
+      {/* 清除所有记录确认对话框 */}
+      <Modal
+        title="确认清除所有记录"
+        open={isClearModalVisible}
+        onOk={handleClearAllRecords}
+        onCancel={() => setIsClearModalVisible(false)}
+        okText="确认清除"
+        cancelText="取消"
+        okType="danger"
+        confirmLoading={isClearing}
+      >
+        <p>确定要清除所有记录吗？此操作不可撤销。</p>
+        <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
+          这将删除所有保存的问题记录，包括教程和自定义问题。
+        </p>
+      </Modal>
     </div>
   );
 };

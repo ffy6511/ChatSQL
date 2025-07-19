@@ -22,6 +22,7 @@ import {
   ClockCircleOutlined
 } from '@ant-design/icons';
 import { LLMProblem } from '@/services/recordsIndexDB';
+import { calculateProgressStatus, isTutorialRecord } from '@/utils/progressUtils';
 import styles from './HistoryItem.module.css';
 
 const { Text } = Typography;
@@ -166,11 +167,46 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   </span>
                 </div>
                 <div className={styles.tagsContainer}>
-                  {record.data?.isBuiltIn && (
-                    <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
-                  )}
-                  {record.data?.category && (
-                    <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>
+                  {isTutorialRecord(record) ? (
+                    // 教程记录显示进度状态
+                    (() => {
+                      const statusInfo = calculateProgressStatus(record);
+                      const getTagColor = () => {
+                        switch (statusInfo.status) {
+                          case 'NOT_STARTED':
+                            return 'default';
+                          case 'IN_PROGRESS':
+                            return 'processing';
+                          case 'COMPLETED':
+                            return 'success';
+                          default:
+                            return 'default';
+                        }
+                      };
+
+                      return (
+                        <Tag
+                          color={getTagColor()}
+                          className={styles.tag}
+                          style={{
+                            color: statusInfo.status === 'NOT_STARTED' ? 'var(--secondary-text)' : undefined,
+                            borderColor: statusInfo.status === 'NOT_STARTED' ? 'var(--secondary-text)' : undefined
+                          }}
+                        >
+                          {statusInfo.label}
+                        </Tag>
+                      );
+                    })()
+                  ) : (
+                    // 非教程记录显示传统标签
+                    <>
+                      {record.data?.isBuiltIn && (
+                        <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
+                      )}
+                      {record.data?.category && (
+                        <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

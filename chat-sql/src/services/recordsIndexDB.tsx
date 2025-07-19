@@ -7,6 +7,8 @@ export type LLMProblem = {
   title?: string; // 自定义标题
   isFavorite?: boolean; // 是否收藏
   isTutorial?: boolean; // 是否为教程
+  progress?: number; // 用户完成的问题数量
+  totalProblems?: number; // 该记录总共包含的问题数量
 };
 
 const DB_NAME = 'llm_problems_db';
@@ -43,17 +45,32 @@ export const saveLLMProblem = async (data: any): Promise<number> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      // 从描述中提取前15个字符作为默认标题
-      const defaultTitle = data.description ?
-        (data.description.length > 15 ? data.description.substring(0, 15) + '...' : data.description) :
-        '无标题问题';
+      let problemData;
 
-      const problemData = {
-        data,
-        createdAt: new Date(),
-        title: defaultTitle,
-        isFavorite: false
-      };
+      // 检查传入的数据是否已经是完整的 LLMProblem 格式
+      if (data.hasOwnProperty('data') && data.hasOwnProperty('createdAt')) {
+        // 如果是完整的记录格式，直接使用
+        problemData = {
+          isFavorite: false, // 设置默认值
+          ...data // 使用传入的所有字段
+        };
+        console.log('saveLLMProblem: 使用完整记录格式', problemData);
+      } else {
+        // 如果是原始数据格式，使用旧的逻辑
+        const defaultTitle = data.description ?
+          (data.description.length > 15 ? data.description.substring(0, 15) + '...' : data.description) :
+          '无标题问题';
+
+        problemData = {
+          data,
+          createdAt: new Date(),
+          title: defaultTitle,
+          isFavorite: false,
+          progress: 0, // 默认进度为0
+          totalProblems: Array.isArray(data.problem) ? data.problem.length : 1 // 根据问题数量设置总数
+        };
+        console.log('saveLLMProblem: 使用原始数据格式', problemData);
+      }
 
       const transaction = db.transaction([STORE_NAME], 'readwrite');
       const store = transaction.objectStore(STORE_NAME);
@@ -157,6 +174,30 @@ export const deleteProblem = async (id: number): Promise<void> => {
 
       request.onerror = () => {
         reject('删除问题失败');
+      };
+    });
+  } catch (error) {
+    console.error('IndexedDB操作失败:', error);
+    throw error;
+  }
+};
+
+// 临时调试函数：清空所有数据
+export const clearAllProblems = async (): Promise<void> => {
+  try {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.clear();
+
+      request.onsuccess = () => {
+        console.log('所有数据已清空');
+        resolve();
+      };
+
+      request.onerror = () => {
+        reject('清空数据失败');
       };
     });
   } catch (error) {

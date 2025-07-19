@@ -15,11 +15,11 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
 
   const handleInitTutorials = async () => {
     const { getAllProblems } = await import('@/services/recordsIndexDB');
-    
+
     try {
       setIsProcessing(true);
       const existingProblems = await getAllProblems();
-      
+
       const existingTutorials = new Set(
         existingProblems
           .filter(p => p.data?.isBuiltIn)
@@ -50,23 +50,50 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
           category: tutorial.data.category
         };
         
-        // 创建完整的记录对象，包括 isTutorial 标志
-        const tutorialRecord: LLMProblem = {
+        // 正确分离核心数据和元数据
+        // 核心数据：包含问题内容的数据
+        const coreData = formattedTutorial;
+
+        // 元数据：记录的属性信息（不包含data字段，避免重复嵌套）
+        const recordMetadata: Partial<LLMProblem> = {
           title: tutorial.title,
           isTutorial: true, // 设置教程标志
           createdAt: new Date(),
-          data: formattedTutorial
+          progress: 0, // 初始进度为0
+          totalProblems: tutorial.problem.length // 设置总问题数量
+          // 注意：这里不包含 data 字段，因为 data 会由 storeProblem 函数设置
         };
-        
-        lastSavedId = await storeProblem(formattedTutorial, tutorialRecord);
+
+        // 调试日志：输出传入 storeProblem 的参数（可在生产环境中移除）
+        console.log('教程初始化 - storeProblem 调用参数:', {
+          tutorial: tutorial.title,
+          coreData,
+          recordMetadata
+        });
+
+        lastSavedId = await storeProblem(coreData, recordMetadata);
       }
       
       // 使用最后保存的教程 ID 触发更新
       if (lastSavedId) {
         setCurrentProblemId(lastSavedId);
         setLLMResult(null);  // 清除之前的结果
+
+        // 验证保存结果
+        const { getProblemById } = await import('@/services/recordsIndexDB');
+        const savedRecord = await getProblemById(lastSavedId);
+        console.log('验证保存结果:', savedRecord);
+
+        if (savedRecord) {
+          console.log('✓ 验证成功:');
+          console.log('  - ID:', savedRecord.id);
+          console.log('  - Title:', savedRecord.title);
+          console.log('  - isTutorial:', savedRecord.isTutorial);
+          console.log('  - Description:', savedRecord.data?.description?.substring(0, 50) + '...');
+          console.log('  - Problem count:', savedRecord.data?.problem?.length);
+        }
       }
-      
+
       messageApi.success(`已添加 ${missingTutorials.length} 个教程`);
     } catch (error) {
       messageApi.error('教程初始化失败');
