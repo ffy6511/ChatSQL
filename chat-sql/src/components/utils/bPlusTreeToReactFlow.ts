@@ -17,6 +17,8 @@ export interface BPlusNodeData extends Record<string, unknown> {
   isLeaf: boolean;
   level: number;
   order: number;
+  next?: string | null;
+  highlighted?: boolean; // 添加高亮状态
 }
 
 // 简化的B+树类

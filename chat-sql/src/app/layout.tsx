@@ -38,7 +38,7 @@ export default function RootLayout({
     // 使用短暂的延迟来确保加载状态可见
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500); // 稍微延长加载时间，让用户能看到骨架屏效果
+    }, 100); // 稍微延长加载时间，让用户能看到骨架屏效果
     
     return () => clearTimeout(timer);
   }, [pathname]);

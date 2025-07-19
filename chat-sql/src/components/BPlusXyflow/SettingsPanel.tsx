@@ -22,11 +22,13 @@ interface Settings {
 interface SettingsPanelProps {
   settings: Settings;
   onSettingsChange: (settings: Settings) => void;
+  disabled?: boolean;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   settings,
-  onSettingsChange
+  onSettingsChange,
+  disabled = false
 }) => {
   // 处理动画开关变化
   const handleAnimationToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +86,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 checked={settings.isAnimationEnabled}
                 onChange={handleAnimationToggle}
                 color="primary"
+                disabled={disabled}
               />
             }
             label="开启动画"
@@ -105,6 +108,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             size="small"
             inputProps={{ min: 3, max: 10, step: 1 }}
             sx={{ width: '80px' }}
+            disabled={disabled}
           />
           <Typography variant="body2" color="text.secondary">
             (3-10)
@@ -125,7 +129,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             max={2000}
             step={100}
             marks={speedMarks}
-            disabled={!settings.isAnimationEnabled}
+            disabled={disabled || !settings.isAnimationEnabled}
             valueLabelDisplay="auto"
             valueLabelFormat={(value) => `${value}ms`}
             sx={{

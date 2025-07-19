@@ -478,6 +478,45 @@
   height: 16px;
 }
 
+/* 节点高亮样式 */
+.bplus-node-highlighted {
+  animation: bplus-highlight-pulse 1s ease-in-out infinite alternate;
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8) !important;
+  border: 2px solid #ffc107 !important;
+}
+
+@keyframes bplus-highlight-pulse {
+  from {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
+    border-color: #ffc107;
+  }
+  to {
+    box-shadow: 0 0 25px rgba(255, 193, 7, 1);
+    border-color: #ffb300;
+  }
+}
+
+/* 暗色模式下的高亮样式 */
+.dark-mode .bplus-node-highlighted {
+  box-shadow: 0 0 15px rgba(255, 235, 59, 0.8) !important;
+  border: 2px solid #ffeb3b !important;
+}
+
+.dark-mode .bplus-node-highlighted {
+  animation: bplus-highlight-pulse-dark 1s ease-in-out infinite alternate;
+}
+
+@keyframes bplus-highlight-pulse-dark {
+  from {
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.8);
+    border-color: #ffeb3b;
+  }
+  to {
+    box-shadow: 0 0 25px rgba(255, 235, 59, 1);
+    border-color: #fdd835;
+  }
+}
+
 /* 暗色模式适配 */
 .dark-mode .bplus-custom-controls {
   background-color: transparent !important;

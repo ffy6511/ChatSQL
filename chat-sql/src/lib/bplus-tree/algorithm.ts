@@ -501,10 +501,7 @@ export class BPlusTreeAlgorithm {
     let nextSmallest: number | null = null;
 
     // 找到对应的index
-    if (!parentNode) {
-      throw new Error('Parent node is null');
-    }
-    parentIndex = parentNode.children.indexOf(currentNode);
+    parentIndex = parentNode?.children.indexOf(currentNode)!;
 
     // 如果当前节点在删除之后没有key
     if (currentNode.numKeys == 0) {
