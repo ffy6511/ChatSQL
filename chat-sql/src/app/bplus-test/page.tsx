@@ -7,7 +7,7 @@ import { Box, Typography, Paper } from '@mui/material';
 
 const BPlusTestPage: React.FC = () => {
   // 1. 提供一组初始数据，而不是从零开始
-  const [initialKeys] = useState<number[]>([10, 20, 5, 15, 25, 3, 7]);
+  const [initialKeys] = useState<number[]>([1,2,3,4,5]);
   const [order] = useState<number>(3);
 
   return (

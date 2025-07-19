@@ -152,7 +152,6 @@ export class BPlusTreeAlgorithm {
       
       // 插入键值到正确位置
       this.tree.insertKeyIntoNode(node, insertValue);
-      node.numKeys++;
       
       this.cmd('SetNumElements', node.graphicID, node.numKeys);
       
@@ -362,7 +361,7 @@ export class BPlusTreeAlgorithm {
       parent.children[insertIndex + 1] = rightNode;
       parent.numKeys++;
       
-      // this.cmd('SetText', parent.graphicID, risingKey.toString(), insertIndex);
+      this.cmd('SetText', parent.graphicID, risingKey.toString(), insertIndex);
       this.cmd('SetNumElements', parent.graphicID, parent.numKeys);
       this.cmd('Connect', parent.graphicID, rightNode.graphicID,
         BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', insertIndex + 1);
@@ -468,7 +467,7 @@ export class BPlusTreeAlgorithm {
     // 从节点中删除键值
     const keyIndex = this.tree.findKeyInNode(node, deleteValue);
     this.tree.removeKeyFromNode(node, deleteValue);
-    node.numKeys--;
+  
 
     // 更新可视化
     for (let i = keyIndex; i < node.numKeys; i++) {
@@ -494,33 +493,46 @@ export class BPlusTreeAlgorithm {
    * 更新父节点中的键值（当删除第一个键时）
    */
   private updateParentKeys(node: BPlusNode, deletedValue: number): void {
+    if (!node.parent) return;
+
     let currentNode = node;
     let parentNode = currentNode.parent;
+    let parentIndex: number;
+    let nextSmallest: number | null = null;
 
-    while (parentNode !== null) {
-      // 找到当前节点在父节点中的索引
-      let parentIndex = 0;
-      while (parentIndex <= parentNode.numKeys && parentNode.children[parentIndex] !== currentNode) {
-        parentIndex++;
+    // 找到对应的index
+    parentIndex = parentNode?.children.indexOf(currentNode)!;
+
+    // 如果当前节点在删除之后没有key
+    if (currentNode.numKeys == 0) {
+      // 如果当前节点没有右兄弟
+      if (parentIndex == parentNode!.numKeys)
+        nextSmallest = null;
+      else {
+        // 取右兄弟的第一个key
+        nextSmallest = parentNode!.children[parentIndex + 1].keys[0];
       }
+    } else {
+      // 如果节点非空, 取删除之后的第一个key
+      nextSmallest = currentNode.keys[0];
+    }
 
-      // 如果需要更新父节点的键
-      if (parentIndex > 0 && parentNode.keys[parentIndex - 1] === deletedValue) {
-        const nextSmallest = currentNode.keys[0]; // 当前节点的最小键
-        parentNode.keys[parentIndex - 1] = nextSmallest;
-        this.cmd('SetText', parentNode.graphicID, nextSmallest.toString(), parentIndex - 1);
+    if (nextSmallest == null) return;
+
+    while (parentNode != null) {
+      if (parentIndex > 0 && parentNode.keys[parentIndex - 1] == deletedValue) {
+        parentNode.keys[parentIndex - 1] = nextSmallest; // to fix
+        this.cmd("SetText", parentNode.graphicID, parentNode.keys[parentIndex - 1], parentIndex - 1);
+        return;
       }
+      let grandParent: BPlusNode;
+      if (parentNode.parent == null) break;
+      
+      grandParent = parentNode.parent;
 
-      // 继续向上检查
-      const grandParent = parentNode.parent;
-      let grandParentIndex = 0;
-      if (grandParent !== null) {
-        while (grandParentIndex <= grandParent.numKeys && grandParent.children[grandParentIndex] !== parentNode) {
-          grandParentIndex++;
-        }
-      }
-
-      currentNode = parentNode;
+      parentIndex = grandParent.children.indexOf(parentNode);
+      
+      // 移动到上一层
       parentNode = grandParent;
     }
   }

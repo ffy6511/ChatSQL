@@ -29,7 +29,7 @@ export class BPlusTreeCore {
     let current = this.root;
     while (!current.isLeaf) {
       let index = 0;
-      while (index < current.numKeys && current.keys[index] < key) {
+      while (index < current.numKeys && current.keys[index] <= key) {
         index++;
       }
       current = current.children[index];
