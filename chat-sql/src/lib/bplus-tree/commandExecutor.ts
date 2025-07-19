@@ -17,9 +17,17 @@ export class CommandExecutor {
   private callbacks: CommandExecutorCallbacks;
   private nodeMap: Map<string, Node<BPlusNodeData>> = new Map();
   private edgeMap: Map<string, Edge> = new Map();
+  private nodeTypeMap: Map<string, boolean> = new Map(); // 跟踪节点是否为叶子节点
 
   constructor(callbacks: CommandExecutorCallbacks) {
     this.callbacks = callbacks;
+  }
+
+  /**
+   * 设置节点类型信息
+   */
+  public setNodeType(nodeId: string, isLeaf: boolean): void {
+    this.nodeTypeMap.set(nodeId, isLeaf);
   }
 
   /**
@@ -139,15 +147,14 @@ export class CommandExecutor {
    * 执行SetHighlight指令
    */
   private executeSetHighlight(command: { type: 'SetHighlight'; nodeId: string; highlight: boolean }): void {
-    this.callbacks.setNodes(nodes => 
+    this.callbacks.setNodes(nodes =>
       nodes.map(node => {
         if (node.id === command.nodeId) {
           return {
             ...node,
-            className: command.highlight ? 'highlighted' : '',
-            style: {
-              ...node.style,
-              backgroundColor: command.highlight ? BTREE_CONSTANTS.HIGHLIGHT_COLOR : BTREE_CONSTANTS.BACKGROUND_COLOR
+            data: {
+              ...node.data,
+              highlighted: command.highlight
             }
           };
         }
@@ -183,34 +190,38 @@ export class CommandExecutor {
   /**
    * 执行CreateBTreeNode指令
    */
-  private executeCreateBTreeNode(command: { 
-    type: 'CreateBTreeNode'; 
-    nodeId: string; 
-    width: number; 
-    height: number; 
-    numElements: number; 
-    x: number; 
-    y: number; 
-    backgroundColor?: string; 
-    foregroundColor?: string; 
+  private executeCreateBTreeNode(command: {
+    type: 'CreateBTreeNode';
+    nodeId: string;
+    width: number;
+    height: number;
+    numElements: number;
+    x: number;
+    y: number;
+    backgroundColor?: string;
+    foregroundColor?: string;
   }): void {
+    // 从类型映射中获取节点类型，默认为叶子节点
+    const isLeaf = this.nodeTypeMap.get(command.nodeId) ?? true;
+
+    // 确保order和keys数组长度正确
+    const nodeOrder = Math.max(3, command.numElements + 1);
+    const keysLength = nodeOrder - 1;
+    const pointersLength = nodeOrder;
+
     const newNode: Node<BPlusNodeData> = {
       id: command.nodeId,
-      type: 'bPlusLeafNode', // 默认为叶子节点，后续可能需要调整
+      type: isLeaf ? 'bPlusLeafNode' : 'bPlusInternalNode',
       position: { x: command.x, y: command.y },
       data: {
-        keys: new Array(command.numElements).fill(null),
-        pointers: [],
-        isLeaf: true,
+        keys: new Array(keysLength).fill(null),
+        pointers: new Array(pointersLength).fill(null),
+        isLeaf: isLeaf,
         level: 0,
-        order: command.numElements + 1
+        order: nodeOrder
       },
-      style: {
-        backgroundColor: command.backgroundColor || BTREE_CONSTANTS.BACKGROUND_COLOR,
-        color: command.foregroundColor || BTREE_CONSTANTS.FOREGROUND_COLOR,
-        width: command.width * command.numElements,
-        height: command.height
-      }
+      // 移除style属性，让CSS控制样式，避免与自定义节点组件冲突
+      className: isLeaf ? 'bplus-leaf-node' : 'bplus-internal-node'
     };
 
     this.nodeMap.set(command.nodeId, newNode);

@@ -191,18 +191,19 @@ export abstract class AlgorithmBase {
   }
 }
 
-// 常量定义，参考原始实现
+// 常量定义
 export const BTREE_CONSTANTS = {
   WIDTH_PER_ELEM: 50,
   NODE_HEIGHT: 30,
   STARTING_Y: 50,
+  HEIGHT_DELTA: 80, // 层级间距
   BACKGROUND_COLOR: '#FFFFFF',
   FOREGROUND_COLOR: '#000000',
   HIGHLIGHT_COLOR: '#1976d2', // 深蓝色高亮
   EDGE_COLOR: '#000000'
 };
 
-// 节点数据结构（纯数据，不包含可视化信息）
+// 节点数据结构
 export interface BPlusNode {
   id: string;
   keys: number[];

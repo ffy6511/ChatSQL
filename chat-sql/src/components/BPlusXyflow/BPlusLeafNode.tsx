@@ -8,16 +8,22 @@ interface BPlusNodeData {
   pointers: (string | null)[];
   isLeaf: boolean;
   level: number;
-  next?: string | null; // <-- 已添加
+  next?: string | null; 
   order: number;
+  highlighted?: boolean; // 添加高亮状态
 }
 
 const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;
-  const { keys, order } = nodeData;
+  const { keys, order, highlighted } = nodeData;
+
+  // 根据高亮状态确定CSS类名
+  const nodeClassName = highlighted
+    ? `${styles['bplus-leaf-node']} ${styles['bplus-node-highlighted']}`
+    : styles['bplus-leaf-node'];
 
   return (
-    <div className={styles['bplus-leaf-node']}>
+    <div className={nodeClassName}>
       {/* 顶部连接点 */}
       <Handle
         type="target"

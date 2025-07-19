@@ -39,6 +39,16 @@ export type {
   CommandExecutorCallbacks
 } from './commandExecutor';
 
+// 持久化存储
+export {
+  BPlusTreeStorage,
+  getBPlusTreeStorage
+} from './storage';
+
+export type {
+  BPlusTreeStorageData
+} from './storage';
+
 // 类型定义
 export type { BPlusCommand as Command } from './commands';
 export type { AnimationState as State } from './animationManager';
