@@ -131,7 +131,6 @@ export function convertERJsonToFlow(
       }
 
       const isTotal = connection.cardinality.startsWith('1');
-      const edgeType = isTotal ? 'totalParticipationEdge' : 'default';
 
       const edge: Edge = {
         id: edgeId,
@@ -140,7 +139,7 @@ export function convertERJsonToFlow(
         sourceHandle,
         targetHandle,
         label: connection.cardinality,
-        type: edgeType,
+        type: 'default',
         animated: false,
         style: {
           stroke: '#E8B05B',

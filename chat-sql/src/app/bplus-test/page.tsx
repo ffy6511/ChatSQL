@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import BPlusTreeVisualizerNew from '@/components/BPlusXyflow/BPlusTreeVisualizerNew';
 import BPlusTreeVisualizer from '@/components/BPlusXyflow/BPlusTreeVisualizer';
 import { Box, Typography, Paper } from '@mui/material';
 
@@ -15,7 +14,7 @@ const BPlusTestPage: React.FC = () => {
 
       
       <Box sx={{ flex: 1, position: 'relative', m: 2, mt: 1 }}>
-        <BPlusTreeVisualizerNew
+        <BPlusTreeVisualizer
           initialKeys={initialKeys}
           order={order}
         />

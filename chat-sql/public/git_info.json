@@ -1,6 +1,167 @@
 {
   "history": [
     {
+      "hash": "47232804f4b43c480026a697bfb1dc3ca829d768",
+      "date": "2025-07-19T23:37:42+08:00",
+      "message": "Merge branch 'new-feature'",
+      "description": "",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "c19de1b7ba2f5e5e3f6caef2ff28d5f2788b4678",
+      "date": "2025-07-19T23:29:22+08:00",
+      "message": "feat: Track per-problem completion in tutorial progress",
+      "description": "- Introduces a completedProblems array to LLMProblem records and updates progress logic to track individual problem completion.\n- Updates UI components and context to reflect granular progress, adds event-based refresh for history",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "21244c05aa41d84305cb424c597c7107a45de314",
+      "date": "2025-07-19T22:49:04+08:00",
+      "message": "feat: Add tutorial progress tracking and record clearing",
+      "description": "- Implements tutorial progress tracking with status display, filtering, and automatic updates.\n- Adds a 'clear all records' feature with confirmation dialog in the history panel.\n- Refactors tutorial record saving to fix data issues and ensures TypeScript type safety.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "8d0472672b7bd04d269cea06dab1435e8e17e593",
+      "date": "2025-07-19T19:19:32+08:00",
+      "message": "fix: B+ tree key handling and parent update logic",
+      "description": "- Corrected key comparison in BPlusTreeCore search\n- Improved parent key update logic in BPlusTreeAlgorithm to handle edge cases when deleting keys.\n- Also removed redundant numKeys manipulations for consistency.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "f26668dc3ca1bb892eb4e84768993525838246f1",
+      "date": "2025-07-19T16:43:24+08:00",
+      "message": "feat: Implement B+ tree node type management and persistent storage",
+      "description": "- Added node type tracking in CommandExecutor to differentiate between leaf and internal nodes.\n- Introduced setNodeType method to set node type information.\n- Updated executeCreateBTreeNode to utilize node type information for node creation.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "6d36b68934006fe2a71457c4ec3f435974cb72c4",
+      "date": "2025-07-19T11:11:27+08:00",
+      "message": "feat: Complete the scaffolding of the revised B + tree using the idea of instruction sequence",
+      "description": "",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "f858a05158c8892d98fe364d471d0de9b600648a",
+      "date": "2025-07-15T20:10:53+08:00",
+      "message": "fix(nodeFactory): Added drag and drop recognition for weak entities",
+      "description": "- Added support for initializing weak entities;\n- Modified the style of the model that opens the ER graph list",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "6537ffeb4ea42f75d70896813fd54af4e0a92826",
+      "date": "2025-07-15T19:36:06+08:00",
+      "message": "chore: Enhance ERDiagram drag, drop, and connect UX",
+      "description": "- Centralizes drag-and-drop and connection logic into the ERDiagram component,\n- Updates context methods to async for persistence, improves handle visibility and interactivity in EntityNode and DiamondNode",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "483e551c639f72bff17547574120edd19e2c23ff",
+      "date": "2025-07-15T17:52:59+08:00",
+      "message": "fix(createNewDiagram): Enhance ER diagram UI and context logic",
+      "description": "- Improved EntityListView to support dynamic data type parameters and better badge styling.\n- Refactored NewDiagramModal to use createNewDiagram for simplified logic.\n- Updated OpenDiagramModal to rely on context-managed diagram list",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "1c6db8992a36d57f1968e2ae5678af59d380d6b7",
+      "date": "2025-07-15T15:55:09+08:00",
+      "message": "refactor  Inspector and Views",
+      "description": "- Moved EntitiesView and RelationshipsView to separate components\n- Updated Inspector component to use new views.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "12f7a818220388b28a9dc1fc5453fb25b177f196",
+      "date": "2025-07-14T17:14:47+08:00",
+      "message": "refactor(Inspector): use MUI component",
+      "description": "- Replaces Ant Design components with Material UI in the ERDiagram Inspector and related UI\n-  Also updates global and sidebar CSS variables, adjusts NavBar tab styles, and tweaks loading delay in layout.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "49275eb621b4749fa049045667ad2e41533a7574",
+      "date": "2025-07-14T15:23:12+08:00",
+      "message": "feat(PropertyEditor): Add ER graph node editing and indexDB storage",
+      "description": "- Implement ER graph node editing, weak entity set double border rendering, double-click renaming, node selection state management, right property editing panel and other functions;\n- Improve IndexedDB storage service\n- Optimize left sidebar width and global style",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "73f5ddba1f5bc284ad40e016a620627273e7f281",
+      "date": "2025-07-14T11:29:27+08:00",
+      "message": "feat(weak type): Add weak entity and weak relationship rendering support",
+      "description": "- Implemented support for weak entities and weak relationships  in ER diagrams.\n- Added a new weak entity test page and sample data, updated ERDiagram types, node components, and styles to visually distinguish weak entities and relationships.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "5c65187f17798bb57e8740d274d6cfbbd86a6607",
+      "date": "2025-07-14T00:17:41+08:00",
+      "message": "feat: Add drag-and-drop to ER diagram canvas and context actions",
+      "description": "- Implemented drag-and-drop support for adding entities and relationships from the component library to the ER diagram canvas.\n- Added utility functions for node creation and drop position calculation.\n- Extended ERDiagramContext with add, update, and delete actions for entities and relationships.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "002fb58d90c822f7b2a566e1c7cba807f5056093",
+      "date": "2025-07-14T00:01:41+08:00",
+      "message": "feat(er-diagram): scaffold ER diagram module with basic layout and components",
+      "description": "Introduces a new ER diagram module with interactive visual modeling, including Canvas, Sidebar, Inspector, and context-based state management.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "348af836f800f89f24905cee0ec5ffdf707871f7",
+      "date": "2025-07-13T20:59:49+08:00",
+      "message": "refactor(ERDiagram): adjusted cardinality and layout logic",
+      "description": "- Standardized cardinality notation in ER types and data to (min..max) format, removed isForeignKey\n- Refactored erToFlow layout to use a fixed 3-column approach and simplified edge handle assignment based on entity position.\n- DiamondNode now supports both source and target handles on all sides for improved connection flexibility.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "157f7fc76e287fcb7fb8739c659ba911c7635aa9",
+      "date": "2025-07-12T13:39:06+08:00",
+      "message": "feat(ERDiagram): Add ER diagram visualization components",
+      "description": "- Introduced a new ER diagram visualization feature with custom React Flow nodes and edges for entities and relationships.\n- Added demo page, reusable ERDiagram component, custom node styles (entity and diamond), edge types, and sample ER data.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "1e24706891b6b3ebdda65b2e2f50f9e9fc15de00",
+      "date": "2025-07-12T08:22:54+08:00",
+      "message": "feat: Add adjustable B+ tree order and animation",
+      "description": "- The visualizer layout is refactored.\n- The B+ tree logic is refactored to support dynamic order changes, improved animation step sequencing",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "a14db290f2a85bda53728a0d5cdf8f219c283f02",
+      "date": "2025-07-10T16:05:44+08:00",
+      "message": "style(BPlusTreeVisualizer): Enhance B+ tree visualizer with custom controls and UI improvements",
+      "description": "- Added custom zoom and reset controls to the B+ tree visualizer using a new horizontal button panel.\n- Improved node layout logic for better alignment.\n- Error messages now use Ant Design's message component for better user feedback.",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "a514013c8402cf9346600a8ba5d072ada49c6640",
+      "date": "2025-07-09T22:47:30+08:00",
+      "message": "feat: add SettingsPanel component for animation settings and remove SimpleDemo component",
+      "description": "- Introduced a new SettingsPanel component to manage animation settings including enabling/disabling animations and adjusting animation speed.\n- Removed the SimpleDemo component which was previously handling B+ tree visualization.\n- Updated utility functions to accommodate changes in B+ tree structure and added order property to node data.\n- Implemented a comprehensive B+ tree class with methods f...",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "6b49b5114177192926642fb899b8fbfd4897adda",
+      "date": "2025-07-09T15:59:13+08:00",
+      "message": "refactor : B+ tree visualizer node layout and styles",
+      "description": "- Simplified and unified the slot-based layout for both internal and leaf B+ tree nodes\n- Updated CSS to use slot containers and modernized node appearance",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "25d7283ca00930efaf9a0ff4ba15c7930cd8e923",
+      "date": "2025-07-09T14:47:14+08:00",
+      "message": "add(BPlusXyflow): Complete scaffolding file for B + tree visualization",
+      "description": "",
+      "author": "ffy6511"
+    },
+    {
+      "hash": "2953989274c234e462fa29d731f08666bd3c8c57",
+      "date": "2025-05-25T22:19:59+08:00",
+      "message": "feat(themeToggle): Enhance UI components with theme support and improved styling",
+      "description": "- Updated TableNavigator to include a search input with an icon and custom styles.\n- Added TupleViewer.module.css for styling the TupleViewer component.\n- Modified TupleViewer to use new styles and improved background color.\n- Refactored NavBar.module.css to use CSS variables for background and border colors.\n- Updated SideBar.module.css to apply theme variables for consistent styling.\n- Introduce...",
+      "author": "ffy6511"
+    },
+    {
       "hash": "00b51ecaf34af5689d8019d898b4ba67aec3a6f1",
       "date": "2025-05-16T00:04:25+08:00",
       "message": "feat(TableNavigator & share):  A table navigation  to quickly locate tables; new share for File-mediated database interaction patterns",
@@ -188,163 +349,186 @@
       "message": "feat(LLMWindow): Modify the layout format and logic of the LLM window",
       "description": "",
       "author": "ffy6511"
-    },
-    {
-      "hash": "f3d27c5f96e053e2c225c54715d547b055ed7ea1",
-      "date": "2025-04-27T09:03:24+08:00",
-      "message": "feat(resultComparator): Automatically/manually invoke the comparison function between query results and query requirements, adding context relevant to problem completion.",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "2881d344e3cf9f283e813534cde69d023a62e450",
-      "date": "2025-04-26T23:39:00+08:00",
-      "message": "feat(ProblemViewer): Added view switching function to support the display of database structures and tuple tables.",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "73a3d0ad4bd241b03ac13fedf104a663e94070c5",
-      "date": "2025-04-25T22:26:41+08:00",
-      "message": "feat(SQLEditor): Add keyboard shortcut support and tooltips to optimize the query execution experience",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "2b39667993cf3aa529312a03810dde6969e1db38",
-      "date": "2025-04-25T22:09:26+08:00",
-      "message": "feat(sqlCompletionProvider): Enhance SQL editor with dynamic auto-completion and improved suggestion provider",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "dc1d9440f74be5ea99e180b572e823c5d175d0bf",
-      "date": "2025-04-25T00:00:34+08:00",
-      "message": "feat(RenderdArea): Add empty state component and query result title to optimize query area display",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "f1c9c8778ae907db50d53d7e0cb6ed848e4593d4",
-      "date": "2025-04-23T23:33:10+08:00",
-      "message": "refactor(SQLExecutor): Add conditional evaluation, constraint validation, query assistance, and transaction management modules",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "481bf61916a8f55aa6be8bae9bef73d6acb904ea",
-      "date": "2025-04-23T23:11:17+08:00",
-      "message": "fix(sqlExcutor): Perfect basic logical operations and where clauses, etc",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "433dcb14ef05d91f5489154bd89ce23d5929cea9",
-      "date": "2025-04-22T23:49:36+08:00",
-      "message": "feat: integrate SQL query execution and result display",
-      "description": "- Added QueryContext for managing query results across components.\n- Implemented SQLQueryEngine for executing SQL queries with support for SELECT, INSERT, UPDATE, DELETE, CREATE, and DROP operations.\n- Enhanced SQLEditor component to handle SQL execution and transaction management.\n- Created QueryResultTable component to display query results in a structured format.\n- Updated layout to include Que...",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "7b8b52cb5b524754565a4622764ce2ff6a9612ea",
-      "date": "2025-04-21T23:04:18+08:00",
-      "message": "feat(SideBar): Implement sidebar component with guiding modal and theme toggle",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "d89b887b64056e39aeec8650479f5ff473a0d18f",
-      "date": "2025-04-21T22:42:59+08:00",
-      "message": "feat(addNewChat): Added a button for creating a new dialog window",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "1cdf9ed48956bc9014d9ac826ec3c8378df1b5f6",
-      "date": "2025-04-20T15:15:08+08:00",
-      "message": "Style(History): Enhance history panel and item styles with improved UI elements and interactions",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "4de26d2fa843031af00b79d52fa94ef61541ae5f",
-      "date": "2025-04-20T13:59:11+08:00",
-      "message": "feat(History): Implement history management with CRUD operations and UI components",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "17f6c720364a9db5c40654922c026752825d4d57",
-      "date": "2025-04-20T13:35:40+08:00",
-      "message": "feat(LLMInteractive): Refactor LLM components to utilize DifyResponse type and improve context management",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "f136e5be81effb3971c8c7992cd80db1457137ef",
-      "date": "2025-04-18T23:24:48+08:00",
-      "message": "feat(LLMInteractive): Add LLM result view component and implement data storage function",
-      "description": "- 新增LLMResultView组件用于展示LLM返回的结果\n- Added LLMResultView component to display the results returned by LLM\n- Implemented useSimpleStorage hook to support saving problem data to IndexedDB\n- Updated LLMWindow component to integrate new result view and saving capabilities",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "ccd1c83e65f8ed5a00d96b947631c29ef82c7187",
-      "date": "2025-04-17T23:44:49+08:00",
-      "message": "feat(LLMInteractive): Add LLM interaction components and their associated contexts and styles",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "e7bc194c9321b84ce1242ac772d44207f456c0b4",
-      "date": "2025-04-15T23:08:56+08:00",
-      "message": "Style(tableDataTransform): Modify table styles with @mui/x-data-grid to enhance visualization",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "7f7075f4ef3d2a045103c66bd5ca03d9a8b07b02",
-      "date": "2025-04-14T23:59:45+08:00",
-      "message": "feat(LLMInteractive): Add Tuple Viewer Components and Optimize UI Styles",
-      "description": "- Added'TupleViewer 'component to display database tuple data\n- Added'Container' component to integrate'DatabaseFlow 'and'TupleViewer'",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "3f4a89570ce7b3cad9bad18ea450ccc390d841bf",
-      "date": "2025-04-13T23:41:11+08:00",
-      "message": "style(page): Design the overall layout, using antd's scaling components and embedding SQLEditor",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "bfc79018f8ae6a6d8dda151e5bd7d1dccbc17875",
-      "date": "2025-04-13T00:05:04+08:00",
-      "message": "feat: Add SQL editor components and related styles, update dependencies, and modify database process component styles",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "80286f0d308d7878045591e438ccb1300cdef536",
-      "date": "2025-04-10T23:14:35+08:00",
-      "message": "refactor: Centralize type definitions into the Database.ts file",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "9f8c08a04d6b4cbfc5ec87cba511703d1affce7a",
-      "date": "2025-04-10T23:00:10+08:00",
-      "message": "feat: Initialize the project and add a database visualization component",
-      "description": "",
-      "author": "ffy6511"
-    },
-    {
-      "hash": "6431f8d3b7c35caf708bff7e338a32289396dd1a",
-      "date": "2025-04-09T23:21:09+08:00",
-      "message": "Initial commit",
-      "description": "",
-      "author": "junhao Zhuo"
     }
   ],
   "commitsByDate": {
+    "2025/7/19": [
+      {
+        "hash": "47232804f4b43c480026a697bfb1dc3ca829d768",
+        "date": "2025-07-19T23:37:42+08:00",
+        "message": "Merge branch 'new-feature'",
+        "description": "",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "c19de1b7ba2f5e5e3f6caef2ff28d5f2788b4678",
+        "date": "2025-07-19T23:29:22+08:00",
+        "message": "feat: Track per-problem completion in tutorial progress",
+        "description": "- Introduces a completedProblems array to LLMProblem records and updates progress logic to track individual problem completion.\n- Updates UI components and context to reflect granular progress, adds event-based refresh for history",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "21244c05aa41d84305cb424c597c7107a45de314",
+        "date": "2025-07-19T22:49:04+08:00",
+        "message": "feat: Add tutorial progress tracking and record clearing",
+        "description": "- Implements tutorial progress tracking with status display, filtering, and automatic updates.\n- Adds a 'clear all records' feature with confirmation dialog in the history panel.\n- Refactors tutorial record saving to fix data issues and ensures TypeScript type safety.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "8d0472672b7bd04d269cea06dab1435e8e17e593",
+        "date": "2025-07-19T19:19:32+08:00",
+        "message": "fix: B+ tree key handling and parent update logic",
+        "description": "- Corrected key comparison in BPlusTreeCore search\n- Improved parent key update logic in BPlusTreeAlgorithm to handle edge cases when deleting keys.\n- Also removed redundant numKeys manipulations for consistency.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "f26668dc3ca1bb892eb4e84768993525838246f1",
+        "date": "2025-07-19T16:43:24+08:00",
+        "message": "feat: Implement B+ tree node type management and persistent storage",
+        "description": "- Added node type tracking in CommandExecutor to differentiate between leaf and internal nodes.\n- Introduced setNodeType method to set node type information.\n- Updated executeCreateBTreeNode to utilize node type information for node creation.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "6d36b68934006fe2a71457c4ec3f435974cb72c4",
+        "date": "2025-07-19T11:11:27+08:00",
+        "message": "feat: Complete the scaffolding of the revised B + tree using the idea of instruction sequence",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/15": [
+      {
+        "hash": "f858a05158c8892d98fe364d471d0de9b600648a",
+        "date": "2025-07-15T20:10:53+08:00",
+        "message": "fix(nodeFactory): Added drag and drop recognition for weak entities",
+        "description": "- Added support for initializing weak entities;\n- Modified the style of the model that opens the ER graph list",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "6537ffeb4ea42f75d70896813fd54af4e0a92826",
+        "date": "2025-07-15T19:36:06+08:00",
+        "message": "chore: Enhance ERDiagram drag, drop, and connect UX",
+        "description": "- Centralizes drag-and-drop and connection logic into the ERDiagram component,\n- Updates context methods to async for persistence, improves handle visibility and interactivity in EntityNode and DiamondNode",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "483e551c639f72bff17547574120edd19e2c23ff",
+        "date": "2025-07-15T17:52:59+08:00",
+        "message": "fix(createNewDiagram): Enhance ER diagram UI and context logic",
+        "description": "- Improved EntityListView to support dynamic data type parameters and better badge styling.\n- Refactored NewDiagramModal to use createNewDiagram for simplified logic.\n- Updated OpenDiagramModal to rely on context-managed diagram list",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "1c6db8992a36d57f1968e2ae5678af59d380d6b7",
+        "date": "2025-07-15T15:55:09+08:00",
+        "message": "refactor  Inspector and Views",
+        "description": "- Moved EntitiesView and RelationshipsView to separate components\n- Updated Inspector component to use new views.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/14": [
+      {
+        "hash": "12f7a818220388b28a9dc1fc5453fb25b177f196",
+        "date": "2025-07-14T17:14:47+08:00",
+        "message": "refactor(Inspector): use MUI component",
+        "description": "- Replaces Ant Design components with Material UI in the ERDiagram Inspector and related UI\n-  Also updates global and sidebar CSS variables, adjusts NavBar tab styles, and tweaks loading delay in layout.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "49275eb621b4749fa049045667ad2e41533a7574",
+        "date": "2025-07-14T15:23:12+08:00",
+        "message": "feat(PropertyEditor): Add ER graph node editing and indexDB storage",
+        "description": "- Implement ER graph node editing, weak entity set double border rendering, double-click renaming, node selection state management, right property editing panel and other functions;\n- Improve IndexedDB storage service\n- Optimize left sidebar width and global style",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "73f5ddba1f5bc284ad40e016a620627273e7f281",
+        "date": "2025-07-14T11:29:27+08:00",
+        "message": "feat(weak type): Add weak entity and weak relationship rendering support",
+        "description": "- Implemented support for weak entities and weak relationships  in ER diagrams.\n- Added a new weak entity test page and sample data, updated ERDiagram types, node components, and styles to visually distinguish weak entities and relationships.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "5c65187f17798bb57e8740d274d6cfbbd86a6607",
+        "date": "2025-07-14T00:17:41+08:00",
+        "message": "feat: Add drag-and-drop to ER diagram canvas and context actions",
+        "description": "- Implemented drag-and-drop support for adding entities and relationships from the component library to the ER diagram canvas.\n- Added utility functions for node creation and drop position calculation.\n- Extended ERDiagramContext with add, update, and delete actions for entities and relationships.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "002fb58d90c822f7b2a566e1c7cba807f5056093",
+        "date": "2025-07-14T00:01:41+08:00",
+        "message": "feat(er-diagram): scaffold ER diagram module with basic layout and components",
+        "description": "Introduces a new ER diagram module with interactive visual modeling, including Canvas, Sidebar, Inspector, and context-based state management.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/13": [
+      {
+        "hash": "348af836f800f89f24905cee0ec5ffdf707871f7",
+        "date": "2025-07-13T20:59:49+08:00",
+        "message": "refactor(ERDiagram): adjusted cardinality and layout logic",
+        "description": "- Standardized cardinality notation in ER types and data to (min..max) format, removed isForeignKey\n- Refactored erToFlow layout to use a fixed 3-column approach and simplified edge handle assignment based on entity position.\n- DiamondNode now supports both source and target handles on all sides for improved connection flexibility.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/12": [
+      {
+        "hash": "157f7fc76e287fcb7fb8739c659ba911c7635aa9",
+        "date": "2025-07-12T13:39:06+08:00",
+        "message": "feat(ERDiagram): Add ER diagram visualization components",
+        "description": "- Introduced a new ER diagram visualization feature with custom React Flow nodes and edges for entities and relationships.\n- Added demo page, reusable ERDiagram component, custom node styles (entity and diamond), edge types, and sample ER data.",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "1e24706891b6b3ebdda65b2e2f50f9e9fc15de00",
+        "date": "2025-07-12T08:22:54+08:00",
+        "message": "feat: Add adjustable B+ tree order and animation",
+        "description": "- The visualizer layout is refactored.\n- The B+ tree logic is refactored to support dynamic order changes, improved animation step sequencing",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/10": [
+      {
+        "hash": "a14db290f2a85bda53728a0d5cdf8f219c283f02",
+        "date": "2025-07-10T16:05:44+08:00",
+        "message": "style(BPlusTreeVisualizer): Enhance B+ tree visualizer with custom controls and UI improvements",
+        "description": "- Added custom zoom and reset controls to the B+ tree visualizer using a new horizontal button panel.\n- Improved node layout logic for better alignment.\n- Error messages now use Ant Design's message component for better user feedback.",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/7/9": [
+      {
+        "hash": "a514013c8402cf9346600a8ba5d072ada49c6640",
+        "date": "2025-07-09T22:47:30+08:00",
+        "message": "feat: add SettingsPanel component for animation settings and remove SimpleDemo component",
+        "description": "- Introduced a new SettingsPanel component to manage animation settings including enabling/disabling animations and adjusting animation speed.\n- Removed the SimpleDemo component which was previously handling B+ tree visualization.\n- Updated utility functions to accommodate changes in B+ tree structure and added order property to node data.\n- Implemented a comprehensive B+ tree class with methods f...",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "6b49b5114177192926642fb899b8fbfd4897adda",
+        "date": "2025-07-09T15:59:13+08:00",
+        "message": "refactor : B+ tree visualizer node layout and styles",
+        "description": "- Simplified and unified the slot-based layout for both internal and leaf B+ tree nodes\n- Updated CSS to use slot containers and modernized node appearance",
+        "author": "ffy6511"
+      },
+      {
+        "hash": "25d7283ca00930efaf9a0ff4ba15c7930cd8e923",
+        "date": "2025-07-09T14:47:14+08:00",
+        "message": "add(BPlusXyflow): Complete scaffolding file for B + tree visualization",
+        "description": "",
+        "author": "ffy6511"
+      }
+    ],
+    "2025/5/25": [
+      {
+        "hash": "2953989274c234e462fa29d731f08666bd3c8c57",
+        "date": "2025-05-25T22:19:59+08:00",
+        "message": "feat(themeToggle): Enhance UI components with theme support and improved styling",
+        "description": "- Updated TableNavigator to include a search input with an icon and custom styles.\n- Added TupleViewer.module.css for styling the TupleViewer component.\n- Modified TupleViewer to use new styles and improved background color.\n- Refactored NavBar.module.css to use CSS variables for background and border colors.\n- Updated SideBar.module.css to apply theme variables for consistent styling.\n- Introduce...",
+        "author": "ffy6511"
+      }
+    ],
     "2025/5/16": [
       {
         "hash": "00b51ecaf34af5689d8019d898b4ba67aec3a6f1",
@@ -552,196 +736,15 @@
         "message": "feat(LLMWindow): Modify the layout format and logic of the LLM window",
         "description": "",
         "author": "ffy6511"
-      },
-      {
-        "hash": "f3d27c5f96e053e2c225c54715d547b055ed7ea1",
-        "date": "2025-04-27T09:03:24+08:00",
-        "message": "feat(resultComparator): Automatically/manually invoke the comparison function between query results and query requirements, adding context relevant to problem completion.",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/26": [
-      {
-        "hash": "2881d344e3cf9f283e813534cde69d023a62e450",
-        "date": "2025-04-26T23:39:00+08:00",
-        "message": "feat(ProblemViewer): Added view switching function to support the display of database structures and tuple tables.",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/25": [
-      {
-        "hash": "73a3d0ad4bd241b03ac13fedf104a663e94070c5",
-        "date": "2025-04-25T22:26:41+08:00",
-        "message": "feat(SQLEditor): Add keyboard shortcut support and tooltips to optimize the query execution experience",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "2b39667993cf3aa529312a03810dde6969e1db38",
-        "date": "2025-04-25T22:09:26+08:00",
-        "message": "feat(sqlCompletionProvider): Enhance SQL editor with dynamic auto-completion and improved suggestion provider",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "dc1d9440f74be5ea99e180b572e823c5d175d0bf",
-        "date": "2025-04-25T00:00:34+08:00",
-        "message": "feat(RenderdArea): Add empty state component and query result title to optimize query area display",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/23": [
-      {
-        "hash": "f1c9c8778ae907db50d53d7e0cb6ed848e4593d4",
-        "date": "2025-04-23T23:33:10+08:00",
-        "message": "refactor(SQLExecutor): Add conditional evaluation, constraint validation, query assistance, and transaction management modules",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "481bf61916a8f55aa6be8bae9bef73d6acb904ea",
-        "date": "2025-04-23T23:11:17+08:00",
-        "message": "fix(sqlExcutor): Perfect basic logical operations and where clauses, etc",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/22": [
-      {
-        "hash": "433dcb14ef05d91f5489154bd89ce23d5929cea9",
-        "date": "2025-04-22T23:49:36+08:00",
-        "message": "feat: integrate SQL query execution and result display",
-        "description": "- Added QueryContext for managing query results across components.\n- Implemented SQLQueryEngine for executing SQL queries with support for SELECT, INSERT, UPDATE, DELETE, CREATE, and DROP operations.\n- Enhanced SQLEditor component to handle SQL execution and transaction management.\n- Created QueryResultTable component to display query results in a structured format.\n- Updated layout to include Que...",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/21": [
-      {
-        "hash": "7b8b52cb5b524754565a4622764ce2ff6a9612ea",
-        "date": "2025-04-21T23:04:18+08:00",
-        "message": "feat(SideBar): Implement sidebar component with guiding modal and theme toggle",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "d89b887b64056e39aeec8650479f5ff473a0d18f",
-        "date": "2025-04-21T22:42:59+08:00",
-        "message": "feat(addNewChat): Added a button for creating a new dialog window",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/20": [
-      {
-        "hash": "1cdf9ed48956bc9014d9ac826ec3c8378df1b5f6",
-        "date": "2025-04-20T15:15:08+08:00",
-        "message": "Style(History): Enhance history panel and item styles with improved UI elements and interactions",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "4de26d2fa843031af00b79d52fa94ef61541ae5f",
-        "date": "2025-04-20T13:59:11+08:00",
-        "message": "feat(History): Implement history management with CRUD operations and UI components",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "17f6c720364a9db5c40654922c026752825d4d57",
-        "date": "2025-04-20T13:35:40+08:00",
-        "message": "feat(LLMInteractive): Refactor LLM components to utilize DifyResponse type and improve context management",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/18": [
-      {
-        "hash": "f136e5be81effb3971c8c7992cd80db1457137ef",
-        "date": "2025-04-18T23:24:48+08:00",
-        "message": "feat(LLMInteractive): Add LLM result view component and implement data storage function",
-        "description": "- 新增LLMResultView组件用于展示LLM返回的结果\n- Added LLMResultView component to display the results returned by LLM\n- Implemented useSimpleStorage hook to support saving problem data to IndexedDB\n- Updated LLMWindow component to integrate new result view and saving capabilities",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/17": [
-      {
-        "hash": "ccd1c83e65f8ed5a00d96b947631c29ef82c7187",
-        "date": "2025-04-17T23:44:49+08:00",
-        "message": "feat(LLMInteractive): Add LLM interaction components and their associated contexts and styles",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/15": [
-      {
-        "hash": "e7bc194c9321b84ce1242ac772d44207f456c0b4",
-        "date": "2025-04-15T23:08:56+08:00",
-        "message": "Style(tableDataTransform): Modify table styles with @mui/x-data-grid to enhance visualization",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/14": [
-      {
-        "hash": "7f7075f4ef3d2a045103c66bd5ca03d9a8b07b02",
-        "date": "2025-04-14T23:59:45+08:00",
-        "message": "feat(LLMInteractive): Add Tuple Viewer Components and Optimize UI Styles",
-        "description": "- Added'TupleViewer 'component to display database tuple data\n- Added'Container' component to integrate'DatabaseFlow 'and'TupleViewer'",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/13": [
-      {
-        "hash": "3f4a89570ce7b3cad9bad18ea450ccc390d841bf",
-        "date": "2025-04-13T23:41:11+08:00",
-        "message": "style(page): Design the overall layout, using antd's scaling components and embedding SQLEditor",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "bfc79018f8ae6a6d8dda151e5bd7d1dccbc17875",
-        "date": "2025-04-13T00:05:04+08:00",
-        "message": "feat: Add SQL editor components and related styles, update dependencies, and modify database process component styles",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/10": [
-      {
-        "hash": "80286f0d308d7878045591e438ccb1300cdef536",
-        "date": "2025-04-10T23:14:35+08:00",
-        "message": "refactor: Centralize type definitions into the Database.ts file",
-        "description": "",
-        "author": "ffy6511"
-      },
-      {
-        "hash": "9f8c08a04d6b4cbfc5ec87cba511703d1affce7a",
-        "date": "2025-04-10T23:00:10+08:00",
-        "message": "feat: Initialize the project and add a database visualization component",
-        "description": "",
-        "author": "ffy6511"
-      }
-    ],
-    "2025/4/9": [
-      {
-        "hash": "6431f8d3b7c35caf708bff7e338a32289396dd1a",
-        "date": "2025-04-09T23:21:09+08:00",
-        "message": "Initial commit",
-        "description": "",
-        "author": "junhao Zhuo"
       }
     ]
   },
   "stats": {
-    "totalCommits": 49,
+    "totalCommits": 50,
     "contributors": [
-      "ffy6511",
-      "junhao Zhuo"
+      "ffy6511"
     ],
-    "lastUpdate": "2025-05-16T00:04:25+08:00",
-    "activeBranches": 3
+    "lastUpdate": "2025-07-19T23:37:42+08:00",
+    "activeBranches": 6
   }
 }

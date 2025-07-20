@@ -20,7 +20,6 @@ import { ERDiagramData, ERConnection } from '../../types/erDiagram';
 import { convertERJsonToFlow, LayoutConfig } from '../../utils/erToFlow';
 import EntityNode from './EntityNode';
 import DiamondNode from './DiamondNode';
-import TotalParticipationEdge from './TotalParticipationEdge';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import {
@@ -39,10 +38,6 @@ const nodeTypes = {
   diamond: DiamondNode as React.ComponentType<any>,
 };
 
-// 自定义边类型
-const edgeTypes = {
-  totalParticipationEdge: TotalParticipationEdge,
-};
 
 // 边样式类型
 type EdgeStyle = 'step' | 'bezier';
@@ -225,7 +220,6 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     // 应用边样式
     const styledEdges = result.edges.map(edge => ({
       ...edge,
-      // type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
       type: edgeStyle,
       data: { ...edge.data, edgeStyle }
     }));
@@ -247,7 +241,6 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     setEdges(eds =>
       eds.map(edge => ({
         ...edge,
-        // type: edge.type === 'totalParticipationEdge' ? 'totalParticipationEdge' : edgeStyle,
         type: edgeStyle,
         data: { ...edge.data, edgeStyle }
       }))
@@ -416,7 +409,6 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
         fitView
         fitViewOptions={{
           padding: 0.2,

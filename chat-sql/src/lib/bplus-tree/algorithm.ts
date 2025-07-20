@@ -496,21 +496,22 @@ export class BPlusTreeAlgorithm {
     if (!node.parent) return;
 
     let currentNode = node;
-    let parentNode = currentNode.parent;
+    // 由于上面已经检查了 node.parent 不为 null，这里可以安全地断言
+    let parentNode = currentNode.parent as BPlusNode;
     let parentIndex: number;
     let nextSmallest: number | null = null;
 
     // 找到对应的index
-    parentIndex = parentNode?.children.indexOf(currentNode)!;
+    parentIndex = parentNode.children.indexOf(currentNode);
 
     // 如果当前节点在删除之后没有key
     if (currentNode.numKeys == 0) {
       // 如果当前节点没有右兄弟
-      if (parentIndex == parentNode!.numKeys)
+      if (parentIndex == parentNode.numKeys)
         nextSmallest = null;
       else {
         // 取右兄弟的第一个key
-        nextSmallest = parentNode!.children[parentIndex + 1].keys[0];
+        nextSmallest = parentNode.children[parentIndex + 1].keys[0];
       }
     } else {
       // 如果节点非空, 取删除之后的第一个key
