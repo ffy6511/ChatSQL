@@ -40,7 +40,8 @@ export class CommandExecutor {
         break;
 
       case 'SetText':
-        this.executeSetText(command);
+        // SetText指令已废弃，由updateView()统一处理
+        console.warn('SetText command is deprecated, handled by updateView()');
         break;
 
       case 'SetHighlight':
@@ -51,8 +52,13 @@ export class CommandExecutor {
         this.executeSetEdgeHighlight(command);
         break;
 
+      case 'SetNodeState':
+        this.executeSetNodeState(command);
+        break;
+
       case 'CreateBTreeNode':
-        this.executeCreateBTreeNode(command);
+        // CreateBTreeNode指令已废弃，由updateView()统一处理
+        console.warn('CreateBTreeNode command is deprecated, handled by updateView()');
         break;
 
       case 'DeleteNode':
@@ -60,7 +66,8 @@ export class CommandExecutor {
         break;
 
       case 'SetNumElements':
-        this.executeSetNumElements(command);
+        // SetNumElements指令已废弃，由updateView()统一处理
+        console.warn('SetNumElements command is deprecated, handled by updateView()');
         break;
 
       case 'Connect':
@@ -76,7 +83,8 @@ export class CommandExecutor {
         break;
 
       case 'ResizeTree':
-        this.executeResizeTree();
+        // ResizeTree指令已废弃，由updateView()统一处理
+        console.warn('ResizeTree command is deprecated, handled by updateView()');
         break;
 
       case 'Step':
@@ -116,32 +124,7 @@ export class CommandExecutor {
     }
   }
 
-  /**
-   * 执行SetText指令
-   */
-  private executeSetText(command: { type: 'SetText'; target: string; text: string; index?: number }): void {
-    const node = this.nodeMap.get(command.target);
-    if (!node) return;
 
-    this.callbacks.setNodes(nodes => 
-      nodes.map(n => {
-        if (n.id === command.target) {
-          const newKeys = [...n.data.keys];
-          if (command.index !== undefined) {
-            newKeys[command.index] = parseInt(command.text) || null;
-          }
-          return {
-            ...n,
-            data: {
-              ...n.data,
-              keys: newKeys
-            }
-          };
-        }
-        return n;
-      })
-    );
-  }
 
   /**
    * 执行SetHighlight指令
@@ -157,6 +140,42 @@ export class CommandExecutor {
               highlighted: command.highlight
             }
           };
+        }
+        return node;
+      })
+    );
+  }
+
+  /**
+   * 执行SetNodeState指令 - 精确控制节点溢出状态可视化
+   */
+  private executeSetNodeState(command:
+    | { type: 'SetNodeState'; nodeId: string; state: 'overflowing'; keys: (number | null)[]; }
+    | { type: 'SetNodeState'; nodeId: string; state: 'normal'; keys?: never; }
+  ): void {
+    this.callbacks.setNodes(nodes =>
+      nodes.map(node => {
+        if (node.id === command.nodeId) {
+          if (command.state === 'overflowing') {
+            // 溢出状态：更新isOverflowing标志并使用指令携带的keys覆盖节点数据
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isOverflowing: true,
+                keys: [...command.keys] // 使用指令携带的完整keys数组（包含溢出键）
+              }
+            };
+          } else {
+            // 正常状态：只清除溢出标志，保持现有keys不变（由updateView()处理）
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isOverflowing: false
+              }
+            };
+          }
         }
         return node;
       })
@@ -187,47 +206,7 @@ export class CommandExecutor {
     );
   }
 
-  /**
-   * 执行CreateBTreeNode指令
-   */
-  private executeCreateBTreeNode(command: {
-    type: 'CreateBTreeNode';
-    nodeId: string;
-    width: number;
-    height: number;
-    numElements: number;
-    x: number;
-    y: number;
-    backgroundColor?: string;
-    foregroundColor?: string;
-  }): void {
-    // 从类型映射中获取节点类型，默认为叶子节点
-    const isLeaf = this.nodeTypeMap.get(command.nodeId) ?? true;
 
-    // 确保order和keys数组长度正确
-    const nodeOrder = Math.max(3, command.numElements + 1);
-    const keysLength = nodeOrder - 1;
-    const pointersLength = nodeOrder;
-
-    const newNode: Node<BPlusNodeData> = {
-      id: command.nodeId,
-      type: isLeaf ? 'bPlusLeafNode' : 'bPlusInternalNode',
-      position: { x: command.x, y: command.y },
-      data: {
-        keys: new Array(keysLength).fill(null),
-        pointers: new Array(pointersLength).fill(null),
-        isLeaf: isLeaf,
-        level: 0,
-        order: nodeOrder
-      },
-      // 移除style属性，让CSS控制样式，避免与自定义节点组件冲突
-      className: isLeaf ? 'bplus-leaf-node' : 'bplus-internal-node'
-    };
-
-    this.nodeMap.set(command.nodeId, newNode);
-
-    this.callbacks.setNodes(nodes => [...nodes, newNode]);
-  }
 
   /**
    * 执行DeleteNode指令
@@ -245,35 +224,7 @@ export class CommandExecutor {
     );
   }
 
-  /**
-   * 执行SetNumElements指令
-   */
-  private executeSetNumElements(command: { type: 'SetNumElements'; nodeId: string; count: number }): void {
-    this.callbacks.setNodes(nodes => 
-      nodes.map(node => {
-        if (node.id === command.nodeId) {
-          const newKeys = new Array(command.count).fill(null);
-          // 保留现有的键值
-          for (let i = 0; i < Math.min(command.count, node.data.keys.length); i++) {
-            newKeys[i] = node.data.keys[i];
-          }
-          
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              keys: newKeys
-            },
-            style: {
-              ...node.style,
-              width: BTREE_CONSTANTS.WIDTH_PER_ELEM * command.count
-            }
-          };
-        }
-        return node;
-      })
-    );
-  }
+
 
   /**
    * 执行Connect指令
@@ -344,14 +295,7 @@ export class CommandExecutor {
     );
   }
 
-  /**
-   * 执行ResizeTree指令
-   */
-  private executeResizeTree(): void {
-    // 这里可以实现自动布局逻辑
-    // 暂时不做处理，让React Flow的自动布局处理
-    console.log('ResizeTree command executed - auto layout will be handled by React Flow');
-  }
+
 
   /**
    * 获取当前节点映射

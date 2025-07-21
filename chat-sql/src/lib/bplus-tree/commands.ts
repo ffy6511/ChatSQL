@@ -11,14 +11,18 @@ export interface EdgeStyle {
 }
 
 // B+树操作指令类型定义
-export type BPlusCommand = 
+export type BPlusCommand =
   // 文本和消息指令
   | { type: 'SetText'; target: string; text: string; index?: number }
   | { type: 'SetMessage'; text: string }
-  
+
   // 节点高亮指令
   | { type: 'SetHighlight'; nodeId: string; highlight: boolean }
   | { type: 'SetEdgeHighlight'; fromId: string; toId: string; highlight: boolean }
+
+  // 节点状态指令 - 使用联合类型精确控制不同状态的参数
+  | { type: 'SetNodeState'; nodeId: string; state: 'overflowing'; keys: (number | null)[]; }
+  | { type: 'SetNodeState'; nodeId: string; state: 'normal'; keys?: never; }
   
   // 节点创建和删除指令
   | { type: 'CreateBTreeNode'; nodeId: string; width: number; height: number; numElements: number; x: number; y: number; backgroundColor?: string; foregroundColor?: string }

@@ -9,16 +9,21 @@ interface BPlusNodeData {
   level: number;
   order: number;
   highlighted?: boolean; // 添加高亮状态
+  isOverflowing?: boolean; // 添加溢出状态字段
 }
 
 const BPlusInternalNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;
-  const { keys, pointers, order, highlighted } = nodeData;
+  const { keys, pointers, order, highlighted, isOverflowing } = nodeData;
 
-  // 根据高亮状态确定CSS类名
-  const nodeClassName = highlighted
-    ? `${styles['bplus-internal-node']} ${styles['bplus-node-highlighted']}`
-    : styles['bplus-internal-node'];
+  // 根据高亮状态和溢出状态确定CSS类名
+  let nodeClassName = styles['bplus-internal-node'];
+  if (highlighted) {
+    nodeClassName += ` ${styles['bplus-node-highlighted']}`;
+  }
+  if (isOverflowing) {
+    nodeClassName += ` ${styles['nodeOverflow']}`;
+  }
 
   return (
     <div className={nodeClassName}>
@@ -45,7 +50,8 @@ const BPlusInternalNode: React.FC<NodeProps> = ({ data }) => {
         <div className={styles['bplus-internal-layout']}>
           {/* 槽位容器 */}
           <div className={styles['bplus-slot-container']}>
-            {Array.from({ length: order - 1 }, (_, index) => (
+            {/* 溢出时渲染order个槽位，正常时渲染order-1个槽位 */}
+            {Array.from({ length: isOverflowing ? order : order - 1 }, (_, index) => (
               <div
                 key={index}
                 className={`${styles['bplus-slot']} ${keys[index] === null ? styles['bplus-slot-empty'] : ''}`}

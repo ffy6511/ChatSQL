@@ -333,6 +333,19 @@
   border: 2px solid #4caf50 !important;
 }
 
+/* 节点溢出状态样式 */
+.nodeOverflow {
+  border: 3px solid #f44336 !important;
+  background: rgba(244, 67, 54, 0.1) !important;
+  box-shadow: 0 0 20px rgba(244, 67, 54, 0.4) !important;
+  animation: nodeOverflowPulse 1s ease-in-out infinite alternate;
+}
+
+.dark-mode .nodeOverflow {
+  background: rgba(244, 67, 54, 0.2) !important;
+  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6) !important;
+}
+
 .edgeHighlighted {
   stroke: #4caf50 !important;
   stroke-width: 3px !important;
@@ -403,6 +416,17 @@
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes nodeOverflowPulse {
+  0% {
+    box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
+    border-color: #f44336;
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(244, 67, 54, 0.8);
+    border-color: #d32f2f;
   }
 }
 

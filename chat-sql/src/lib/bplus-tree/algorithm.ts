@@ -25,6 +25,15 @@ export class BPlusTreeAlgorithm {
       case 'SetMessage':
         this.commands.push({ type: 'SetMessage', text: args[0] });
         break;
+      case 'SetNodeState':
+        if (args[1] === 'overflowing') {
+          // 溢出状态需要传递keys数组
+          this.commands.push({ type: 'SetNodeState', nodeId: args[0], state: 'overflowing', keys: args[2] });
+        } else {
+          // 正常状态不需要keys参数
+          this.commands.push({ type: 'SetNodeState', nodeId: args[0], state: 'normal' });
+        }
+        break;
       case 'SetText':
         this.commands.push({ type: 'SetText', target: args[0], text: args[1], index: args[2] });
         break;
@@ -192,37 +201,48 @@ export class BPlusTreeAlgorithm {
   }
 
   /**
-   * 插入修复 - 检查节点是否需要分裂
+   * 插入修复 - 检查节点是否需要分裂，实现精确溢出状态可视化
    */
   private insertRepair(node: BPlusNode): void {
     const maxKeys = this.tree.getOrder() - 1;
-    
+
     if (node.numKeys <= maxKeys) {
       return;
-    } else if (node.parent === null) {
+    }
+
+    // 新的动画序列：设置溢出状态 → Step暂停 → 执行分裂 → 恢复状态
+    this.cmd('SetMessage', `节点包含 ${node.numKeys} 个键，超过最大值 ${maxKeys}，需要分裂`);
+
+    // 创建包含所有键的数组（包括导致溢出的键）
+    const overflowKeys = [...node.keys.slice(0, node.numKeys)];
+    this.cmd('SetNodeState', node.graphicID, 'overflowing', overflowKeys);
+
+    this.cmd('Step'); // 暂停显示溢出状态
+
+    // 执行分裂并恢复正常状态
+    if (node.parent === null) {
       // 根节点分裂
       this.tree.root = this.split(node);
-      return;
     } else {
       // 非根节点分裂
       const newParent = this.split(node);
       this.insertRepair(newParent);
     }
+
+    // 恢复正常状态
+    this.cmd('SetNodeState', node.graphicID, 'normal');
   }
 
   /**
-   * 分裂节点
+   * 分裂节点 - 简化分裂流程，直接执行分裂逻辑
    */
   private split(node: BPlusNode): BPlusNode {
-    this.cmd('SetMessage', 'Node contains too many keys. Splitting...');
-    this.cmd('SetHighlight', node.graphicID, true);
-    this.cmd('Step');
-    this.cmd('SetHighlight', node.graphicID, false);
+    this.cmd('SetMessage', '正在分裂节点...');
 
     const order = this.tree.getOrder();
     const splitIndex = Math.floor(order / 2);
-    
-    // 创建右节点
+
+    // 创建右节点（不使用CreateBTreeNode指令，让updateView()处理可视化）
     const rightNode = createBPlusNode(
       `node-${this.getNextIndex()}`,
       `graphic-${this.nextIndex}`,
@@ -232,63 +252,40 @@ export class BPlusTreeAlgorithm {
       node.level
     );
 
-    this.cmd('CreateBTreeNode',
-      rightNode.graphicID,
-      BTREE_CONSTANTS.WIDTH_PER_ELEM,
-      BTREE_CONSTANTS.NODE_HEIGHT,
-      order - splitIndex,
-      rightNode.x,
-      rightNode.y,
-      BTREE_CONSTANTS.BACKGROUND_COLOR,
-      BTREE_CONSTANTS.FOREGROUND_COLOR
-    );
-
     let risingKey: number;
 
     if (node.isLeaf) {
       // 叶子节点分裂：复制分裂点及之后的键
       risingKey = node.keys[splitIndex];
-      
+
       // 复制键值到右节点
       for (let i = splitIndex; i < node.numKeys; i++) {
         const keyValue = node.keys[i];
         if (keyValue !== undefined && keyValue !== null) {
           rightNode.keys[i - splitIndex] = keyValue;
-          this.cmd('SetText', rightNode.graphicID, keyValue.toString(), i - splitIndex);
         }
       }
       rightNode.numKeys = node.numKeys - splitIndex;
-      
+
       // 更新左节点
       node.numKeys = splitIndex;
-      this.cmd('SetNumElements', node.graphicID, node.numKeys);
-      this.cmd('SetNumElements', rightNode.graphicID, rightNode.numKeys);
-      
+
       // 更新叶子节点链表
       rightNode.next = node.next;
       node.next = rightNode;
-      
-      if (rightNode.next !== null) {
-        this.cmd('Disconnect', node.graphicID, rightNode.next.graphicID);
-        this.cmd('Connect', rightNode.graphicID, rightNode.next.graphicID,
-          BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', rightNode.numKeys);
-      }
-      this.cmd('Connect', node.graphicID, rightNode.graphicID,
-        BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', node.numKeys);
     } else {
       // 内部节点分裂：上浮中间键
       risingKey = node.keys[splitIndex];
-      
+
       // 复制键值到右节点（跳过上浮的键）
       for (let i = splitIndex + 1; i < node.numKeys; i++) {
         const keyValue = node.keys[i];
         if (keyValue !== undefined && keyValue !== null) {
           rightNode.keys[i - splitIndex - 1] = keyValue;
-          this.cmd('SetText', rightNode.graphicID, keyValue.toString(), i - splitIndex - 1);
         }
       }
       rightNode.numKeys = node.numKeys - splitIndex - 1;
-      
+
       // 复制子节点到右节点
       for (let i = splitIndex + 1; i <= node.numKeys; i++) {
         rightNode.children[i - splitIndex - 1] = node.children[i];
@@ -296,11 +293,9 @@ export class BPlusTreeAlgorithm {
           rightNode.children[i - splitIndex - 1].parent = rightNode;
         }
       }
-      
+
       // 更新左节点
       node.numKeys = splitIndex;
-      this.cmd('SetNumElements', node.graphicID, node.numKeys);
-      this.cmd('SetNumElements', rightNode.graphicID, rightNode.numKeys);
     }
 
     // 处理父节点
@@ -314,58 +309,33 @@ export class BPlusTreeAlgorithm {
         false,
         node.level + 1
       );
-      
-      this.cmd('CreateBTreeNode',
-        newRoot.graphicID,
-        BTREE_CONSTANTS.WIDTH_PER_ELEM,
-        BTREE_CONSTANTS.NODE_HEIGHT,
-        1,
-        newRoot.x,
-        newRoot.y,
-        BTREE_CONSTANTS.BACKGROUND_COLOR,
-        BTREE_CONSTANTS.FOREGROUND_COLOR
-      );
-      
+
       newRoot.keys[0] = risingKey;
       newRoot.numKeys = 1;
       newRoot.children[0] = node;
       newRoot.children[1] = rightNode;
-      
+
       node.parent = newRoot;
       rightNode.parent = newRoot;
-      
-      this.cmd('SetText', newRoot.graphicID, risingKey.toString(), 0);
-      this.cmd('SetNumElements', newRoot.graphicID, 1);
-      this.cmd('Connect', newRoot.graphicID, node.graphicID,
-        BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', 0);
-      this.cmd('Connect', newRoot.graphicID, rightNode.graphicID,
-        BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', 1);
-      
+
       return newRoot;
     } else {
       // 插入到现有父节点
       const parent = node.parent;
       rightNode.parent = parent;
-      
+
       // 在父节点中找到插入位置
       let insertIndex = parent.numKeys;
       while (insertIndex > 0 && parent.keys[insertIndex - 1] > risingKey) {
         parent.keys[insertIndex] = parent.keys[insertIndex - 1];
         parent.children[insertIndex + 1] = parent.children[insertIndex];
-        const key = parent.keys[insertIndex];
-        this.cmd('SetText', parent.graphicID, key != null ? key.toString() : '', insertIndex);
         insertIndex--;
       }
-      
+
       parent.keys[insertIndex] = risingKey;
       parent.children[insertIndex + 1] = rightNode;
       parent.numKeys++;
-      
-      this.cmd('SetText', parent.graphicID, risingKey.toString(), insertIndex);
-      this.cmd('SetNumElements', parent.graphicID, parent.numKeys);
-      this.cmd('Connect', parent.graphicID, rightNode.graphicID,
-        BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', insertIndex + 1);
-      
+
       return parent;
     }
   }

@@ -1031,6 +1031,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerNewProps> = ({
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleSnackbarClose}
         sx={{ ml: 5 }}
       >

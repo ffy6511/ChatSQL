@@ -19,6 +19,7 @@ export interface BPlusNodeData extends Record<string, unknown> {
   order: number;
   next?: string | null;
   highlighted?: boolean; // 添加高亮状态
+  isOverflowing?: boolean; // 添加溢出状态字段
 }
 
 // 简化的B+树类
