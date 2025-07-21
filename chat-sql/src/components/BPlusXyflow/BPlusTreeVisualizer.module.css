@@ -235,10 +235,10 @@
 
 /* Handle样式 */
 .bplus-handle {
-  width: 8px !important;
-  height: 8px !important;
-  border: 2px solid #9daf9e !important;
-  background: #a2c0a3 !important;
+  width: 4px !important;
+  height: 4px !important;
+  border: 1px solid #a6b9d9 !important;
+  background: #6b87a5 !important;
   border-radius: 50% !important;
 }
 
@@ -247,7 +247,7 @@
 }
 
 .bplus-handle-source {
-  background: #4caf50;
+  background: #6383c3;
 }
 
 .bplus-handle-sibling {
@@ -335,15 +335,29 @@
 
 /* 节点溢出状态样式 */
 .nodeOverflow {
-  border: 3px solid #f44336 !important;
+  border: 3px solid #e27a72 !important;
   background: rgba(244, 67, 54, 0.1) !important;
-  box-shadow: 0 0 20px rgba(244, 67, 54, 0.4) !important;
+  /* box-shadow: 0 0 20px rgba(244, 67, 54, 0.4) !important; */
   animation: nodeOverflowPulse 1s ease-in-out infinite alternate;
 }
 
 .dark-mode .nodeOverflow {
   background: rgba(244, 67, 54, 0.2) !important;
   box-shadow: 0 0 20px rgba(244, 67, 54, 0.6) !important;
+}
+
+/* 键高亮样式 */
+.bplus-key-highlighted {
+  background: #d9dfe3 !important;
+  border-color: #69a1bb !important;
+  box-shadow: 0 0 10px rgba(59, 151, 209, 0.6) !important;
+  animation: keyHighlightPulse 1s ease-in-out infinite alternate;
+}
+
+.dark-mode .bplus-key-highlighted {
+  background: rgba(255, 235, 59, 0.3) !important;
+  border-color: #ffb74d !important;
+  box-shadow: 0 0 10px rgba(255, 183, 77, 0.8) !important;
 }
 
 .edgeHighlighted {
@@ -430,6 +444,15 @@
   }
 }
 
+/* @keyframes keyHighlightPulse {
+  0% {
+    box-shadow: 0 0 5px rgba(124, 181, 212, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(133, 187, 210, 0.8);
+  }
+} */
+
 @keyframes nodeDisappear {
   0% {
     opacity: 1;
@@ -504,19 +527,20 @@
 
 /* 节点高亮样式 */
 .bplus-node-highlighted {
-  animation: bplus-highlight-pulse 1s ease-in-out infinite alternate;
-  box-shadow: 0 0 15px rgba(255, 193, 7, 0.8) !important;
-  border: 2px solid #ffc107 !important;
+  animation: bplus-highlight-pulse 1s ease-in-out alternate;
+  border: 2px solid #5a80b2 !important;
+  border-color: #4587a1;
 }
 
 @keyframes bplus-highlight-pulse {
-  from {
-    box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
-    border-color: #ffc107;
+  33% {
+    scale: 0.98
   }
-  to {
-    box-shadow: 0 0 25px rgba(255, 193, 7, 1);
-    border-color: #ffb300;
+  66% {
+     scale: 1.02
+  }
+  100%{
+     scale: 1.0
   }
 }
 
@@ -531,13 +555,14 @@
 }
 
 @keyframes bplus-highlight-pulse-dark {
-  from {
-    box-shadow: 0 0 15px rgba(255, 235, 59, 0.8);
-    border-color: #ffeb3b;
+  33% {
+    scale: 0.98
   }
-  to {
-    box-shadow: 0 0 25px rgba(255, 235, 59, 1);
-    border-color: #fdd835;
+  66% {
+     scale: 1.02
+  }
+  100%{
+     scale: 1.0
   }
 }
 

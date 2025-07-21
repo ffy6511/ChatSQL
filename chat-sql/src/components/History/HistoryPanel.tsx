@@ -224,7 +224,7 @@ const HistoryPanel: React.FC = () => {
 
       {/* 状态筛选器 - 仅在有教程记录时显示 */}
       {recentRecords.some(isTutorialRecord) && (
-        <div style={{ padding: '0 16px', marginBottom: '12px' }}>
+        <div style={{ padding: '0 16px', marginBottom: '12px',marginLeft:'4px' }}>
           <StatusFilter
             value={statusFilter}
             onChange={setStatusFilter}

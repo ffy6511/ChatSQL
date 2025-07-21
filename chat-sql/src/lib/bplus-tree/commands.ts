@@ -19,6 +19,7 @@ export type BPlusCommand =
   // 节点高亮指令
   | { type: 'SetHighlight'; nodeId: string; highlight: boolean }
   | { type: 'SetEdgeHighlight'; fromId: string; toId: string; highlight: boolean }
+  | { type: 'SetKeyHighlight'; nodeId: string; keyIndex: number; highlight: boolean }
 
   // 节点状态指令 - 使用联合类型精确控制不同状态的参数
   | { type: 'SetNodeState'; nodeId: string; state: 'overflowing'; keys: (number | null)[]; }

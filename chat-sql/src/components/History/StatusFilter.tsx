@@ -27,22 +27,22 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   const filterOptions = [
     {
       value: 'ALL',
-      label: '全部',
+      label: 'All',
       icon: '📚'
     },
     {
       value: ProgressStatus.NOT_STARTED,
-      label: '未开始',
+      label: 'Not Started',
       icon: '⚪'
     },
     {
       value: ProgressStatus.IN_PROGRESS,
-      label: '进行中',
+      label: 'In Progress',
       icon: '🔵'
     },
     {
       value: ProgressStatus.COMPLETED,
-      label: '已完成',
+      label: 'Completed',
       icon: '✅'
     }
   ];
@@ -56,7 +56,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
             fontSize: '14px'
           }} 
         />
-        <Text 
+        {/* <Text 
           style={{ 
             color: 'var(--secondary-text)',
             fontSize: '12px',
@@ -64,14 +64,14 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           }}
         >
           筛选:
-        </Text>
+        </Text> */}
         <Select
           value={value}
           onChange={onChange}
           size="small"
           style={{ 
-            minWidth: 100,
-            fontSize: '12px'
+            minWidth: 130,
+            fontSize: '14px'
           }}
           dropdownStyle={{
             fontSize: '12px'
@@ -86,7 +86,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
             )
           }))}
         />
-        {tutorialCount > 0 && (
+        {/* {tutorialCount > 0 && (
           <Text 
             style={{ 
               color: 'var(--tertiary-text)',
@@ -95,7 +95,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           >
             ({tutorialCount} 个教程)
           </Text>
-        )}
+        )} */}
       </Space>
     </div>
   );

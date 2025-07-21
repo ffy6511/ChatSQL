@@ -12,11 +12,12 @@ interface BPlusNodeData {
   order: number;
   highlighted?: boolean; // 添加高亮状态
   isOverflowing?: boolean; // 添加溢出状态字段
+  keyHighlights?: boolean[]; // 添加键高亮状态数组
 }
 
 const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;
-  const { keys, order, highlighted, isOverflowing } = nodeData;
+  const { keys, order, highlighted, isOverflowing, keyHighlights } = nodeData;
 
   // 根据高亮状态和溢出状态确定CSS类名
   let nodeClassName = styles['bplus-leaf-node'];
@@ -51,16 +52,19 @@ const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
           {/* 槽位容器 */}
           <div className={styles['bplus-slot-container']}>
             {/* 溢出时渲染order个槽位，正常时渲染order-1个槽位 */}
-            {Array.from({ length: isOverflowing ? order : order - 1 }, (_, index) => (
-              <div
-                key={index}
-                className={`${styles['bplus-slot']} ${keys[index] === null ? styles['bplus-slot-empty'] : ''}`}
-              >
-                <div className={styles['bplus-slot-content']}>
-                  {keys[index] !== null ? keys[index] : '\u00A0'}
+            {Array.from({ length: isOverflowing ? order : order - 1 }, (_, index) => {
+              const isKeyHighlighted = keyHighlights && keyHighlights[index];
+              return (
+                <div
+                  key={index}
+                  className={`${styles['bplus-slot']} ${keys[index] === null ? styles['bplus-slot-empty'] : ''} ${isKeyHighlighted ? styles['bplus-key-highlighted'] : ''}`}
+                >
+                  <div className={styles['bplus-slot-content']}>
+                    {keys[index] !== null ? keys[index] : '\u00A0'}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

@@ -5,7 +5,7 @@
 
 import { Node, Edge, MarkerType } from '@xyflow/react';
 import { BPlusCommand, BTREE_CONSTANTS } from './commands';
-import { BPlusNodeData } from '../../components/utils/bPlusTreeToReactFlow';
+import { BPlusNodeData } from '@/components/utils/bPlusTreeToReactFlow';
 
 export interface CommandExecutorCallbacks {
   setNodes: (updater: (nodes: Node<BPlusNodeData>[]) => Node<BPlusNodeData>[]) => void;
@@ -54,6 +54,10 @@ export class CommandExecutor {
 
       case 'SetNodeState':
         this.executeSetNodeState(command);
+        break;
+
+      case 'SetKeyHighlight':
+        this.executeSetKeyHighlight(command);
         break;
 
       case 'CreateBTreeNode':
@@ -176,6 +180,32 @@ export class CommandExecutor {
               }
             };
           }
+        }
+        return node;
+      })
+    );
+  }
+
+  /**
+   * 执行SetKeyHighlight指令 - 精确控制特定键的高亮状态
+   */
+  private executeSetKeyHighlight(command: { type: 'SetKeyHighlight'; nodeId: string; keyIndex: number; highlight: boolean }): void {
+    this.callbacks.setNodes(nodes =>
+      nodes.map(node => {
+        if (node.id === command.nodeId) {
+          // 初始化或更新keyHighlights数组
+          const keyHighlights = node.data.keyHighlights || new Array(node.data.keys.length).fill(false);
+          if (command.keyIndex >= 0 && command.keyIndex < keyHighlights.length) {
+            keyHighlights[command.keyIndex] = command.highlight;
+          }
+
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              keyHighlights: [...keyHighlights]
+            }
+          };
         }
         return node;
       })

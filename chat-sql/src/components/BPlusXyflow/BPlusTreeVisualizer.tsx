@@ -612,7 +612,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerNewProps> = ({
             setIsAnimating(false);
             updateView();
             autoSave();
-            showMessage(`成功删除键 ${key}`, 'success');
+            showMessage(`Successfully deleted key ${key}`, 'success');
           },
           onError: (error) => {
             setIsAnimating(false);
@@ -626,7 +626,7 @@ const BPlusTreeVisualizer: React.FC<BPlusTreeVisualizerNewProps> = ({
         await commandExecutorRef.current!.executeCommands(commands);
         updateView(); // 更新视图
         autoSave(); // 自动保存
-        showMessage(`成功删除键 ${key}`, 'success');
+        showMessage(`Successfully deleted key ${key}`, 'success');
       }
 
       setDeleteValue('');
