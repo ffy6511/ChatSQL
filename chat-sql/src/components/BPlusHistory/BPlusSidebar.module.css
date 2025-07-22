@@ -1,0 +1,45 @@
+/* B+树侧边栏组件样式 */
+
+.historyToggleContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.helpModalContent {
+  line-height: 1.6;
+}
+
+.helpModalContent h3 {
+  color: var(--primary-text);
+  margin-bottom: 16px;
+}
+
+.helpModalContent h4 {
+  color: var(--primary-text);
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.helpModalContent p {
+  color: var(--secondary-text);
+  margin-bottom: 16px;
+}
+
+.helpModalContent ul,
+.helpModalContent ol {
+  color: var(--secondary-text);
+  margin-bottom: 16px;
+  padding-left: 20px;
+}
+
+.helpModalContent li {
+  margin-bottom: 8px;
+}
+
+.helpModalContent strong {
+  color: var(--primary-text);
+  font-weight: 600;
+}

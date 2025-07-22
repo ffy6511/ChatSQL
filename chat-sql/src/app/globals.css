@@ -313,4 +313,13 @@ hr {
   color: #b0b0b0 !important;
 }
 
+
+.pageContainer {
+  height: calc(100vh - var(--navbar-height));
+  margin-top: var(--navbar-height);
+  background: var(--background);
+  overflow: hidden;
+}
+
 @import '../styles/globalSidebar.css';
+

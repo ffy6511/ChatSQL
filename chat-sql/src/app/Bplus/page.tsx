@@ -7,6 +7,8 @@ import BPlusTreeVisualizer from '@/components/BPlusXyflow/BPlusTreeVisualizer';
 import BPlusOperationPanel from '@/components/BPlusXyflow/BPlusOperationPanel';
 import HistoryManagementPanel from '@/components/BPlusHistory/HistoryManagementPanel';
 import ChatReservedArea from '@/components/BPlusHistory/ChatReservedArea';
+import BPlusSidebar from '@/components/BPlusHistory/BPlusSidebar';
+import '@/styles/globalSidebar.css';
 
 /**
  * B+树操作历史页面 - 支持版本控制与回溯功能
@@ -20,6 +22,7 @@ const BPlusHistoryPage: React.FC = () => {
   // 历史管理状态
   const [selectedSessionId, setSelectedSessionId] = useState<string>();
   const [selectedStepIndex, setSelectedStepIndex] = useState<number>();
+  const [showHistory, setShowHistory] = useState<boolean>(true);
 
   // 消息状态
   const [snackbar, setSnackbar] = useState<{
@@ -65,6 +68,10 @@ const BPlusHistoryPage: React.FC = () => {
     showMessage(`重命名会话 ${sessionId} 为 ${newName} 功能开发中...`, 'info');
   }, [showMessage]);
 
+  const handleDeleteAllSessions = useCallback(() => {
+    showMessage('删除所有会话功能开发中...', 'warning');
+  }, [showMessage]);
+
   // 操作面板回调函数（临时实现）
   const handleInsert = useCallback(async (value: number) => {
     showMessage(`插入操作 ${value} 功能开发中...`, 'info');
@@ -99,27 +106,47 @@ const BPlusHistoryPage: React.FC = () => {
     showMessage('获取建议功能开发中...', 'info');
   }, [showMessage]);
 
+  // 历史记录切换处理
+  const handleToggleHistory = useCallback(() => {
+    setShowHistory(prev => !prev);
+    showMessage(!showHistory ? '已显示历史记录区域' : '已隐藏历史记录区域', 'info');
+  }, [showHistory, showMessage]);
+
   // Snackbar关闭处理
   const handleSnackbarClose = useCallback(() => {
     setSnackbar(prev => ({ ...prev, open: false }));
   }, []);
 
   return (
-    <Box sx={{ 
-      width: '100vw', 
-      height: '100vh', 
-      display: 'flex', 
+    <Box
+      className = "pageContainer"
+      sx={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
       bgcolor: 'var(--background-color)',
-      overflow: 'hidden'
+      overflow: 'hidden',
     }}>
-      {/* 使用可拖拽的面板组实现左右布局 */}
-      <PanelGroup direction="horizontal" style={{ height: "100vh" }}>
-        
-        {/* 左侧：历史管理面板 */}
-        <Panel minSize={20} maxSize={50} defaultSize={25}>
+
+      {/* 侧边栏 */}
+      <Box sx={{ flexShrink: 0 }}>
+        <BPlusSidebar
+          showHistory={showHistory}
+          onToggleHistory={handleToggleHistory}
+          onNewRecord={handleCreateSession}
+        />
+      </Box>
+
+      {/* 可拖拽的面板组实现两栏布局 */}
+      <PanelGroup direction="horizontal" style={{ height: "100vh", flex: 1 }}>
+
+        {/* 左侧：历史管理面板（条件显示） */}
+        {showHistory && (
+          <>
+            <Panel minSize={15} maxSize={40} defaultSize={20}>
           <Box sx={{
             height: "100%",
-            p: 2,
+            p: 0,
             bgcolor: 'var(--background-color)',
             borderRight: '1px solid var(--card-border)',
             overflow: 'hidden'
@@ -132,17 +159,20 @@ const BPlusHistoryPage: React.FC = () => {
               onCreateSession={handleCreateSession}
               onDeleteSession={handleDeleteSession}
               onRenameSession={handleRenameSession}
+              onDeleteAllSessions={handleDeleteAllSessions}
             />
           </Box>
         </Panel>
 
         {/* 拖拽手柄 */}
-        <PanelResizeHandle style={{ 
-          width: 6, 
-          background: "var(--card-border)", 
+        <PanelResizeHandle style={{
+          width: 6,
+          background: "var(--card-border)",
           cursor: "col-resize",
           transition: "background-color 0.2s ease"
         }} />
+        </>
+        )}
 
         {/* 右侧：B+树可视化和操作区域 */}
         <Panel minSize={50} defaultSize={75}>

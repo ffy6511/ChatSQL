@@ -9,27 +9,16 @@ import {
   Paper,
   Typography,
   Tabs,
-  Tab,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  IconButton,
-  Chip,
-  Divider,
-  Button
+  Tab
 } from '@mui/material';
 import {
   History as HistoryIcon,
-  Timeline as TimelineIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  PlayArrow as PlayIcon,
-  Schedule as ScheduleIcon
+  Timeline as TimelineIcon
 } from '@mui/icons-material';
 
-import { HistoryStep, HistorySession } from '@/types/bPlusHistory';
+import { HistorySession } from '@/types/bPlusHistory';
+import { BPlusHistorySessionItem, BPlusHistoryStepItem } from './BPlusHistoryItem';
+import HistoryActionBar from './HistoryActionBar';
 
 interface HistoryManagementPanelProps {
   // 当前选中的会话和步骤
@@ -42,6 +31,7 @@ interface HistoryManagementPanelProps {
   onCreateSession?: () => void;
   onDeleteSession?: (sessionId: string) => void;
   onRenameSession?: (sessionId: string, newName: string) => void;
+  onDeleteAllSessions?: () => void;
 }
 
 // 临时模拟数据
@@ -174,116 +164,59 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
   onStepSelect,
   onCreateSession,
   onDeleteSession,
-  onRenameSession
+  onRenameSession,
+  onDeleteAllSessions
 }) => {
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [searchValue, setSearchValue] = useState<string>('');
 
-  // 格式化时间显示
-  const formatTime = (timestamp: number): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // 获取操作类型的颜色和图标
-  const getOperationStyle = (operation: string) => {
-    switch (operation) {
-      case 'insert':
-        return { color: 'success', icon: <AddIcon fontSize="small" /> };
-      case 'delete':
-        return { color: 'error', icon: <DeleteIcon fontSize="small" /> };
-      case 'reset':
-        return { color: 'warning', icon: <EditIcon fontSize="small" /> };
-      default:
-        return { color: 'default', icon: <ScheduleIcon fontSize="small" /> };
-    }
-  };
+  // 过滤会话列表
+  const filteredSessions = mockSessions.filter(session =>
+    session.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+    session.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+    session.tags?.some(tag => tag.toLowerCase().includes(searchValue.toLowerCase()))
+  );
 
   // 渲染会话列表
   const renderSessionList = () => (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* 创建新会话按钮 */}
-      <Box sx={{ p: 1, borderBottom: '1px solid var(--card-border)' }}>
-        <Button
-          variant="outlined"
-          startIcon={<AddIcon />}
-          onClick={onCreateSession}
-          size="small"
-          fullWidth
-          sx={{ color: 'var(--primary-text)' }}
-        >
-          新建会话
-        </Button>
-      </Box>
+      {/* 操作栏 */}
+      <HistoryActionBar
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+        onCreateNew={onCreateSession || (() => {})}
+        onDeleteAll={onDeleteAllSessions || (() => {})}
+        disableDeleteAll={mockSessions.length === 0}
+      />
 
       {/* 会话列表 */}
-      <List sx={{ flex: 1, overflow: 'auto', p: 0 }}>
-        {mockSessions.map((session) => (
-          <ListItem key={session.id} disablePadding>
-            <ListItemButton
-              selected={selectedSessionId === session.id}
-              onClick={() => onSessionSelect?.(session.id)}
-              sx={{
-                '&.Mui-selected': {
-                  bgcolor: 'var(--button-hover)',
-                  borderLeft: '3px solid var(--link-color)'
-                }
-              }}
-            >
-              <ListItemText
-                primary={
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontWeight: selectedSessionId === session.id ? 600 : 400,
-                      color: 'var(--primary-text)'
-                    }}
-                  >
-                    {session.name}
-                  </Typography>
-                }
-                secondary={
-                  <Box sx={{ mt: 0.5 }}>
-                    <Typography 
-                      variant="caption" 
-                      sx={{ color: 'var(--secondary-text)' }}
-                    >
-                      {formatTime(session.updatedAt)} • {session.steps.length} 步骤
-                    </Typography>
-                    <Box sx={{ mt: 0.5 }}>
-                      <Chip 
-                        label={`阶数 ${session.order}`} 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ 
-                          height: '20px',
-                          fontSize: '0.7rem',
-                          color: 'var(--secondary-text)',
-                          borderColor: 'var(--card-border)'
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                }
-              />
-              <IconButton 
-                size="small" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteSession?.(session.id);
-                }}
-                sx={{ color: 'var(--secondary-text)' }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
+        {filteredSessions.length === 0 ? (
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px',
+            color: 'var(--tertiary-text)',
+            textAlign: 'center'
+          }}>
+            <Typography variant="body2">
+              {searchValue ? '未找到匹配的记录' : '暂无历史记录'}
+            </Typography>
+          </Box>
+        ) : (
+          filteredSessions.map((session) => (
+            <BPlusHistorySessionItem
+              key={session.id}
+              session={session}
+              isActive={selectedSessionId === session.id}
+              onSelect={onSessionSelect || (() => {})}
+              onRename={onRenameSession || (() => {})}
+              onDelete={onDeleteSession || (() => {})}
+            />
+          ))
+        )}
+      </Box>
     </Box>
   );
 
@@ -318,78 +251,18 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
           {currentSession.name}
         </Typography>
         
-        <List sx={{ p: 0 }}>
-          {currentSession.steps.map((step, index) => {
-            const { color, icon } = getOperationStyle(step.operation);
-            const isActive = index === selectedStepIndex;
-            const isCurrent = index === currentSession.currentStepIndex;
-            
-            return (
-              <React.Fragment key={step.id}>
-                <ListItem disablePadding>
-                  <ListItemButton
-                    selected={isActive}
-                    onClick={() => onStepSelect?.(index)}
-                    sx={{
-                      borderRadius: 1,
-                      mb: 0.5,
-                      '&.Mui-selected': {
-                        bgcolor: 'var(--button-hover)',
-                        border: '1px solid var(--link-color)'
-                      }
-                    }}
-                  >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      width: '100%',
-                      gap: 1
-                    }}>
-                      {/* 步骤图标 */}
-                      <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        color: `var(--${color === 'default' ? 'secondary' : color === 'success' ? 'success' : color === 'error' ? 'error' : 'warning'}-text)`
-                      }}>
-                        {icon}
-                      </Box>
-                      
-                      {/* 步骤内容 */}
-                      <Box sx={{ flex: 1 }}>
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            color: 'var(--primary-text)',
-                            fontWeight: isActive ? 600 : 400
-                          }}
-                        >
-                          {step.description}
-                        </Typography>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ color: 'var(--secondary-text)' }}
-                        >
-                          {formatTime(step.timestamp)}
-                        </Typography>
-                      </Box>
-                      
-                      {/* 当前步骤标识 */}
-                      {isCurrent && (
-                        <PlayIcon 
-                          fontSize="small" 
-                          sx={{ color: 'var(--link-color)' }}
-                        />
-                      )}
-                    </Box>
-                  </ListItemButton>
-                </ListItem>
-                {index < currentSession.steps.length - 1 && (
-                  <Divider sx={{ ml: 4, borderColor: 'var(--card-border)' }} />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </List>
+        <Box sx={{ p: 0 }}>
+          {currentSession.steps.map((step, index) => (
+            <BPlusHistoryStepItem
+              key={step.id}
+              step={step}
+              stepIndex={index}
+              isActive={index === selectedStepIndex}
+              isCurrent={index === currentSession.currentStepIndex}
+              onSelect={onStepSelect || (() => {})}
+            />
+          ))}
+        </Box>
       </Box>
     );
   };

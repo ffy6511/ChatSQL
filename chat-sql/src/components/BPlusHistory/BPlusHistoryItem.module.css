@@ -1,0 +1,237 @@
+/* B+树历史记录项样式 - 参考HistoryItem.module.css */
+
+.historyItem {
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: none !important; 
+  background-color: transparent !important; /* 默认状态：透明背景 */
+  border-radius: 10px !important;
+  margin: 4px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.historyItem:hover {
+  background-color: var(--button-hover) !important; /* 悬停状态：浅灰色 */
+}
+
+.active {
+  background-color: var(--button-hover) !important; /* 选中状态：灰色背景 */
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0; /* 防止文本溢出 */
+}
+
+.title {
+  font-size: 14px;
+  color: var(--primary-text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 6px;
+}
+
+.infoContainer {
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--tertiary-text);
+}
+
+.dateInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tagsContainer {
+  display: flex;
+  gap: 4px;
+  margin-left: auto; /* 右对齐 */
+}
+
+.sessionTag {
+  font-size: 11px;
+  padding: 0 4px;
+  font-family: var(--font-mono) !important;
+  line-height: 16px;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.stepIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.stepIcon.insert {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.stepIcon.delete {
+  background-color: rgba(211, 47, 47, 0.1);
+  color: #d32f2f;
+}
+
+.stepIcon.reset {
+  background-color: rgba(245, 124, 0, 0.1);
+  color: #f57c00;
+}
+
+.stepIcon.initial {
+  background-color: rgba(25, 118, 210, 0.1);
+  color: #1976d2;
+}
+
+.stepContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.stepDescription {
+  font-size: 13px;
+  color: var(--primary-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepTime {
+  font-size: 11px;
+  color: var(--tertiary-text);
+  margin-top: 2px;
+}
+
+.currentStepIndicator {
+  color: var(--link-color);
+  font-size: 16px;
+}
+
+.actionButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.historyItem:hover .actionButton {
+  opacity: 1;
+}
+
+.moreButton{
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-size: 1.3em;
+  margin-right: 6px;
+}
+
+.historyItem:hover .moreButton{
+  opacity: 1;
+}
+
+.editingContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.editingInput {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--primary-text);
+  font-size: 14px;
+}
+
+.editingInput:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.editingButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.editingButton {
+  padding: 4px 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  background-color: var(--card-bg);
+  color: var(--primary-text);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.editingButton:hover {
+  background-color: var(--button-hover);
+}
+
+.editingButton.primary {
+  background-color: var(--link-color);
+  color: white;
+  border-color: var(--link-color);
+}
+
+.editingButton.primary:hover {
+  background-color: #1565c0;
+}
+
+/* 全局样式容器 */
+.globalStylesContainer {
+  /* 用于包装全局样式 */
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .sessionTag {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--secondary-text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .editingInput {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .editingButton {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .editingButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
