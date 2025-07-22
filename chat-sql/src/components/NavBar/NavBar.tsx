@@ -52,10 +52,10 @@ const NavBar: React.FC = () => {
 
           <Tooltip title="B+树可视化">
             <Button
-              type={isActive('/bplus-test') ? 'primary' : 'text'}
+              type={isActive('/Bplus') ? 'primary' : 'text'}
               icon={<PartitionOutlined />}
-              onClick={() => router.push('/bplus-test')}
-              className={`${styles.tabButton} ${isActive('/bplus-test') ? styles.activeTab : ''}`}
+              onClick={() => router.push('/Bplus')}
+              className={`${styles.tabButton} ${isActive('/Bplus') ? styles.activeTab : ''}`}
             >
               BPlus
             </Button>
