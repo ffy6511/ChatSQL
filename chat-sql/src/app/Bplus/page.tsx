@@ -1,13 +1,17 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Snackbar, Alert } from '@mui/material';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import BPlusTreeVisualizer from '@/components/BPlusXyflow/BPlusTreeVisualizer';
+import BPlusTreeVisualizer, { TreeState, BPlusTreeOperations } from '@/components/BPlusXyflow/BPlusTreeVisualizer';
 import BPlusOperationPanel from '@/components/BPlusXyflow/BPlusOperationPanel';
 import HistoryManagementPanel from '@/components/BPlusHistory/HistoryManagementPanel';
 import ChatReservedArea from '@/components/BPlusHistory/ChatReservedArea';
 import BPlusSidebar from '@/components/BPlusHistory/BPlusSidebar';
+import NewSessionModal, { NewSessionFormData } from '@/components/BPlusHistory/NewSessionModal';
+import ClearAllConfirmDialog from '@/components/BPlusHistory/ClearAllConfirmDialog';
+import { HistorySession, HistoryStep } from '@/types/bPlusHistory';
+import { getBPlusHistoryStorage, BPlusHistoryStorage } from '@/lib/bplus-tree/historyStorage';
 import '@/styles/globalSidebar.css';
 
 /**
@@ -15,14 +19,47 @@ import '@/styles/globalSidebar.css';
  * 采用左右布局：左侧历史管理面板，右侧分为上下两部分（B+树渲染区域和操作控制区域）
  */
 const BPlusHistoryPage: React.FC = () => {
-  // 临时状态，后续将通过历史管理系统控制
-  const [initialKeys] = useState<number[]>([1, 2, 3, 4, 5]);
-  const [order] = useState<number>(3);
+  // B+树状态管理
+  const [currentTreeState, setCurrentTreeState] = useState<TreeState | null>({
+    nodes: [],
+    edges: [],
+    keys: [],
+    timestamp: Date.now(),
+    operation: 'initial',
+  });
+  const [order, setOrder] = useState<number>(3);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false); // 添加动画状态
+
+
 
   // 历史管理状态
   const [selectedSessionId, setSelectedSessionId] = useState<string>();
   const [selectedStepIndex, setSelectedStepIndex] = useState<number>();
   const [showHistory, setShowHistory] = useState<boolean>(true);
+  const [historySteps, setHistorySteps] = useState<HistoryStep[]>([]);
+  const [currentSession, setCurrentSession] = useState<HistorySession | null>(null);
+
+  // 新建会话模态框状态
+  const [isNewSessionModalOpen, setIsNewSessionModalOpen] = useState<boolean>(false);
+  const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
+
+  // 清理确认对话框状态
+  const [isClearAllDialogOpen, setIsClearAllDialogOpen] = useState<boolean>(false);
+  const [isClearingAll, setIsClearingAll] = useState<boolean>(false);
+
+  // B+树操作接口
+  const [treeOperations, setTreeOperations] = useState<BPlusTreeOperations | null>(null);
+
+  // 历史存储服务
+  const [historyStorage, setHistoryStorage] = useState<BPlusHistoryStorage | null>(null);
+  const [allSessions, setAllSessions] = useState<HistorySession[]>([]);
+
+  // 操作面板设置状态
+  const [operationSettings, setOperationSettings] = useState({
+    isAnimationEnabled: true,
+    animationSpeed: 500,
+    order: order
+  });
 
   // 消息状态
   const [snackbar, setSnackbar] = useState<{
@@ -44,54 +81,369 @@ const BPlusHistoryPage: React.FC = () => {
     });
   }, []);
 
+  // B+树状态变更处理
+  const handleTreeStateChange = useCallback(async (state: TreeState) => {
+    setCurrentTreeState(state);
+
+    // 创建新的历史步骤
+    const newStep: HistoryStep = {
+      id: `step-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      operation: state.operation || 'initial',
+      key: state.operationKey,
+      timestamp: state.timestamp,
+      nodes: [...state.nodes],
+      edges: [...state.edges],
+      keys: [...state.keys],
+      description: getOperationDescription(state.operation, state.operationKey),
+      success: true
+    };
+
+    // 添加到历史步骤
+    setHistorySteps(prev => [...prev, newStep]);
+
+    // 如果有当前会话，保存步骤到存储并更新会话
+    if (currentSession && historyStorage) {
+      try {
+        // 添加步骤到存储
+        await historyStorage.addStep(currentSession.id, newStep);
+
+        // 获取更新后的会话
+        const updatedSession = await historyStorage.getSession(currentSession.id);
+        if (updatedSession) {
+          setCurrentSession(updatedSession);
+        }
+
+        // 更新会话列表
+        const updatedSessions = await historyStorage.getAllSessions();
+        setAllSessions(updatedSessions);
+      } catch (error) {
+        console.error('Failed to save step to storage:', error);
+        // 即使存储失败，也要更新本地状态
+        const updatedSession: HistorySession = {
+          ...currentSession,
+          steps: [...currentSession.steps, newStep],
+          currentStepIndex: currentSession.steps.length,
+          updatedAt: Date.now()
+        };
+        setCurrentSession(updatedSession);
+      }
+    }
+  }, [currentSession, historyStorage]);
+
+  // 获取操作描述
+  const getOperationDescription = (operation?: string, key?: number): string => {
+    switch (operation) {
+      case 'insert':
+        return `插入键值 ${key}`;
+      case 'delete':
+        return `删除键值 ${key}`;
+      case 'reset':
+        return '重置B+树';
+      case 'initial':
+        return '初始化B+树';
+      default:
+        return '未知操作';
+    }
+  };
+
   // 历史管理回调函数
-  const handleSessionSelect = useCallback((sessionId: string) => {
+  const handleSessionSelect = useCallback(async (sessionId: string) => {
     setSelectedSessionId(sessionId);
     setSelectedStepIndex(undefined);
-    showMessage(`已选择会话: ${sessionId}`, 'info');
-  }, [showMessage]);
+
+    if (!historyStorage) {
+      showMessage('历史存储服务未初始化', 'error');
+      return;
+    }
+
+    try {
+      // 从存储中加载会话数据
+      const session = await historyStorage.getSession(sessionId);
+      if (session) {
+        setCurrentSession(session);
+        // 如果会话有步骤，加载最后一个步骤的状态
+        if (session.steps.length > 0) {
+          const lastStep = session.steps[session.steps.length - 1];
+          setCurrentTreeState({
+            nodes: lastStep.nodes,
+            edges: lastStep.edges,
+            keys: lastStep.keys,
+            operation: lastStep.operation,
+            operationKey: lastStep.key,
+            timestamp: lastStep.timestamp
+          });
+        } else {
+          // 如果新会话没有步骤，则重置为初始空状态，以防止状态污染
+          setCurrentTreeState({
+            nodes: [],
+            edges: [],
+            keys: [],
+            operation: 'initial',
+            timestamp: Date.now()
+          });
+        }
+        showMessage(`已选择会话: ${session.name}`, 'info');
+      } else {
+        showMessage('会话不存在', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load session:', error);
+      showMessage('加载会话失败', 'error');
+    }
+  }, [historyStorage, showMessage]);
 
   const handleStepSelect = useCallback((stepIndex: number) => {
     setSelectedStepIndex(stepIndex);
-    showMessage(`已选择步骤: ${stepIndex + 1}`, 'info');
+
+    // 历史回溯：根据选中的步骤更新B+树状态
+    if (currentSession && currentSession.steps[stepIndex]) {
+      const selectedStep = currentSession.steps[stepIndex];
+      const newTreeState: TreeState = {
+        nodes: [...selectedStep.nodes],
+        edges: [...selectedStep.edges],
+        keys: [...selectedStep.keys],
+        operation: selectedStep.operation,
+        operationKey: selectedStep.key,
+        timestamp: selectedStep.timestamp
+      };
+      setCurrentTreeState(newTreeState);
+      showMessage(`已回溯到步骤: ${stepIndex + 1} - ${selectedStep.description}`, 'info');
+    } else {
+      showMessage(`已选择步骤: ${stepIndex + 1}`, 'info');
+    }
+  }, [showMessage, currentSession]);
+
+  // 打开新建会话模态框
+  const handleOpenNewSessionModal = useCallback(() => {
+    setIsNewSessionModalOpen(true);
+  }, []);
+
+  // 关闭新建会话模态框
+  const handleCloseNewSessionModal = useCallback(() => {
+    setIsNewSessionModalOpen(false);
+    setIsCreatingSession(false);
+  }, []);
+
+  // 创建新会话
+  const handleCreateSession = useCallback(async (formData: NewSessionFormData) => {
+    setIsCreatingSession(true);
+
+    try {
+      if (!historyStorage) {
+        showMessage('历史存储服务未初始化', 'error');
+        return;
+      }
+
+      // 使用存储服务创建会话
+      const sessionId = await historyStorage.createSession({
+        name: formData.name,
+        order: formData.order,
+        steps: [],
+        currentStepIndex: -1,
+        description: formData.description || '新建的B+树操作会话',
+        tags: formData.tags || ['新建'],
+        isCompleted: false
+      });
+
+      // 获取创建的会话
+      const newSession = await historyStorage.getSession(sessionId);
+      if (!newSession) {
+        throw new Error('创建会话后无法获取会话数据');
+      }
+
+      // 更新本地状态
+      setCurrentSession(newSession);
+      setSelectedSessionId(newSession.id);
+      setHistorySteps([]);
+      setCurrentTreeState(null); // 重置树状态
+      setOrder(formData.order); // 设置新的阶数
+
+      // 更新会话列表
+      const updatedSessions = await historyStorage.getAllSessions();
+      setAllSessions(updatedSessions);
+
+      // 关闭模态框
+      setIsNewSessionModalOpen(false);
+      showMessage(`已创建新会话: ${newSession.name}`, 'success');
+    } catch (error) {
+      console.error('创建会话失败:', error);
+      showMessage('创建会话失败，请重试', 'error');
+    } finally {
+      setIsCreatingSession(false);
+    }
+  }, [historyStorage, showMessage]);
+
+  const handleDeleteSession = useCallback(async (sessionId: string) => {
+    if (!historyStorage) {
+      showMessage('历史存储服务未初始化', 'error');
+      return;
+    }
+
+    try {
+      // 从存储中删除会话
+      await historyStorage.deleteSession(sessionId);
+
+      // 更新会话列表
+      const updatedSessions = await historyStorage.getAllSessions();
+      setAllSessions(updatedSessions);
+
+      // 如果删除的是当前选中的会话，清除选中状态
+      if (selectedSessionId === sessionId) {
+        setSelectedSessionId(undefined);
+        setCurrentSession(null);
+        setCurrentTreeState(null);
+      }
+
+      showMessage('会话已删除', 'success');
+    } catch (error) {
+      console.error('删除会话失败:', error);
+      showMessage('删除会话失败，请重试', 'error');
+    }
+  }, [historyStorage, selectedSessionId, showMessage]);
+
+  const handleRenameSession = useCallback(async (sessionId: string, newName: string) => {
+    if (!historyStorage) {
+      showMessage('历史存储服务未初始化', 'error');
+      return;
+    }
+
+    try {
+      // 更新会话名称
+      await historyStorage.updateSession(sessionId, { name: newName });
+
+      // 更新会话列表
+      const updatedSessions = await historyStorage.getAllSessions();
+      setAllSessions(updatedSessions);
+
+      // 如果是当前会话，更新当前会话状态
+      if (currentSession && currentSession.id === sessionId) {
+        const updatedSession = await historyStorage.getSession(sessionId);
+        if (updatedSession) {
+          setCurrentSession(updatedSession);
+        }
+      }
+
+      showMessage(`会话已重命名为: ${newName}`, 'success');
+    } catch (error) {
+      console.error('重命名会话失败:', error);
+      showMessage('重命名会话失败，请重试', 'error');
+    }
+  }, [historyStorage, currentSession, showMessage]);
+
+  // 打开清理确认对话框
+  const handleOpenClearAllDialog = useCallback(() => {
+    setIsClearAllDialogOpen(true);
+  }, []);
+
+  // 关闭清理确认对话框
+  const handleCloseClearAllDialog = useCallback(() => {
+    setIsClearAllDialogOpen(false);
+    setIsClearingAll(false);
+  }, []);
+
+  // 确认清理所有会话
+  const handleDeleteAllSessions = useCallback(async () => {
+    setIsClearingAll(true);
+
+    try {
+      if (!historyStorage) {
+        showMessage('历史存储服务未初始化', 'error');
+        return;
+      }
+
+      // 清理所有会话数据
+      const sessions = await historyStorage.getAllSessions();
+      for (const session of sessions) {
+        await historyStorage.deleteSession(session.id);
+      }
+
+      // 更新本地状态
+      setCurrentSession(null);
+      setSelectedSessionId(undefined);
+      setSelectedStepIndex(undefined);
+      setHistorySteps([]);
+      setCurrentTreeState(null);
+      setAllSessions([]);
+
+      // 关闭对话框
+      setIsClearAllDialogOpen(false);
+      showMessage('已清理所有历史记录', 'success');
+    } catch (error) {
+      console.error('清理历史记录失败:', error);
+      showMessage('清理历史记录失败，请重试', 'error');
+    } finally {
+      setIsClearingAll(false);
+    }
+  }, [historyStorage, showMessage]);
+
+  // 处理B+树操作接口就绪
+  const handleOperationsReady = useCallback((operations: BPlusTreeOperations) => {
+    setTreeOperations(operations);
+  }, []);
+
+  // 处理动画状态变更
+  const handleAnimationStateChange = useCallback((animating: boolean) => {
+    setIsAnimating(animating);
+  }, []);
+
+  // 初始化历史存储服务
+  useEffect(() => {
+    const initHistoryStorage = async () => {
+      try {
+        const storage = await getBPlusHistoryStorage();
+        setHistoryStorage(storage);
+
+        // 加载所有会话
+        const sessions = await storage.getAllSessions();
+        setAllSessions(sessions);
+      } catch (error) {
+        console.error('Failed to initialize history storage:', error);
+        showMessage('历史存储初始化失败', 'error');
+      }
+    };
+
+    initHistoryStorage();
   }, [showMessage]);
 
-  const handleCreateSession = useCallback(() => {
-    showMessage('创建新会话功能开发中...', 'info');
-  }, [showMessage]);
+  // 操作面板设置变更处理
+  const handleOperationSettingsChange = useCallback((newSettings: typeof operationSettings) => {
+    setOperationSettings(newSettings);
+    // 如果阶数变更，同时更新主状态
+    if (newSettings.order !== order) {
+      setOrder(newSettings.order);
+    }
+  }, [order]);
 
-  const handleDeleteSession = useCallback((sessionId: string) => {
-    showMessage(`删除会话 ${sessionId} 功能开发中...`, 'warning');
-  }, [showMessage]);
+  // 操作面板的操作处理函数
+  const handleOperationInsert = useCallback(async (value: number) => {
+    if (treeOperations) {
+      await treeOperations.insert(value);
+    }
+  }, [treeOperations]);
 
-  const handleRenameSession = useCallback((sessionId: string, newName: string) => {
-    showMessage(`重命名会话 ${sessionId} 为 ${newName} 功能开发中...`, 'info');
-  }, [showMessage]);
+  const handleOperationDelete = useCallback(async (value: number) => {
+    if (treeOperations) {
+      await treeOperations.delete(value);
+    }
+  }, [treeOperations]);
 
-  const handleDeleteAllSessions = useCallback(() => {
-    showMessage('删除所有会话功能开发中...', 'warning');
-  }, [showMessage]);
+  const handleOperationReset = useCallback(() => {
+    if (treeOperations) {
+      treeOperations.reset();
+    }
+  }, [treeOperations]);
 
-  // 操作面板回调函数（临时实现）
-  const handleInsert = useCallback(async (value: number) => {
-    showMessage(`插入操作 ${value} 功能开发中...`, 'info');
-  }, [showMessage]);
+  const handleOperationSave = useCallback(async () => {
+    if (treeOperations) {
+      await treeOperations.save();
+    }
+  }, [treeOperations]);
 
-  const handleDelete = useCallback(async (value: number) => {
-    showMessage(`删除操作 ${value} 功能开发中...`, 'info');
-  }, [showMessage]);
-
-  const handleReset = useCallback(() => {
-    showMessage('重置操作功能开发中...', 'info');
-  }, [showMessage]);
-
-  const handleSave = useCallback(async () => {
-    showMessage('保存操作功能开发中...', 'info');
-  }, [showMessage]);
-
-  const handleRestore = useCallback(async () => {
-    showMessage('恢复操作功能开发中...', 'info');
-  }, [showMessage]);
+  const handleOperationRestore = useCallback(async () => {
+    if (treeOperations) {
+      await treeOperations.restore();
+    }
+  }, [treeOperations]);
 
   // 对话框回调函数
   const handleSendMessage = useCallback((message: string) => {
@@ -133,7 +485,7 @@ const BPlusHistoryPage: React.FC = () => {
         <BPlusSidebar
           showHistory={showHistory}
           onToggleHistory={handleToggleHistory}
-          onNewRecord={handleCreateSession}
+          onNewRecord={handleOpenNewSessionModal}
         />
       </Box>
 
@@ -154,12 +506,13 @@ const BPlusHistoryPage: React.FC = () => {
             <HistoryManagementPanel
               selectedSessionId={selectedSessionId}
               selectedStepIndex={selectedStepIndex}
+              sessions={allSessions}
               onSessionSelect={handleSessionSelect}
               onStepSelect={handleStepSelect}
-              onCreateSession={handleCreateSession}
+              onCreateSession={handleOpenNewSessionModal}
               onDeleteSession={handleDeleteSession}
               onRenameSession={handleRenameSession}
-              onDeleteAllSessions={handleDeleteAllSessions}
+              onDeleteAllSessions={handleOpenClearAllDialog}
             />
           </Box>
         </Panel>
@@ -185,10 +538,14 @@ const BPlusHistoryPage: React.FC = () => {
                 position: "relative",
                 bgcolor: 'var(--background-color)'
               }}>
-                {/* 临时使用现有的BPlusTreeVisualizer，后续将重构为受控组件 */}
                 <BPlusTreeVisualizer
-                  initialKeys={initialKeys}
+                  // 使用key来强制重新挂载组件，确保状态隔离
+                  key={selectedSessionId ? `${selectedSessionId}-${selectedStepIndex}` : 'initial-session'}
                   order={order}
+                  initialState={currentTreeState}
+                  onStateChange={handleTreeStateChange}
+                  onOperationsReady={handleOperationsReady}
+                  onAnimationStateChange={handleAnimationStateChange}
                 />
               </Box>
             </Panel>
@@ -201,12 +558,12 @@ const BPlusHistoryPage: React.FC = () => {
               transition: "background-color 0.2s ease"
             }} />
 
-            {/* 下部分：操作控制区域 */}
+            {/* 下部分：操作面板和对话区域 */}
             <Panel minSize={20} defaultSize={35}>
               <PanelGroup direction="horizontal" style={{ height: "100%" }}>
-                
-                {/* 左侧：B+树操作模块 */}
-                <Panel minSize={30} defaultSize={60}>
+
+                {/* 左侧：操作面板 */}
+                <Panel minSize={25} defaultSize={40}>
                   <Box sx={{
                     height: "100%",
                     p: 2,
@@ -215,35 +572,29 @@ const BPlusHistoryPage: React.FC = () => {
                     overflow: 'hidden'
                   }}>
                     <BPlusOperationPanel
-                      settings={{
-                        isAnimationEnabled: true,
-                        animationSpeed: 500,
-                        order: order
-                      }}
-                      onSettingsChange={(settings) => {
-                        showMessage(`设置已更新: 阶数=${settings.order}, 动画=${settings.isAnimationEnabled}`, 'info');
-                      }}
-                      isAnimating={false}
-                      onInsert={handleInsert}
-                      onDelete={handleDelete}
-                      onReset={handleReset}
-                      onSave={handleSave}
-                      onRestore={handleRestore}
+                      settings={operationSettings}
+                      onSettingsChange={handleOperationSettingsChange}
+                      isAnimating={isAnimating}
+                      onInsert={handleOperationInsert}
+                      onDelete={handleOperationDelete}
+                      onReset={handleOperationReset}
+                      onSave={handleOperationSave}
+                      onRestore={handleOperationRestore}
                       showMessage={showMessage}
                     />
                   </Box>
                 </Panel>
 
                 {/* 拖拽手柄 */}
-                <PanelResizeHandle style={{ 
-                  width: 6, 
-                  background: "var(--card-border)", 
+                <PanelResizeHandle style={{
+                  width: 6,
+                  background: "var(--card-border)",
                   cursor: "col-resize",
                   transition: "background-color 0.2s ease"
                 }} />
 
-                {/* 右侧：对话框预留区域 */}
-                <Panel minSize={30} defaultSize={40}>
+                {/* 右侧：智能助手对话区域 */}
+                <Panel minSize={30} defaultSize={60}>
                   <Box sx={{
                     height: "100%",
                     p: 2,
@@ -267,6 +618,23 @@ const BPlusHistoryPage: React.FC = () => {
         </Panel>
 
       </PanelGroup>
+
+      {/* 新建会话模态框 */}
+      <NewSessionModal
+        open={isNewSessionModalOpen}
+        onClose={handleCloseNewSessionModal}
+        onConfirm={handleCreateSession}
+        loading={isCreatingSession}
+      />
+
+      {/* 清理所有记录确认对话框 */}
+      <ClearAllConfirmDialog
+        open={isClearAllDialogOpen}
+        onClose={handleCloseClearAllDialog}
+        onConfirm={handleDeleteAllSessions}
+        loading={isClearingAll}
+        sessionCount={allSessions.length}
+      />
 
       {/* Snackbar 消息提示 */}
       <Snackbar

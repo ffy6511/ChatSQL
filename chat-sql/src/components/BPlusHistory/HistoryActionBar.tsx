@@ -161,29 +161,30 @@ const HistoryActionBar: React.FC<HistoryActionBarProps> = ({
           </span>
         </Tooltip>
 
-        {/* 新建记录按钮 - 参考coding模块样式 */}
+        {/* 新建记录按钮 */}
         <Tooltip title="新建记录" placement="top">
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={<EditIcon />}
+          <span>
+            <IconButton
+            size='small'
             onClick={onCreateNew}
-            sx={{
-              bgcolor: 'var(--link-color)',
-              color: 'white',
-              borderRadius: '6px',
-              height: '32px',
-              minWidth: '32px',
-              fontSize: '12px',
-              fontWeight: 500,
-              textTransform: 'none',
-              boxShadow: 'none',
-              padding: '4px 8px',
+            sx = {{
+              color: 'var(--tertiary-text)',
+              bgcolor: 'transparent',
+              border: '1px solid var(--card-border)',
+              borderRadius: '8px',
+              width: '36px',
+              height: '36px',
+              transition: 'all 0.2s ease',
               '&:hover': {
-                bgcolor: '#1565c0'
-              }
+                color: '#1677FF',
+                bgcolor: 'rgba(22, 119, 255, 0.04)',
+                borderColor: 'rgba(22, 119, 255, 0.2)'
+              },
             }}
-          />
+            >
+              <EditIcon fontSize='small' />
+            </IconButton>
+          </span>
         </Tooltip>
       </Box>
     </Box>

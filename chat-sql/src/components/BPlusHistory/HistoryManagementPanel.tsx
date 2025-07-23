@@ -24,7 +24,10 @@ interface HistoryManagementPanelProps {
   // 当前选中的会话和步骤
   selectedSessionId?: string;
   selectedStepIndex?: number;
-  
+
+  // 会话数据
+  sessions: HistorySession[];
+
   // 回调函数
   onSessionSelect?: (sessionId: string) => void;
   onStepSelect?: (stepIndex: number) => void;
@@ -34,132 +37,10 @@ interface HistoryManagementPanelProps {
   onDeleteAllSessions?: () => void;
 }
 
-// 临时模拟数据
-const mockSessions: HistorySession[] = [
-  {
-    id: '1',
-    name: '基础插入操作练习',
-    order: 3,
-    steps: [
-      {
-        id: '1-1',
-        operation: 'initial',
-        timestamp: Date.now() - 3600000,
-        description: '初始化空树',
-        nodes: [],
-        edges: [],
-        keys: [],
-        success: true
-      },
-      {
-        id: '1-2',
-        operation: 'insert',
-        key: 5,
-        timestamp: Date.now() - 3000000,
-        description: '插入键值5',
-        nodes: [],
-        edges: [],
-        keys: [5],
-        success: true
-      },
-      {
-        id: '1-3',
-        operation: 'insert',
-        key: 3,
-        timestamp: Date.now() - 2400000,
-        description: '插入键值3',
-        nodes: [],
-        edges: [],
-        keys: [3, 5],
-        success: true
-      },
-      {
-        id: '1-4',
-        operation: 'insert',
-        key: 7,
-        timestamp: Date.now() - 1800000,
-        description: '插入键值7',
-        nodes: [],
-        edges: [],
-        keys: [3, 5, 7],
-        success: true
-      },
-    ],
-    currentStepIndex: 3,
-    createdAt: Date.now() - 3600000,
-    updatedAt: Date.now() - 1800000,
-    description: '基础插入操作练习会话',
-    tags: ['练习', '插入'],
-    isCompleted: false,
-    statistics: {
-      totalOperations: 4,
-      insertCount: 3,
-      deleteCount: 0,
-      resetCount: 0,
-      successCount: 4,
-      errorCount: 0,
-      totalDuration: 1500
-    }
-  },
-  {
-    id: '2',
-    name: '删除操作演示',
-    order: 4,
-    steps: [
-      {
-        id: '2-1',
-        operation: 'initial',
-        timestamp: Date.now() - 1200000,
-        description: '初始化空树',
-        nodes: [],
-        edges: [],
-        keys: [],
-        success: true
-      },
-      {
-        id: '2-2',
-        operation: 'insert',
-        key: 10,
-        timestamp: Date.now() - 900000,
-        description: '插入键值10',
-        nodes: [],
-        edges: [],
-        keys: [10],
-        success: true
-      },
-      {
-        id: '2-3',
-        operation: 'delete',
-        key: 10,
-        timestamp: Date.now() - 600000,
-        description: '删除键值10',
-        nodes: [],
-        edges: [],
-        keys: [],
-        success: true
-      },
-    ],
-    currentStepIndex: 2,
-    createdAt: Date.now() - 1200000,
-    updatedAt: Date.now() - 600000,
-    description: '删除操作演示会话',
-    tags: ['演示', '删除'],
-    isCompleted: true,
-    statistics: {
-      totalOperations: 3,
-      insertCount: 1,
-      deleteCount: 1,
-      resetCount: 0,
-      successCount: 3,
-      errorCount: 0,
-      totalDuration: 800
-    }
-  }
-];
-
 const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
   selectedSessionId,
   selectedStepIndex,
+  sessions,
   onSessionSelect,
   onStepSelect,
   onCreateSession,
@@ -171,7 +52,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
   const [searchValue, setSearchValue] = useState<string>('');
 
   // 过滤会话列表
-  const filteredSessions = mockSessions.filter(session =>
+  const filteredSessions = sessions.filter(session =>
     session.name.toLowerCase().includes(searchValue.toLowerCase()) ||
     session.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
     session.tags?.some(tag => tag.toLowerCase().includes(searchValue.toLowerCase()))
@@ -186,7 +67,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
         onSearchChange={setSearchValue}
         onCreateNew={onCreateSession || (() => {})}
         onDeleteAll={onDeleteAllSessions || (() => {})}
-        disableDeleteAll={mockSessions.length === 0}
+        disableDeleteAll={sessions.length === 0}
       />
 
       {/* 会话列表 */}
@@ -222,7 +103,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
 
   // 渲染步骤时间线
   const renderStepTimeline = () => {
-    const currentSession = mockSessions.find(s => s.id === selectedSessionId);
+    const currentSession = sessions.find(s => s.id === selectedSessionId);
     
     if (!currentSession) {
       return (
