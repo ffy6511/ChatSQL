@@ -12,6 +12,7 @@ import {
   GithubOutlined
 } from '@ant-design/icons';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import ThemeToggle from '@/components/SideBar/ThemeToggle';
 import NewDiagramModal from './NewDiagramModal';
 import OpenDiagramModal from './OpenDiagramModal';
 import styles from './Sidebar.module.css';
@@ -80,6 +81,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       </div>
 
       <div className="global-sidebar-menu-container">
+
+        <div className="global-sidebar-menu-items">
+          <ThemeToggle />
+        </div>
+        
         <div className="global-sidebar-menu-items">
           <Tooltip title="组件库" placement="right">
             <Button

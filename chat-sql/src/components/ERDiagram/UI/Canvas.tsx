@@ -4,6 +4,7 @@ import React, { useRef, useCallback } from 'react';
 import { Empty } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 import ERDiagram from '@/components/ERDiagram/ERDiagram';
+import EmptyState from './EmptyState';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import styles from './Canvas.module.css';
 
@@ -59,6 +60,20 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
             }
           />
         </div>
+      </div>
+    );
+  }
+
+  // 检查是否为空状态（没有实体和关系）
+  const isEmpty = state.diagramData.entities.length === 0 && state.diagramData.relationships.length === 0;
+
+  if (isEmpty) {
+    return (
+      <div
+        ref={canvasRef}
+        className={styles.canvasContainer}
+      >
+        <EmptyState />
       </div>
     );
   }

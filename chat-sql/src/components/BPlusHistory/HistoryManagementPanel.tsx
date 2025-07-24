@@ -120,20 +120,26 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
     }
 
     return (
-      <Box sx={{ height: '100%', overflow: 'auto', p: 1 }}>
-        <Typography 
-          variant="subtitle2" 
-          sx={{ 
-            mb: 2, 
+      <Box sx={{ p: 0, mb: 5}}>
+      {currentSession.steps.length === 0 ? (
+        <Box
+          sx={{
+            mt: 8,
+            textAlign: 'center',
             color: 'var(--secondary-text)',
-            fontWeight: 600
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          {currentSession.name}
-        </Typography>
-        
-        <Box sx={{ p: 0 }}>
-          {currentSession.steps.map((step, index) => (
+          <TimelineIcon sx={{ fontSize: 60, mt: 16, color: 'var(--tertiary-text)' }} />
+          <Typography variant="body2" sx={{ mb: 1,color:  'var(--tertiary-text)' }}>
+            尚未记录任何步骤
+          </Typography>
+        </Box>
+        ) : (
+          currentSession.steps.map((step, index) => (
             <BPlusHistoryStepItem
               key={step.id}
               step={step}
@@ -142,8 +148,8 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
               isCurrent={index === currentSession.currentStepIndex}
               onSelect={onStepSelect || (() => {})}
             />
-          ))}
-        </Box>
+          ))
+        )}
       </Box>
     );
   };

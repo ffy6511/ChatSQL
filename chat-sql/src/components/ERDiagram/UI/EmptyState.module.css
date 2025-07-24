@@ -1,0 +1,145 @@
+.emptyStateContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  min-height: 400px;
+}
+
+.emptyStateContent {
+  max-width: 480px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.iconContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.mainIcon {
+  font-size: 72px !important;
+  color: var(--tertiary-text);
+  opacity: 0.8;
+  transition: all 0.3s ease-in-out !important;
+}
+
+.addIcon {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 24px !important;
+  color: var(--info-color);
+  background: var(--background);
+  border-radius: 50%;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out !important;
+}
+
+.mainTitle {
+  margin-bottom: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin-bottom: 8px !important;
+  max-width: 360px;
+}
+
+.description {
+  max-width: 400px;
+  margin-bottom: 24px !important;
+}
+
+.hintContainer {
+  padding: 16px 20px;
+  background: var(--hover-bg);
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  margin-top: 16px;
+  transition: all 0.3s ease;
+}
+
+.hint {
+  display: block;
+  line-height: 1.4 !important;
+}
+
+/* 悬浮动画效果 */
+.emptyStateContainer:hover .mainIcon {
+  color: var(--secondary-text);
+  transform: scale(1.05);
+}
+
+.emptyStateContainer:hover .addIcon {
+  color: var(--link-color);
+  transform: scale(1.1);
+}
+
+.emptyStateContainer:hover .hintContainer {
+  background: var(--card-bg);
+  border-color: var(--info-color);
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .emptyStateContent {
+    padding: 32px 16px;
+    max-width: 320px;
+  }
+  
+  .mainIcon {
+    font-size: 56px !important;
+  }
+  
+  .addIcon {
+    font-size: 20px !important;
+  }
+  
+  .mainTitle {
+    font-size: 1.5rem !important;
+  }
+  
+  .subtitle {
+    font-size: 0.95rem !important;
+  }
+  
+  .description {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] .emptyStateContainer {
+  background: var(--background);
+}
+
+[data-theme="dark"] .mainIcon {
+  color: var(--tertiary-text);
+}
+
+[data-theme="dark"] .addIcon {
+  background: var(--background);
+  color: var(--info-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .hintContainer {
+  background: var(--hover-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .emptyStateContainer:hover .hintContainer {
+  background: var(--card-bg);
+  border-color: var(--info-color);
+  box-shadow: 0 2px 8px rgba(64, 150, 255, 0.15);
+}

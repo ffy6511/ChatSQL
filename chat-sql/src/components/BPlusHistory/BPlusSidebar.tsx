@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { Button, Tooltip, Modal } from 'antd';
+import ThemeToggle from '@/components/SideBar/ThemeToggle';
 import {
   QuestionCircleOutlined,
   GithubOutlined,
@@ -65,9 +66,7 @@ const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
 
       {/* 中间区域：可扩展的功能按钮 */}
       <div className="global-sidebar-menu-container">
-        <div className="global-sidebar-menu-items">
-          {/* 预留扩展功能 */}
-        </div>
+        <div className="global-sidebar-menu-items"><ThemeToggle /></div>
       </div>
 
       {/* 底部区域：帮助和GitHub链接 */}

@@ -50,14 +50,24 @@ type ERDiagramAction =
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
-  diagramData: sampleERData,
+  diagramData: {
+    entities: [],
+    relationships: [],
+    metadata: {
+      title: '新建ER图',
+      description: '空白ER图，开始您的数据建模之旅',
+      version: '1.0.0',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  },
   activeSidebarTab: 'components',
   selectedElementId: null,
   //节点编辑相关初始状态
   selectedNodeId: null,
   editingNodeId: null,
   nodeEditMode: 'none',
-  diagramList: [], 
+  diagramList: [],
 };
 
 function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDiagramState {
@@ -513,11 +523,43 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     dispatch({ type: 'UPDATE_RELATIONSHIP', payload: { id, relationship } });
   };
 
-  const deleteEntity = (id: string) => {
+  const deleteEntity = async (id: string) => {
+    if( !state.diagramData || !state.currentDiagramId) return
+
+    // 直接计算出删除后的新数据
+    const updatedData = {
+      ...state.diagramData,
+      entities: state.diagramData.entities.filter(entity => entity.id !== id),
+      // 此处保留了与实体相关的关系
+      metadata:{
+        ...state.diagramData.metadata,
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    // 保存到数据库
+    await saveDiagram(updatedData, state.currentDiagramId);
+
+    // 更新UI状态
     dispatch({ type: 'DELETE_ENTITY', payload: { id } });
   };
 
-  const deleteRelationship = (id: string) => {
+  const deleteRelationship = async (id: string) => {
+    if( !state.diagramData || !state.currentDiagramId) return
+
+    // 计算出删除后的新数据
+  const updatedData = {
+      ...state.diagramData,
+      relationships: state.diagramData.relationships.filter(relationship => relationship.id !== id),
+      metadata: {
+        ...state.diagramData.metadata,
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    // 保存到数据库
+    await saveDiagram(updatedData, state.currentDiagramId);
+
     dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
   };
 
