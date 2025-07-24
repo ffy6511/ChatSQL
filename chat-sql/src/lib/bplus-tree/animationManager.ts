@@ -29,6 +29,10 @@ export class AnimationManager {
   private callbacks: AnimationCallbacks = {};
   private animationTimer: NodeJS.Timeout | null = null;
 
+  // 用于跟踪最后执行的操作
+  public lastOperation: 'insert' | 'delete' | 'reset' | 'initial' = 'initial';
+  public lastKey?: number;
+
   constructor(callbacks?: AnimationCallbacks) {
     this.callbacks = callbacks || {};
   }

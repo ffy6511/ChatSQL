@@ -52,6 +52,9 @@ interface BPlusTreeVisualizerProps {
   onStateChange?: (state: TreeState) => void;
   onOperationsReady?: (operations: BPlusTreeOperations) => void;
   onAnimationStateChange?: (isAnimating: boolean) => void;
+  // 动画设置
+  isAnimationEnabled?: boolean;
+  animationSpeed?: number;
 }
 
 // --- 帮助函数 (布局和转换) ---
@@ -153,21 +156,39 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
   onStateChange,
   onOperationsReady,
   onAnimationStateChange,
+  isAnimationEnabled = true,
+  animationSpeed = 500,
 }) => {
   const bPlusTreeAlgorithmRef = useRef(new BPlusTreeAlgorithm(order));
   const animationManagerRef = useRef(new AnimationManager());
   
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<BPlusNodeData>>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [animationState, setAnimationState] = useState<AnimationState>(animationManagerRef.current.getState());
-  const [settings, setSettings] = useState({ isAnimationEnabled: true, animationSpeed: 500 });
+  const [settings, setSettings] = useState({
+    isAnimationEnabled: isAnimationEnabled,
+    animationSpeed: animationSpeed
+  });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'info' | 'warning' | 'error' });
+  const [isInitializing, setIsInitializing] = useState(true); // 标志是否正在初始化
 
   const showMessage = useCallback((message: string, severity: 'success' | 'info' | 'warning' | 'error' = 'info') => {
     setSnackbar({ open: true, message, severity });
   }, []);
 
-  const commandExecutorRef = useRef(new CommandExecutor({ setNodes, setEdges, showMessage }));
+  // 监听外部动画设置变化
+  useEffect(() => {
+    setSettings({
+      isAnimationEnabled: isAnimationEnabled,
+      animationSpeed: animationSpeed
+    });
+  }, [isAnimationEnabled, animationSpeed]);
+
+  const commandExecutorRef = useRef(new CommandExecutor({
+    setNodes: (updater) => setNodes(updater),
+    setEdges: (updater) => setEdges(updater),
+    showMessage
+  }));
 
   const updateView = useCallback((algorithm: BPlusTreeAlgorithm) => {
     const { nodes: newNodes, edges: newEdges } = convertBPlusTreeToFlowData(algorithm, order);
@@ -178,6 +199,12 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
 
   const notifyStateChange = useCallback((operation: 'insert' | 'delete' | 'reset' | 'initial', operationKey?: number) => {
     if (!onStateChange) return;
+
+    // 在初始化期间跳过状态通知，避免创建重复的历史记录
+    if (isInitializing && operation === 'initial') {
+      return;
+    }
+
     const algorithm = bPlusTreeAlgorithmRef.current;
     const { nodes, edges } = convertBPlusTreeToFlowData(algorithm, order);
     onStateChange({
@@ -188,21 +215,28 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
       operationKey,
       timestamp: Date.now(),
     });
-  }, [onStateChange, order]);
+  }, [onStateChange, order, isInitializing]);
 
   // 初始化
   useEffect(() => {
     const algorithm = bPlusTreeAlgorithmRef.current;
-    if (initialState && initialState.keys.length > 0) {
-      // 从历史记录恢复
-      initialState.keys.forEach(key => algorithm.insertElement(key));
-      notifyStateChange('initial');
+    if (initialState) {
+      // 从历史记录恢复：先清空算法，然后插入所有keys
+      algorithm.clear();
+      if (initialState.keys && initialState.keys.length > 0) {
+        // 静默插入，不触发状态变更通知，避免创建重复的历史步骤
+        initialState.keys.forEach(key => {
+          algorithm.insertElement(key); // 这只是重建内部状态，不应该触发历史记录
+        });
+      }
     } else {
-      // 创建一个默认的空树或带初始值的树
-      [].forEach(k => algorithm.insertElement(k));
-      notifyStateChange('initial');
+      // 创建一个默认的空树
+      algorithm.clear();
     }
     updateView(algorithm);
+
+    // 初始化完成，允许后续的状态变更通知
+    setIsInitializing(false);
   }, []); // 依赖为空，仅在挂载时运行
 
   // 动画管理器设置

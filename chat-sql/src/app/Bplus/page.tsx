@@ -11,6 +11,7 @@ import BPlusSidebar from '@/components/BPlusHistory/BPlusSidebar';
 import NewSessionModal, { NewSessionFormData } from '@/components/BPlusHistory/NewSessionModal';
 import ClearAllConfirmDialog from '@/components/BPlusHistory/ClearAllConfirmDialog';
 import { HistorySession, HistoryStep } from '@/types/bPlusHistory';
+import Typography from '@mui/material/Typography';
 import { getBPlusHistoryStorage, BPlusHistoryStorage } from '@/lib/bplus-tree/historyStorage';
 import '@/styles/globalSidebar.css';
 
@@ -36,7 +37,6 @@ const BPlusHistoryPage: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<string>();
   const [selectedStepIndex, setSelectedStepIndex] = useState<number>();
   const [showHistory, setShowHistory] = useState<boolean>(true);
-  const [historySteps, setHistorySteps] = useState<HistoryStep[]>([]);
   const [currentSession, setCurrentSession] = useState<HistorySession | null>(null);
 
   // 新建会话模态框状态
@@ -53,6 +53,8 @@ const BPlusHistoryPage: React.FC = () => {
   // 历史存储服务
   const [historyStorage, setHistoryStorage] = useState<BPlusHistoryStorage | null>(null);
   const [allSessions, setAllSessions] = useState<HistorySession[]>([]);
+
+
 
   // 操作面板设置状态
   const [operationSettings, setOperationSettings] = useState({
@@ -85,6 +87,11 @@ const BPlusHistoryPage: React.FC = () => {
   const handleTreeStateChange = useCallback(async (state: TreeState) => {
     setCurrentTreeState(state);
 
+    // 如果没有当前会话，则不记录历史
+    if (!currentSession || !historyStorage) {
+      return;
+    }
+
     // 创建新的历史步骤
     const newStep: HistoryStep = {
       id: `step-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
@@ -98,37 +105,29 @@ const BPlusHistoryPage: React.FC = () => {
       success: true
     };
 
-    // 添加到历史步骤
-    setHistorySteps(prev => [...prev, newStep]);
+    try {
+      // 1. 添加步骤到存储
+      await historyStorage.addStep(currentSession.id, newStep);
 
-    // 如果有当前会话，保存步骤到存储并更新会话
-    if (currentSession && historyStorage) {
-      try {
-        // 添加步骤到存储
-        await historyStorage.addStep(currentSession.id, newStep);
-
-        // 获取更新后的会话
-        const updatedSession = await historyStorage.getSession(currentSession.id);
-        if (updatedSession) {
-          setCurrentSession(updatedSession);
-        }
-
-        // 更新会话列表
-        const updatedSessions = await historyStorage.getAllSessions();
-        setAllSessions(updatedSessions);
-      } catch (error) {
-        console.error('Failed to save step to storage:', error);
-        // 即使存储失败，也要更新本地状态
-        const updatedSession: HistorySession = {
-          ...currentSession,
-          steps: [...currentSession.steps, newStep],
-          currentStepIndex: currentSession.steps.length,
-          updatedAt: Date.now()
-        };
+      // 2. 获取更新后的会话并更新当前会话状态
+      const updatedSession = await historyStorage.getSession(currentSession.id);
+      if (updatedSession) {
         setCurrentSession(updatedSession);
+
+        // 4. 自动选中新添加的步骤（最后一个步骤）
+        const newStepIndex = updatedSession.steps.length - 1;
+        setSelectedStepIndex(newStepIndex);
       }
+
+      // 3. 手动更新所有会话列表
+      const updatedSessions = await historyStorage.getAllSessions();
+      setAllSessions(updatedSessions);
+
+    } catch (error) {
+      console.error('Failed to save step to storage:', error);
+      showMessage('无法保存操作步骤', 'error');
     }
-  }, [currentSession, historyStorage]);
+  }, [currentSession, historyStorage, showMessage]);
 
   // 获取操作描述
   const getOperationDescription = (operation?: string, key?: number): string => {
@@ -161,9 +160,14 @@ const BPlusHistoryPage: React.FC = () => {
       const session = await historyStorage.getSession(sessionId);
       if (session) {
         setCurrentSession(session);
-        // 如果会话有步骤，加载最后一个步骤的状态
+        // 如果会话有步骤，加载最后一个步骤的状态并自动选中最后一步
         if (session.steps.length > 0) {
-          const lastStep = session.steps[session.steps.length - 1];
+          const lastStepIndex = session.steps.length - 1;
+          const lastStep = session.steps[lastStepIndex];
+
+          // 设置选中的步骤索引为最后一步
+          setSelectedStepIndex(lastStepIndex);
+
           setCurrentTreeState({
             nodes: lastStep.nodes,
             edges: lastStep.edges,
@@ -254,11 +258,10 @@ const BPlusHistoryPage: React.FC = () => {
       // 更新本地状态
       setCurrentSession(newSession);
       setSelectedSessionId(newSession.id);
-      setHistorySteps([]);
       setCurrentTreeState(null); // 重置树状态
       setOrder(formData.order); // 设置新的阶数
 
-      // 更新会话列表
+      // 手动更新会话列表
       const updatedSessions = await historyStorage.getAllSessions();
       setAllSessions(updatedSessions);
 
@@ -283,7 +286,7 @@ const BPlusHistoryPage: React.FC = () => {
       // 从存储中删除会话
       await historyStorage.deleteSession(sessionId);
 
-      // 更新会话列表
+      // 手动更新会话列表
       const updatedSessions = await historyStorage.getAllSessions();
       setAllSessions(updatedSessions);
 
@@ -311,7 +314,7 @@ const BPlusHistoryPage: React.FC = () => {
       // 更新会话名称
       await historyStorage.updateSession(sessionId, { name: newName });
 
-      // 更新会话列表
+      // 手动更新会话列表
       const updatedSessions = await historyStorage.getAllSessions();
       setAllSessions(updatedSessions);
 
@@ -361,7 +364,6 @@ const BPlusHistoryPage: React.FC = () => {
       setCurrentSession(null);
       setSelectedSessionId(undefined);
       setSelectedStepIndex(undefined);
-      setHistorySteps([]);
       setCurrentTreeState(null);
       setAllSessions([]);
 
@@ -433,17 +435,14 @@ const BPlusHistoryPage: React.FC = () => {
     }
   }, [treeOperations]);
 
+  // 保存和恢复功能的占位符实现
   const handleOperationSave = useCallback(async () => {
-    if (treeOperations) {
-      await treeOperations.save();
-    }
-  }, [treeOperations]);
+    showMessage('保存功能暂未实现', 'info');
+  }, [showMessage]);
 
   const handleOperationRestore = useCallback(async () => {
-    if (treeOperations) {
-      await treeOperations.restore();
-    }
-  }, [treeOperations]);
+    showMessage('恢复功能暂未实现', 'info');
+  }, [showMessage]);
 
   // 对话框回调函数
   const handleSendMessage = useCallback((message: string) => {
@@ -542,10 +541,13 @@ const BPlusHistoryPage: React.FC = () => {
                   // 使用key来强制重新挂载组件，确保状态隔离
                   key={selectedSessionId ? `${selectedSessionId}-${selectedStepIndex}` : 'initial-session'}
                   order={order}
-                  initialState={currentTreeState}
+                  initialState={currentTreeState || undefined}
                   onStateChange={handleTreeStateChange}
                   onOperationsReady={handleOperationsReady}
                   onAnimationStateChange={handleAnimationStateChange}
+                  // 传递动画设置
+                  isAnimationEnabled={operationSettings.isAnimationEnabled}
+                  animationSpeed={operationSettings.animationSpeed}
                 />
               </Box>
             </Panel>
@@ -564,24 +566,54 @@ const BPlusHistoryPage: React.FC = () => {
 
                 {/* 左侧：操作面板 */}
                 <Panel minSize={25} defaultSize={40}>
-                  <Box sx={{
-                    height: "100%",
-                    p: 2,
-                    bgcolor: 'var(--background-color)',
-                    borderTop: '1px solid var(--card-border)',
-                    overflow: 'hidden'
-                  }}>
-                    <BPlusOperationPanel
-                      settings={operationSettings}
-                      onSettingsChange={handleOperationSettingsChange}
-                      isAnimating={isAnimating}
-                      onInsert={handleOperationInsert}
-                      onDelete={handleOperationDelete}
-                      onReset={handleOperationReset}
-                      onSave={handleOperationSave}
-                      onRestore={handleOperationRestore}
-                      showMessage={showMessage}
-                    />
+                  <Box sx={{ position: 'relative', height: '100%', width: '100%' }}>
+                    {/* 当没有会话时显示遮罩层 */}
+                    {!currentSession && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: 'rgba(128, 128, 128, 0.2)',
+                          backdropFilter: 'blur(2px)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          p: 2,
+                          zIndex: 10,
+                          borderRadius: 1,
+                          color: 'var(--primary-text)',
+                        }}
+                      >
+                        <Typography variant="h6" component="div">
+                          请先创建或选择一个会话
+                        </Typography>
+                      </Box>
+                    )}
+                    <Box sx={{
+                      height: "100%",
+                      p: 2,
+                      bgcolor: 'var(--background-color)',
+                      borderTop: '1px solid var(--card-border)',
+                      overflow: 'hidden',
+                      // 当没有会话时，通过CSS禁用交互
+                      pointerEvents: !currentSession ? 'none' : 'auto',
+                    }}>
+                      <BPlusOperationPanel
+                        settings={operationSettings}
+                        onSettingsChange={handleOperationSettingsChange}
+                        isAnimating={isAnimating}
+                        onInsert={handleOperationInsert}
+                        onDelete={handleOperationDelete}
+                        onReset={handleOperationReset}
+                        onSave={handleOperationSave}
+                        onRestore={handleOperationRestore}
+                        showMessage={showMessage}
+                      />
+                    </Box>
                   </Box>
                 </Panel>
 

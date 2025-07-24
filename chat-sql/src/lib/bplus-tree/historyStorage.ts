@@ -1,33 +1,18 @@
 /**
  * B+树操作历史存储管理器
  * 使用IndexedDB实现历史会话和步骤的持久化存储
+ * 采用简化的数据模型，将步骤直接存储在会话对象中
  */
 
-import { 
-  HistorySession, 
-  HistoryStep, 
-  HistoryQuery, 
-  HistoryStatistics,
-  HistoryManagerConfig,
-  HistoryEvent,
-  HistoryEventListener
+import {
+  HistorySession,
+  HistoryStep
 } from '@/types/bPlusHistory';
 
 // 存储配置
 const DB_NAME = 'BPlusHistoryStorage';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // 升级到版本2，采用新的数据模型
 const SESSIONS_STORE = 'sessions';
-const STEPS_STORE = 'steps';
-const CONFIG_STORE = 'config';
-
-// 默认配置
-const DEFAULT_CONFIG: HistoryManagerConfig = {
-  maxSessions: 50,
-  maxStepsPerSession: 100,
-  autoSave: true,
-  autoSaveInterval: 5000,
-  compressData: false
-};
 
 /**
  * B+树历史存储管理器
@@ -35,8 +20,6 @@ const DEFAULT_CONFIG: HistoryManagerConfig = {
 export class BPlusHistoryStorage {
   private db: IDBDatabase | null = null;
   private initialized: Promise<void>;
-  private eventListeners: HistoryEventListener[] = [];
-  private config: HistoryManagerConfig = DEFAULT_CONFIG;
 
   constructor() {
     this.initialized = this.initialize();
@@ -59,319 +42,22 @@ export class BPlusHistoryStorage {
 
       request.onsuccess = () => {
         this.db = request.result;
-        this.loadConfig().then(() => resolve());
+        resolve();
       };
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
-        // 创建会话存储
+
+        // 创建或更新会话存储
         if (!db.objectStoreNames.contains(SESSIONS_STORE)) {
           const sessionStore = db.createObjectStore(SESSIONS_STORE, { keyPath: 'id' });
-          sessionStore.createIndex('name', 'name', { unique: false });
-          sessionStore.createIndex('createdAt', 'createdAt', { unique: false });
           sessionStore.createIndex('updatedAt', 'updatedAt', { unique: false });
-          sessionStore.createIndex('order', 'order', { unique: false });
         }
 
-        // 创建步骤存储
-        if (!db.objectStoreNames.contains(STEPS_STORE)) {
-          const stepStore = db.createObjectStore(STEPS_STORE, { keyPath: 'id' });
-          stepStore.createIndex('sessionId', 'sessionId', { unique: false });
-          stepStore.createIndex('timestamp', 'timestamp', { unique: false });
-          stepStore.createIndex('operation', 'operation', { unique: false });
+        // 在 v2 中，我们不再需要独立的 steps_store
+        if (db.objectStoreNames.contains('steps')) {
+          db.deleteObjectStore('steps');
         }
-
-        // 创建配置存储
-        if (!db.objectStoreNames.contains(CONFIG_STORE)) {
-          db.createObjectStore(CONFIG_STORE, { keyPath: 'key' });
-        }
-      };
-    });
-  }
-
-  /**
-   * 添加事件监听器
-   */
-  public addEventListener(listener: HistoryEventListener): void {
-    this.eventListeners.push(listener);
-  }
-
-  /**
-   * 移除事件监听器
-   */
-  public removeEventListener(listener: HistoryEventListener): void {
-    const index = this.eventListeners.indexOf(listener);
-    if (index > -1) {
-      this.eventListeners.splice(index, 1);
-    }
-  }
-
-  /**
-   * 触发事件
-   */
-  private emitEvent(event: HistoryEvent): void {
-    this.eventListeners.forEach(listener => {
-      try {
-        listener(event);
-      } catch (error) {
-        console.error('Error in history event listener:', error);
-      }
-    });
-  }
-
-  /**
-   * 创建新的历史会话
-   */
-  public async createSession(sessionData: Omit<HistorySession, 'id' | 'createdAt' | 'updatedAt' | 'statistics'>): Promise<string> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    const sessionId = this.generateId('session');
-    const now = Date.now();
-    
-    const session: HistorySession = {
-      ...sessionData,
-      id: sessionId,
-      createdAt: now,
-      updatedAt: now,
-      statistics: {
-        totalOperations: 0,
-        insertCount: 0,
-        deleteCount: 0,
-        resetCount: 0,
-        successCount: 0,
-        errorCount: 0,
-        totalDuration: 0
-      }
-    };
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([SESSIONS_STORE], 'readwrite');
-      const store = transaction.objectStore(SESSIONS_STORE);
-      const request = store.add(session);
-
-      request.onsuccess = () => {
-        this.emitEvent({
-          type: 'session_created',
-          timestamp: now,
-          sessionId,
-          data: session
-        });
-        resolve(sessionId);
-      };
-
-      request.onerror = () => {
-        reject(new Error('Failed to create session'));
-      };
-    });
-  }
-
-  /**
-   * 获取历史会话
-   */
-  public async getSession(sessionId: string): Promise<HistorySession | null> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([SESSIONS_STORE], 'readonly');
-      const store = transaction.objectStore(SESSIONS_STORE);
-      const request = store.get(sessionId);
-
-      request.onsuccess = () => {
-        resolve(request.result || null);
-      };
-
-      request.onerror = () => {
-        reject(new Error('Failed to get session'));
-      };
-    });
-  }
-
-  /**
-   * 获取所有历史会话
-   */
-  public async getAllSessions(): Promise<HistorySession[]> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([SESSIONS_STORE], 'readonly');
-      const store = transaction.objectStore(SESSIONS_STORE);
-      const index = store.index('updatedAt');
-      const request = index.getAll();
-
-      request.onsuccess = () => {
-        // 按更新时间倒序排列
-        const sessions = request.result.sort((a, b) => b.updatedAt - a.updatedAt);
-        resolve(sessions);
-      };
-
-      request.onerror = () => {
-        reject(new Error('Failed to get all sessions'));
-      };
-    });
-  }
-
-  /**
-   * 更新历史会话
-   */
-  public async updateSession(sessionId: string, updates: Partial<HistorySession>): Promise<void> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([SESSIONS_STORE], 'readwrite');
-      const store = transaction.objectStore(SESSIONS_STORE);
-      const getRequest = store.get(sessionId);
-
-      getRequest.onsuccess = () => {
-        const session = getRequest.result;
-        if (!session) {
-          reject(new Error('Session not found'));
-          return;
-        }
-
-        const updatedSession = {
-          ...session,
-          ...updates,
-          id: sessionId, // 确保ID不被覆盖
-          updatedAt: Date.now()
-        };
-
-        const putRequest = store.put(updatedSession);
-        
-        putRequest.onsuccess = () => {
-          this.emitEvent({
-            type: 'session_updated',
-            timestamp: Date.now(),
-            sessionId,
-            data: updatedSession
-          });
-          resolve();
-        };
-
-        putRequest.onerror = () => {
-          reject(new Error('Failed to update session'));
-        };
-      };
-
-      getRequest.onerror = () => {
-        reject(new Error('Failed to get session for update'));
-      };
-    });
-  }
-
-  /**
-   * 删除历史会话
-   */
-  public async deleteSession(sessionId: string): Promise<void> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([SESSIONS_STORE, STEPS_STORE], 'readwrite');
-      
-      // 删除会话
-      const sessionStore = transaction.objectStore(SESSIONS_STORE);
-      const deleteSessionRequest = sessionStore.delete(sessionId);
-
-      // 删除相关步骤
-      const stepStore = transaction.objectStore(STEPS_STORE);
-      const stepIndex = stepStore.index('sessionId');
-      const getStepsRequest = stepIndex.getAll(sessionId);
-
-      getStepsRequest.onsuccess = () => {
-        const steps = getStepsRequest.result;
-        steps.forEach(step => {
-          stepStore.delete(step.id);
-        });
-      };
-
-      deleteSessionRequest.onsuccess = () => {
-        this.emitEvent({
-          type: 'session_deleted',
-          timestamp: Date.now(),
-          sessionId
-        });
-        resolve();
-      };
-
-      deleteSessionRequest.onerror = () => {
-        reject(new Error('Failed to delete session'));
-      };
-    });
-  }
-
-  /**
-   * 添加历史步骤
-   */
-  public async addStep(sessionId: string, stepData: Omit<HistoryStep, 'id'>): Promise<string> {
-    await this.ensureInitialized();
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
-
-    const stepId = this.generateId('step');
-    const step: HistoryStep = {
-      ...stepData,
-      id: stepId
-    };
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STEPS_STORE, SESSIONS_STORE], 'readwrite');
-      
-      // 添加步骤
-      const stepStore = transaction.objectStore(STEPS_STORE);
-      const addStepRequest = stepStore.add(step);
-
-      // 更新会话统计
-      const sessionStore = transaction.objectStore(SESSIONS_STORE);
-      const getSessionRequest = sessionStore.get(sessionId);
-
-      getSessionRequest.onsuccess = () => {
-        const session = getSessionRequest.result;
-        if (session) {
-          // 更新统计信息
-          session.statistics.totalOperations++;
-          if (step.operation === 'insert') session.statistics.insertCount++;
-          else if (step.operation === 'delete') session.statistics.deleteCount++;
-          else if (step.operation === 'reset') session.statistics.resetCount++;
-          
-          if (step.success) session.statistics.successCount++;
-          else session.statistics.errorCount++;
-          
-          if (step.duration) session.statistics.totalDuration += step.duration;
-          
-          session.updatedAt = Date.now();
-          sessionStore.put(session);
-        }
-      };
-
-      addStepRequest.onsuccess = () => {
-        this.emitEvent({
-          type: 'step_added',
-          timestamp: Date.now(),
-          sessionId,
-          stepId,
-          data: step
-        });
-        resolve(stepId);
-      };
-
-      addStepRequest.onerror = () => {
-        reject(new Error('Failed to add step'));
       };
     });
   }
@@ -380,41 +66,152 @@ export class BPlusHistoryStorage {
    * 生成唯一ID
    */
   public generateId(prefix: string = 'item'): string {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 
   /**
-   * 加载配置
+   * 创建新的历史会话
    */
-  private async loadConfig(): Promise<void> {
-    if (!this.db) return;
+  public async createSession(sessionData: Omit<HistorySession, 'id' | 'createdAt' | 'updatedAt' | 'statistics'>): Promise<string> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
 
-    return new Promise((resolve) => {
-      const transaction = this.db!.transaction([CONFIG_STORE], 'readonly');
-      const store = transaction.objectStore(CONFIG_STORE);
-      const request = store.get('config');
+    const sessionId = this.generateId('session');
+    const now = Date.now();
 
-      request.onsuccess = () => {
-        if (request.result) {
-          this.config = { ...DEFAULT_CONFIG, ...request.result.value };
-        }
-        resolve();
-      };
+    const session: HistorySession = {
+      ...sessionData,
+      id: sessionId,
+      createdAt: now,
+      updatedAt: now,
+      steps: [], // 确保steps数组存在
+      statistics: { totalOperations: 0, insertCount: 0, deleteCount: 0, resetCount: 0, successCount: 0, errorCount: 0, totalDuration: 0 }
+    };
 
-      request.onerror = () => {
-        resolve(); // 使用默认配置
-      };
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readwrite');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const request = store.add(session);
+      request.onsuccess = () => resolve(sessionId);
+      request.onerror = () => reject(new Error('Failed to create session'));
     });
   }
 
   /**
-   * 关闭数据库连接
+   * 获取单个历史会话 (现在已包含所有步骤)
    */
-  public close(): void {
-    if (this.db) {
-      this.db.close();
-      this.db = null;
-    }
+  public async getSession(sessionId: string): Promise<HistorySession | null> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readonly');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const request = store.get(sessionId);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(new Error('Failed to get session'));
+    });
+  }
+
+  /**
+   * 获取所有历史会话 (现在已包含所有步骤)
+   */
+  public async getAllSessions(): Promise<HistorySession[]> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readonly');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const sessions = request.result.sort((a, b) => b.updatedAt - a.updatedAt);
+        resolve(sessions);
+      };
+      request.onerror = () => reject(new Error('Failed to get all sessions'));
+    });
+  }
+
+  /**
+   * 更新历史会话的元数据 (不包括步骤)
+   */
+  public async updateSession(sessionId: string, updates: Partial<Omit<HistorySession, 'steps'>>): Promise<void> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readwrite');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const getRequest = store.get(sessionId);
+
+      getRequest.onsuccess = () => {
+        const session = getRequest.result;
+        if (!session) return reject(new Error('Session not found'));
+
+        const updatedSession = { ...session, ...updates, updatedAt: Date.now() };
+        const putRequest = store.put(updatedSession);
+
+        putRequest.onsuccess = () => resolve();
+        putRequest.onerror = () => reject(new Error('Failed to update session'));
+      };
+      getRequest.onerror = () => reject(new Error('Failed to get session for update'));
+    });
+  }
+
+  /**
+   * 删除历史会话
+   */
+  public async deleteSession(sessionId: string): Promise<void> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readwrite');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const request = store.delete(sessionId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error('Failed to delete session'));
+    });
+  }
+
+  /**
+   * 添加历史步骤到指定会话
+   */
+  public async addStep(sessionId: string, stepData: Omit<HistoryStep, 'id'>): Promise<string> {
+    await this.ensureInitialized();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(SESSIONS_STORE, 'readwrite');
+      const store = transaction.objectStore(SESSIONS_STORE);
+      const getRequest = store.get(sessionId);
+
+      getRequest.onerror = () => reject(new Error('Failed to get session to add step'));
+      getRequest.onsuccess = () => {
+        const session = getRequest.result;
+        if (!session) return reject(new Error('Session not found to add step'));
+
+        const stepId = this.generateId('step');
+        const newStep: HistoryStep = { ...stepData, id: stepId };
+
+        // 更新会话
+        session.steps.push(newStep);
+        session.updatedAt = Date.now();
+
+        // 更新统计
+        session.statistics.totalOperations++;
+        if (newStep.operation === 'insert') session.statistics.insertCount++;
+        else if (newStep.operation === 'delete') session.statistics.deleteCount++;
+        else if (newStep.operation === 'reset') session.statistics.resetCount++;
+        if (newStep.success) session.statistics.successCount++;
+        else session.statistics.errorCount++;
+        if (newStep.duration) session.statistics.totalDuration += newStep.duration;
+
+        const putRequest = store.put(session);
+        putRequest.onerror = () => reject(new Error('Failed to save session with new step'));
+        putRequest.onsuccess = () => resolve(stepId);
+      };
+    });
   }
 }
 
@@ -427,7 +224,7 @@ let historyStorageInstance: BPlusHistoryStorage | null = null;
 export const getBPlusHistoryStorage = async (): Promise<BPlusHistoryStorage> => {
   if (!historyStorageInstance) {
     historyStorageInstance = new BPlusHistoryStorage();
-    await historyStorageInstance.initialize();
   }
+  await historyStorageInstance.initialize();
   return historyStorageInstance;
 };
