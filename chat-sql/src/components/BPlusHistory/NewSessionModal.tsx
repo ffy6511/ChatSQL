@@ -212,16 +212,37 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
             fullWidth
             placeholder={`B+树会话 ${new Date().toLocaleString('zh-CN')}`}
             disabled={loading}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: 'var(--secondary-text)'
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'var(--input-border)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'var(--link-color)'
+                }
+              }
+            }}
           />
 
           {/* 阶数选择 */}
           <FormControl fullWidth error={!!errors.order}>
-            <InputLabel>B+树阶数</InputLabel>
+            <InputLabel sx={{ color: 'var(--secondary-text)' }}>B+树阶数</InputLabel>
             <Select
               value={formData.order}
               onChange={(e) => handleFieldChange('order', e.target.value as number)}
               label="B+树阶数"
               disabled={loading}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'var(--input-border)'
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'var(--link-color)'
+                }
+              }}
             >
               {[3, 4, 5, 6, 7, 8, 9, 10].map(order => (
                 <MenuItem key={order} value={order}>
@@ -246,6 +267,19 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
             fullWidth
             placeholder="描述这个会话的用途或目标..."
             disabled={loading}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: 'var(--secondary-text)'
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'var(--input-border)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'var(--link-color)'
+                }
+              }
+            }}
           />
 
           {/* 标签管理 */}
@@ -279,7 +313,20 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
                 size="small"
-                sx={{ flex: 1 }}
+                sx={{
+                  flex: 1,
+                  '& .MuiInputLabel-root': {
+                    color: 'var(--secondary-text)'
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'var(--input-border)'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--link-color)'
+                    }
+                  }
+                }}
                 disabled={loading || (formData.tags?.length || 0) >= 5}
                 placeholder="输入标签名称后按回车"
               />

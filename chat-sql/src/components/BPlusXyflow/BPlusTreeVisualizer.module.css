@@ -5,8 +5,8 @@
   width: 100%;
   height: 100vh;
   position: relative;
-  background: #ffffff;
-  color: #333333;
+  background: var(--background);
+  color: var(--primary-text);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
@@ -19,8 +19,8 @@
 }
 
 .bplus-visualizer.dark-mode {
-  background: #222222;
-  color: #f0f0f0;
+  background: var(--background);
+  color: var(--primary-text);
 }
 
 /* 统计信息面板样式 */
@@ -32,13 +32,13 @@
   background: rgba(255, 255, 255, 0.95);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--card-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.dark-mode .bplus-stats-panel .MuiPaper-root {
+[data-theme="dark"] .bplus-stats-panel .MuiPaper-root {
   background: rgba(42, 42, 42, 0.95);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--card-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -51,13 +51,13 @@
   background: rgba(255, 255, 255, 0.95);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--card-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.dark-mode .bplus-operations-panel .MuiPaper-root {
+[data-theme="dark"] .bplus-operations-panel .MuiPaper-root {
   background: rgba(42, 42, 42, 0.95);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--card-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -111,32 +111,32 @@
 /* 内部节点样式 */
 .bplus-internal-node {
   background: #e0f2f7;
-  border: 2px solid #999999;
+  border: 2px solid var(--secondary-text);
   border-radius: 8px;
   padding: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
-.dark-mode .bplus-internal-node {
+[data-theme="dark"] .bplus-internal-node {
   background: #37474f;
-  border-color: #666666;
+  border-color: var(--secondary-text);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 叶子节点样式 */
 .bplus-leaf-node {
   background: #fbe9e7;
-  border: 2px solid #999999;
+  border: 2px solid var(--secondary-text);
   border-radius: 8px;
   padding: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
-.dark-mode .bplus-leaf-node {
+[data-theme="dark"] .bplus-leaf-node {
   background: #4e342e;
-  border-color: #666666;
+  border-color: var(--secondary-text);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -203,34 +203,34 @@
   border-bottom-right-radius: 6px;
 }
 
-.dark-mode .bplus-slot {
-  border-color: #666666;
-  background: #2a2a2a;
+[data-theme="dark"] .bplus-slot {
+  border-color: var(--secondary-text);
+  background: var(--card-bg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* 空槽位样式 */
 .bplus-slot-empty {
-  background: #ffffff;
+  background: var(--background);
   border-style: dashed;
   opacity: 0.6;
 }
 
-.dark-mode .bplus-slot-empty {
-  background: #222222;
+[data-theme="dark"] .bplus-slot-empty {
+  background: var(--background);
 }
 
 /* 槽位内容 */
 .bplus-slot-content {
   font-size: 16px;
   font-weight: bold;
-  color: #333333;
+  color: var(--primary-text);
   -webkit-user-select: none;
   user-select: none;
 }
 
-.dark-mode .bplus-slot-content {
-  color: #f0f0f0;
+[data-theme="dark"] .bplus-slot-content {
+  color: var(--primary-text);
 }
 
 /* Handle样式 */
@@ -260,8 +260,8 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 8px;
   padding: 12px;
   min-width: 200px;
@@ -269,61 +269,61 @@
   z-index: 1000;
 }
 
-.dark-mode .bplus-info-panel {
-  background: #2a2a2a;
-  border-color: #555;
+[data-theme="dark"] .bplus-info-panel {
+  background: var(--card-bg);
+  border-color: var(--card-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .bplus-tree-stats h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #333333;
+  color: var(--primary-text);
 }
 
-.dark-mode .bplus-tree-stats h3 {
-  color: #f0f0f0;
+[data-theme="dark"] .bplus-tree-stats h3 {
+  color: var(--primary-text);
 }
 
 .bplus-tree-stats p {
   margin: 4px 0;
   font-size: 12px;
-  color: #666;
+  color: var(--secondary-text);
 }
 
-.dark-mode .bplus-tree-stats p {
-  color: #aaa;
+[data-theme="dark"] .bplus-tree-stats p {
+  color: var(--secondary-text);
 }
 
 /* React Flow控件样式 */
 .bplus-controls {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 8px;
 }
 
-.dark-mode .bplus-controls {
-  background: #2a2a2a;
-  border-color: #555;
+[data-theme="dark"] .bplus-controls {
+  background: var(--card-bg);
+  border-color: var(--card-border);
 }
 
 .bplus-minimap {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 8px;
 }
 
-.dark-mode .bplus-minimap {
-  background: #2a2a2a;
-  border-color: #555;
+[data-theme="dark"] .bplus-minimap {
+  background: var(--card-bg);
+  border-color: var(--card-border);
 }
 
 .bplus-background {
-  background: #ffffff;
+  background: var(--background);
 }
 
-.dark-mode .bplus-background {
-  background: #222222;
+[data-theme="dark"] .bplus-background {
+  background: var(--background);
 }
 
 /* 动画效果样式 */
@@ -354,7 +354,7 @@
   animation: keyHighlightPulse 1s ease-in-out infinite alternate;
 }
 
-.dark-mode .bplus-key-highlighted {
+[data-theme="dark"] .bplus-key-highlighted {
   background: rgba(255, 235, 59, 0.3) !important;
   border-color: #ffb74d !important;
   box-shadow: 0 0 10px rgba(255, 183, 77, 0.8) !important;
@@ -545,12 +545,9 @@
 }
 
 /* 暗色模式下的高亮样式 */
-.dark-mode .bplus-node-highlighted {
+[data-theme="dark"] .bplus-node-highlighted {
   box-shadow: 0 0 15px rgba(255, 235, 59, 0.8) !important;
   border: 2px solid #ffeb3b !important;
-}
-
-.dark-mode .bplus-node-highlighted {
   animation: bplus-highlight-pulse-dark 1s ease-in-out infinite alternate;
 }
 
@@ -567,13 +564,13 @@
 }
 
 /* 暗色模式适配 */
-.dark-mode .bplus-custom-controls {
+[data-theme="dark"] .bplus-custom-controls {
   background-color: transparent !important;
 }
-.dark-mode .bplus-zoom-button {
+[data-theme="dark"] .bplus-zoom-button {
   background: rgba(40,40,40,0.7);
-  color: #f0f0f0;
+  color: var(--primary-text);
 }
-.dark-mode .bplus-zoom-button:hover {
+[data-theme="dark"] .bplus-zoom-button:hover {
   background: rgba(40,40,40,0.95);
 }

@@ -587,7 +587,11 @@ const BPlusHistoryPage: React.FC = () => {
                           color: 'var(--primary-text)',
                         }}
                       >
-                        <Typography variant="h6" component="div">
+                        <Typography
+                          variant="h6"
+                          component="div"
+                          sx={{ color: 'var(--secondary-text)' }}
+                        >
                           请先创建或选择一个会话
                         </Typography>
                       </Box>
@@ -677,7 +681,14 @@ const BPlusHistoryPage: React.FC = () => {
         <Alert
           onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{
+            width: '100%',
+            bgcolor: `var(--${snackbar.severity}-bg)`,
+            color: 'var(--snackbar-text)',
+            '& .MuiAlert-icon': {
+              color: `var(--${snackbar.severity}-icon)`,
+            }
+          }}
         >
           {snackbar.message}
         </Alert>

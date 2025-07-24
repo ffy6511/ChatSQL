@@ -53,6 +53,27 @@
   --success-color: #52c41a;
   --info-color: #1677ff;
   --error-color: #ff4d4f;
+
+  /* 背景颜色别名 */
+  --background-color: var(--background);
+
+  /* 悬停背景 */
+  --hover-bg: #f5f5f5;
+
+  /* snack样式 */
+  --success-bg: #d4edda;
+  --success-icon: #2e7d32;
+
+  --error-bg: #f8d7da;
+  --error-icon: #c62828;
+
+  --warning-bg: #fff3cd;
+  --warning-icon: #ed6c02;
+
+  --info-bg: #E5F6FD;
+  --info-icon:#2C93D6;
+
+  --snackbar-text: var(--secondary-text);
 }
 
 [data-theme="dark"] {
@@ -105,6 +126,27 @@
   --success-color: #52c41a;
   --info-color: #1677ff;
   --error-color: #ff4d4f;
+
+  /* 背景颜色别名 */
+  --background-color: var(--background);
+
+  /* 悬停背景 */
+  --hover-bg: #333333;
+
+  /* snack样式 */
+  --success-bg: #1e2d22;
+  --success-icon: #81c784;
+
+  --error-bg: #2c1c1c;
+  --error-icon: #ef5350;
+
+  --warning-bg: #2b2616;
+  --warning-icon: #ffb74d;
+
+  --info-bg: #1e2a32;
+  --info-icon: #5dade2;
+
+  --snackbar-text: var(--secondary-text);
 }
 
 @theme inline {
@@ -356,6 +398,9 @@ hr {
   transform: translateY(0);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
+/* snack的样式 */
+
 
 
 @import '../styles/globalSidebar.css';

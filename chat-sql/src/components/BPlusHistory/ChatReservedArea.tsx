@@ -344,6 +344,10 @@ const ChatReservedArea: React.FC<ChatReservedAreaProps> = ({
               bgcolor: 'var(--input-bg)',
               '& fieldset': {
                 borderColor: 'var(--input-border)'
+              },
+              '& input::placeholder, & textarea::placeholder': {
+                color: 'var(--tertiary-text)', 
+                opacity: 1 // 保证 placeholder 可见
               }
             }
           }}

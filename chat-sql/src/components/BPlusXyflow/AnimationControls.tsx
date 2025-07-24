@@ -113,6 +113,15 @@ const AnimationControls: React.FC<AnimationControlsProps> = ({
               { value: 1000, label: '慢' },
               { value: 2000, label: '很慢' }
             ]}
+            sx={{
+              color: 'var(--secondary-text)', // 控制滑块轨道、滑块本体颜色
+              '& .MuiSlider-markLabel': {
+                color: 'var(--primary-text)', // 控制 mark 的文字颜色
+              },
+              '& .MuiSlider-mark': {
+                backgroundColor: 'var(--secondary-text)', // 控制小圆点的颜色（可选）
+              }
+            }}
           />
         </Box>
 

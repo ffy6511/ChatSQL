@@ -200,7 +200,23 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
             disabled={isAnimating}
             error={insertValue !== '' && !validateInput(insertValue)}
             helperText={insertValue !== '' && !validateInput(insertValue) ? '请输入有效的整数（支持正负数和0）' : ''}
-            sx={{ flex: 1 }}
+            sx={{
+              flex: 1,
+              '& .MuiInputLabel-root': {
+                color: 'var(--secondary-text)'
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'var(--input-border)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'var(--link-color)'
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'var(--primary-text)' // ✅ 输入值的颜色
+                }
+              }
+            }}
           />
           <Button
             variant="contained"
@@ -208,6 +224,7 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
             onClick={handleInsert}
             disabled={isAnimating || !validateInput(insertValue)}
             size="small"
+            sx={{ color: 'var(--secondary-text) !important' }}
           >
             插入
           </Button>
@@ -225,7 +242,23 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
             disabled={isAnimating}
             error={deleteValue !== '' && !validateInput(deleteValue)}
             helperText={deleteValue !== '' && !validateInput(deleteValue) ? '请输入有效的整数（支持正负数和0）' : ''}
-            sx={{ flex: 1 }}
+            sx={{
+              flex: 1,
+              '& .MuiInputLabel-root': {
+                color: 'var(--secondary-text)'
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'var(--input-border)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'var(--link-color)'
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'var(--primary-text)' // ✅ 输入值的颜色
+                }
+              }
+            }}
           />
           <Button
             variant="contained"
@@ -234,6 +267,7 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
             onClick={handleDelete}
             disabled={isAnimating || !validateInput(deleteValue)}
             size="small"
+            sx={{ color: 'var(--secondary-text) !important' }}
           >
             删除
           </Button>
