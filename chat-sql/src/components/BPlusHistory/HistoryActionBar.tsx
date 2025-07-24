@@ -131,7 +131,11 @@ const HistoryActionBar: React.FC<HistoryActionBarProps> = ({
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         {/* 删除所有记录按钮 */}
         <Tooltip title="删除所有记录" placement="top">
-          <span>
+          <span
+            style ={{
+              display:'inline-block',
+              cursor: disableDeleteAll ? 'not-allowed': 'pointer'
+            }}>
             <IconButton
               size="small"
               onClick={onDeleteAll}
@@ -150,9 +154,7 @@ const HistoryActionBar: React.FC<HistoryActionBarProps> = ({
                   borderColor: 'rgba(211, 47, 47, 0.2)'
                 },
                 '&:disabled': {
-                  color: 'var(--disabled-text)',
                   bgcolor: 'transparent',
-                  borderColor: 'var(--disabled-border)'
                 }
               }}
             >

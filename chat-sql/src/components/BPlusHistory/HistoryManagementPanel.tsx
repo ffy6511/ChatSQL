@@ -125,7 +125,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
           variant="subtitle2" 
           sx={{ 
             mb: 2, 
-            color: 'var(--primary-text)',
+            color: 'var(--secondary-text)',
             fontWeight: 600
           }}
         >

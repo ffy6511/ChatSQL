@@ -121,14 +121,14 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
       elevation={2} 
       sx={{ 
         p: 2, 
-        height: '100%',
+        height: '80%',
         bgcolor: 'var(--card-bg)',
         border: '1px solid var(--card-border)',
         borderRadius: 2,
         overflow: 'auto'
       }}
     >
-      <Typography 
+      {/* <Typography 
         variant="h6" 
         gutterBottom 
         sx={{ 
@@ -138,39 +138,17 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
         }}
       >
         B+树操作
-      </Typography>
-
-      {/* 阶数设置 */}
-      <Box sx={{ mb: 2 }}>
-        <Typography 
-          variant="body2" 
-          sx={{ color: 'var(--secondary-text)' }} 
-          gutterBottom
-        >
-          阶数设置
-        </Typography>
-        <TextField
-          type="number"
-          value={settings.order}
-          onChange={(e) => handleOrderChange(parseInt(e.target.value))}
-          size="small"
-          slotProps={{
-            htmlInput: { min: 3, max: 10, step: 1 }
-          }}
-          sx={{ width: '80px' }}
-          disabled={isAnimating}
-        />
-      </Box>
+      </Typography> */}
 
       {/* 动画开关控制 */}
-      <Box sx={{ mb: 2 }}>
-        <Typography 
+      <Box sx={{ mb: 1, display:'flex', alignItems:'center' }}>
+        {/* <Typography 
           variant="body2" 
           sx={{ color: 'var(--secondary-text)' }} 
           gutterBottom
         >
           动画设置
-        </Typography>
+        </Typography> */}
         <FormControlLabel
           control={
             <Switch
@@ -188,6 +166,18 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
           }
           sx={{ m: 0 }}
         />
+
+        {/* 重置按钮 */}
+        <Button
+          variant="outlined"
+          onClick={onReset}
+          disabled={isAnimating}
+          size="small"
+          sx = {{ marginLeft:'auto' }}
+        >
+          重置
+        </Button>
+
       </Box>
 
       {/* 错误信息显示 */}
@@ -199,7 +189,7 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* 插入操作 */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
             label="插入值"
             value={insertValue}
@@ -224,7 +214,7 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
         </Box>
 
         {/* 删除操作 */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
             label="删除值"
             value={deleteValue}
@@ -249,39 +239,8 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
           </Button>
         </Box>
 
-        {/* 重置按钮 */}
-        <Button
-          variant="outlined"
-          onClick={onReset}
-          disabled={isAnimating}
-          size="small"
-        >
-          重置
-        </Button>
 
-        {/* 存储功能按钮 */}
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<SaveIcon />}
-            onClick={onSave}
-            disabled={isAnimating}
-            size="small"
-            color="primary"
-          >
-            保存
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<LoadIcon />}
-            onClick={onRestore}
-            disabled={isAnimating}
-            size="small"
-            color="secondary"
-          >
-            恢复
-          </Button>
-        </Box>
+
       </Box>
     </Paper>
   );

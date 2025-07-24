@@ -473,7 +473,6 @@ const BPlusHistoryPage: React.FC = () => {
       className = "pageContainer"
       sx={{
       width: '100vw',
-      height: '100vh',
       display: 'flex',
       bgcolor: 'var(--background-color)',
       overflow: 'hidden',
@@ -518,7 +517,7 @@ const BPlusHistoryPage: React.FC = () => {
 
         {/* 拖拽手柄 */}
         <PanelResizeHandle style={{
-          width: 6,
+          width: 2,
           background: "var(--card-border)",
           cursor: "col-resize",
           transition: "background-color 0.2s ease"
@@ -554,7 +553,7 @@ const BPlusHistoryPage: React.FC = () => {
 
             {/* 拖拽手柄 */}
             <PanelResizeHandle style={{ 
-              height: 6, 
+              height: 2, 
               background: "var(--card-border)", 
               cursor: "row-resize",
               transition: "background-color 0.2s ease"
@@ -619,7 +618,7 @@ const BPlusHistoryPage: React.FC = () => {
 
                 {/* 拖拽手柄 */}
                 <PanelResizeHandle style={{
-                  width: 6,
+                  width: 2,
                   background: "var(--card-border)",
                   cursor: "col-resize",
                   transition: "background-color 0.2s ease"
@@ -633,7 +632,7 @@ const BPlusHistoryPage: React.FC = () => {
                     bgcolor: 'var(--background-color)',
                     borderTop: '1px solid var(--card-border)',
                     borderLeft: '1px solid var(--card-border)',
-                    overflow: 'hidden'
+                    overflow: 'auto'
                   }}>
                     <ChatReservedArea
                       onSendMessage={handleSendMessage}

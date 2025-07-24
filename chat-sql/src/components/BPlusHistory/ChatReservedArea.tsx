@@ -111,7 +111,8 @@ const ChatReservedArea: React.FC<ChatReservedAreaProps> = ({
           justifyContent: 'center',
           gap: 2,
           p: 3,
-          textAlign: 'center'
+          textAlign: 'center',
+          overflow:'auto'
         }}>
           <RobotIcon 
             sx={{ 
@@ -120,15 +121,6 @@ const ChatReservedArea: React.FC<ChatReservedAreaProps> = ({
               opacity: 0.6
             }} 
           />
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'var(--primary-text)',
-              fontWeight: 500
-            }}
-          >
-            B+树智能助手
-          </Typography>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -299,7 +291,7 @@ const ChatReservedArea: React.FC<ChatReservedAreaProps> = ({
             fontSize: '1rem'
           }}
         >
-          智能助手
+          智能体
         </Typography>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <IconButton 

@@ -18,7 +18,6 @@ import {
   useReactFlow
 } from '@xyflow/react';
 import { Box, Alert, Snackbar, Tooltip } from '@mui/material';
-import { Panel as ResizablePanel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import { BPlusTreeAlgorithm } from '../../lib/bplus-tree/algorithm';
 import { AnimationManager, AnimationState } from '../../lib/bplus-tree/animationManager';
@@ -140,13 +139,18 @@ const convertBPlusTreeToFlowData = (algorithm: BPlusTreeAlgorithm, order: number
 const CustomZoomControls: React.FC<{ onReset: () => void }> = ({ onReset }) => {
     const { zoomIn, zoomOut, fitView } = useReactFlow();
     return (
-        <Panel position="bottom-right" className={styles['bplus-custom-controls']}>
-            <Tooltip title="放大" placement="top"><button onClick={() => zoomIn({ duration: 800 })}>+</button></Tooltip>
-            <Tooltip title="缩小" placement="top"><button onClick={() => zoomOut({ duration: 800 })}>-</button></Tooltip>
-            <Tooltip title="适应视图" placement="top"><button onClick={() => fitView({ duration: 800, padding: 0.2 })}>⌂</button></Tooltip>
-            <Tooltip title="重置" placement="top"><button onClick={onReset}>↻</button></Tooltip>
+        <Panel position="bottom-right" className="custom-zoom-controls">
+            <Tooltip title="放大" placement="top"><button onClick={() => zoomIn({ duration: 800 })} className="zoom-button">+</button></Tooltip>
+            <Tooltip title="缩小" placement="top"><button onClick={() => zoomOut({ duration: 800 })} className="zoom-button">-</button></Tooltip>
+            <Tooltip title="适应视图" placement="top"><button onClick={() => fitView({ duration: 800, padding: 0.2 })} className="zoom-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            </button></Tooltip>
+            <Tooltip title="重置" placement="top"><button onClick={onReset} className="zoom-button">↻</button></Tooltip>
         </Panel>
     );
+  const reactFlowInstance = useReactFlow();
 };
 
 // --- 核心组件 ---
@@ -317,28 +321,39 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
         onEdgesChange={onEdgesChange}
         nodeTypes={{ bPlusInternalNode: BPlusInternalNode, bPlusLeafNode: BPlusLeafNode }}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
+        fitViewOptions={{ padding: 0.4 }}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
         <CustomZoomControls onReset={handleReset} />
       </ReactFlow>
-      <Panel position="top-left" style={{ zIndex: 10, top: '10px', left: '10px' }}>
-          <AnimationControls
-              animationState={animationState}
-              onPlay={() => animationManagerRef.current.playAll()}
-              onPause={() => animationManagerRef.current.pause()}
-              onStop={() => {
-                  animationManagerRef.current.stop();
-                  updateView(bPlusTreeAlgorithmRef.current);
-              }}
-              onStepForward={() => animationManagerRef.current.stepForward()}
-              onStepBackward={() => animationManagerRef.current.stepBackward()}
-              onJumpToStep={(step) => animationManagerRef.current.jumpToStep(step)}
-              onSpeedChange={(speed) => setSettings(s => ({...s, animationSpeed: speed}))}
-              onReset={() => animationManagerRef.current.reset()}
-              breakpoints={animationManagerRef.current.getStepBreakpoints()}
-              disabled={!settings.isAnimationEnabled}
-          />
+      <Panel
+        position="top-left"
+        style={{
+          zIndex: 10,
+          top: '10px',
+          left: '10px',
+          transition: 'all 0.25s ease-in-out',
+          opacity: isAnimationEnabled ? 1 : 0,
+          transform: isAnimationEnabled ? 'translateX(0)' : 'translateX(-10px)',
+          pointerEvents: isAnimationEnabled ? 'auto' : 'none',
+        }}
+      >
+        <AnimationControls
+          animationState={animationState}
+          onPlay={() => animationManagerRef.current.playAll()}
+          onPause={() => animationManagerRef.current.pause()}
+          onStop={() => {
+            animationManagerRef.current.stop();
+            updateView(bPlusTreeAlgorithmRef.current);
+          }}
+          onStepForward={() => animationManagerRef.current.stepForward()}
+          onStepBackward={() => animationManagerRef.current.stepBackward()}
+          onJumpToStep={(step) => animationManagerRef.current.jumpToStep(step)}
+          onSpeedChange={(speed) => setSettings(s => ({ ...s, animationSpeed: speed }))}
+          onReset={() => animationManagerRef.current.reset()}
+          breakpoints={animationManagerRef.current.getStepBreakpoints()}
+          disabled={!settings.isAnimationEnabled}
+        />
       </Panel>
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(s => ({...s, open: false}))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={() => setSnackbar(s => ({...s, open: false}))} severity={snackbar.severity} sx={{ width: '100%' }}>

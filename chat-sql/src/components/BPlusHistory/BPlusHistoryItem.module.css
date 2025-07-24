@@ -52,21 +52,25 @@
 .dateInfo {
   display: flex;
   align-items: center;
+  color: var(--secondary-text);
   gap: 4px;
 }
 
 .tagsContainer {
   display: flex;
-  gap: 4px;
-  margin-left: auto; /* 右对齐 */
+  gap: 2px;
+  margin-left: auto; 
+  margin-right: 3em;
 }
 
 .sessionTag {
   font-size: 11px;
-  padding: 0 4px;
+  padding: 2 6px;
+  color: var(--secondary-text);
+  border-radius: 4px;
   font-family: var(--font-mono) !important;
   line-height: 16px;
-  border: 1px solid;
+  border: 1px solid var(--secondary-text);
   transition: all 0.2s ease;
 }
 
