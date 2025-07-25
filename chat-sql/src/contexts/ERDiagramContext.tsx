@@ -38,6 +38,8 @@ type ERDiagramAction =
   | { type: 'FINISH_EDIT_NODE' }
   | { type: 'RENAME_NODE'; payload: { nodeId: string; newName: string } }
   // 属性编辑相关Action
+  | { type: 'ADD_ATTRIBUTE'; payload: { entityId: string; attribute: import('@/types/erDiagram').ERAttribute } }
+  | { type: 'DELETE_ATTRIBUTE'; payload: { entityId: string; attributeId: string } }
   | { type: 'UPDATE_ATTRIBUTE'; payload: { entityId: string; attributeId: string; updates: Partial<import('@/types/erDiagram').ERAttribute> } }
   | { type: 'UPDATE_CONNECTION'; payload: { relationshipId: string; entityId: string; updates: Partial<import('@/types/erDiagram').ERConnection> } }
   // 连接管理相关Action
@@ -272,6 +274,46 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
         editingNodeId: null,
         nodeEditMode: 'none',
       };
+    case 'ADD_ATTRIBUTE':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.map(entity =>
+            entity.id === action.payload.entityId
+              ? {
+                  ...entity,
+                  attributes: [...entity.attributes, action.payload.attribute]
+                }
+              : entity
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+    case 'DELETE_ATTRIBUTE':
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.map(entity =>
+            entity.id === action.payload.entityId
+              ? {
+                  ...entity,
+                  attributes: entity.attributes.filter(attr => attr.id !== action.payload.attributeId)
+                }
+              : entity
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
     case 'UPDATE_ATTRIBUTE':
       if (!state.diagramData) return state;
       return {
@@ -421,6 +463,8 @@ interface ERDiagramContextType {
   finishEditNode: () => void;
   renameNode: (nodeId: string, newName: string) => Promise<void>;
   // 属性编辑相关方法
+  addAttribute: (entityId: string, attribute: import('@/types/erDiagram').ERAttribute) => Promise<void>;
+  deleteAttribute: (entityId: string, attributeId: string) => Promise<void>;
   updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => Promise<void>;
   updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => Promise<void>;
   // 连接管理相关方法
@@ -691,6 +735,92 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
   };
 
   // 属性编辑相关方法实现
+  const addAttribute = async (entityId: string, attribute: import('@/types/erDiagram').ERAttribute) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法添加属性：未找到当前图表', 'error');
+      return;
+    }
+
+    try {
+      // 先dispatch更新UI状态
+      dispatch({ type: 'ADD_ATTRIBUTE', payload: { entityId, attribute } });
+
+      // 计算更新后的数据
+      const updatedEntities = state.diagramData.entities.map(entity =>
+        entity.id === entityId
+          ? { ...entity, attributes: [...entity.attributes, attribute] }
+          : entity
+      );
+
+      const updatedData = {
+        ...state.diagramData,
+        entities: updatedEntities,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      showNotification('属性添加成功', 'success');
+    } catch (error) {
+      console.error('添加属性失败:', error);
+      showNotification('添加属性失败，请重试', 'error');
+    }
+  };
+
+  const deleteAttribute = async (entityId: string, attributeId: string) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法删除属性：未找到当前图表', 'error');
+      return;
+    }
+
+    const entityToUpdate = state.diagramData.entities.find(e => e.id === entityId);
+    if (!entityToUpdate) {
+      showNotification('未找到指定实体', 'error');
+      return;
+    }
+
+    // 检查主键逻辑：防止删除最后一个主键属性
+    const attributeToDelete = entityToUpdate.attributes.find(attr => attr.id === attributeId);
+    if (attributeToDelete?.isPrimaryKey) {
+      const primaryKeyCount = entityToUpdate.attributes.filter(attr => attr.isPrimaryKey).length;
+      if (primaryKeyCount <= 1) {
+        showNotification('无法删除：实体至少需要一个主键/标识符属性', 'warning');
+        return;
+      }
+    }
+
+    try {
+      // 先dispatch更新UI状态
+      dispatch({ type: 'DELETE_ATTRIBUTE', payload: { entityId, attributeId } });
+
+      // 计算更新后的数据
+      const updatedEntities = state.diagramData.entities.map(entity =>
+        entity.id === entityId
+          ? { ...entity, attributes: entity.attributes.filter(attr => attr.id !== attributeId) }
+          : entity
+      );
+
+      const updatedData = {
+        ...state.diagramData,
+        entities: updatedEntities,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      showNotification('属性删除成功', 'success');
+    } catch (error) {
+      console.error('删除属性失败:', error);
+      showNotification('删除属性失败，请重试', 'error');
+    }
+  };
+
   const updateAttribute = async (
     entityId: string,
     attributeId: string, 
@@ -709,6 +839,11 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
         showNotification('实体至少需要一个主键/标识符属性', 'warning');
         return;
       }
+    }
+
+    if(updates.name === ''){
+      showNotification('属性名称不能为空', 'warning');
+      return;
     }
 
     // 计算下一个状态
@@ -1017,6 +1152,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     finishEditNode,
     renameNode,
     // 属性编辑相关方法
+    addAttribute,
+    deleteAttribute,
     updateAttribute,
     updateConnection,
     // 连接管理相关方法

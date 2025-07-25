@@ -13,16 +13,19 @@ import {
   Tooltip,
   Collapse,
   TextField,
-  Select,
   MenuItem,
-  FormControl
+  Menu,
+  Button,
+  Autocomplete
 } from '@mui/material';
 import {
   TableChart as TableChartIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon
+  ExpandLess as ExpandLessIcon,
+  MoreVert as MoreVertIcon,
+  Add as AddIcon
 } from '@mui/icons-material';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { ERAttribute } from '@/types/erDiagram';
@@ -30,21 +33,81 @@ import styles from './Inspector.module.css';
 
 // 数据类型参数配置
 const dataTypeParamConfig: Record<string, { paramCount: number; paramLabels: string[] }> = {
-  VARCHAR: { paramCount: 1, paramLabels: ['长度'] },
-  char: { paramCount: 1, paramLabels: ['长度'] },
-  CHAR: { paramCount: 1, paramLabels: ['长度'] },
-  NUMERIC: { paramCount: 2, paramLabels: ['精度', '小数位'] },
+  VARCHAR: { paramCount: 1, paramLabels: ['Max Length'] },
+  char: { paramCount: 1, paramLabels: ['Length'] },
+  CHAR: { paramCount: 1, paramLabels: ['Length'] },
+  NUMERIC: { paramCount: 2, paramLabels: ['Precision', 'Scale'] },
   'DOUBLE PRECISION': { paramCount: 0, paramLabels: [] },
   // 其他类型如有需要可继续添加
 };
 
 const EntityListView: React.FC = () => {
-  const { state, deleteEntity, setSelectedElement, updateAttribute } = useERDiagramContext();
+  const { state, deleteEntity, setSelectedElement, updateAttribute, addAttribute, deleteAttribute } = useERDiagramContext();
   const entities = state.diagramData?.entities || [];
   const [expandedEntities, setExpandedEntities] = useState<string[]>([]);
-  const [editingAttribute, setEditingAttribute] = useState<string | null>(null);
-  // 用于临时存储每个属性的参数输入
+  // 用于临时存储每个属性的参数输入 和 属性名的输入
   const [attributeParams, setAttributeParams] = useState<{ [attrId: string]: string[] }>({});
+  const [editingAttributeNames, setEditingAttributeNames] = useState<{ [attrId: string]: string }>({});
+  // 中文输入法状态管理
+  const [isComposing, setIsComposing] = useState<{ [attrId: string]: boolean }>({});
+  // 属性操作菜单状态
+  const [attributeMenuAnchor, setAttributeMenuAnchor] = useState<{ [attrId: string]: HTMLElement | null }>({});
+
+  // 生成新属性的辅助函数
+  const generateNewAttribute = (): ERAttribute => {
+    const timestamp = Date.now();
+    return {
+      id: `attr_${timestamp}`,
+      name: '新属性',
+      dataType: 'int',
+      isPrimaryKey: false,
+      isRequired: false,
+      description: ''
+    };
+  };
+
+  // 添加属性处理函数
+  const handleAddAttribute = async (entityId: string) => {
+    const newAttribute = generateNewAttribute();
+    await addAttribute(entityId, newAttribute);
+  };
+
+  // 属性菜单处理函数
+  const handleAttributeMenuOpen = (event: React.MouseEvent<HTMLElement>, attributeId: string) => {
+    event.stopPropagation();
+    setAttributeMenuAnchor(prev => ({ ...prev, [attributeId]: event.currentTarget }));
+  };
+
+  const handleAttributeMenuClose = () => {
+    setAttributeMenuAnchor({});
+  };
+
+  const handleDeleteAttributeFromMenu = async (entityId: string, attributeId: string) => {
+    handleAttributeMenuClose();
+    await deleteAttribute(entityId, attributeId);
+  };
+
+  // 参数编辑相关处理函数
+  const handleParamChange = async (entityId: string, attributeId: string, paramIndex: number, value: string, typeName: string) => {
+    // 获取当前属性的参数
+    const entity = entities.find(e => e.id === entityId);
+    const attribute = entity?.attributes.find(attr => attr.id === attributeId);
+    if (!attribute) return;
+
+    const match = attribute.dataType?.match(/^(\w+)(?:\((.*)\))?$/);
+    const currentParams = match?.[2] ? match[2].split(',').map(s => s.trim()) : [];
+
+    // 更新指定索引的参数
+    const newParams = [...currentParams];
+    newParams[paramIndex] = value;
+
+    // 构建新的数据类型字符串
+    const filteredParams = newParams.filter(p => p && p.trim());
+    const newDataType = filteredParams.length > 0 ? `${typeName}(${filteredParams.join(',')})` : typeName;
+
+    // 保存更新
+    await updateAttribute(entityId, attributeId, { dataType: newDataType });
+  };
 
   // 顶层 useEffect 初始化 attributeParams(避免前后属性改变后hook调用 的数量差异)
   React.useEffect(() => {
@@ -90,8 +153,38 @@ const EntityListView: React.FC = () => {
     }
   }, [state.selectedElementId, entities]);
 
-  const handleAttributeNameChange = (entityId: string, attributeId: string, newName: string) => {
-    updateAttribute(entityId, attributeId, { name: newName });
+  const handleAttributeNameChange = (attributeId: string, newName: string) => {
+    // 只更新临时状态，不立即保存
+    setEditingAttributeNames(prev => ({ ...prev, [attributeId]: newName }));
+  };
+
+  const handleAttributeNameSave = async (entityId: string, attributeId: string) => {
+    // 如果正在输入中文，不保存
+    if (isComposing[attributeId]) {
+      return;
+    }
+
+    const newName = editingAttributeNames[attributeId];
+    if (newName !== undefined) {
+      // 如果名称为空，使用默认值
+      const finalName = newName.trim() || '未命名属性';
+      await updateAttribute(entityId, attributeId, { name: finalName });
+
+      // 清除临时状态
+      setEditingAttributeNames(prev => {
+        const newState = { ...prev };
+        delete newState[attributeId];
+        return newState;
+      });
+    }
+  };
+
+  const handleCompositionStart = (attributeId: string) => {
+    setIsComposing(prev => ({ ...prev, [attributeId]: true }));
+  };
+
+  const handleCompositionEnd = (attributeId: string) => {
+    setIsComposing(prev => ({ ...prev, [attributeId]: false }));
   };
 
   const handleAttributeKeyChange = (entityId: string, attributeId: string, isPrimaryKey: boolean) => {
@@ -112,23 +205,7 @@ const EntityListView: React.FC = () => {
     updateAttribute(entityId, attributeId, { dataType });
   };
 
-  // 新增：参数输入变化时，拼接类型字符串并更新
-  const handleParamChange = (entityId: string, attributeId: string, idx: number, value: string) => {
-    setAttributeParams(prev => {
-      const params = [...(prev[attributeId] || [])];
-      params[idx] = value;
-      // 拼接类型字符串
-      const attr = entities.flatMap(e => e.attributes).find(a => a.id === attributeId);
-      let type = attr?.dataType || 'VARCHAR';
-      // 只取类型名部分（去掉可能已有的括号参数）
-      type = type.split('(')[0];
-      const config = dataTypeParamConfig[type];
-      const paramArr = params.slice(0, config?.paramCount || 0).filter(Boolean);
-      const typeStr = paramArr.length ? `${type}(${paramArr.join(',')})` : type;
-      updateAttribute(entityId, attributeId, { dataType: typeStr });
-      return { ...prev, [attributeId]: params };
-    });
-  };
+
 
   // 数据类型选项
   const dataTypeOptions = [
@@ -148,83 +225,81 @@ const EntityListView: React.FC = () => {
   ];
 
   const renderAttributeItem = (attribute: ERAttribute, entityId: string) => {
-    const isEditing = editingAttribute === attribute.id;
     const isWeakEntity = entities.find(e => e.id === entityId)?.isWeakEntity;
     // 解析当前类型和参数
     let typeName = attribute.dataType || 'VARCHAR';
-    let params: string[] = [];
     const match = typeName.match(/^(\w+)(?:\((.*)\))?$/);
     if (match) {
       typeName = match[1];
-      if (match[2]) {
-        params = match[2].split(',').map(s => s.trim());
-      }
     }
     return (
       <Box
         key={attribute.id}
         sx={{
           p: 1,
-          borderLeft: '4px solid',
-          borderLeftColor: 'primary.light',
           borderRadius: 1,
           mb: 1,
-          bgcolor: 'background.paper'
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider'
         }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
-          {isEditing ? (
-            <TextField
-              size="small"
-              value={attribute.name}
-              onChange={(e) => handleAttributeNameChange(entityId, attribute.id, e.target.value)}
-              onBlur={() => setEditingAttribute(null)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setEditingAttribute(null);
-                }
-              }}
-              autoFocus
-              sx={{ flex: 1 }}
-            />
-          ) : (
-            <Typography
-              fontWeight="bold"
-              sx={{ flex: 1, cursor: 'pointer'}}
-              onClick={() => setEditingAttribute(attribute.id)}
-            >
-              {attribute.name}
-            </Typography>
-          )}
+          <TextField
+            size="small"
+            value={editingAttributeNames[attribute.id] !== undefined ? editingAttributeNames[attribute.id] : attribute.name}
+            onChange={(e) => handleAttributeNameChange(attribute.id, e.target.value)}
+            onBlur={() => handleAttributeNameSave(entityId, attribute.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !isComposing[attribute.id]) {
+                e.preventDefault();
+                handleAttributeNameSave(entityId, attribute.id);
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            onCompositionStart={() => handleCompositionStart(attribute.id)}
+            onCompositionEnd={() => handleCompositionEnd(attribute.id)}
+            variant="outlined"
+            placeholder="属性名称"
+            sx={{
+              maxWidth: '100px',
+              '& .MuiInputBase-input': {
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                fontSize: '0.8em',
+              }
+            }}
+          />
 
         {/* 数据类型编辑 */}
-        <Box sx={{ minWidth: 100, display: 'flex', alignItems: 'center' }}>
-          <FormControl size="small" fullWidth>
-            <Select
-              value={typeName}
-              onChange={(e) => handleAttributeTypeChange(entityId, attribute.id, e.target.value)}
-              displayEmpty
-              sx = {{fontSize:'0.8em', fontWeight:'600'}}
-            >
-              {dataTypeOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {/* 动态渲染参数输入框 */}
-          {dataTypeParamConfig[typeName] && dataTypeParamConfig[typeName].paramLabels.map((label, idx) => (
+        <Autocomplete
+          disableClearable
+          size="small"
+          value={typeName}
+          onChange={(_, newValue) => {
+            if (newValue) {
+              handleAttributeTypeChange(entityId, attribute.id, newValue);
+            }
+          }}
+          options={dataTypeOptions}
+          renderInput={(params) => (
             <TextField
-              key={label}
-              label={label}
-              value={attributeParams[attribute.id]?.[idx] || ''}
-              onChange={e => handleParamChange(entityId, attribute.id, idx, e.target.value)}
-              size="small"
-              sx={{ width: 90, ml: 1, fontSize:'0.9em' }}
+              {...params}
+              variant="outlined"
+              sx={{
+                maxWidth: '180px',
+                '& .MuiInputBase-input': {
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.8em',
+                }
+              }}
             />
-          ))}
-        </Box>
+          )}
+          sx={{ minWidth: '140px' }}
+        />
 
           {/* 主键标识移到右侧，优化样式 */}
           <Chip
@@ -251,7 +326,80 @@ const EntityListView: React.FC = () => {
               }
             }}
           />
+
+          {/* 属性操作菜单 */}
+          <Tooltip title="属性操作">
+            <IconButton
+              size="small"
+              onClick={(e) => handleAttributeMenuOpen(e, attribute.id)}
+              sx={{
+                opacity: 0.6,
+                '&:hover': {
+                  opacity: 1,
+                  backgroundColor: 'var(--hover-bg)'
+                }
+              }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
+
+        {/* 属性操作菜单 */}
+        <Menu
+          anchorEl={attributeMenuAnchor[attribute.id]}
+          open={Boolean(attributeMenuAnchor[attribute.id])}
+          onClose={handleAttributeMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          {/* 根据数据类型显示参数编辑选项 */}
+          {dataTypeParamConfig[typeName] && (
+            <>
+              {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
+                // 解析当前参数值
+                const match = attribute.dataType?.match(/^(\w+)(?:\((.*)\))?$/);
+                const currentParams = match?.[2] ? match[2].split(',').map(s => s.trim()) : [];
+                const currentValue = currentParams[idx] || '';
+
+                return (
+                  <MenuItem key={label} sx={{ flexDirection: 'column', alignItems: 'stretch', py: 1 }}>
+                    <TextField
+                      label={label}
+                      size="small"
+                      value={currentValue}
+                      onChange={(e) => handleParamChange(entityId, attribute.id, idx, e.target.value, typeName)}
+                      onClick={(e) => e.stopPropagation()} // 防止点击输入框时关闭菜单
+                      sx={{
+                        minWidth: '120px',
+                        '& .MuiInputBase-input': {
+                          fontSize: '0.8em'
+                        }
+                      }}
+                    />
+                  </MenuItem>
+                );
+              })}
+              <Divider />
+            </>
+          )}
+
+          <MenuItem
+            onClick={() => handleDeleteAttributeFromMenu(entityId, attribute.id)}
+            sx={{ color: 'error.main' }}
+          >
+            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+            删除
+          </MenuItem>
+        </Menu>
+
+
       </Box>
     );
   };
@@ -322,6 +470,27 @@ const EntityListView: React.FC = () => {
                     ) : (
                       entity.attributes.map(attr => renderAttributeItem(attr, entity.id))
                     )}
+
+                    {/* 添加属性按钮 */}
+                    <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center' }}>
+                      <Button
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddAttribute(entity.id);
+                        }}
+                        sx={{
+                          color: 'var(--secondary-text)',
+                          '&:hover': {
+                            color: 'var(--primary-text)',
+                            backgroundColor: 'var(--hover-bg)'
+                          }
+                        }}
+                      >
+                        添加属性
+                      </Button>
+                    </Box>
                   </Stack>
                   {entity.description && (
                     <Box sx={{ mt: 1 }}>

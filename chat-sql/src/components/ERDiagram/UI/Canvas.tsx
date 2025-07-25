@@ -64,10 +64,9 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
     );
   }
 
-  // 检查是否为空状态（没有实体和关系）
-  const isEmpty = state.diagramData.entities.length === 0 && state.diagramData.relationships.length === 0;
-
-  if (isEmpty) {
+  // 检查是否选中图表
+  const noSelected = !state.currentDiagramId;
+  if (noSelected) {
     return (
       <div
         ref={canvasRef}
