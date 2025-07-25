@@ -224,7 +224,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
 
       <Snackbar
         open={showSuccess}
-        autoHideDuration={3000}
+        autoHideDuration={1000}
         onClose={() => setShowSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >

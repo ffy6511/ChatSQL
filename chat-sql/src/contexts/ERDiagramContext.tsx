@@ -436,6 +436,8 @@ interface ERDiagramContextType {
   // 历史记录的状态更新相关
   diagramList: ERDiagramMetadata[];
   fetchDiagramList: () => Promise<void>;
+  // 显示通知的函数
+  showNotification:(message: string, severity: 'info' | 'success' | 'warning' | 'error') => void;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(undefined);
@@ -450,9 +452,10 @@ export const useERDiagramContext = () => {
 
 interface ERDiagramProviderProps {
   children: ReactNode;
+  showNotification: (message: string, severity: 'info' | 'success' | 'warning' | 'error') => void;
 }
 
-export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }) => {
+export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, showNotification }) => {
   const [state, dispatch] = useReducer(erDiagramReducer, initialState);
 
   const setActiveTab = (tab: ActiveTab) => {
@@ -581,8 +584,55 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
   };
 
   // 属性编辑相关方法实现
-  const updateAttribute = (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => {
-    dispatch({ type: 'UPDATE_ATTRIBUTE', payload: { entityId, attributeId, updates } });
+  const updateAttribute = async (
+    entityId: string,
+    attributeId: string, 
+    updates: Partial<import('@/types/erDiagram').ERAttribute>
+   ) => {
+    if(!state.diagramData || !state.currentDiagramId) return;
+
+    const entityToUpdate = state.diagramData.entities.find(e => e.id === entityId);
+    if(!entityToUpdate) return;
+
+    // 检查主键逻辑（至少存在一个属性）
+    if(updates.isPrimaryKey === false){
+      const primaryKeyCount = entityToUpdate.attributes.filter(attr => attr.isPrimaryKey).length;
+
+      if(primaryKeyCount <= 1){
+        showNotification('实体至少需要一个主键/标识符属性', 'warning');
+        return;
+      }
+    }
+
+    // 计算下一个状态
+    const updatedEntities = state.diagramData.entities.map(entity =>{
+      if(entity.id === entityId){
+        return{
+          ...entity,
+          attributes:entity.attributes.map(attr=>
+            attr.id === attributeId ? { ...attr, ...updates } : attr
+          )
+        };
+      }
+      return entity;
+    });
+    
+    const newDiagramData = {
+      ...state.diagramData,
+      entities: updatedEntities,
+      metadata: {
+        ...state.diagramData.metadata,
+        updatedAt: new Date().toISOString(),
+      },
+    }
+
+    // 持久化并更新UI
+    try{
+      await saveDiagram(newDiagramData, state.currentDiagramId);
+      dispatch({type: 'SET_DIAGRAM_DATA', payload: newDiagramData });
+    }catch(error){
+      console.error('更新属性失败:', error);
+    }
   };
 
   const updateConnection = (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => {
@@ -841,6 +891,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }
     //  diagramList 和 fetchDiagramList
     diagramList: state.diagramList,
     fetchDiagramList,
+    // 显示通知的函数
+    showNotification,
   };
 
   return (
