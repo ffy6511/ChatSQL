@@ -39,8 +39,8 @@ interface BPlusOperationPanelProps {
   error?: string;
   
   // 操作回调
-  onInsert: (value: number) => Promise<void>;
-  onDelete: (value: number) => Promise<void>;
+  onInsert: (value: number) => Promise<boolean>;
+  onDelete: (value: number) => Promise<boolean>;
   onReset: () => void;
   onSave: () => Promise<void>;
   onRestore: () => Promise<void>;
@@ -53,9 +53,17 @@ interface BPlusOperationPanelProps {
  * 输入验证函数 - 支持正负整数和0
  */
 const validateInput = (value: string): boolean => {
-  if (value === '' || value === '-') return false;
-  const num = parseInt(value);
-  return !isNaN(num) && Number.isInteger(num) && num >= -999999 && num <= 999999;
+  if(!value || value.trim() === '') return false;
+
+  // 使用正则表达式分割字符串， 并过滤掉空字符串
+  const parts = value.trim().split(/\s+/);
+
+  // 检查各个部分是否为有效的整数
+  return parts.every(part =>{
+    if(part === '' || part === '-') return false;
+    const num = parseInt(part, 10);
+    return !isNaN(num) && Number.isInteger(num) && num >= -99999 && num <= 99999;
+  });
 };
 
 const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
@@ -76,41 +84,81 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
   // 插入处理函数
   const handleInsert = useCallback(async () => {
     if (!validateInput(insertValue)) {
-      showMessage('插入失败：请输入有效的整数（支持正负数和0）', 'warning');
+      showMessage('插入失败：请输入一个或多个空格分隔的有效整数（-99999~99999）', 'warning');
       return;
     }
-    
-    const key = parseInt(insertValue);
-    try {
-      await onInsert(key);
-      setInsertValue('');
-    } catch (error) {
-      // 错误处理由父组件负责
-    }
-  }, [insertValue, onInsert, showMessage]);
 
+    // 解析、去重
+    const valuesToInsert = Array.from(
+      new Set(
+        insertValue.trim().split(/\s+/).map(s => parseInt(s, 10))
+      )
+    )
+
+    // 记录操作成功的个数
+    let successCount = 0;
+
+    try{
+      for(const key of valuesToInsert){
+          const success = await onInsert(key);
+          if(success) successCount += 1;
+        }
+
+        // 根据成功次数，显示不同的信息
+        if(successCount === valuesToInsert.length){
+          showMessage(`成功插入 ${valuesToInsert.length} 个key`, 'success');
+        } else if(successCount > 0){
+          showMessage(`部分成功：插入 ${successCount} 个key，有 ${valuesToInsert.length - successCount} 个key失败（可能已经存在）`, 'warning');
+        }else{
+          showMessage('插入失败：所有key都已存在', 'error');
+        }
+
+        setInsertValue('');
+      }
+        catch(error){
+          // showMessage('插入失败', 'error');
+        }
+      },[insertValue, onInsert, showMessage]);
+    
   // 删除处理函数
   const handleDelete = useCallback(async () => {
     if (!validateInput(deleteValue)) {
-      showMessage('删除失败：请输入有效的整数（支持正负数和0）', 'warning');
+      showMessage('删除失败：一个或者多个空格分隔的有效整数（-99999~99999）', 'warning');
       return;
     }
     
-    const key = parseInt(deleteValue);
-    try {
-      await onDelete(key);
+    // 解析并去重
+    const valuesToDelete = Array.from(
+      new Set(
+        deleteValue.trim().split(/\s+/).map(s => parseInt(s, 10))
+      )
+    );
+    // 记录操作成功的个数
+    let successCount = 0;
+
+    try{
+      // 依次删除
+      for(const key of valuesToDelete){
+        const success = await onDelete(key);
+        if(success) successCount += 1;
+      }
+
+      // 根据成功次数，显示不同的信息
+      if(successCount === valuesToDelete.length){
+        setDeleteValue(''); // 删除之后清空输入框
+        showMessage(`成功删除 ${valuesToDelete.length} 个key`, 'success');
+      } else if(successCount > 0){
+        showMessage(`部分成功：删除 ${successCount} 个key，有 ${valuesToDelete.length - successCount} 个key失败（可能不存在）`, 'warning');
+      }else{
+        showMessage('删除失败：所有key都不存在', 'error');
+      }
+
       setDeleteValue('');
-    } catch (error) {
-      // 错误处理由父组件负责
+    } catch(error){
+      // showMessage('删除失败', 'error');
     }
   }, [deleteValue, onDelete, showMessage]);
 
-  // 设置变更处理
-  const handleOrderChange = useCallback((newOrder: number) => {
-    if (newOrder >= 3 && newOrder <= 10) {
-      onSettingsChange({ ...settings, order: newOrder });
-    }
-  }, [settings, onSettingsChange]);
 
   const handleAnimationToggle = useCallback((enabled: boolean) => {
     onSettingsChange({ ...settings, isAnimationEnabled: enabled });
@@ -142,13 +190,6 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
 
       {/* 动画开关控制 */}
       <Box sx={{ mb: 1, display:'flex', alignItems:'center' }}>
-        {/* <Typography 
-          variant="body2" 
-          sx={{ color: 'var(--secondary-text)' }} 
-          gutterBottom
-        >
-          动画设置
-        </Typography> */}
         <FormControlLabel
           control={
             <Switch
@@ -191,15 +232,15 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
         {/* 插入操作 */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
-            label="插入值"
+            label="插入值（可通过空格分隔以批处理）"
             value={insertValue}
             onChange={(e) => setInsertValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleInsert()}
-            type="number"
+            type="text"
             size="small"
             disabled={isAnimating}
             error={insertValue !== '' && !validateInput(insertValue)}
-            helperText={insertValue !== '' && !validateInput(insertValue) ? '请输入有效的整数（支持正负数和0）' : ''}
+            helperText={insertValue !== '' && !validateInput(insertValue) ? '请输入有效的整数（-99999～99999）' : ''}
             sx={{
               flex: 1,
               '& .MuiInputLabel-root': {
@@ -233,11 +274,11 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
         {/* 删除操作 */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
-            label="删除值"
+            label="删除值（可通过空格分隔以批处理）"
             value={deleteValue}
             onChange={(e) => setDeleteValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleDelete()}
-            type="number"
+            type="text"
             size="small"
             disabled={isAnimating}
             error={deleteValue !== '' && !validateInput(deleteValue)}

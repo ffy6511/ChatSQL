@@ -419,14 +419,16 @@ const BPlusHistoryPage: React.FC = () => {
   // 操作面板的操作处理函数
   const handleOperationInsert = useCallback(async (value: number) => {
     if (treeOperations) {
-      await treeOperations.insert(value);
+      return await treeOperations.insert(value);
     }
+    return false;
   }, [treeOperations]);
 
   const handleOperationDelete = useCallback(async (value: number) => {
     if (treeOperations) {
-      await treeOperations.delete(value);
+      return await treeOperations.delete(value);
     }
+    return false;
   }, [treeOperations]);
 
   const handleOperationReset = useCallback(() => {

@@ -164,7 +164,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
         borderRadius: 2,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'auto'
       }}
     >
       {/* Tab 标签页 */}
@@ -197,7 +197,7 @@ const HistoryManagementPanel: React.FC<HistoryManagementPanelProps> = ({
       </Tabs>
 
       {/* Tab 内容 */}
-      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, overflow: 'auto' }}>
         {activeTab === 0 ? renderSessionList() : renderStepTimeline()}
       </Box>
     </Paper>

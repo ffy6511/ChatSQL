@@ -28,6 +28,7 @@ import BPlusLeafNode from './BPlusLeafNode';
 import { BPlusNodeData } from '../utils/bPlusTreeToReactFlow';
 import styles from './BPlusTreeVisualizer.module.css';
 import '@xyflow/react/dist/style.css';
+import { promises } from 'dns';
 
 // --- 接口定义 ---
 export interface TreeState {
@@ -40,8 +41,8 @@ export interface TreeState {
 }
 
 export interface BPlusTreeOperations {
-  insert: (key: number) => Promise<void>;
-  delete: (key: number) => Promise<void>;
+  insert: (key: number) => Promise<boolean>;
+  delete: (key: number) => Promise<boolean>;
   reset: () => void;
 }
 
@@ -283,20 +284,22 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
     }
   }, [settings.isAnimationEnabled, updateView, notifyStateChange]);
 
-  const handleInsert = useCallback(async (key: number) => {
+  const handleInsert = useCallback(async (key: number): Promise<boolean> => {
     if (bPlusTreeAlgorithmRef.current.find(key)) {
       showMessage(`键 ${key} 已存在`, 'warning');
-      return;
+      return false;
     }
     await runOperation('insert', key);
+    return true;
   }, [runOperation, showMessage]);
 
-  const handleDelete = useCallback(async (key: number) => {
+  const handleDelete = useCallback(async (key: number): Promise<boolean> => {
     if (!bPlusTreeAlgorithmRef.current.find(key)) {
       showMessage(`键 ${key} 不存在`, 'warning');
-      return;
+      return false;
     }
     await runOperation('delete', key);
+    return true;
   }, [runOperation, showMessage]);
 
   const handleReset = useCallback(() => {
@@ -355,8 +358,19 @@ const BPlusTreeVisualizerInner: React.FC<BPlusTreeVisualizerProps> = ({
           disabled={!settings.isAnimationEnabled}
         />
       </Panel>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(s => ({...s, open: false}))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert onClose={() => setSnackbar(s => ({...s, open: false}))} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(s => ({...s, open: false}))} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+       <Alert
+          severity={snackbar.severity}
+          sx={{
+            width: '100%',
+            mt:4,
+            bgcolor: `var(--${snackbar.severity}-bg)`,
+            color: 'var(--snackbar-text)',
+            '& .MuiAlert-icon': {
+              color: `var(--${snackbar.severity}-icon)`,
+            }
+          }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
