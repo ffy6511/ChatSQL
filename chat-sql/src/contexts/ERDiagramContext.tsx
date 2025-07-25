@@ -411,18 +411,18 @@ interface ERDiagramContextType {
   // 实体和关系操作方法
   addEntity: (entity: EREntity) => Promise<void>;
   addRelationship: (relationship: ERRelationship) => Promise<void>;
-  updateEntity: (id: string, entity: Partial<EREntity>) => void;
-  updateRelationship: (id: string, relationship: Partial<ERRelationship>) => void;
-  deleteEntity: (id: string) => void;
-  deleteRelationship: (id: string) => void;
+  updateEntity: (id: string, entity: Partial<EREntity>) => Promise<void>;
+  updateRelationship: (id: string, relationship: Partial<ERRelationship>) => Promise<void>;
+  deleteEntity: (id: string) => Promise<void>;
+  deleteRelationship: (id: string) => Promise<void>;
   // 新增节点编辑相关便捷方法
   selectNode: (nodeId: string | null) => void;
   startEditNode: (nodeId: string, mode: NodeEditMode) => void;
   finishEditNode: () => void;
-  renameNode: (nodeId: string, newName: string) => void;
+  renameNode: (nodeId: string, newName: string) => Promise<void>;
   // 属性编辑相关方法
-  updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => void;
-  updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => void;
+  updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => Promise<void>;
+  updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => Promise<void>;
   // 连接管理相关方法
   createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => Promise<void>;
   deleteConnection: (relationshipId: string, entityId: string) => Promise<void>;
@@ -518,52 +518,126 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     }
   };
 
-  const updateEntity = (id: string, entity: Partial<EREntity>) => {
-    dispatch({ type: 'UPDATE_ENTITY', payload: { id, entity } });
+  const updateEntity = async (id: string, entity: Partial<EREntity>) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法更新实体：未找到当前图表', 'error');
+      return;
+    }
+
+    try {
+      // 计算更新后的数据
+      const updatedEntities = state.diagramData.entities.map(e =>
+        e.id === id ? { ...e, ...entity } : e
+      );
+
+      const updatedData = {
+        ...state.diagramData,
+        entities: updatedEntities,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'UPDATE_ENTITY', payload: { id, entity } });
+
+      showNotification('实体更新成功', 'success');
+    } catch (error) {
+      console.error('更新实体失败:', error);
+      showNotification('更新实体失败，请重试', 'error');
+    }
   };
 
-  const updateRelationship = (id: string, relationship: Partial<ERRelationship>) => {
-    dispatch({ type: 'UPDATE_RELATIONSHIP', payload: { id, relationship } });
+  const updateRelationship = async (id: string, relationship: Partial<ERRelationship>) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法更新关系：未找到当前图表', 'error');
+      return;
+    }
+
+    try {
+      // 计算更新后的数据
+      const updatedRelationships = state.diagramData.relationships.map(r =>
+        r.id === id ? { ...r, ...relationship } : r
+      );
+
+      const updatedData = {
+        ...state.diagramData,
+        relationships: updatedRelationships,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'UPDATE_RELATIONSHIP', payload: { id, relationship } });
+
+      showNotification('关系更新成功', 'success');
+    } catch (error) {
+      console.error('更新关系失败:', error);
+      showNotification('更新关系失败，请重试', 'error');
+      // 可以考虑回滚UI状态，但这里保持简单
+    }
   };
 
   const deleteEntity = async (id: string) => {
-    if( !state.diagramData || !state.currentDiagramId) return
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法删除实体：未找到当前图表', 'error');
+      return;
+    }
 
-    // 直接计算出删除后的新数据
-    const updatedData = {
-      ...state.diagramData,
-      entities: state.diagramData.entities.filter(entity => entity.id !== id),
-      // 此处保留了与实体相关的关系
-      metadata:{
-        ...state.diagramData.metadata,
-        updatedAt: new Date().toISOString(),
-      },
-    };
+    try {
+      // 计算删除后的新数据
+      const updatedData = {
+        ...state.diagramData,
+        entities: state.diagramData.entities.filter(entity => entity.id !== id),
+        // 此处保留了与实体相关的关系
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
 
-    // 保存到数据库
-    await saveDiagram(updatedData, state.currentDiagramId);
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'DELETE_ENTITY', payload: { id } });
 
-    // 更新UI状态
-    dispatch({ type: 'DELETE_ENTITY', payload: { id } });
+      showNotification('实体删除成功', 'success');
+    } catch (error) {
+      console.error('删除实体失败:', error);
+      showNotification('删除实体失败，请重试', 'error');
+    }
   };
 
   const deleteRelationship = async (id: string) => {
-    if( !state.diagramData || !state.currentDiagramId) return
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法删除关系：未找到当前图表', 'error');
+      return;
+    }
 
-    // 计算出删除后的新数据
-  const updatedData = {
-      ...state.diagramData,
-      relationships: state.diagramData.relationships.filter(relationship => relationship.id !== id),
-      metadata: {
-        ...state.diagramData.metadata,
-        updatedAt: new Date().toISOString(),
-      },
-    };
+    try {
+      // 计算删除后的新数据
+      const updatedData = {
+        ...state.diagramData,
+        relationships: state.diagramData.relationships.filter(relationship => relationship.id !== id),
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
 
-    // 保存到数据库
-    await saveDiagram(updatedData, state.currentDiagramId);
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
 
-    dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
+      showNotification('关系删除成功', 'success');
+    } catch (error) {
+      console.error('删除关系失败:', error);
+      showNotification('删除关系失败，请重试', 'error');
+    }
   };
 
   // 新增节点编辑相关便捷方法实现
@@ -579,8 +653,41 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     dispatch({ type: 'FINISH_EDIT_NODE' });
   };
 
-  const renameNode = (nodeId: string, newName: string) => {
-    dispatch({ type: 'RENAME_NODE', payload: { nodeId, newName } });
+  const renameNode = async (nodeId: string, newName: string) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法重命名节点：未找到当前图表', 'error');
+      return;
+    }
+
+    try {
+      // 计算更新后的数据
+      const updatedEntities = state.diagramData.entities.map(entity =>
+        entity.id === nodeId ? { ...entity, name: newName } : entity
+      );
+
+      const updatedRelationships = state.diagramData.relationships.map(relationship =>
+        relationship.id === nodeId ? { ...relationship, name: newName } : relationship
+      );
+
+      const updatedData = {
+        ...state.diagramData,
+        entities: updatedEntities,
+        relationships: updatedRelationships,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'RENAME_NODE', payload: { nodeId, newName } });
+
+      showNotification('节点重命名成功', 'success');
+    } catch (error) {
+      console.error('重命名节点失败:', error);
+      showNotification('重命名节点失败，请重试', 'error');
+    }
   };
 
   // 属性编辑相关方法实现
@@ -635,8 +742,42 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     }
   };
 
-  const updateConnection = (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => {
-    dispatch({ type: 'UPDATE_CONNECTION', payload: { relationshipId, entityId, updates } });
+  const updateConnection = async (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法更新连接：未找到当前图表', 'error');
+      return;
+    }
+
+    try {
+      // 计算更新后的数据
+      const updatedRelationships = state.diagramData.relationships.map(relationship => {
+        if (relationship.id === relationshipId) {
+          const updatedConnections = relationship.connections.map(connection =>
+            connection.entityId === entityId ? { ...connection, ...updates } : connection
+          );
+          return { ...relationship, connections: updatedConnections };
+        }
+        return relationship;
+      });
+
+      const updatedData = {
+        ...state.diagramData,
+        relationships: updatedRelationships,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      // 保存到持久化存储
+      await saveDiagram(updatedData, state.currentDiagramId);
+      dispatch({ type: 'UPDATE_CONNECTION', payload: { relationshipId, entityId, updates } });
+
+      showNotification('连接更新成功', 'success');
+    } catch (error) {
+      console.error('更新连接失败:', error);
+      showNotification('更新连接失败，请重试', 'error');
+    }
   };
 
   // 连接管理相关方法实现
