@@ -13,6 +13,8 @@ import ClearAllConfirmDialog from '@/components/BPlusHistory/ClearAllConfirmDial
 import { HistorySession, HistoryStep } from '@/types/bPlusHistory';
 import Typography from '@mui/material/Typography';
 import { getBPlusHistoryStorage, BPlusHistoryStorage } from '@/lib/bplus-tree/historyStorage';
+import EmptyState from '@/components/common/EmptyState';
+import { Hub as HubIcon, AddCircleOutline as AddIcon } from '@mui/icons-material';
 import '@/styles/globalSidebar.css';
 
 /**
@@ -538,7 +540,9 @@ const BPlusHistoryPage: React.FC = () => {
                 position: "relative",
                 bgcolor: 'var(--background-color)'
               }}>
-                <BPlusTreeVisualizer
+                {/* 根据是否存在选中的会话来决定渲染 */}
+                {currentSession?(
+                  <BPlusTreeVisualizer
                   // 使用key来强制重新挂载组件，确保状态隔离
                   key={selectedSessionId ? `${selectedSessionId}-${selectedStepIndex}` : 'initial-session'}
                   order={order}
@@ -550,6 +554,19 @@ const BPlusHistoryPage: React.FC = () => {
                   isAnimationEnabled={operationSettings.isAnimationEnabled}
                   animationSpeed={operationSettings.animationSpeed}
                 />
+                ):
+                <EmptyState
+                    mainIcon = {<HubIcon/>}
+                    secondaryIcon = {<AddIcon/>}
+                    title = "开始创建您的B+树"
+                    subTitle = "请在左侧面板中'新建会话'或选择一个已有的会话"
+                    description = "每个会话都独立保存了 B+树 的操作历史，方便您在“操作步骤”中回溯和比较"
+                    hint = "可以尝试批处理和动画效果～"
+                  />
+                }
+               
+
+
               </Box>
             </Panel>
 

@@ -3,8 +3,9 @@
 import React, { useRef, useCallback } from 'react';
 import { Empty } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
+import { AccountTree as AccountTreeIcon, Add, Add as AddIcon } from '@mui/icons-material';
 import ERDiagram from '@/components/ERDiagram/ERDiagram';
-import EmptyState from './EmptyState';
+import EmptyState from '@/components/common/EmptyState';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import styles from './Canvas.module.css';
 
@@ -72,7 +73,14 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
         ref={canvasRef}
         className={styles.canvasContainer}
       >
-        <EmptyState />
+        <EmptyState
+          mainIcon={<AccountTreeIcon />}
+          secondaryIcon = {<AddIcon />}
+          title="开始创建您的ER图"
+          subTitle="新建图表 => 选中'组件库' => 拖拽组件到画布"
+          description="您可以添加强实体集、弱实体集和关系来构建完整的ER图"
+          hint="提示：拖拽节点的连接点实现连接效果"
+        />
       </div>
     );
   }
