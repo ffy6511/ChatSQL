@@ -5,7 +5,7 @@
 
 import { Node, Edge, MarkerType } from '@xyflow/react';
 import { BPlusCommand, BTREE_CONSTANTS } from './commands';
-import { BPlusNodeData } from '@/components/utils/bPlusTreeToReactFlow';
+import { BPlusNodeData } from '@/types/bPlusTree';
 
 export interface CommandExecutorCallbacks {
   setNodes: (updater: (nodes: Node<BPlusNodeData>[]) => Node<BPlusNodeData>[]) => void;

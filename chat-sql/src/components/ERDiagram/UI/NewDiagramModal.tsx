@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -34,6 +34,7 @@ interface NewDiagramModalProps {
   onClose: () => void;
 }
 
+
 // 预设模板
 const templates = [
   {
@@ -45,14 +46,14 @@ const templates = [
   },
   {
     id: 'sample',
-    name: '示例图书馆系统',
-    description: '包含图书、作者、借阅者的基本ER图',
+    name: '学生选课系统示例',
+    description: '包含学生、教师、授课实体集的ER图',
     icon: <LibraryIcon />,
     data: sampleERData
   },
   {
     id: 'employee',
-    name: '员工部门项目',
+    name: '员工部门项目示例',
     description: '展示员工、部门、项目关系的企业ER图',
     icon: <BusinessIcon />,
     data: employeeDepartmentERData
@@ -75,18 +76,18 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   const [error, setError] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // 生成时间以自动填充会话名称
+  const defaultName = useMemo(() => `${new Date().toLocaleString('zh-CN')}`, []);
+
   // 简化后的 handleCreate 方法
   const handleCreate = async () => {
-    if (!diagramName.trim()) {
-      setError('请输入图表名称');
-      return;
-    }
+    const finalName = diagramName.trim() || defaultName;
 
     setIsCreating(true);
     setError('');
 
     try {
-      await createNewDiagram(diagramName, diagramDescription, selectedTemplate);
+      await createNewDiagram(finalName, diagramDescription, selectedTemplate);
 
       // 显示成功消息
       setShowSuccess(true);
@@ -97,7 +98,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
         setSelectedTemplate('blank');
         setError('');
         onClose();
-      }, 1200);
+      }, 500);
     } catch (error) {
       console.error('Failed to create diagram:', error);
       setError(error instanceof Error ? error.message : '创建图表失败，请重试');
@@ -115,6 +116,27 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
       onClose();
     }
   };
+
+  // 在文本输入框上绑定回车的创建
+  const handleKeyDown = (event: React.KeyboardEvent) =>{
+    if(event.key === 'Enter'){
+      // 组织默认的回车（文本换行）
+      event.preventDefault();
+      if(!isCreating){
+        handleCreate();
+      }
+    }
+  }
+
+  // 在选中模板的card上绑定回车和空格输入的创建
+  const handleTemplateKeyDown = (event: React.KeyboardEvent, templateId:string) => {
+    if(event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+
+        setSelectedTemplate(templateId);
+        handleCreate();
+    }
+  }
 
   return (
     <Dialog
@@ -146,17 +168,16 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
 
         <Box sx={{ mb: 3 }}>
           <TextField
-            label="图表名称"
+            label="图表名称 (可选)"
             value={diagramName}
             onChange={(e) => {
               setDiagramName(e.target.value);
               if (error) setError(''); // 清除错误信息
             }}
             fullWidth
-            required
             sx={{ mb: 2 }}
-            placeholder="输入图表名称"
-            error={!!error && !diagramName.trim()}
+            placeholder={defaultName}
+            onKeyDown={handleKeyDown}
           />
 
           <TextField
@@ -166,7 +187,8 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
             fullWidth
             multiline
             rows={2}
-            placeholder="输入图表描述（可选）"
+            placeholder="图表描述（可选）"
+            onKeyDown={handleKeyDown}
           />
         </Box>
 
@@ -189,6 +211,8 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
                 transition: 'all 0.2s ease'
               }}
               onClick={() => setSelectedTemplate(template.id)}
+              tabIndex = {0} // 让card可以被键盘聚焦
+              onKeyDown = {(e) => handleTemplateKeyDown(e, template.id)}
             >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -215,7 +239,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
         <Button
           onClick={handleCreate}
           variant="contained"
-          disabled={!diagramName.trim() || isCreating}
+          disabled={isCreating}
           startIcon={<AddIcon />}
         >
           {isCreating ? '创建中...' : '创建图表'}

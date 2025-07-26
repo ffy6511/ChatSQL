@@ -4,7 +4,7 @@
  */
 
 import { Node, Edge } from '@xyflow/react';
-import { BPlusNodeData } from '@/components/utils/bPlusTreeToReactFlow';
+import { BPlusNodeData } from '@/types/bPlusTree';
 
 /**
  * 历史步骤接口

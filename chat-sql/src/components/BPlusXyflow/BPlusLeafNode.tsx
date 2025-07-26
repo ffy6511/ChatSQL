@@ -1,19 +1,7 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
+import { BPlusNodeData } from '@/types/bPlusTree';
 import styles from './BPlusTreeVisualizer.module.css';
-
-// 1. 更新接口定义
-interface BPlusNodeData {
-  keys: (number | string | null)[];
-  pointers: (string | null)[];
-  isLeaf: boolean;
-  level: number;
-  next?: string | null;
-  order: number;
-  highlighted?: boolean; // 添加高亮状态
-  isOverflowing?: boolean; // 添加溢出状态字段
-  keyHighlights?: boolean[]; // 添加键高亮状态数组
-}
 
 const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {
   const nodeData = data as unknown as BPlusNodeData;

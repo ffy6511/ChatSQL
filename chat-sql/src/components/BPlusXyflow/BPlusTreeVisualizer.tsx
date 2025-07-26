@@ -25,7 +25,7 @@ import { CommandExecutor } from '../../lib/bplus-tree/commandExecutor';
 import AnimationControls from './AnimationControls';
 import BPlusInternalNode from './BPlusInternalNode';
 import BPlusLeafNode from './BPlusLeafNode';
-import { BPlusNodeData } from '../utils/bPlusTreeToReactFlow';
+import { BPlusNodeData } from '@/types/bPlusTree';
 import styles from './BPlusTreeVisualizer.module.css';
 import '@xyflow/react/dist/style.css';
 import { promises } from 'dns';
