@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { areResultsEqual } from '@/lib/resultComparator';
 import { useLLMContext } from './LLMContext';
 import { useQueryContext } from './QueryContext';
-import { useEditorContext } from './EditorContext';
 import { TableTuple } from '@/types/dify';
 import { ProgressService } from '@/services/progressService';
 import { isTutorialRecord } from '@/utils/progressUtils';
@@ -17,6 +16,7 @@ interface CompletionContextType {
   resetCompletion: () => void;
   updateProgress: (problemIndex: number) => Promise<void>;
   loadCompletionState: (recordId: number) => Promise<void>;
+  clearAllProgress: () => Promise<void>;
 }
 
 const CompletionContext = createContext<CompletionContextType | null>(null);
@@ -95,6 +95,35 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [currentProblemId, messageApi]);
 
+  // 清除所有进度
+  const clearAllProgress = useCallback(async () => {
+    if (!currentProblemId) return;
+
+    try {
+      // 获取当前记录并检查是否为教程
+      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const record = await getProblemById(currentProblemId);
+
+      if (!record || !isTutorialRecord(record)) {
+        return; // 非教程记录不清除进度
+      }
+
+      await ProgressService.clearAllProgress(currentProblemId);
+
+      // 重置本地状态
+      setCompletedProblems(new Set());
+
+      // 显示成功消息
+      messageApi.success('已清除所有进度');
+
+      // 触发历史记录列表刷新
+      window.dispatchEvent(new CustomEvent('recordsUpdated'));
+    } catch (error) {
+      console.error('清除进度失败:', error);
+      messageApi.error('清除进度失败');
+    }
+  }, [currentProblemId, messageApi]);
+
   const checkQueryResult = useCallback(() => {
     if (!queryResult || !llmResult?.data?.outputs?.expected_result) {
       return false;
@@ -147,6 +176,7 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       resetCompletion,
       updateProgress,
       loadCompletionState,
+      clearAllProgress,
     }}>
       {contextHolder}
       {children}

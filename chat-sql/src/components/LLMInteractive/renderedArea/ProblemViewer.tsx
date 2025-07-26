@@ -1,25 +1,63 @@
 'use client'
 
-import React, { useMemo } from 'react';
-import { Box, Typography, Paper, List, ListItem, ListItemText } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button
+} from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useCompletionContext } from '@/contexts/CompletionContext';
 
 const ProblemViewer: React.FC = () => {
-  const { llmResult } = useLLMContext();
-  const { completedProblems } = useCompletionContext();
-  
+  const { llmResult, currentProblemId } = useLLMContext();
+  const { completedProblems, clearAllProgress } = useCompletionContext();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+
   // 使用 useMemo 缓存数据，避免不必要的重新计算
   const problem = useMemo(() => llmResult?.data?.outputs?.problem || [], [llmResult?.data?.outputs?.problem]);
   const description = useMemo(() => llmResult?.data?.outputs?.description || '', [llmResult?.data?.outputs?.description]);
 
-  // 移除调试日志
-  // console.log('ProblemViewer state:', {
-  //   completedProblems: Array.from(completedProblems),
-  //   problem: llmResult?.data?.outputs?.problem,
-  //   expectedResults: llmResult?.data?.outputs?.expected_result
-  // });
+  // 检查是否有已完成的问题
+  const hasCompletedProblems = completedProblems.size > 0;
+
+  // 处理清除进度按钮点击
+  const handleClearProgressClick = () => {
+    setIsConfirmDialogOpen(true);
+  };
+
+  // 确认清除进度
+  const handleConfirmClearProgress = async () => {
+    await clearAllProgress();
+    setIsConfirmDialogOpen(false);
+  };
+
+  // 取消清除进度
+  const handleCancelClearProgress = () => {
+    setIsConfirmDialogOpen(false);
+  };
+
+  // 删除记录的快捷键
+  const handleDialogKeyDown = (event: React.KeyboardEvent) => {
+    if(event.key === 'Enter'){
+      event.stopPropagation(); // 组织事件冒泡
+
+      handleConfirmClearProgress();
+    }
+  }
 
   return (
     <Box sx={{ 
@@ -78,17 +116,42 @@ const ProblemViewer: React.FC = () => {
           </Box>
         )}
 
-            <Typography 
-              variant="h6" 
-              component="h3" 
-              gutterBottom
-              fontSize="1rem"
-              sx={{
-                color:"var(--secondary-text)"
-              }}
-            >
-              具体要求
-            </Typography>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: 1
+            }}>
+              <Typography
+                variant="h6"
+                component="h3"
+                fontSize="1rem"
+                sx={{
+                  color:"var(--secondary-text)"
+                }}
+              >
+                具体要求
+              </Typography>
+
+              {/* 清除进度按钮 */}
+              {hasCompletedProblems && currentProblemId && (
+                <Tooltip title="清除所有进度" placement="top">
+                  <IconButton
+                    onClick={handleClearProgressClick}
+                    size="small"
+                    sx={{
+                      color: 'var(--secondary-text)',
+                      '&:hover': {
+                        color: '#f44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.04)'
+                      }
+                    }}
+                  >
+                    <DeleteSweepIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
         
         <List>
           {problem.map((item, index) => (
@@ -113,20 +176,57 @@ const ProblemViewer: React.FC = () => {
                 } : {},
               }}
             >
-              <ListItemText 
-                primary={item}
-                primaryTypographyProps={{
-                  style: { 
-                    textDecoration: completedProblems.has(index) ? 'line-through' : 'none',
-                    color: completedProblems.has(index) ? 'var(--tertiary-text)': 'var(--primary-text)',
-                    fontStyle: completedProblems.has(index) ? 'italic' : 'normal',
-                  }
-                }}
+              <ListItemText
+                primary={
+                  <Typography
+                    sx={{
+                      textDecoration: completedProblems.has(index) ? 'line-through' : 'none',
+                      color: completedProblems.has(index) ? 'var(--tertiary-text)': 'var(--primary-text)',
+                      fontStyle: completedProblems.has(index) ? 'italic' : 'normal',
+                    }}
+                  >
+                    {item}
+                  </Typography>
+                }
               />
             </ListItem>
           ))}
         </List>
       </Paper>
+
+      {/* 确认清除进度对话框 */}
+      <Dialog
+        open={isConfirmDialogOpen}
+        onClose={handleCancelClearProgress}
+        aria-labelledby="clear-progress-dialog-title"
+        aria-describedby="clear-progress-dialog-description"
+        onKeyDown={handleDialogKeyDown}
+      >
+        <DialogTitle id="clear-progress-dialog-title">
+          确认清除进度
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="clear-progress-dialog-description">
+            您确定要清除所有编程题目的完成进度吗？此操作无法撤销。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCancelClearProgress}
+            sx={{ color: 'var(--secondary-text)' }}
+          >
+            取消
+          </Button>
+          <Button
+            onClick={handleConfirmClearProgress}
+            color="error"
+            variant="contained"
+            autoFocus
+          >
+            确认清除
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

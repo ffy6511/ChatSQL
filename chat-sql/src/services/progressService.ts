@@ -149,4 +149,26 @@ export class ProgressService {
     const totalProblems = record.totalProblems ?? 1;
     return record.completedProblems ?? new Array(totalProblems).fill(false);
   }
+
+  /**
+   * 清除记录的所有进度
+   * @param recordId 记录ID
+   * @returns 清除后的记录
+   */
+  static async clearAllProgress(recordId: number): Promise<LLMProblem> {
+    const record = await getProblemById(recordId);
+    if (!record) {
+      throw new Error('记录不存在');
+    }
+
+    const totalProblems = record.totalProblems ?? 1;
+    const updatedRecord: LLMProblem = {
+      ...record,
+      progress: 0,
+      completedProblems: new Array(totalProblems).fill(false)
+    };
+
+    await updateProblem(updatedRecord);
+    return updatedRecord;
+  }
 }
