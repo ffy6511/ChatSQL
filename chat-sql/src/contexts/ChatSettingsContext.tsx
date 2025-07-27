@@ -11,18 +11,22 @@ interface ChatSettingsContextType {
   isLoading: boolean;
   error: string | null;
   isTestingConnection: boolean;
-  
+
   // 操作
   loadSettings: () => void;
   saveSettings: (newSettings: ChatSettings) => void;
   updateSettings: (partialSettings: Partial<ChatSettings>) => void;
   resetSettings: () => void;
   clearError: () => void;
-  
+
+  // 窗口大小管理
+  updateWindowSize: (size: { width: number; height: number }) => void;
+  getWindowSize: () => { width: number; height: number };
+
   // API相关
   testConnection: (testSettings?: ChatSettings) => Promise<boolean>;
   getAvailableModels: () => Promise<string[]>;
-  
+
   // 验证和状态
   validateSettings: (settingsToValidate: ChatSettings) => string[];
   isSettingsComplete: () => boolean;
@@ -32,7 +36,7 @@ interface ChatSettingsContextType {
     type: 'success' | 'warning' | 'error';
   };
   getApiPlatformDisplayName: (platform: string) => string;
-  
+
   // 导入导出
   exportSettings: () => string;
   importSettings: (jsonData: string) => boolean;
@@ -251,6 +255,24 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({ chil
   }, [settings, validateSettings]);
 
   /**
+   * 更新窗口大小
+   */
+  const updateWindowSize = useCallback((size: { width: number; height: number }) => {
+    const newSettings = {
+      ...settings,
+      windowSize: size,
+    };
+    saveSettings(newSettings);
+  }, [settings, saveSettings]);
+
+  /**
+   * 获取窗口大小
+   */
+  const getWindowSize = useCallback((): { width: number; height: number } => {
+    return settings.windowSize || { width: 400, height: 600 };
+  }, [settings.windowSize]);
+
+  /**
    * 清除错误状态
    */
   const clearError = useCallback(() => {
@@ -268,24 +290,28 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({ chil
     isLoading,
     error,
     isTestingConnection,
-    
+
     // 操作
     loadSettings,
     saveSettings,
     updateSettings,
     resetSettings,
     clearError,
-    
+
+    // 窗口大小管理
+    updateWindowSize,
+    getWindowSize,
+
     // API相关
     testConnection,
     getAvailableModels,
-    
+
     // 验证和状态
     validateSettings,
     isSettingsComplete,
     getSettingsStatus,
     getApiPlatformDisplayName,
-    
+
     // 导入导出
     exportSettings,
     importSettings,

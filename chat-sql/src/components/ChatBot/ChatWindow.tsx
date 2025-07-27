@@ -36,7 +36,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   // 状态管理
   const [currentPosition, setCurrentPosition] = useState(position);
-  const [currentSize, setCurrentSize] = useState(size);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -64,7 +63,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const {
     settings,
     saveSettings,
+    updateWindowSize,
+    getWindowSize,
   } = useChatSettings();
+
+  // 从设置中获取窗口大小
+  const [currentSize, setCurrentSize] = useState(() => getWindowSize());
 
   // Refs
   const windowRef = useRef<HTMLDivElement>(null);
@@ -82,9 +86,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     ChatStorage.saveChatPosition(currentPosition);
   }, [currentPosition]);
 
+  // 当窗口大小变化时，保存到设置中
   useEffect(() => {
-    ChatStorage.saveChatSize(currentSize);
-  }, [currentSize]);
+    updateWindowSize(currentSize);
+  }, [currentSize, updateWindowSize]);
 
   // 拖拽功能
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -118,7 +123,43 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setIsResizing(false);
   }, []);
+
+  // 窗口大小调整功能
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isFullscreen) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+  }, [isFullscreen]);
+
+  const handleResizeMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing || isFullscreen) return;
+
+    const rect = windowRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const newWidth = Math.max(300, e.clientX - rect.left);
+    const newHeight = Math.max(400, e.clientY - rect.top);
+
+    setCurrentSize({
+      width: newWidth,
+      height: newHeight,
+    });
+  }, [isResizing, isFullscreen]);
+
+  // 监听鼠标移动和释放事件
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizing, handleResizeMouseMove, handleMouseUp]);
 
   // 添加全局鼠标事件监听
   useEffect(() => {
@@ -346,6 +387,36 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   placeholder="请输入您的问题..."
                 />
               </>
+            )}
+
+            {/* 调整大小手柄 */}
+            {!isFullscreen && !isMinimized && (
+              <Box
+                onMouseDown={handleResizeMouseDown}
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  width: 16,
+                  height: 16,
+                  cursor: 'nw-resize',
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  },
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 2,
+                    right: 2,
+                    width: 0,
+                    height: 0,
+                    borderLeft: '8px solid transparent',
+                    borderBottom: '8px solid var(--icon-color)',
+                    opacity: 0.5,
+                  },
+                }}
+              />
             )}
           </Box>
         </Paper>

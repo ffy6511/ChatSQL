@@ -10,7 +10,7 @@ import {
   StreamChatResponse,
   ChatRequest
 } from '@/types/chatbot/bailianai';
-import { generateId } from '@/utils/chatbot/storage';
+import { generateId, ChatStorage } from '@/utils/chatbot/storage';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
 
 export const useChat = () => {
@@ -40,6 +40,13 @@ export const useChat = () => {
       isLoading: true,
       error: null,
     }));
+
+    // 保存用户消息到IndexedDB
+    try {
+      await ChatStorage.saveMessage(userMessage, currentSessionId || 'default');
+    } catch (error) {
+      console.error('Failed to save user message:', error);
+    }
 
     try {
       // 取消之前的请求
@@ -103,6 +110,13 @@ export const useChat = () => {
           isLoading: false,
           error: null,
         }));
+
+        // 保存AI消息到IndexedDB
+        try {
+          await ChatStorage.saveMessage(aiMessage, currentSessionId || 'default');
+        } catch (error) {
+          console.error('Failed to save AI message:', error);
+        }
       } else {
         throw new Error(result.error?.message || 'API调用失败');
       }
@@ -269,6 +283,13 @@ export const useChat = () => {
       error: null,
     }));
 
+    // 保存用户消息到IndexedDB
+    try {
+      await ChatStorage.saveMessage(userMessage, currentSessionId || 'default');
+    } catch (error) {
+      console.error('Failed to save user message:', error);
+    }
+
     try {
       // 取消之前的请求
       if (abortControllerRef.current) {
@@ -362,6 +383,16 @@ export const useChat = () => {
         ...prev,
         isLoading: false,
       }));
+
+      // 保存最终的AI消息到IndexedDB
+      try {
+        const finalAiMessage = chatState.currentMessages.find(msg => msg.id === aiMessageId);
+        if (finalAiMessage) {
+          await ChatStorage.saveMessage(finalAiMessage, currentSessionId || 'default');
+        }
+      } catch (error) {
+        console.error('Failed to save AI message:', error);
+      }
 
     } catch (error) {
       console.error('Failed to send stream message:', error);

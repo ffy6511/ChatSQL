@@ -45,6 +45,11 @@ export interface ChatSettings {
   enableStreaming?: boolean;
   temperature?: number;
   maxTokens?: number;
+  // 窗口大小设置
+  windowSize?: {
+    width: number;
+    height: number;
+  };
 }
 
 export interface ChatState {
@@ -140,6 +145,9 @@ export const STORAGE_KEYS: StorageKeys = {
   CHAT_SIZE: 'chatbot_size',
 } as const;
 
+export const DEFAULT_POSITION = { x: 16, y: 16 };
+export const DEFAULT_SIZE = { width: 400, height: 600 };
+
 // 默认配置
 export const DEFAULT_SETTINGS: ChatSettings = {
   systemPrompt: '你是一个专业的数据库和SQL助手，可以帮助用户解决SQL编程、ER图建模、B+树可视化等相关问题。',
@@ -149,6 +157,7 @@ export const DEFAULT_SETTINGS: ChatSettings = {
   enableStreaming: true,
   temperature: 0.7,
   maxTokens: 2000,
+  windowSize: DEFAULT_SIZE,
 };
 
 export const DEFAULT_CHAT_STATE: ChatState = {
@@ -157,9 +166,6 @@ export const DEFAULT_CHAT_STATE: ChatState = {
   isLoading: false,
   error: null,
 };
-
-export const DEFAULT_POSITION = { x: 16, y: 16 };
-export const DEFAULT_SIZE = { width: 400, height: 600 };
 
 // 快捷键配置
 export const KEYBOARD_SHORTCUTS = {

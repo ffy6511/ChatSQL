@@ -1,13 +1,187 @@
 // 本地存储工具函数
 
-import { 
-  ChatHistory, 
-  ChatSettings, 
-  STORAGE_KEYS, 
+import {
+  ChatHistory,
+  ChatSettings,
+  STORAGE_KEYS,
   DEFAULT_SETTINGS,
   DEFAULT_POSITION,
-  DEFAULT_SIZE 
+  DEFAULT_SIZE,
+  Message
 } from '@/types/chatbot';
+
+/**
+ * IndexedDB存储管理类
+ */
+export class ChatIndexedDB {
+  private static readonly DB_NAME = 'ChatBotDB';
+  private static readonly DB_VERSION = 1;
+  private static readonly STORE_NAMES = {
+    CHAT_HISTORY: 'chatHistory',
+    MESSAGES: 'messages',
+    SETTINGS: 'settings',
+  };
+
+  /**
+   * 初始化IndexedDB
+   */
+  private static async openDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // 创建聊天历史存储
+        if (!db.objectStoreNames.contains(this.STORE_NAMES.CHAT_HISTORY)) {
+          const historyStore = db.createObjectStore(this.STORE_NAMES.CHAT_HISTORY, {
+            keyPath: 'id',
+          });
+          historyStore.createIndex('timestamp', 'timestamp', { unique: false });
+          historyStore.createIndex('module', 'module', { unique: false });
+        }
+
+        // 创建消息存储
+        if (!db.objectStoreNames.contains(this.STORE_NAMES.MESSAGES)) {
+          const messageStore = db.createObjectStore(this.STORE_NAMES.MESSAGES, {
+            keyPath: 'id',
+          });
+          messageStore.createIndex('chatId', 'chatId', { unique: false });
+          messageStore.createIndex('timestamp', 'timestamp', { unique: false });
+        }
+
+        // 创建设置存储
+        if (!db.objectStoreNames.contains(this.STORE_NAMES.SETTINGS)) {
+          db.createObjectStore(this.STORE_NAMES.SETTINGS, {
+            keyPath: 'key',
+          });
+        }
+      };
+    });
+  }
+
+  /**
+   * 保存聊天历史到IndexedDB
+   */
+  static async saveChatHistory(history: ChatHistory): Promise<void> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
+
+      await new Promise<void>((resolve, reject) => {
+        const request = store.put(history);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+
+      db.close();
+    } catch (error) {
+      console.error('Failed to save chat history to IndexedDB:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 从IndexedDB获取聊天历史
+   */
+  static async getChatHistory(): Promise<ChatHistory[]> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
+
+      const histories = await new Promise<ChatHistory[]>((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      db.close();
+
+      // 按时间戳降序排序
+      return histories.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    } catch (error) {
+      console.error('Failed to get chat history from IndexedDB:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 删除聊天历史
+   */
+  static async deleteChatHistory(historyId: string): Promise<void> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
+
+      await new Promise<void>((resolve, reject) => {
+        const request = store.delete(historyId);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+
+      db.close();
+    } catch (error) {
+      console.error('Failed to delete chat history from IndexedDB:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 保存消息到IndexedDB
+   */
+  static async saveMessage(message: Message & { chatId: string }): Promise<void> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction([this.STORE_NAMES.MESSAGES], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAMES.MESSAGES);
+
+      await new Promise<void>((resolve, reject) => {
+        const request = store.put(message);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+
+      db.close();
+    } catch (error) {
+      console.error('Failed to save message to IndexedDB:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取指定聊天的消息
+   */
+  static async getMessages(chatId: string): Promise<Message[]> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction([this.STORE_NAMES.MESSAGES], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAMES.MESSAGES);
+      const index = store.index('chatId');
+
+      const messages = await new Promise<(Message & { chatId: string })[]>((resolve, reject) => {
+        const request = index.getAll(chatId);
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      db.close();
+
+      // 移除chatId字段并按时间戳排序
+      return messages
+        .map(({ chatId, ...message }) => message)
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    } catch (error) {
+      console.error('Failed to get messages from IndexedDB:', error);
+      return [];
+    }
+  }
+}
 
 /**
  * 本地存储管理类
@@ -38,27 +212,77 @@ export class ChatStorage {
   }
 
   /**
-   * 添加新的聊天记录
+   * 添加新的聊天记录（同时保存到localStorage和IndexedDB）
    */
-  static addChatHistory(newHistory: ChatHistory): void {
-    const history = this.getChatHistory();
-    history.unshift(newHistory); // 最新的记录放在前面
-    
-    // 限制历史记录数量（最多保存100条）
-    if (history.length > 100) {
-      history.splice(100);
+  static async addChatHistory(newHistory: ChatHistory): Promise<void> {
+    try {
+      // 保存到IndexedDB
+      await ChatIndexedDB.saveChatHistory(newHistory);
+
+      // 同时保存到localStorage作为备份
+      const history = this.getChatHistory();
+      history.unshift(newHistory); // 最新的记录放在前面
+
+      // 限制历史记录数量（最多保存100条）
+      if (history.length > 100) {
+        history.splice(100);
+      }
+
+      this.saveChatHistory(history);
+    } catch (error) {
+      console.error('Failed to add chat history:', error);
+      // 如果IndexedDB失败，至少保存到localStorage
+      const history = this.getChatHistory();
+      history.unshift(newHistory);
+      if (history.length > 100) {
+        history.splice(100);
+      }
+      this.saveChatHistory(history);
     }
-    
-    this.saveChatHistory(history);
   }
 
   /**
-   * 删除指定的聊天记录
+   * 删除指定的聊天记录（同时从localStorage和IndexedDB删除）
    */
-  static deleteChatHistory(historyId: string): void {
-    const history = this.getChatHistory();
-    const filteredHistory = history.filter(item => item.id !== historyId);
-    this.saveChatHistory(filteredHistory);
+  static async deleteChatHistory(historyId: string): Promise<void> {
+    try {
+      // 从IndexedDB删除
+      await ChatIndexedDB.deleteChatHistory(historyId);
+
+      // 从localStorage删除
+      const history = this.getChatHistory();
+      const filteredHistory = history.filter(item => item.id !== historyId);
+      this.saveChatHistory(filteredHistory);
+    } catch (error) {
+      console.error('Failed to delete chat history:', error);
+      // 如果IndexedDB失败，至少从localStorage删除
+      const history = this.getChatHistory();
+      const filteredHistory = history.filter(item => item.id !== historyId);
+      this.saveChatHistory(filteredHistory);
+    }
+  }
+
+  /**
+   * 保存消息到IndexedDB
+   */
+  static async saveMessage(message: Message, chatId: string): Promise<void> {
+    try {
+      await ChatIndexedDB.saveMessage({ ...message, chatId });
+    } catch (error) {
+      console.error('Failed to save message to IndexedDB:', error);
+    }
+  }
+
+  /**
+   * 从IndexedDB获取消息
+   */
+  static async getMessages(chatId: string): Promise<Message[]> {
+    try {
+      return await ChatIndexedDB.getMessages(chatId);
+    } catch (error) {
+      console.error('Failed to get messages from IndexedDB:', error);
+      return [];
+    }
   }
 
   /**

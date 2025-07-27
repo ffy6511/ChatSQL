@@ -157,8 +157,9 @@ const MessageList: React.FC<MessageListProps> = ({
           sx={{
             maxWidth: '75%',
             p: 2,
-            backgroundColor: isUser ? 'primary.light' : 'grey.100',
+            backgroundColor: isUser ? 'var(--link-color)' : 'var(--card-bg)',
             borderRadius: isUser ? '16px 16px 0 16px' : '16px 16px 16px 0',
+            border: '1px solid var(--card-border)',
             position: 'relative',
             '&:hover .message-actions': {
               opacity: 1,
@@ -233,10 +234,12 @@ const MessageList: React.FC<MessageListProps> = ({
                 size="small"
                 onClick={() => handleCopyMessage(message.content)}
                 sx={{
-                  backgroundColor: 'background.paper',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--icon-color)',
+                  border: '1px solid var(--card-border)',
                   boxShadow: 1,
                   '&:hover': {
-                    backgroundColor: 'grey.100',
+                    backgroundColor: 'var(--button-hover)',
                   },
                 }}
               >
@@ -266,7 +269,7 @@ const MessageList: React.FC<MessageListProps> = ({
               width: 32,
               height: 32,
               borderRadius: '50%',
-              backgroundColor: 'grey.400',
+              backgroundColor: 'var(--secondary-text)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -303,7 +306,7 @@ const MessageList: React.FC<MessageListProps> = ({
           }}
         >
           <Box>
-            <AIIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+            <AIIcon sx={{ fontSize: 48, color: 'var(--icon-color)', mb: 2 }} />
             <Typography variant="body2" color="var(--secondary-text)">
               有什么可以帮您？
             </Typography>
