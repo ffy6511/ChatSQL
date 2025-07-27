@@ -6,7 +6,7 @@ import {
   Message, 
   ModuleType 
 } from '@/types/chatbot';
-import { ChatStorage, generateId, truncateText } from '@/components/ChatBot/utils/storage';
+import { ChatStorage, generateId, truncateText } from '@/utils/chatbot/storage';
 
 export const useChatHistory = () => {
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);

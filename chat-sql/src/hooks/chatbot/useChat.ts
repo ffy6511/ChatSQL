@@ -7,8 +7,8 @@ import {
   DEFAULT_CHAT_STATE,
   AIResponse 
 } from '@/types/chatbot';
-import { ChatAPI, mockAIResponse } from '@/components/ChatBot/utils/chatAPI';
-import { generateId } from '@/components/ChatBot/utils/storage';
+import { ChatAPI, mockAIResponse } from '@/utils/chatbot/chatAPI';
+import { generateId } from '@/utils/chatbot/storage';
 import { useChatSettings } from './useChatSettings';
 
 export const useChat = () => {

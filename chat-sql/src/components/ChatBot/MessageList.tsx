@@ -24,7 +24,7 @@ import {
   ContentCopy as CopyIcon,
 } from '@mui/icons-material';
 import { MessageListProps, Message, ActionConfig } from '@/types/chatbot';
-import { formatTimestamp } from './utils/storage';
+import { formatTimestamp } from '@/utils/chatbot/storage';
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,

@@ -1,11 +1,11 @@
 // 聊天API调用封装
 
-import {
-  ChatAPIRequest,
-  ChatAPIResponse,
-  AIResponse,
+import { 
+  ChatAPIRequest, 
+  ChatAPIResponse, 
+  AIResponse, 
   ChatSettings,
-  Message
+  Message 
 } from '@/types/chatbot';
 
 /**
@@ -176,7 +176,7 @@ export class ChatAPI {
       // 尝试从响应中识别关键词来推断模块
       const lowerContent = content.toLowerCase();
       let moduleType: 'coding' | 'ER' | 'Bplus' = 'coding';
-
+      
       if (lowerContent.includes('er图') || lowerContent.includes('实体关系') || lowerContent.includes('entity')) {
         moduleType = 'ER';
       } else if (lowerContent.includes('b+树') || lowerContent.includes('b树') || lowerContent.includes('索引')) {

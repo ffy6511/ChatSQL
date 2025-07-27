@@ -13,8 +13,8 @@ export { useChatHistory } from '@/hooks/chatbot/useChatHistory';
 export { useChatSettings } from '@/hooks/chatbot/useChatSettings';
 
 // 工具函数
-export { ChatAPI, mockAIResponse } from './utils/chatAPI';
-export { ChatStorage, generateId, formatTimestamp, truncateText } from './utils/storage';
+export { ChatAPI, mockAIResponse } from '@/utils/chatbot/chatAPI';
+export { ChatStorage, generateId, formatTimestamp, truncateText } from '@/utils/chatbot/storage';
 
 // 类型定义
 export type {

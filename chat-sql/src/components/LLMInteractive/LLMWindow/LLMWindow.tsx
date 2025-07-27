@@ -25,7 +25,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { useEditorContext } from '@/contexts/EditorContext';
-import ShinyText from '@/components/utils/ShinyText';
+import ShinyText from '@/utils/components/ShinyText';
 import { useTagsManager } from '@/hooks/useTagsManager';
 
 const difficultyOptions = [

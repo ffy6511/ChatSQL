@@ -22,7 +22,7 @@ import { ChatWindowProps, ActionConfig } from '@/types/chatbot';
 import { useChat } from '@/hooks/chatbot/useChat';
 import { useChatHistory } from '@/hooks/chatbot/useChatHistory';
 import { useChatSettings } from '@/hooks/chatbot/useChatSettings';
-import { ChatStorage } from './utils/storage';
+import { ChatStorage } from '@/utils/chatbot/storage';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import ChatSidebar from './ChatSidebar';

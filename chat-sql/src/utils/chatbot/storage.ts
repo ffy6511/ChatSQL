@@ -1,12 +1,12 @@
 // 本地存储工具函数
 
-import {
-  ChatHistory,
-  ChatSettings,
-  STORAGE_KEYS,
+import { 
+  ChatHistory, 
+  ChatSettings, 
+  STORAGE_KEYS, 
   DEFAULT_SETTINGS,
   DEFAULT_POSITION,
-  DEFAULT_SIZE
+  DEFAULT_SIZE 
 } from '@/types/chatbot';
 
 /**

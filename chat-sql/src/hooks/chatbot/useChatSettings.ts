@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatbot';
-import { ChatStorage } from '@/components/ChatBot/utils/storage';
-import { ChatAPI } from '@/components/ChatBot/utils/chatAPI';
+import { ChatStorage } from '@/utils/chatbot/storage';
+import { ChatAPI } from '@/utils/chatbot/chatAPI';
 
 export const useChatSettings = () => {
   const [settings, setSettings] = useState<ChatSettings>(DEFAULT_SETTINGS);

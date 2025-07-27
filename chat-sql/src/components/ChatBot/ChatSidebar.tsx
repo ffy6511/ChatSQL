@@ -28,7 +28,7 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { ChatSidebarProps, ChatHistory, ModuleType } from '@/types/chatbot';
-import { formatTimestamp, truncateText } from './utils/storage';
+import { formatTimestamp, truncateText } from '@/utils/chatbot/storage';
 
 interface ExtendedChatSidebarProps extends ChatSidebarProps {
   chatHistory?: ChatHistory[];
