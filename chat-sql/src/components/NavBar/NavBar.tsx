@@ -1,20 +1,44 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Tooltip } from 'antd';
-import { HomeOutlined, HistoryOutlined, CodeOutlined, DatabaseOutlined, PartitionOutlined } from '@ant-design/icons';
+import { HomeOutlined, HistoryOutlined, CodeOutlined, DatabaseOutlined, PartitionOutlined, MessageOutlined, CloseOutlined } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './NavBar.module.css';
 import ShareButton from './ShareButton';
+import ChatWindow from '@/components/ChatBot/ChatWindow';
 
 const NavBar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
 
+  // 快捷键支持
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl + K 打开/关闭聊天窗口
+      if (event.ctrlKey && event.key === 'k') {
+        event.preventDefault();
+        setIsChatOpen(prev => !prev);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // 切换聊天窗口
+  const toggleChat = () => {
+    setIsChatOpen(prev => !prev);
+  };
+
   return (
-    <nav className={styles.navBar}>
+    <>
+      <nav className={styles.navBar}>
       <div className={styles.leftSection}>
         <div className={styles.logoContainer}>
           <img
@@ -65,6 +89,17 @@ const NavBar: React.FC = () => {
 
       <div className={styles.rightSection}>
         <ShareButton />
+
+        {/* 聊天按钮 */}
+        <Tooltip title={`智能助手 (Ctrl+K)`}>
+          <Button
+            type={isChatOpen ? 'primary' : 'text'}
+            icon={isChatOpen ? <CloseOutlined /> : <MessageOutlined />}
+            onClick={toggleChat}
+            className={styles.navButton}
+          />
+        </Tooltip>
+
         <Tooltip title="返回主页">
           <Button
             type="text"
@@ -82,7 +117,14 @@ const NavBar: React.FC = () => {
           />
         </Tooltip>
       </div>
-    </nav>
+      </nav>
+
+      {/* 聊天窗口 */}
+      <ChatWindow
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+      />
+    </>
   );
 };
 
