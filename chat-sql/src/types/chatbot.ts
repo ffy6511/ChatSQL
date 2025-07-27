@@ -42,6 +42,9 @@ export interface ChatSettings {
   apiPlatform: 'bailianai' | 'dify';
   apiKey: string;
   apiEndpoint?: string;
+  enableStreaming?: boolean;
+  temperature?: number;
+  maxTokens?: number;
 }
 
 export interface ChatState {
@@ -143,6 +146,9 @@ export const DEFAULT_SETTINGS: ChatSettings = {
   apiPlatform: 'bailianai',
   apiKey: '',
   apiEndpoint: '',
+  enableStreaming: true,
+  temperature: 0.7,
+  maxTokens: 2000,
 };
 
 export const DEFAULT_CHAT_STATE: ChatState = {

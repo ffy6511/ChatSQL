@@ -50,7 +50,7 @@ function createBailianRequest(
       prompt: message,
     },
     parameters: {
-      incremental_output: parameters?.stream ? 'true' : 'false',
+      incremental_output: parameters?.stream ? true : false,
       ...parameters,
     },
     debug: {},
@@ -167,10 +167,10 @@ async function retryWithBackoff<T>(
 async function callBailianAPI(
   request: BailianAIRequest,
   stream: boolean = false
-): Promise<BailianAIResponse | ReadableStream> {
+): Promise<BailianAIResponse | any> {
   const apiKey = process.env.DASHSCOPE_API_KEY;
   const appId = process.env.BAILIAN_APP_ID || '6533b3711b8143068af6b09b98a3323c';
-  
+
   if (!apiKey) {
     throw new BailianAIAPIError(
       'API密钥未配置，请检查环境变量DASHSCOPE_API_KEY',
@@ -179,7 +179,7 @@ async function callBailianAPI(
   }
 
   const url = `${DEFAULT_BAILIAN_CONFIG.baseUrl}/${appId}/completion`;
-  
+
   const headers = {
     'Authorization': `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
@@ -193,79 +193,165 @@ async function callBailianAPI(
       responseType: stream ? 'stream' : 'json',
     });
 
-    if (stream) {
-      return response.data as ReadableStream;
-    } else {
-      return response.data as BailianAIResponse;
-    }
+    return response.data;
   });
 }
 
 /**
- * 处理流式响应
+ * 处理流式响应 - 将Node.js stream转换为Web ReadableStream
+ * 基于官方DashScope SSE协议实现
  */
-function createStreamResponse(stream: ReadableStream): ReadableStream {
+function createStreamResponse(nodeStream: any): ReadableStream {
   const encoder = new TextEncoder();
 
   return new ReadableStream({
-    async start(controller) {
-      const reader = stream.getReader();
+    start(controller) {
       let buffer = '';
+      let currentSessionId = '';
 
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
+      nodeStream.on('data', (chunk: Buffer) => {
+        try {
+          const chunkStr = chunk.toString();
+          console.log('收到原始chunk:', chunkStr);
+          buffer += chunkStr;
 
-          if (done) {
-            // 发送完成信号
-            const doneResponse: StreamChatResponse = {
-              type: 'done',
-              data: { text: '', isComplete: true },
-            };
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
-            break;
-          }
+          // 按SSE事件分割（两个换行符）
+          const events = buffer.split(/\n\n/);
+          buffer = events.pop() || ''; // 保留未完成部分
+          console.log('解析到事件数量:', events.length);
 
-          buffer += new TextDecoder().decode(value);
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
+          events.forEach(eventData => {
+            if (!eventData.trim()) return;
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.output?.text) {
-                  const { cleanText, metadata } = parseMetadata(data.output.text);
+            const lines = eventData.split('\n');
+            let textContent = '';
+            let sessionId = '';
+            let finishReason = '';
 
-                  const streamResponse: StreamChatResponse = {
-                    type: 'chunk',
-                    data: {
-                      text: cleanText,
-                      sessionId: data.output.session_id,
-                      isComplete: false,
-                    },
-                  };
+            // 解析事件内容
+            lines.forEach(line => {
+              if (line.startsWith('data:')) {
+                try {
+                  const jsonStr = line.slice(5).trim();
+                  console.log('解析JSON数据:', jsonStr);
+                  const jsonData = JSON.parse(jsonStr);
+                  console.log('解析后的数据:', jsonData);
 
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify(streamResponse)}\n\n`));
+                  if (jsonData.output) {
+                    if (jsonData.output.text) {
+                      textContent = jsonData.output.text;
+                      console.log('提取到文本:', textContent);
+                    }
+                    if (jsonData.output.session_id) {
+                      sessionId = jsonData.output.session_id;
+                      currentSessionId = sessionId;
+                      console.log('更新会话ID:', sessionId);
+                    }
+                    if (jsonData.output.finish_reason) {
+                      finishReason = jsonData.output.finish_reason;
+                      console.log('完成原因:', finishReason);
+                    }
+                  }
+                } catch (parseError) {
+                  console.warn('JSON解析错误:', parseError, '原始行:', line);
                 }
-              } catch (error) {
-                console.warn('Failed to parse stream data:', error);
               }
+            });
+
+            // 如果有文本内容，发送chunk
+            if (textContent) {
+              const { cleanText } = parseMetadata(textContent);
+
+              const streamResponse: StreamChatResponse = {
+                type: 'chunk',
+                data: {
+                  text: cleanText,
+                  sessionId: currentSessionId,
+                  isComplete: false,
+                },
+              };
+
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(streamResponse)}\n\n`));
             }
+
+            // 检查是否完成
+            if (finishReason === 'stop') {
+              const doneResponse: StreamChatResponse = {
+                type: 'done',
+                data: {
+                  text: '',
+                  sessionId: currentSessionId,
+                  isComplete: true
+                },
+              };
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
+              controller.close();
+              return;
+            }
+          });
+        } catch (error) {
+          console.error('Stream data processing error:', error);
+        }
+      });
+
+      nodeStream.on('end', () => {
+        // 处理剩余的buffer
+        if (buffer.trim()) {
+          try {
+            const lines = buffer.split('\n');
+            lines.forEach(line => {
+              if (line.startsWith('data:')) {
+                try {
+                  const jsonData = JSON.parse(line.slice(5).trim());
+                  if (jsonData.output?.text) {
+                    const { cleanText } = parseMetadata(jsonData.output.text);
+
+                    const streamResponse: StreamChatResponse = {
+                      type: 'chunk',
+                      data: {
+                        text: cleanText,
+                        sessionId: currentSessionId,
+                        isComplete: false,
+                      },
+                    };
+
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(streamResponse)}\n\n`));
+                  }
+                } catch (parseError) {
+                  console.warn('Final buffer JSON解析错误:', parseError);
+                }
+              }
+            });
+          } catch (error) {
+            console.warn('Final buffer processing error:', error);
           }
         }
-      } catch (error) {
+
+        // 发送完成信号
+        const doneResponse: StreamChatResponse = {
+          type: 'done',
+          data: {
+            text: '',
+            sessionId: currentSessionId,
+            isComplete: true
+          },
+        };
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
+        controller.close();
+      });
+
+      nodeStream.on('error', (error: Error) => {
+        console.error('Node stream error:', error);
         const errorResponse: StreamChatResponse = {
           type: 'error',
           error: {
             code: 'STREAM_ERROR',
-            message: error instanceof Error ? error.message : '流式响应处理失败',
+            message: error.message || '流式响应处理失败',
           },
         };
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorResponse)}\n\n`));
-      } finally {
         controller.close();
-      }
+      });
     },
   });
 }
@@ -276,9 +362,11 @@ function createStreamResponse(stream: ReadableStream): ReadableStream {
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
+
     const { message, sessionId, parameters, userPromptParams } = body;
 
     if (!message || typeof message !== 'string') {
+      console.log('错误: 消息内容无效:', message);
       return NextResponse.json(
         {
           success: false,
@@ -291,6 +379,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('创建百炼请求参数:', { message, sessionId, parameters, userPromptParams });
+
     const bailianRequest = createBailianRequest(
       message,
       sessionId,
@@ -302,8 +392,8 @@ export async function POST(request: NextRequest) {
 
     if (isStream) {
       // 流式响应
-      const stream = await callBailianAPI(bailianRequest, true) as ReadableStream;
-      const responseStream = createStreamResponse(stream);
+      const nodeStream = await callBailianAPI(bailianRequest, true);
+      const responseStream = createStreamResponse(nodeStream);
 
       return new Response(responseStream, {
         headers: {

@@ -1,29 +1,30 @@
-// 聊天状态管理Hook
+// 聊天状态管理Hook - 集成百炼平台API
 
 import { useState, useCallback, useRef } from 'react';
-import { 
-  ChatState, 
-  Message, 
-  DEFAULT_CHAT_STATE,
-  AIResponse 
+import {
+  ChatState,
+  Message,
+  DEFAULT_CHAT_STATE
 } from '@/types/chatbot';
-import { ChatAPI, mockAIResponse } from '@/utils/chatbot/chatAPI';
+import {
+  StreamChatResponse,
+  ChatRequest
+} from '@/types/chatbot/bailianai';
 import { generateId } from '@/utils/chatbot/storage';
-import { useChatSettings } from './useChatSettings';
+import { useChatSettings } from '@/contexts/ChatSettingsContext';
 
 export const useChat = () => {
   const [chatState, setChatState] = useState<ChatState>(DEFAULT_CHAT_STATE);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const { settings } = useChatSettings();
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  /**
-   * 发送消息
-   */
-  const sendMessage = useCallback(async (content: string): Promise<void> => {
-    if (!content.trim() || chatState.isLoading) {
-      return;
-    }
 
+
+  /**
+   * 发送非流式消息
+   */
+  const sendNonStreamMessage = useCallback(async (content: string): Promise<void> => {
     // 创建用户消息
     const userMessage: Message = {
       id: generateId(),
@@ -45,49 +46,70 @@ export const useChat = () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      
+
       abortControllerRef.current = new AbortController();
 
-      // 调用API或使用模拟响应
-      let aiResponse: AIResponse;
-      
-      if (settings.apiKey && settings.apiKey.trim()) {
-        // 使用真实API
-        const response = await ChatAPI.sendMessage({
-          message: content,
-          history: chatState.currentMessages,
-          settings,
-        });
-
-        if (!response.success) {
-          throw new Error(response.error || 'API调用失败');
-        }
-
-        aiResponse = response.data!;
-      } else {
-        // 使用模拟响应
-        aiResponse = await mockAIResponse(content);
-      }
-
-      // 创建AI消息
-      const aiMessage: Message = {
-        id: generateId(),
-        content: aiResponse.text,
-        sender: 'ai',
-        timestamp: new Date().toISOString(),
-        metadata: aiResponse.metadata,
+      // 构建请求体
+      const requestBody = {
+        message: content.trim(),
+        parameters: {
+          stream: false,
+          temperature: settings.temperature || 0.7,
+          maxTokens: settings.maxTokens || 2000,
+        },
       };
 
-      // 更新状态：添加AI消息，结束加载
-      setChatState(prev => ({
-        ...prev,
-        currentMessages: [...prev.currentMessages, aiMessage],
-        isLoading: false,
-      }));
+      // 如果有会话ID，添加到请求中
+      if (currentSessionId) {
+        (requestBody as any).sessionId = currentSessionId;
+      }
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // 更新会话ID
+        if (result.data.sessionId) {
+          setCurrentSessionId(result.data.sessionId);
+        }
+
+        // 创建AI消息
+        const aiMessage: Message = {
+          id: generateId(),
+          content: result.data.text,
+          sender: 'ai',
+          timestamp: new Date().toISOString(),
+          metadata: {
+            module: 'coding' as const,
+          },
+        };
+
+        // 更新状态：添加AI消息，结束加载
+        setChatState(prev => ({
+          ...prev,
+          currentMessages: [...prev.currentMessages, aiMessage],
+          isLoading: false,
+          error: null,
+        }));
+      } else {
+        throw new Error(result.error?.message || 'API调用失败');
+      }
 
     } catch (error) {
       console.error('Failed to send message:', error);
-      
+
       // 更新错误状态
       setChatState(prev => ({
         ...prev,
@@ -95,7 +117,7 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : '发送消息失败',
       }));
     }
-  }, [chatState.currentMessages, chatState.isLoading, settings]);
+  }, [currentSessionId, settings]);
 
   /**
    * 清空当前对话
@@ -105,6 +127,9 @@ export const useChat = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
+
+    // 重置会话ID
+    setCurrentSessionId('');
 
     setChatState(prev => ({
       ...prev,
@@ -156,6 +181,22 @@ export const useChat = () => {
   }, []);
 
   /**
+   * 发送消息 - 根据设置选择流式或非流式
+   */
+  const sendMessage = useCallback(async (content: string): Promise<void> => {
+    if (!content.trim() || chatState.isLoading) {
+      return;
+    }
+
+    // 根据设置选择发送方式
+    if (settings.enableStreaming) {
+      return sendStreamMessage(content);
+    } else {
+      return sendNonStreamMessage(content);
+    }
+  }, [chatState.isLoading, settings.enableStreaming]);
+
+  /**
    * 重试发送最后一条消息
    */
   const retryLastMessage = useCallback(() => {
@@ -195,6 +236,149 @@ export const useChat = () => {
   }, []);
 
   /**
+   * 发送流式消息 - 使用百炼平台流式API
+   */
+  const sendStreamMessage = useCallback(async (content: string): Promise<void> => {
+    if (!content.trim() || chatState.isLoading) {
+      return;
+    }
+
+    // 创建用户消息
+    const userMessage: Message = {
+      id: generateId(),
+      content: content.trim(),
+      sender: 'user',
+      timestamp: new Date().toISOString(),
+    };
+
+    // 创建临时AI消息用于流式更新
+    const aiMessageId = generateId();
+    const tempAiMessage: Message = {
+      id: aiMessageId,
+      content: '',
+      sender: 'ai',
+      timestamp: new Date().toISOString(),
+      metadata: { module: 'coding' },
+    };
+
+    // 更新状态：添加用户消息和临时AI消息，开始加载
+    setChatState(prev => ({
+      ...prev,
+      currentMessages: [...prev.currentMessages, userMessage, tempAiMessage],
+      isLoading: true,
+      error: null,
+    }));
+
+    try {
+      // 取消之前的请求
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      abortControllerRef.current = new AbortController();
+
+      const requestBody = {
+        message: content,
+        sessionId: currentSessionId || undefined,
+        parameters: {
+          stream: true,
+          temperature: settings.temperature || 0.7,
+          maxTokens: settings.maxTokens || 2000,
+        },
+      };
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody as any),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('无法读取响应流');
+      }
+
+      let fullText = '';
+      let finalSessionId = currentSessionId;
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+
+          const chunk = new TextDecoder().decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data: StreamChatResponse = JSON.parse(line.slice(6));
+
+                if (data.type === 'chunk' && data.data) {
+                  fullText += data.data.text;
+                  if (data.data.sessionId) {
+                    finalSessionId = data.data.sessionId;
+                  }
+
+                  // 实时更新AI消息内容
+                  setChatState(prev => ({
+                    ...prev,
+                    currentMessages: prev.currentMessages.map(msg =>
+                      msg.id === aiMessageId
+                        ? { ...msg, content: fullText }
+                        : msg
+                    ),
+                  }));
+                } else if (data.type === 'done') {
+                  break;
+                } else if (data.type === 'error') {
+                  throw new Error(data.error?.message || '流式响应错误');
+                }
+              } catch (parseError) {
+                console.warn('解析流式数据失败:', parseError);
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+
+      // 更新会话ID
+      if (finalSessionId) {
+        setCurrentSessionId(finalSessionId);
+      }
+
+      // 结束加载状态
+      setChatState(prev => ({
+        ...prev,
+        isLoading: false,
+      }));
+
+    } catch (error) {
+      console.error('Failed to send stream message:', error);
+
+      // 移除临时AI消息并显示错误
+      setChatState(prev => ({
+        ...prev,
+        currentMessages: prev.currentMessages.filter(msg => msg.id !== aiMessageId),
+        isLoading: false,
+        error: error instanceof Error ? error.message : '发送流式消息失败',
+      }));
+    }
+  }, [currentSessionId, settings]);
+
+
+
+  /**
    * 添加欢迎消息
    */
   const addWelcomeMessage = useCallback(() => {
@@ -218,9 +402,11 @@ export const useChat = () => {
     // 状态
     chatState,
     setChatState,
-    
+    currentSessionId,
+
     // 操作
     sendMessage,
+    sendStreamMessage,
     clearChat,
     toggleChat,
     openChat,

@@ -77,7 +77,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   }, [formData, settings]);
 
   // 处理表单数据变化
-  const handleFormChange = (field: keyof ChatSettings, value: string) => {
+  const handleFormChange = (field: keyof ChatSettings, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -228,6 +228,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         >
           <Tab label="系统提示词" />
           <Tab label="API设置" />
+          <Tab label="高级设置" />
         </Tabs>
       </Box>
 
@@ -419,6 +420,105 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </Tooltip>
                 </Box>
               </Box>
+            </Box>
+          </Box>
+        </TabPanel>
+
+        {/* Tab 3: 高级设置 */}
+        <TabPanel value={currentTab} index={2}>
+          <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h6" sx={{ mb: 2, color: 'var(--primary-text)' }}>
+              高级设置
+            </Typography>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1 }}>
+              {/* 流式响应开关 */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.enableStreaming ?? true}
+                    onChange={(e) => handleFormChange('enableStreaming', e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="启用流式响应"
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    color: 'var(--primary-text)',
+                  },
+                }}
+              />
+              <Typography variant="caption" sx={{ color: 'var(--secondary-text)', mt: -2 }}>
+                流式响应可以实时显示AI的回复过程，提供更好的交互体验
+              </Typography>
+
+              {/* 温度设置 */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1, color: 'var(--primary-text)' }}>
+                  创造性 (Temperature): {formData.temperature ?? 0.7}
+                </Typography>
+                <Box sx={{ px: 2 }}>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={formData.temperature ?? 0.7}
+                    onChange={(e) => handleFormChange('temperature', parseFloat(e.target.value))}
+                    aria-label="Temperature setting"
+                    title="调整AI回复的创造性程度"
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                  <Typography variant="caption" sx={{ color: 'var(--secondary-text)' }}>
+                    保守 (0.0)
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'var(--secondary-text)' }}>
+                    创新 (1.0)
+                  </Typography>
+                </Box>
+                <Typography variant="caption" sx={{ color: 'var(--secondary-text)', display: 'block', mt: 1 }}>
+                  较低的值使输出更加确定和一致，较高的值使输出更加多样和创新
+                </Typography>
+              </Box>
+
+              {/* 最大令牌数设置 */}
+              <TextField
+                fullWidth
+                label="最大令牌数"
+                type="number"
+                value={formData.maxTokens ?? 2000}
+                onChange={(e) => handleFormChange('maxTokens', parseInt(e.target.value) || 2000)}
+                inputProps={{
+                  min: 100,
+                  max: 8000,
+                  step: 100,
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'var(--input-bg)',
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'var(--input-text)',
+                  },
+                }}
+                helperText="控制AI回复的最大长度，较大的值允许更长的回复但消耗更多资源"
+              />
+
+              <Divider />
+
+              {/* 性能提示 */}
+              <Alert severity="info" sx={{ mt: 2 }}>
+                <Typography variant="body2">
+                  <strong>性能提示：</strong>
+                  <br />
+                  • 流式响应提供更好的用户体验，但可能增加网络开销
+                  <br />
+                  • 较高的温度值会产生更多样的回复，但可能降低准确性
+                  <br />
+                  • 增加最大令牌数可以获得更详细的回复，但会增加响应时间
+                </Typography>
+              </Alert>
             </Box>
           </Box>
         </TabPanel>
