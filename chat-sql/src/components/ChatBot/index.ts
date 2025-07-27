@@ -8,9 +8,8 @@ export { default as ChatSidebar } from './ChatSidebar';
 export { default as SettingsModal } from './SettingsModal';
 
 // Hooks
-export { useChat } from '@/hooks/chatbot/useChat';
-export { useChatHistory } from '@/hooks/chatbot/useChatHistory';
-export { useChatSettings } from '@/hooks/chatbot/useChatSettings';
+export { useChatContext } from '@/contexts/ChatContext';
+export { useChatSettings } from '@/contexts/ChatSettingsContext';
 
 // 工具函数
 export { ChatAPI, mockAIResponse } from '@/utils/chatbot/chatAPI';

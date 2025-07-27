@@ -90,9 +90,21 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({ chil
    * 更新部分设置
    */
   const updateSettings = useCallback((partialSettings: Partial<ChatSettings>) => {
-    const newSettings = { ...settings, ...partialSettings };
-    saveSettings(newSettings);
-  }, [settings, saveSettings]);
+    setSettings(currentSettings => {
+      const newSettings = { ...currentSettings, ...partialSettings };
+      // 异步保存，避免在状态更新中同步调用saveSettings
+      setTimeout(() => {
+        try {
+          ChatStorage.saveChatSettings(newSettings);
+          setError(null);
+        } catch (err) {
+          console.error('Failed to save chat settings:', err);
+          setError('保存设置失败');
+        }
+      }, 0);
+      return newSettings;
+    });
+  }, []);
 
   /**
    * 重置设置为默认值
@@ -258,12 +270,24 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({ chil
    * 更新窗口大小
    */
   const updateWindowSize = useCallback((size: { width: number; height: number }) => {
-    const newSettings = {
-      ...settings,
-      windowSize: size,
-    };
-    saveSettings(newSettings);
-  }, [settings, saveSettings]);
+    setSettings(currentSettings => {
+      const newSettings = {
+        ...currentSettings,
+        windowSize: size,
+      };
+      // 异步保存，避免在状态更新中同步调用
+      setTimeout(() => {
+        try {
+          ChatStorage.saveChatSettings(newSettings);
+          setError(null);
+        } catch (err) {
+          console.error('Failed to save window size:', err);
+          setError('保存窗口大小失败');
+        }
+      }, 0);
+      return newSettings;
+    });
+  }, []); // 移除依赖，使用函数式更新
 
   /**
    * 获取窗口大小
@@ -279,10 +303,10 @@ export const ChatSettingsProvider: React.FC<ChatSettingsProviderProps> = ({ chil
     setError(null);
   }, []);
 
-  // 组件挂载时加载设置
+  // 组件挂载时加载设置 - 只在组件挂载时执行一次
   useEffect(() => {
     loadSettings();
-  }, [loadSettings]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const contextValue: ChatSettingsContextType = {
     // 状态

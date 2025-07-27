@@ -15,40 +15,119 @@ import { useChatSettings } from '@/contexts/ChatSettingsContext';
 
 export const useChat = () => {
   const [chatState, setChatState] = useState<ChatState>(DEFAULT_CHAT_STATE);
-  const [currentSessionId, setCurrentSessionId] = useState<string>('');
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const { settings } = useChatSettings();
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // ===== 基于会话的方法 =====
 
+  /**
+   * 创建新会话
+   */
+  const createNewSession = useCallback(async (): Promise<string> => {
+    try {
+      // 创建新会话（不包含欢迎消息）
+      const newSessionId = await ChatStorage.createSession([], 'coding');
+
+      // 更新当前会话ID
+      setCurrentSessionId(newSessionId);
+
+      // 清空当前消息
+      setChatState(prev => ({
+        ...prev,
+        currentMessages: [],
+        error: null,
+      }));
+
+      console.log('新会话已创建:', newSessionId);
+      return newSessionId;
+    } catch (error) {
+      console.error('创建新会话失败:', error);
+      throw error;
+    }
+  }, []);
+
+  /**
+   * 选择并加载指定会话
+   */
+  const selectSession = useCallback(async (sessionId: string): Promise<void> => {
+    try {
+      const session = await ChatStorage.getSession(sessionId);
+      if (session) {
+        setCurrentSessionId(sessionId);
+        setChatState(prev => ({
+          ...prev,
+          currentMessages: session.messages,
+          error: null,
+        }));
+        console.log('会话已加载:', sessionId, `消息数量: ${session.messages.length}`);
+      } else {
+        throw new Error(`会话不存在: ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('加载会话失败:', error);
+      setChatState(prev => ({
+        ...prev,
+        error: '加载会话失败',
+      }));
+    }
+  }, []);
+
+  /**
+   * 更新当前会话的消息
+   */
+  const updateCurrentSession = useCallback(async (messages: Message[]): Promise<void> => {
+    if (!currentSessionId) {
+      console.warn('没有当前会话ID，无法更新会话');
+      return;
+    }
+
+    try {
+      await ChatStorage.updateSession(currentSessionId, messages);
+      console.log('会话已更新:', currentSessionId, `消息数量: ${messages.length}`);
+    } catch (error) {
+      console.error('更新会话失败:', error);
+    }
+  }, [currentSessionId]);
+
+  /**
+   * 确保有当前会话（如果没有则创建新会话）
+   */
+  const ensureCurrentSession = useCallback(async (): Promise<string> => {
+    if (currentSessionId) {
+      return currentSessionId;
+    }
+
+    // 创建新会话
+    const newSessionId = await createNewSession();
+    return newSessionId;
+  }, [currentSessionId, createNewSession]);
 
   /**
    * 发送非流式消息
    */
   const sendNonStreamMessage = useCallback(async (content: string): Promise<void> => {
-    // 创建用户消息
-    const userMessage: Message = {
-      id: generateId(),
-      content: content.trim(),
-      sender: 'user',
-      timestamp: new Date().toISOString(),
-    };
-
-    // 更新状态：添加用户消息，开始加载
-    setChatState(prev => ({
-      ...prev,
-      currentMessages: [...prev.currentMessages, userMessage],
-      isLoading: true,
-      error: null,
-    }));
-
-    // 保存用户消息到IndexedDB
     try {
-      await ChatStorage.saveMessage(userMessage, currentSessionId || 'default');
-    } catch (error) {
-      console.error('Failed to save user message:', error);
-    }
+      // 确保有当前会话
+      const sessionId = await ensureCurrentSession();
 
-    try {
+      // 创建用户消息
+      const userMessage: Message = {
+        id: generateId(),
+        content: content.trim(),
+        sender: 'user',
+        timestamp: new Date().toISOString(),
+      };
+
+      // 更新状态：添加用户消息，开始加载
+      const messagesWithUser = [...chatState.currentMessages, userMessage];
+      setChatState(prev => ({
+        ...prev,
+        currentMessages: messagesWithUser,
+        isLoading: true,
+        error: null,
+      }));
+
       // 取消之前的请求
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -67,8 +146,8 @@ export const useChat = () => {
       };
 
       // 如果有会话ID，添加到请求中
-      if (currentSessionId) {
-        (requestBody as any).sessionId = currentSessionId;
+      if (sessionId) {
+        (requestBody as any).sessionId = sessionId;
       }
 
       const response = await fetch('/api/chat', {
@@ -87,11 +166,6 @@ export const useChat = () => {
       const result = await response.json();
 
       if (result.success && result.data) {
-        // 更新会话ID
-        if (result.data.sessionId) {
-          setCurrentSessionId(result.data.sessionId);
-        }
-
         // 创建AI消息
         const aiMessage: Message = {
           id: generateId(),
@@ -104,19 +178,17 @@ export const useChat = () => {
         };
 
         // 更新状态：添加AI消息，结束加载
+        const finalMessages = [...messagesWithUser, aiMessage];
         setChatState(prev => ({
           ...prev,
-          currentMessages: [...prev.currentMessages, aiMessage],
+          currentMessages: finalMessages,
           isLoading: false,
           error: null,
         }));
 
-        // 保存AI消息到IndexedDB
-        try {
-          await ChatStorage.saveMessage(aiMessage, currentSessionId || 'default');
-        } catch (error) {
-          console.error('Failed to save AI message:', error);
-        }
+        // 更新会话
+        await updateCurrentSession(finalMessages);
+
       } else {
         throw new Error(result.error?.message || 'API调用失败');
       }
@@ -131,27 +203,32 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : '发送消息失败',
       }));
     }
-  }, [currentSessionId, settings]);
+  }, [chatState.currentMessages, settings, ensureCurrentSession, updateCurrentSession]);
 
   /**
-   * 清空当前对话
+   * 清空当前对话（创建新会话）
    */
-  const clearChat = useCallback(() => {
+  const clearChat = useCallback(async () => {
     // 取消正在进行的请求
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
-    // 重置会话ID
-    setCurrentSessionId('');
-
-    setChatState(prev => ({
-      ...prev,
-      currentMessages: [],
-      isLoading: false,
-      error: null,
-    }));
-  }, []);
+    try {
+      // 创建新会话
+      await createNewSession();
+    } catch (error) {
+      console.error('创建新会话失败:', error);
+      // 如果创建新会话失败，至少清空当前状态
+      setCurrentSessionId(null);
+      setChatState(prev => ({
+        ...prev,
+        currentMessages: [],
+        isLoading: false,
+        error: null,
+      }));
+    }
+  }, [createNewSession]);
 
   /**
    * 切换聊天窗口显示状态
@@ -435,7 +512,7 @@ export const useChat = () => {
     setChatState,
     currentSessionId,
 
-    // 操作
+    // 基础操作
     sendMessage,
     sendStreamMessage,
     clearChat,
@@ -446,5 +523,11 @@ export const useChat = () => {
     retryLastMessage,
     clearError,
     addWelcomeMessage,
+
+    // 会话管理
+    createNewSession,
+    selectSession,
+    updateCurrentSession,
+    ensureCurrentSession,
   };
 };

@@ -208,6 +208,7 @@ function createStreamResponse(nodeStream: any): ReadableStream {
     start(controller) {
       let buffer = '';
       let currentSessionId = '';
+      let isClosed = false; // 添加状态跟踪
 
       nodeStream.on('data', (chunk: Buffer) => {
         try {
@@ -275,17 +276,23 @@ function createStreamResponse(nodeStream: any): ReadableStream {
             }
 
             // 检查是否完成
-            if (finishReason === 'stop') {
-              const doneResponse: StreamChatResponse = {
-                type: 'done',
-                data: {
-                  text: '',
-                  sessionId: currentSessionId,
-                  isComplete: true
-                },
-              };
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
-              controller.close();
+            if (finishReason === 'stop' && !isClosed) {
+              try {
+                const doneResponse: StreamChatResponse = {
+                  type: 'done',
+                  data: {
+                    text: '',
+                    sessionId: currentSessionId,
+                    isComplete: true
+                  },
+                };
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
+              } catch (error) {
+                console.error('Failed to send done response:', error);
+              } finally {
+                isClosed = true;
+                controller.close();
+              }
               return;
             }
           });
@@ -295,6 +302,8 @@ function createStreamResponse(nodeStream: any): ReadableStream {
       });
 
       nodeStream.on('end', () => {
+        if (isClosed) return; // 避免重复处理
+
         // 处理剩余的buffer
         if (buffer.trim()) {
           try {
@@ -315,7 +324,9 @@ function createStreamResponse(nodeStream: any): ReadableStream {
                       },
                     };
 
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(streamResponse)}\n\n`));
+                    if (!isClosed) {
+                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(streamResponse)}\n\n`));
+                    }
                   }
                 } catch (parseError) {
                   console.warn('Final buffer JSON解析错误:', parseError);
@@ -328,29 +339,46 @@ function createStreamResponse(nodeStream: any): ReadableStream {
         }
 
         // 发送完成信号
-        const doneResponse: StreamChatResponse = {
-          type: 'done',
-          data: {
-            text: '',
-            sessionId: currentSessionId,
-            isComplete: true
-          },
-        };
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
-        controller.close();
+        try {
+          const doneResponse: StreamChatResponse = {
+            type: 'done',
+            data: {
+              text: '',
+              sessionId: currentSessionId,
+              isComplete: true
+            },
+          };
+          if (!isClosed) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(doneResponse)}\n\n`));
+          }
+        } catch (error) {
+          console.error('Failed to send final done response:', error);
+        } finally {
+          isClosed = true;
+          controller.close();
+        }
       });
 
       nodeStream.on('error', (error: Error) => {
+        if (isClosed) return; // 避免重复处理
+
         console.error('Node stream error:', error);
-        const errorResponse: StreamChatResponse = {
-          type: 'error',
-          error: {
-            code: 'STREAM_ERROR',
-            message: error.message || '流式响应处理失败',
-          },
-        };
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorResponse)}\n\n`));
-        controller.close();
+
+        try {
+          const errorResponse: StreamChatResponse = {
+            type: 'error',
+            error: {
+              code: 'STREAM_ERROR',
+              message: error.message || '流式响应处理失败',
+            },
+          };
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorResponse)}\n\n`));
+        } catch (enqueueError) {
+          console.error('Failed to send error response:', enqueueError);
+        } finally {
+          isClosed = true;
+          controller.close();
+        }
       });
     },
   });

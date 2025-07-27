@@ -10,6 +10,7 @@ import { CompletionProvider } from "@/contexts/CompletionContext";
 import { EditorProvider } from "@/contexts/EditorContext";
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext';
+import { ChatProvider } from '@/contexts/ChatContext';
 import NavBar from "@/components/NavBar/NavBar";
 import Loading from './loading';
 
@@ -53,16 +54,18 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ChatSettingsProvider>
-            <LLMProvider>
-              <QueryProvider>
-                <EditorProvider>
-                  <CompletionProvider>
-                    <NavBar />
-                    {isLoading ? <Loading /> : children}
-                  </CompletionProvider>
-                </EditorProvider>
-              </QueryProvider>
-            </LLMProvider>
+            <ChatProvider>
+              <LLMProvider>
+                <QueryProvider>
+                  <EditorProvider>
+                    <CompletionProvider>
+                      <NavBar />
+                      {isLoading ? <Loading /> : children}
+                    </CompletionProvider>
+                  </EditorProvider>
+                </QueryProvider>
+              </LLMProvider>
+            </ChatProvider>
           </ChatSettingsProvider>
         </ThemeProvider>
       </body>

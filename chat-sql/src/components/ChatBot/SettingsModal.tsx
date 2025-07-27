@@ -1,6 +1,6 @@
 // 设置Modal组件
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -64,13 +64,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   } | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // 监听设置变化
+  // 监听设置变化 - 只在modal打开或settings真正变化时重置表单
   useEffect(() => {
-    setFormData(settings);
-    setHasChanges(false);
+    if (open) {
+      setFormData(settings);
+      setHasChanges(false);
+      setTestResult(null);
+    }
   }, [settings, open]);
 
-  // 检查是否有变化
+  // 检查是否有变化 - 直接在useEffect中比较，避免依赖循环
   useEffect(() => {
     const hasChanged = JSON.stringify(formData) !== JSON.stringify(settings);
     setHasChanges(hasChanged);

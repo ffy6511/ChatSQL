@@ -9,6 +9,7 @@ import {
   Slide,
   Tooltip,
   Divider,
+  Alert,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -17,16 +18,34 @@ import {
   FullscreenExit as FullscreenExitIcon,
   DragIndicator as DragIcon,
   SmartToy as AIIcon,
+  Add as AddIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
-import { ChatWindowProps, ActionConfig } from '@/types/chatbot';
-import { useChat } from '@/hooks/chatbot/useChat';
-import { useChatHistory } from '@/hooks/chatbot/useChatHistory';
+import { ChatWindowProps, ActionConfig, Message } from '@/types/chatbot';
+import { ChatMessage } from '@/types/chat';
+import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
-import { ChatStorage } from '@/utils/chatbot/storage';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import ChatSidebar from './ChatSidebar';
 import SettingsModal from './SettingsModal';
+
+/**
+ * 将ChatMessage转换为MessageList组件期望的Message格式
+ */
+const convertChatMessagesToMessages = (chatMessages: ChatMessage[]): Message[] => {
+  return chatMessages.map(msg => ({
+    id: msg.id,
+    content: msg.content,
+    sender: msg.role === 'user' ? 'user' : 'ai',
+    timestamp: msg.timestamp,
+    metadata: msg.metadata && msg.metadata.module ? {
+      module: msg.metadata.module,
+      topic: msg.metadata.topic,
+      action: msg.metadata.action
+    } : undefined
+  }));
+};
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
   isOpen,
@@ -42,23 +61,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  // Hooks
+  // 使用新的ChatContext
   const {
-    chatState,
+    sessions,
+    currentSessionId,
+    messages,
+    isLoading,
+    error,
+    selectSession,
+    createNewSession,
     sendMessage,
-    clearChat,
-    setMessages,
-    addWelcomeMessage,
-  } = useChat();
-
-  const {
-    chatHistory,
-    saveCurrentChat,
-    loadHistoryById,
-    deleteHistory,
-    updateHistoryTitle,
-  } = useChatHistory();
+    deleteSession,
+    clearError,
+  } = useChatContext();
 
   const {
     settings,
@@ -74,22 +91,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const windowRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // 初始化欢迎消息
+  // 当窗口打开时，如果没有当前会话，创建新会话
   useEffect(() => {
-    if (isOpen && chatState.currentMessages.length === 0) {
-      addWelcomeMessage();
+    if (isOpen && !currentSessionId && sessions.length === 0) {
+      createNewSession();
     }
-  }, [isOpen, chatState.currentMessages.length, addWelcomeMessage]);
-
-  // 保存位置和大小到本地存储
-  useEffect(() => {
-    ChatStorage.saveChatPosition(currentPosition);
-  }, [currentPosition]);
+  }, [isOpen, currentSessionId, sessions.length, createNewSession]);
 
   // 当窗口大小变化时，保存到设置中
   useEffect(() => {
     updateWindowSize(currentSize);
-  }, [currentSize, updateWindowSize]);
+  }, [currentSize]); // 移除updateWindowSize依赖，因为它现在是稳定的
+
+
 
   // 拖拽功能
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -199,23 +213,36 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   // 处理新建对话
-  const handleNewChat = () => {
-    clearChat();
-    addWelcomeMessage();
-  };
-
-  // 处理加载历史记录
-  const handleLoadHistory = (historyId: string) => {
-    const messages = loadHistoryById(historyId);
-    if (messages) {
-      setMessages(messages);
+  const handleNewChat = async () => {
+    try {
+      await createNewSession();
+    } catch (error) {
+      console.error('创建新会话失败:', error);
     }
   };
 
-  // 处理保存当前对话
-  const handleSaveCurrentChat = () => {
-    if (chatState.currentMessages.length > 1) { // 至少有用户消息和AI回复
-      saveCurrentChat(chatState.currentMessages);
+  // 处理加载历史记录（选择会话）
+  const handleLoadHistory = async (historyId: string) => {
+    try {
+      await selectSession(historyId);
+    } catch (error) {
+      console.error('加载会话失败:', error);
+    }
+  };
+
+
+
+  // 切换历史记录侧边栏
+  const handleToggleHistory = () => {
+    setIsHistoryOpen(!isHistoryOpen);
+  };
+
+  // 处理删除会话
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      await deleteSession(sessionId);
+    } catch (error) {
+      console.error('删除会话失败:', error);
     }
   };
 
@@ -289,11 +316,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             onNewChat={handleNewChat}
             onOpenHistory={() => {}} // 不再需要，历史记录已集成到侧边栏
             onOpenSettings={() => setIsSettingsModalOpen(true)}
-            historyCount={chatHistory.length}
-            chatHistory={chatHistory}
+            historyCount={sessions.length}
+            chatHistory={sessions.map(session => ({
+              id: session.id,
+              timestamp: session.updatedAt,
+              messages: [], // 不再在这里传递消息
+              module: session.module || 'coding',
+              title: session.title
+            }))}
             onLoadHistory={handleLoadHistory}
-            onDeleteHistory={deleteHistory}
-            onEditHistoryTitle={updateHistoryTitle}
+            onDeleteHistory={handleDeleteSession}
+            onEditHistoryTitle={() => {}} // 暂时禁用编辑标题功能
+            onClearAllHistory={() => {}} // 暂时禁用清空所有历史功能
+            currentHistoryId={currentSessionId || undefined}
+            isHistoryOpen={isHistoryOpen}
+            onToggleHistory={handleToggleHistory}
           />
 
           {/* 主内容区域 */}
@@ -323,12 +360,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 >
                   智能助手
                 </Typography>
-                {chatState.isLoading && (
+                {isLoading && (
                   <Typography
                     variant="caption"
                     sx={{ color: 'var(--secondary-text)' }}
                   >
                     正在思考...
+                  </Typography>
+                )}
+                {currentSessionId && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'var(--secondary-text)' }}
+                  >
+                    {sessions.find(s => s.id === currentSessionId)?.title} • {messages.length} 条消息
                   </Typography>
                 )}
               </Box>
@@ -372,19 +417,30 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               </Box>
             </Box>
 
+            {/* 错误提示 */}
+            {error && (
+              <Alert
+                severity="error"
+                onClose={clearError}
+                sx={{ m: 1 }}
+              >
+                {error}
+              </Alert>
+            )}
+
             {/* 聊天内容 */}
             {!isMinimized && (
               <>
                 <MessageList
-                  messages={chatState.currentMessages}
-                  isLoading={chatState.isLoading}
+                  messages={convertChatMessagesToMessages(messages)}
+                  isLoading={isLoading}
                   onActionConfirm={handleActionConfirm}
                 />
 
                 <MessageInput
                   onSendMessage={sendMessage}
-                  disabled={chatState.isLoading}
-                  placeholder="请输入您的问题..."
+                  disabled={isLoading}
+                  placeholder={currentSessionId ? "请输入您的问题..." : "请先创建或选择一个会话"}
                 />
               </>
             )}
