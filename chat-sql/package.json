@@ -20,6 +20,7 @@
     "@tsparticles/slim": "^3.8.1",
     "@xyflow/react": "^12.5.5",
     "antd": "^5.24.6",
+    "axios": "^1.11.0",
     "d3-dag": "^1.1.0",
     "monaco-editor": "^0.52.2",
     "next": "15.3.0",
