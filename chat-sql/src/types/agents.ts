@@ -3,16 +3,27 @@
 import { ERDiagramData } from './erDiagram';
 
 /**
- * Schema-generator 智能体请求参数
+ * Schema-generator 智能体请求参数 - 支持百炼AI标准格式
  */
 export interface SchemaGeneratorRequest {
-  natural_language_query: string;
-  sessionId?: string;
+  // 新格式：百炼AI标准格式
+  input?: {
+    prompt?: string;
+    session_id?: string;
+    biz_params: {
+      "natural_language_query": string;
+    };
+  };
   parameters?: {
     temperature?: number;
     maxTokens?: number;
     stream?: boolean;
   };
+  debug?: any;
+
+  // 旧格式：向后兼容
+  sessionId?: string;
+  natural_language_query?: string;
 }
 
 /**
@@ -45,17 +56,29 @@ export interface SchemaGeneratorResponse {
 }
 
 /**
- * ER-generator 智能体请求参数
+ * ER-generator 智能体请求参数 - 支持百炼AI标准格式
  */
 export interface ERGeneratorRequest {
-  natural_language_query: string;
-  provided_schema: string;
-  sessionId?: string;
+  // 新格式：百炼AI标准格式
+  input?: {
+    prompt?: string;
+    session_id?: string;
+    biz_params: {
+      natural_language_query: string;
+      provided_schema: string;
+    };
+  };
   parameters?: {
     temperature?: number;
     maxTokens?: number;
     stream?: boolean;
   };
+  debug?: any;
+
+  // 旧格式：向后兼容
+  natural_language_query?: string;
+  provided_schema?: string;
+  sessionId?: string;
 }
 
 /**

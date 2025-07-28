@@ -319,29 +319,40 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // 立即显示用户消息
       dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
 
-      // 构建API请求体
+      // 构建API请求体 - 按照百炼AI的标准格式
       const requestBody: any = {
-        sessionId: currentSession!.session_id,
+        input: {
+          prompt: "处理用户请求",
+          biz_params: {},
+        },
         parameters: {
           stream: false,
           temperature: 0.7,
           maxTokens: 2000,
         },
+        debug: {},
       };
 
-      // 根据智能体类型添加特定的参数
+      // 如果有session_id，添加到input中
+      if (currentSession!.session_id) {
+        requestBody.input.session_id = currentSession!.session_id;
+      }
+
+      // 根据智能体类型添加特定的参数到biz_params中
       if (agentType === AgentType.SCHEMA_GENERATOR) {
-        requestBody.biz_params = {
-          natural_language_query: inputValues.natural_language_query,
+        requestBody.input.biz_params = {
+          "natural_language_query": inputValues.natural_language_query,
         };
       } else if (agentType === AgentType.ER_GENERATOR) {
-        requestBody.biz_params = {
+        requestBody.input.biz_params = {
           natural_language_query: inputValues.natural_language_query,
           provided_schema: inputValues.provided_schema,
         };
       } else {
-        // 默认聊天智能体
-        requestBody.message = inputValues.message;
+        // 默认聊天智能体 - 使用message字段
+        requestBody.input.biz_params = {
+          message: inputValues.message,
+        };
       }
 
       // 调用对应的API端点

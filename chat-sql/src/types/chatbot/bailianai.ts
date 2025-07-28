@@ -9,6 +9,8 @@ export interface BailianAIRequest {
     session_id?: string;
     biz_params?: {
       user_prompt_params?: Record<string, string>;
+      // 支持直接的业务参数，如 natural_language_query, provided_schema 等
+      [key: string]: any;
     };
   };
   parameters?: {

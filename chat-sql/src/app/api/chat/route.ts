@@ -389,9 +389,28 @@ function createStreamResponse(nodeStream: any): ReadableStream {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body: ChatRequest = await request.json();
+    const body = await request.json();
+    console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    const { message, sessionId, parameters, userPromptParams } = body;
+    // 支持两种格式：新格式（百炼AI标准）和旧格式（向后兼容）
+    let message: string;
+    let sessionId: string | undefined;
+    let parameters: any;
+    let userPromptParams: any;
+
+    if (body.input && body.input.biz_params) {
+      // 新格式：百炼AI标准格式
+      message = body.input.biz_params.message;
+      sessionId = body.input.session_id;
+      parameters = body.parameters;
+      userPromptParams = body.userPromptParams;
+    } else {
+      // 旧格式：向后兼容
+      message = body.message;
+      sessionId = body.sessionId;
+      parameters = body.parameters;
+      userPromptParams = body.userPromptParams;
+    }
 
     if (!message || typeof message !== 'string') {
       console.log('错误: 消息内容无效:', message);

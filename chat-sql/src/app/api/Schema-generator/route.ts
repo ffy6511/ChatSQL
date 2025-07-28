@@ -48,25 +48,18 @@ function createSchemaGeneratorRequest(
 ): BailianAIRequest {
   const request: BailianAIRequest = {
     input: {
-      prompt: naturalLanguageQuery,
+      prompt: "根据以下描述生成DDL",
+      biz_params: {
+        "natural_language_query": naturalLanguageQuery,
+      },
     },
-    parameters: {
-      incremental_output: parameters?.stream ? true : false,
-      ...parameters,
-    },
+    parameters: parameters || {},
     debug: {},
   };
 
   if (sessionId) {
     request.input.session_id = sessionId;
   }
-
-  // 设置用户提示词参数
-  request.input.biz_params = {
-    user_prompt_params: {
-      [AGENT_CONFIG.SCHEMA_GENERATOR.INPUT_PARAM]: naturalLanguageQuery,
-    },
-  };
 
   return request;
 }
@@ -125,25 +118,25 @@ function handleAPIError(error: any): BailianAIAPIError {
  * 实现指数退避重试
  */
 async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = DEFAULT_RETRY_CONFIG.maxRetries
+  operation: () => Promise<T>,
+  config: typeof DEFAULT_RETRY_CONFIG = DEFAULT_RETRY_CONFIG
 ): Promise<T> {
   let lastError: Error;
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
     try {
-      return await fn();
+      return await operation();
     } catch (error) {
       lastError = error as Error;
 
       // 如果是最后一次尝试，直接抛出错误
-      if (attempt === maxRetries) {
+      if (attempt === config.maxRetries) {
         throw lastError;
       }
 
-      // 对于某些错误类型，不进行重试
+      // 如果是认证错误或验证错误，不进行重试
       if (error instanceof BailianAIAPIError) {
-        if (error.type === ErrorType.AUTHENTICATION_ERROR ||
+        if (error.type === ErrorType.AUTHENTICATION_ERROR || 
             error.type === ErrorType.VALIDATION_ERROR) {
           throw error;
         }
@@ -151,11 +144,11 @@ async function retryWithBackoff<T>(
 
       // 计算延迟时间（指数退避）
       const delay = Math.min(
-        DEFAULT_RETRY_CONFIG.baseDelay * Math.pow(DEFAULT_RETRY_CONFIG.backoffFactor, attempt),
-        DEFAULT_RETRY_CONFIG.maxDelay
+        config.baseDelay * Math.pow(config.backoffFactor, attempt),
+        config.maxDelay
       );
 
-      console.warn(`Schema-generator API调用失败，${delay}ms后进行第${attempt + 1}次重试:`, error);
+      console.log(`请求失败，${delay}ms后进行第${attempt + 1}次重试:`, error);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -202,9 +195,25 @@ async function callBailianAPI(
  */
 export async function POST(request: NextRequest) {
   try {
-    const body: SchemaGeneratorRequest = await request.json();
+    const body = await request.json();
+    console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    const { natural_language_query, sessionId, parameters } = body;
+    // 支持两种格式：新格式（百炼AI标准）和旧格式（向后兼容）
+    let natural_language_query: string;
+    let sessionId: string | undefined;
+    let parameters: any;
+
+    if (body.input && body.input.biz_params) {
+      // 新格式：百炼AI标准格式
+      natural_language_query = body.input.biz_params.natural_language_query;
+      sessionId = body.input.session_id;
+      parameters = body.parameters;
+    } else {
+      // 旧格式：向后兼容
+      natural_language_query = body.natural_language_query;
+      sessionId = body.sessionId;
+      parameters = body.parameters;
+    }
 
     if (!natural_language_query || typeof natural_language_query !== 'string') {
       console.log('错误: 自然语言查询内容无效:', natural_language_query);

@@ -83,25 +83,18 @@ function createERGeneratorRequest(
   const request: BailianAIRequest = {
     input: {
       prompt: `自然语言查询: ${naturalLanguageQuery}\n\n提供的Schema: ${providedSchema}`,
+      biz_params: {
+        natural_language_query: naturalLanguageQuery,
+        provided_schema: providedSchema,
+      },
     },
-    parameters: {
-      incremental_output: parameters?.stream ? true : false,
-      ...parameters,
-    },
+    parameters: parameters || {},
     debug: {},
   };
 
   if (sessionId) {
     request.input.session_id = sessionId;
   }
-
-  // 设置用户提示词参数
-  request.input.biz_params = {
-    user_prompt_params: {
-      natural_language_query: naturalLanguageQuery,
-      provided_schema: providedSchema,
-    },
-  };
 
   return request;
 }
@@ -237,9 +230,28 @@ async function callBailianAPI(
  */
 export async function POST(request: NextRequest) {
   try {
-    const body: ERGeneratorRequest = await request.json();
+    const body = await request.json();
+    console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    const { natural_language_query, provided_schema, sessionId, parameters } = body;
+    // 支持两种格式：新格式（百炼AI标准）和旧格式（向后兼容）
+    let natural_language_query: string;
+    let provided_schema: string;
+    let sessionId: string | undefined;
+    let parameters: any;
+
+    if (body.input && body.input.biz_params) {
+      // 新格式：百炼AI标准格式
+      natural_language_query = body.input.biz_params.natural_language_query;
+      provided_schema = body.input.biz_params.provided_schema;
+      sessionId = body.input.session_id;
+      parameters = body.parameters;
+    } else {
+      // 旧格式：向后兼容
+      natural_language_query = body.natural_language_query;
+      provided_schema = body.provided_schema;
+      sessionId = body.sessionId;
+      parameters = body.parameters;
+    }
 
     if (!natural_language_query || typeof natural_language_query !== 'string') {
       console.log('错误: 自然语言查询内容无效:', natural_language_query);
