@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogTitle,
@@ -25,6 +26,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import { useSelection } from '@/contexts/SelectionContext';
 
 interface OpenDiagramModalProps {
   open: boolean;
@@ -32,18 +34,29 @@ interface OpenDiagramModalProps {
 }
 
 const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) => {
+  const router = useRouter();
   const { diagramList, loadDiagram, deleteDiagram } = useERDiagramContext();
+  const { setSelectedERId } = useSelection();
   const [error, setError] = useState<string | null>(null);
   const [selectedDiagram, setSelectedDiagram] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 打开图表
+  // 打开图表 - 修复：添加页面跳转和状态同步逻辑
   const handleOpenDiagram = async (id: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
+      // 1. 加载图表数据到Context
       await loadDiagram(id);
+
+      // 2. 更新全局选择状态
+      setSelectedERId(id);
+
+      // 3. 跳转到ER图页面，URL参数会被页面的useEffect处理
+      router.push(`/er-diagram?id=${id}`);
+
+      // 4. 关闭模态框
       onClose();
     } catch (err) {
       setError('打开图表失败');

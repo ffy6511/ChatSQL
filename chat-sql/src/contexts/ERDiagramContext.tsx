@@ -988,12 +988,13 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     }
   };
 
-  // 存储相关方法实现
-  const saveDiagram = async (diagramData: ERDiagramData, existingId?: string): Promise<string> => {
+  // 存储相关方法实现 - 使用useCallback避免无限重渲染
+  const saveDiagram = useCallback(async (diagramData: ERDiagramData, existingId?: string): Promise<string> => {
     try {
       const savedId = await erDiagramStorage.saveDiagram(diagramData, existingId);
       // 保存成功后自动刷新图表列表
-      await fetchDiagramList();
+      const list = await erDiagramStorage.listDiagrams();
+      dispatch({ type: 'SET_DIAGRAM_LIST', payload: list });
       // 更新当前图表ID
       dispatch({ type: 'SET_CURRENT_DIAGRAM_ID', payload: { id: savedId } });
       return savedId;
@@ -1001,10 +1002,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       console.error('保存图表失败:', error);
       throw error;
     }
-  };
+  }, []);
 
-  // 重构后的 loadDiagram 方法
-  const loadDiagram = async (id: string): Promise<void> => {
+  // 重构后的 loadDiagram 方法 - 使用useCallback避免无限重渲染
+  const loadDiagram = useCallback(async (id: string): Promise<void> => {
     try {
       const storedDiagram = await erDiagramStorage.loadDiagram(id);
       // 通过 SET_DIAGRAM_DATA 更新图表数据
@@ -1015,7 +1016,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       console.error('加载图表失败:', error);
       throw error;
     }
-  };
+  }, []);
 
   const newDiagram = () => {
     dispatch({ type: 'NEW_DIAGRAM' });
@@ -1025,8 +1026,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     return await erDiagramStorage.listDiagrams();
   };
 
-  // 重构后的 deleteDiagram 方法
-  const deleteDiagram = async (id: string): Promise<void> => {
+  // 重构后的 deleteDiagram 方法 - 使用useCallback避免无限重渲染
+  const deleteDiagram = useCallback(async (id: string): Promise<void> => {
     try {
       await erDiagramStorage.deleteDiagram(id);
       // 如果删除的是当前图表，清空状态
@@ -1034,12 +1035,13 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
         dispatch({ type: 'NEW_DIAGRAM' });
       }
       // 删除成功后自动刷新图表列表
-      await fetchDiagramList();
+      const list = await erDiagramStorage.listDiagrams();
+      dispatch({ type: 'SET_DIAGRAM_LIST', payload: list });
     } catch (error) {
       console.error('删除图表失败:', error);
       throw error;
     }
-  };
+  }, [state.currentDiagramId]);
 
   const fetchDiagramList = useCallback(async () => {
     try {
@@ -1052,8 +1054,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     }
   }, []);
 
-  // 新增 createNewDiagram 方法
-  const createNewDiagram = async (
+  // 新增 createNewDiagram 方法 - 使用useCallback避免无限重渲染
+  const createNewDiagram = useCallback(async (
     name: string,
     description: string,
     templateId: string
@@ -1126,7 +1128,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       console.error('创建新图表失败:', error);
       throw error;
     }
-  };
+  }, [saveDiagram]);
 
   // 4. useEffect 首次加载时调用 fetchDiagramList
   useEffect(() => {

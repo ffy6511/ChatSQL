@@ -21,26 +21,28 @@ const ERDiagramContent: React.FC = () => {
     const urlId = searchParams.get('id');
 
     if (urlId) {
-      // URL 中有 ID 参数，加载对应的图表
-      console.log('从URL参数加载ER图:', urlId);
-      loadDiagram(urlId).catch(error => {
-        console.error('从URL参数加载ER图失败:', error);
-        message.error('加载指定的ER图失败');
-      });
+      // URL 中有 ID 参数，只有当前图表ID与URL参数不同时才加载
+      if (state.currentDiagramId !== urlId) {
+        console.log('从URL参数加载ER图:', urlId);
+        loadDiagram(urlId).catch(error => {
+          console.error('从URL参数加载ER图失败:', error);
+          message.error('加载指定的ER图失败');
+        });
+      }
 
       // 同步更新选择状态
       if (selectionState.selectedERId !== urlId) {
         setSelectedERId(urlId);
       }
-    } else if (selectionState.selectedERId) {
-      // URL 中没有 ID，但选择状态中有，加载选择的图表
+    } else if (selectionState.selectedERId && state.currentDiagramId !== selectionState.selectedERId) {
+      // URL 中没有 ID，但选择状态中有，且当前图表ID与选择状态不同时才加载
       loadDiagram(selectionState.selectedERId).catch(error => {
         console.error('从选择状态加载ER图失败:', error);
         // 如果加载失败，清除选择状态
         setSelectedERId(null);
       });
     }
-  }, [searchParams, selectionState.selectedERId, loadDiagram, setSelectedERId]);
+  }, [searchParams, selectionState.selectedERId, state.currentDiagramId, loadDiagram, setSelectedERId]);
 
   return (
     <div className={styles.pageContainer}>
