@@ -9,7 +9,11 @@ import {
   Add as AddIcon,
   History as HistoryIcon,
   Settings as SettingsIcon,
+  Chat as ChatIcon,
+  Storage as StorageIcon,
+  AccountTree as AccountTreeIcon,
 } from '@mui/icons-material';
+import { AgentType } from '@/types/agents';
 
 interface IconSidebarProps {
   onNewChat: () => void;
@@ -17,6 +21,8 @@ interface IconSidebarProps {
   onOpenSettings: () => void;
   historyCount: number;
   isHistoryOpen: boolean;
+  selectedAgent: AgentType;
+  onAgentChange: (agentType: AgentType) => void;
 }
 
 // 参数配置
@@ -28,7 +34,36 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
   onOpenSettings,
   historyCount,
   isHistoryOpen,
+  selectedAgent,
+  onAgentChange,
 }) => {
+  // 智能体图标映射
+  const getAgentIcon = (agentType: AgentType) => {
+    switch (agentType) {
+      case AgentType.CHAT:
+        return ChatIcon;
+      case AgentType.SCHEMA_GENERATOR:
+        return StorageIcon;
+      case AgentType.ER_GENERATOR:
+        return AccountTreeIcon;
+      default:
+        return ChatIcon;
+    }
+  };
+
+  // 智能体名称映射
+  const getAgentName = (agentType: AgentType) => {
+    switch (agentType) {
+      case AgentType.CHAT:
+        return '通用聊天';
+      case AgentType.SCHEMA_GENERATOR:
+        return 'DDL生成器';
+      case AgentType.ER_GENERATOR:
+        return 'ER图生成器';
+      default:
+        return '通用聊天';
+    }
+  };
   return (
     <Box
       sx={{
@@ -95,6 +130,36 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
           </Badge>
         </IconButton>
       </Tooltip>
+
+      {/* 智能体选择区域 */}
+      <Box sx={{ my: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {Object.values(AgentType).map((agentType) => {
+          const IconComponent = getAgentIcon(agentType);
+          const agentName = getAgentName(agentType);
+          const isSelected = selectedAgent === agentType;
+
+          return (
+            <Tooltip key={agentType} title={agentName} placement="right">
+              <IconButton
+                onClick={() => onAgentChange(agentType)}
+                sx={{
+                  color: isSelected ? 'var(--primary-color)' : 'var(--icon-color)',
+                  backgroundColor: isSelected ? 'var(--selected-bg)' : 'transparent',
+                  borderRadius: 4,
+                  width: ICON_SIZE,
+                  height: ICON_SIZE,
+                  border: isSelected ? '2px solid var(--primary-color)' : '2px solid transparent',
+                  '&:hover': {
+                    backgroundColor: isSelected ? 'var(--selected-hover-bg)' : 'var(--hover-bg)',
+                  },
+                }}
+              >
+                <IconComponent fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          );
+        })}
+      </Box>
 
       {/* 弹簧间距 */}
       <Box sx={{ flex: 1 }} />

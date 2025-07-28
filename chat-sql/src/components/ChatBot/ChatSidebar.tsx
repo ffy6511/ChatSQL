@@ -3,6 +3,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { ChatSidebarProps, ChatHistory } from '@/types/chatbot';
+import { AgentType } from '@/types/agents';
 import IconSidebar from './IconSidebar';
 import HistoryPanel from './HistoryPanel';
 
@@ -16,6 +17,8 @@ interface ExtendedChatSidebarProps extends ChatSidebarProps {
   currentHistoryId?: string;
   isHistoryOpen?: boolean;
   onToggleHistory?: () => void;
+  selectedAgent?: AgentType;
+  onAgentChange?: (agentType: AgentType) => void;
 }
 
 const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
@@ -31,6 +34,8 @@ const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
   currentHistoryId,
   isHistoryOpen = false,
   onToggleHistory,
+  selectedAgent = AgentType.CHAT,
+  onAgentChange,
 }) => {
   // 调试信息
   console.log('ChatSidebar props:', {
@@ -82,6 +87,8 @@ const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
         onOpenSettings={onOpenSettings}
         historyCount={historyCount}
         isHistoryOpen={isHistoryOpen}
+        selectedAgent={selectedAgent}
+        onAgentChange={onAgentChange || (() => {})}
       />
 
       {/* 历史记录面板 */}

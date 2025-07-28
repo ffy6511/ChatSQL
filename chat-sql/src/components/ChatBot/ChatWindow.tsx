@@ -23,10 +23,12 @@ import {
 import { Try as AIIcon } from '@mui/icons-material';
 import { ChatWindowProps, ActionConfig, Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
+import { AgentType } from '@/types/agents';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import DynamicMessageInput from './DynamicMessageInput';
 import ChatSidebar from './ChatSidebar';
 import SettingsModal from './SettingsModal';
 
@@ -88,6 +90,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<AgentType>(AgentType.CHAT);
 
   // 使用新的ChatContext
   const {
@@ -99,6 +102,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     selectSession,
     createNewSession,
     sendMessage,
+    sendAgentMessage,
     deleteSession,
     clearError,
   } = useChatContext();
@@ -293,6 +297,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setIsMinimized(!isMinimized);
   };
 
+  // 根据智能体类型获取标题
+  const getAgentTitle = (agentType: AgentType): string => {
+    switch (agentType) {
+      case AgentType.CHAT:
+        return '对话';
+      case AgentType.SCHEMA_GENERATOR:
+        return 'DDL生成器';
+      case AgentType.ER_GENERATOR:
+        return 'ER图生成器';
+      default:
+        return '对话';
+    }
+  };
+
   // 切换全屏
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -373,6 +391,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             currentHistoryId={currentSessionId || undefined}
             isHistoryOpen={isHistoryOpen}
             onToggleHistory={handleToggleHistory}
+            selectedAgent={selectedAgent}
+            onAgentChange={setSelectedAgent}
           />
 
           {/* 主内容区域 */}
@@ -400,7 +420,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   variant="subtitle2"
                   sx={{ color: 'var(--primary-text)', fontWeight: 'bold' }}
                 >
-                  多智能体系统
+                  {getAgentTitle(selectedAgent)}
                 </Typography>
                 {isLoading && (
                   <Typography
@@ -467,10 +487,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   onActionConfirm={handleActionConfirm}
                 />
 
-                <MessageInput
-                  onSendMessage={sendMessage}
-                  disabled={isLoading}
-                  placeholder={currentSessionId ? "请输入您的问题..." : "请先创建或选择一个会话"}
+                {/* 动态消息输入 */}
+                <DynamicMessageInput
+                  selectedAgent={selectedAgent}
+                  onSendMessage={sendAgentMessage}
+                  disabled={isLoading || !currentSessionId}
                 />
               </>
             )}

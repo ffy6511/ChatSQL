@@ -1,15 +1,16 @@
 // 聊天状态管理上下文
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { 
-  ChatContextType, 
-  ChatState, 
-  ChatMessage, 
+import {
+  ChatContextType,
+  ChatState,
+  ChatMessage,
   ChatSession,
   DEFAULT_CHAT_STATE,
-  generateId 
+  generateId
 } from '@/types/chat';
 import { chatStorage } from '@/services/chatStorage';
+import { AgentType, AGENTS_INFO } from '@/types/agents';
 
 // 状态管理的Action类型
 type ChatAction = 
@@ -191,7 +192,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
 
       // 调用后端API，传递正确的session_id
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/Schema-generator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -270,6 +271,160 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, [state.currentSessionId, state.sessions, refreshSessions]);
 
   /**
+   * 发送智能体消息 - 支持动态智能体选择和参数适配
+   */
+  const sendAgentMessage = useCallback(async (agentType: string, inputValues: Record<string, string>): Promise<void> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+
+      // 获取智能体信息
+      const agentInfo = AGENTS_INFO[agentType as AgentType];
+      if (!agentInfo) {
+        throw new Error(`未知的智能体类型: ${agentType}`);
+      }
+
+      // 验证必需的输入字段
+      for (const field of agentInfo.inputFields) {
+        if (field.required && !inputValues[field.name]?.trim()) {
+          throw new Error(`请填写必需字段: ${field.label}`);
+        }
+      }
+
+      // 如果没有当前会话，自动创建新会话
+      let currentSessionId = state.currentSessionId;
+      let currentSession = currentSessionId ? state.sessions.find(s => s.id === currentSessionId) : null;
+
+      if (!currentSessionId || !currentSession) {
+        const newSession = await chatStorage.createSession();
+        currentSessionId = newSession.id;
+        currentSession = newSession;
+        dispatch({ type: 'SET_CURRENT_SESSION', payload: currentSessionId });
+        await refreshSessions();
+      }
+
+      // 创建用户消息（显示用户的输入）
+      const userContent = agentInfo.inputFields.length === 1
+        ? inputValues[agentInfo.inputFields[0].name]
+        : agentInfo.inputFields.map(field => `${field.label}: ${inputValues[field.name]}`).join('\n');
+
+      const userMessage: ChatMessage = {
+        id: generateId(),
+        content: userContent,
+        role: 'user',
+        timestamp: new Date().toISOString(),
+        session_id: currentSession!.session_id || currentSessionId
+      };
+
+      // 立即显示用户消息
+      dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
+
+      // 构建API请求体
+      const requestBody: any = {
+        sessionId: currentSession!.session_id,
+        parameters: {
+          stream: false,
+          temperature: 0.7,
+          maxTokens: 2000,
+        },
+      };
+
+      // 根据智能体类型添加特定的参数
+      if (agentType === AgentType.SCHEMA_GENERATOR) {
+        requestBody.biz_params = {
+          natural_language_query: inputValues.natural_language_query,
+        };
+      } else if (agentType === AgentType.ER_GENERATOR) {
+        requestBody.biz_params = {
+          natural_language_query: inputValues.natural_language_query,
+          provided_schema: inputValues.provided_schema,
+        };
+      } else {
+        // 默认聊天智能体
+        requestBody.message = inputValues.message;
+      }
+
+      // 调用对应的API端点
+      const response = await fetch(agentInfo.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // 检查API响应是否成功
+      if (!data.success) {
+        throw new Error(data.error?.message || 'API调用失败');
+      }
+
+      // 从响应中获取session_id
+      const backendSessionId = data.data?.sessionId;
+
+      // 如果是新会话且获得了后端session_id，更新会话和消息
+      if (!currentSession!.session_id && backendSessionId) {
+        const updatedSession = {
+          ...currentSession!,
+          session_id: backendSessionId
+        };
+        await chatStorage.updateSession(updatedSession);
+        dispatch({ type: 'UPDATE_SESSION_IN_LIST', payload: updatedSession });
+
+        userMessage.session_id = backendSessionId;
+        await chatStorage.saveMessage(userMessage);
+      } else if (currentSession!.session_id) {
+        await chatStorage.saveMessage(userMessage);
+      }
+
+      // 获取AI回复内容
+      let aiContent = '';
+      if (agentType === AgentType.SCHEMA_GENERATOR) {
+        aiContent = data.data?.result || '抱歉，无法生成DDL语句。';
+      } else if (agentType === AgentType.ER_GENERATOR) {
+        aiContent = typeof data.data?.output === 'string'
+          ? data.data.output
+          : JSON.stringify(data.data?.output, null, 2) || '抱歉，无法生成ER图数据。';
+      } else {
+        aiContent = data.data?.text || '抱歉，我无法处理您的请求。';
+      }
+
+      // 创建AI回复消息
+      const aiMessage: ChatMessage = {
+        id: generateId(),
+        content: aiContent,
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+        session_id: backendSessionId || currentSession!.session_id || currentSessionId,
+        metadata: data.data?.metadata
+      };
+
+      // 显示AI回复
+      dispatch({ type: 'ADD_MESSAGE', payload: aiMessage });
+
+      // 保存AI消息到数据库
+      await chatStorage.saveMessage(aiMessage);
+
+      // 更新会话的消息数量和标题
+      await chatStorage.updateMessageCount(currentSessionId);
+
+      // 刷新会话列表以更新统计信息
+      await refreshSessions();
+
+    } catch (error) {
+      console.error('发送智能体消息失败:', error);
+      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : '发送消息失败，请重试' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [state.currentSessionId, state.sessions, refreshSessions]);
+
+  /**
    * 删除会话
    */
   const deleteSession = useCallback(async (sessionId: string): Promise<void> => {
@@ -309,6 +464,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     selectSession,
     createNewSession,
     sendMessage,
+    sendAgentMessage,
     deleteSession,
 
     // 辅助方法
