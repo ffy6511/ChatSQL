@@ -181,7 +181,7 @@ export interface RetryConfig {
  */
 export const DEFAULT_BAILIAN_CONFIG: Partial<BailianAIConfig> = {
   baseUrl: 'https://dashscope.aliyuncs.com/api/v1/apps',
-  timeout: 30000,
+  timeout: 150000,
   maxRetries: 3,
   retryDelay: 1000,
 };

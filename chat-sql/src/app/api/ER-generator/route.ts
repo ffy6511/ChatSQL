@@ -13,6 +13,7 @@ import {
 import {
   ERGeneratorRequest,
   ERGeneratorResponse,
+  SchemaGeneratorResponse,
   AGENT_CONFIG,
 } from '@/types/agents';
 import { ERDiagramData } from '@/types/erDiagram';
@@ -192,6 +193,73 @@ async function retryWithBackoff<T>(
 }
 
 /**
+ * 调用Schema-generator API获取DDL语句
+ */
+async function callSchemaGeneratorAPI(
+  naturalLanguageQuery: string,
+  sessionId?: string,
+  parameters?: any
+): Promise<string> {
+  try {
+    console.log('调用Schema-generator API:', { naturalLanguageQuery, sessionId });
+
+    // 构建请求体，使用百炼AI标准格式
+    const requestBody: any = {
+      input: {
+        prompt: "根据以下描述生成DDL",
+        biz_params: {
+          "natural_language_query": naturalLanguageQuery,
+        },
+      },
+      parameters: parameters || {
+        stream: false,
+        temperature: 0.7,
+        maxTokens: 2000,
+      },
+      debug: {},
+    };
+
+    if (sessionId) {
+      requestBody.input.session_id = sessionId;
+    }
+
+    // 调用Schema-generator API
+    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/Schema-generator`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Schema-generator API调用失败: ${response.status} ${response.statusText}`);
+    }
+
+    const data: SchemaGeneratorResponse = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error?.message || 'Schema-generator API返回错误');
+    }
+
+    const ddlResult = data.data?.result;
+    if (!ddlResult) {
+      throw new Error('Schema-generator API未返回有效的DDL语句');
+    }
+
+    console.log('Schema-generator API调用成功，生成的DDL:', ddlResult);
+    return ddlResult;
+
+  } catch (error) {
+    console.error('调用Schema-generator API失败:', error);
+    throw new BailianAIAPIError(
+      `无法生成DDL语句: ${error instanceof Error ? error.message : '未知错误'}`,
+      ErrorType.NETWORK_ERROR
+    );
+  }
+}
+
+/**
  * 调用百炼平台API
  */
 async function callBailianAPI(
@@ -267,18 +335,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!provided_schema || typeof provided_schema !== 'string') {
-      console.log('错误: 提供的Schema内容无效:', provided_schema);
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INVALID_SCHEMA',
-            message: '提供的Schema内容不能为空',
-          },
-        } as ERGeneratorResponse,
-        { status: HTTPStatus.BAD_REQUEST }
-      );
+    // 修改逻辑：如果provided_schema为空，则调用Schema-generator获取DDL
+    if (!provided_schema || typeof provided_schema !== 'string' || provided_schema.trim() === '') {
+      console.log('provided_schema为空，将调用Schema-generator生成DDL');
+      try {
+        provided_schema = await callSchemaGeneratorAPI(
+          natural_language_query,
+          sessionId,
+          parameters
+        );
+        console.log('成功从Schema-generator获取DDL:', provided_schema);
+      } catch (error) {
+        console.error('调用Schema-generator失败:', error);
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'SCHEMA_GENERATION_FAILED',
+              message: error instanceof Error ? error.message : '生成DDL语句失败',
+            },
+          } as ERGeneratorResponse,
+          { status: HTTPStatus.INTERNAL_SERVER_ERROR }
+        );
+      }
     }
 
     console.log('创建ER-generator请求参数:', { natural_language_query, provided_schema, sessionId, parameters });

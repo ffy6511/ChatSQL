@@ -65,7 +65,7 @@ export interface ERGeneratorRequest {
     session_id?: string;
     biz_params: {
       natural_language_query: string;
-      provided_schema: string;
+      provided_schema?: string; // 改为可选，允许为空时自动调用Schema-generator
     };
   };
   parameters?: {
@@ -77,7 +77,7 @@ export interface ERGeneratorRequest {
 
   // 旧格式：向后兼容
   natural_language_query?: string;
-  provided_schema?: string;
+  provided_schema?: string; // 保持可选
   sessionId?: string;
 }
 
@@ -227,11 +227,11 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
       },
       {
         name: 'provided_schema',
-        label: 'DDL语句',
-        description: '请提供相关的数据库表结构DDL语句',
+        label: 'DDL语句（可选）',
+        description: '可选：提供相关的数据库表结构DDL语句。如果不提供，系统将自动根据需求描述生成DDL语句',
         type: 'textarea',
-        required: true,
-        placeholder: 'CREATE TABLE students (...);',
+        required: false, // 改为非必需
+        placeholder: 'CREATE TABLE students (...); （可选，留空将自动生成）',
       },
     ],
   },
