@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Splitter } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Splitter, message } from 'antd';
+import { useSearchParams } from 'next/navigation';
 import './App.css';
 import SQLEditor from '@/components/codeEditing/SQLEditor';
 import Container from '@/components/LLMInteractive/renderedArea/Container';
@@ -13,6 +14,7 @@ import { useQueryContext } from '@/contexts/QueryContext';
 import { useEditorContext } from '@/contexts/EditorContext';
 import QueryResultTable from '@/components/codeEditing/QueryResultTable';
 import EmptyQueryState from '@/components/codeEditing/EmptyQueryState';
+import { useSelection } from '@/contexts/SelectionContext';
 
 const SQLQueryArea: React.FC = () => {
   const { queryResult } = useQueryContext();
@@ -29,7 +31,9 @@ const SQLQueryArea: React.FC = () => {
 };
 
 const Page: React.FC = () => {
-  const { showLLMWindow } = useLLMContext();
+  const searchParams = useSearchParams();
+  const { showLLMWindow, setCurrentProblemId } = useLLMContext();
+  const { selectionState, setSelectedCodingId } = useSelection();
   const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(false);
 
   const handleToggleHistory = () => {
@@ -37,6 +41,51 @@ const Page: React.FC = () => {
   };
 
   const { sqlEditorValue, setSqlEditorValue } = useEditorContext(); // 使用EditorContext
+
+  // 处理 URL 参数自动加载编码记录
+  useEffect(() => {
+    const urlRecordId = searchParams.get('recordId');
+
+    if (urlRecordId) {
+      const recordId = parseInt(urlRecordId, 10);
+      if (!isNaN(recordId)) {
+        // URL 中有记录 ID 参数，加载对应的记录
+        loadCodingRecord(recordId);
+
+        // 同步更新选择状态
+        if (selectionState.selectedCodingId !== recordId) {
+          setSelectedCodingId(recordId);
+        }
+      }
+    } else if (selectionState.selectedCodingId) {
+      // URL 中没有 ID，但选择状态中有，加载选择的记录
+      loadCodingRecord(selectionState.selectedCodingId);
+    }
+  }, [searchParams, selectionState.selectedCodingId, setSelectedCodingId, setCurrentProblemId]);
+
+  // 加载编码记录的辅助函数
+  const loadCodingRecord = async (recordId: number) => {
+    try {
+      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const record = await getProblemById(recordId);
+
+      if (record) {
+        // 设置当前问题ID到LLM上下文
+        setCurrentProblemId(recordId);
+        console.log('已加载编码记录:', record);
+      } else {
+        console.error('未找到指定的编码记录:', recordId);
+        message.error('未找到指定的编码记录');
+        // 清除无效的选择状态
+        setSelectedCodingId(null);
+      }
+    } catch (error) {
+      console.error('加载编码记录失败:', error);
+      message.error('加载编码记录失败');
+      // 清除无效的选择状态
+      setSelectedCodingId(null);
+    }
+  };
 
   // 添加查询结果处理函数
   const handleQueryResult = (data: any) => {

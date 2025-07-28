@@ -26,6 +26,10 @@ import { ChatMessage } from '@/types/chat';
 import { AgentType } from '@/types/agents';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
+import { useSelection } from '@/contexts/SelectionContext';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import { useRouter } from 'next/navigation';
+import { ERDiagramData } from '@/types/erDiagram';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import DynamicMessageInput from './DynamicMessageInput';
@@ -113,6 +117,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     updateWindowSize,
     getWindowSize,
   } = useChatSettings();
+
+  // 选择状态管理
+  const { setSelectedERId, setSelectedBplusId, setSelectedCodingId } = useSelection();
+
+  // 路由管理
+  const router = useRouter();
 
   // 从设置中获取窗口大小，支持百分比初始值
   const [currentSize, setCurrentSize] = useState<{ width: number; height: number }>(() => {
@@ -233,28 +243,154 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // 处理动作确认
-  const handleActionConfirm = (action: ActionConfig) => {
-    // 这里可以集成路由跳转逻辑
+  // 处理动作确认 - 智能体结果持久化与可视化系统
+  const handleActionConfirm = async (action: ActionConfig) => {
     console.log('Action confirmed:', action);
 
     // 检查是否在客户端环境
     if (typeof window === 'undefined') return;
 
-    // 根据action类型执行相应操作
-    switch (action.type) {
-      case 'navigate':
-        // 使用React Router进行页面跳转
-        window.location.href = action.target;
+    try {
+      // 根据action类型和目标执行相应操作
+      switch (action.type) {
+        case 'navigate':
+          // 直接页面跳转
+          router.push(action.target);
+          break;
+
+        case 'visualize':
+          // 可视化操作 - 保存数据并跳转
+          await handleVisualizationAction(action);
+          break;
+
+        case 'update':
+          // 更新当前页面内容
+          console.log('Update action:', action.params);
+          break;
+      }
+    } catch (error) {
+      console.error('执行动作失败:', error);
+    }finally{
+      // 关闭窗口
+      onClose();
+    }
+  };
+
+  // 处理可视化动作的核心逻辑
+  const handleVisualizationAction = async (action: ActionConfig) => {
+    const { target, params } = action;
+
+    // 根据目标页面执行不同的保存和跳转逻辑
+    switch (target) {
+      case '/er-diagram':
+        await handleERDiagramVisualization(params);
         break;
-      case 'visualize':
-        // 跳转到可视化页面并传递参数
-        window.location.href = `${action.target}?${new URLSearchParams(action.params || {})}`;
+
+      case '/Bplus':
+        await handleBPlusVisualization(params);
         break;
-      case 'update':
-        // 更新当前页面内容
-        console.log('Update action:', action.params);
+
+      case '/':
+        await handleCodingVisualization(params);
         break;
+
+      default:
+        // 默认跳转
+        router.push(`${target}?${new URLSearchParams(params || {})}`);
+    }
+  };
+
+  // ER图可视化处理
+  const handleERDiagramVisualization = async (params: Record<string, any> | undefined) => {
+    if (!params || !params.erData) {
+      console.error('ER图数据缺失');
+      return;
+    }
+
+    try {
+      // 动态导入 ERDiagramContext 以避免循环依赖
+      const { erDiagramStorage } = await import('@/services/erDiagramStorage');
+
+      // 解析 ER 图数据
+      let erDiagramData: ERDiagramData;
+      if (typeof params.erData === 'string') {
+        erDiagramData = JSON.parse(params.erData);
+      } else {
+        erDiagramData = params.erData;
+      }
+
+      // 保存新记录并获取 ID
+      const newDiagramId = await erDiagramStorage.saveDiagram(erDiagramData);
+
+      // 更新全局选择状态
+      setSelectedERId(newDiagramId);
+
+      // 跳转到可视化页面
+      router.push(`/er-diagram?id=${newDiagramId}`);
+
+    } catch (error) {
+      console.error('ER图可视化处理失败:', error);
+    }
+  };
+
+  // B+树可视化处理
+  const handleBPlusVisualization = async (params: Record<string, any> | undefined) => {
+    if (!params) {
+      console.error('B+树参数缺失');
+      return;
+    }
+
+    try {
+      // 动态导入 B+树历史存储服务
+      const { getBPlusHistoryStorage } = await import('@/lib/bplus-tree/historyStorage');
+      const historyStorage = await getBPlusHistoryStorage();
+
+      // 创建新的 B+树会话
+      const sessionData = {
+        name: params.sessionName || '智能体生成的B+树',
+        description: params.description || '由AI智能体自动生成',
+        order: params.order || 3,
+        tags: ['AI生成', '智能体'],
+        steps: [],
+        currentStepIndex: -1,
+        isCompleted: false,
+      };
+
+      const newSessionId = await historyStorage.createSession(sessionData);
+
+      // 更新全局选择状态
+      setSelectedBplusId(newSessionId);
+
+      // 跳转到可视化页面
+      router.push(`/Bplus?sessionId=${newSessionId}`);
+
+    } catch (error) {
+      console.error('B+树可视化处理失败:', error);
+    }
+  };
+
+  // 编码可视化处理
+  const handleCodingVisualization = async (params: Record<string, any> | undefined) => {
+    if (!params || !params.codingData) {
+      console.error('编码数据缺失');
+      return;
+    }
+
+    try {
+      // 动态导入记录存储服务
+      const { saveLLMProblem } = await import('@/services/recordsIndexDB');
+
+      // 保存编码数据
+      const newRecordId = await saveLLMProblem(params.codingData);
+
+      // 更新全局选择状态
+      setSelectedCodingId(newRecordId);
+
+      // 跳转到主页面
+      router.push(`/?recordId=${newRecordId}`);
+
+    } catch (error) {
+      console.error('编码可视化处理失败:', error);
     }
   };
 

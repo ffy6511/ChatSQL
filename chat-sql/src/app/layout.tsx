@@ -11,6 +11,7 @@ import { EditorProvider } from "@/contexts/EditorContext";
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext';
 import { ChatProvider } from '@/contexts/ChatContext';
+import { SelectionProvider } from '@/contexts/SelectionContext';
 import NavBar from "@/components/NavBar/NavBar";
 import Loading from './loading';
 
@@ -53,20 +54,22 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <ChatSettingsProvider>
-            <ChatProvider>
-              <LLMProvider>
-                <QueryProvider>
-                  <EditorProvider>
-                    <CompletionProvider>
-                      <NavBar />
-                      {isLoading ? <Loading /> : children}
-                    </CompletionProvider>
-                  </EditorProvider>
-                </QueryProvider>
-              </LLMProvider>
-            </ChatProvider>
-          </ChatSettingsProvider>
+          <SelectionProvider>
+            <ChatSettingsProvider>
+              <ChatProvider>
+                <LLMProvider>
+                  <QueryProvider>
+                    <EditorProvider>
+                      <CompletionProvider>
+                        <NavBar />
+                        {isLoading ? <Loading /> : children}
+                      </CompletionProvider>
+                    </EditorProvider>
+                  </QueryProvider>
+                </LLMProvider>
+              </ChatProvider>
+            </ChatSettingsProvider>
+          </SelectionProvider>
         </ThemeProvider>
       </body>
     </html>

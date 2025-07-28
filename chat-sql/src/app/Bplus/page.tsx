@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Snackbar, Alert } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import BPlusTreeVisualizer, { TreeState, BPlusTreeOperations } from '@/components/BPlusXyflow/BPlusTreeVisualizer';
 import BPlusOperationPanel from '@/components/BPlusXyflow/BPlusOperationPanel';
@@ -15,6 +16,7 @@ import Typography from '@mui/material/Typography';
 import { getBPlusHistoryStorage, BPlusHistoryStorage } from '@/lib/bplus-tree/historyStorage';
 import EmptyState from '@/components/common/EmptyState';
 import { Hub as HubIcon, AddCircleOutline as AddIcon } from '@mui/icons-material';
+import { useSelection } from '@/contexts/SelectionContext';
 import '@/styles/globalSidebar.css';
 
 /**
@@ -22,6 +24,9 @@ import '@/styles/globalSidebar.css';
  * 采用左右布局：左侧历史管理面板，右侧分为上下两部分（B+树渲染区域和操作控制区域）
  */
 const BPlusHistoryPage: React.FC = () => {
+  const searchParams = useSearchParams();
+  const { selectionState, setSelectedBplusId } = useSelection();
+
   // B+树状态管理
   const [currentTreeState, setCurrentTreeState] = useState<TreeState | null>({
     nodes: [],
@@ -408,6 +413,24 @@ const BPlusHistoryPage: React.FC = () => {
 
     initHistoryStorage();
   }, [showMessage]);
+
+  // 处理 URL 参数自动加载 B+ 树会话
+  useEffect(() => {
+    const urlSessionId = searchParams.get('sessionId');
+
+    if (urlSessionId && historyStorage) {
+      // URL 中有会话 ID 参数，加载对应的会话
+      handleSessionSelect(urlSessionId);
+
+      // 同步更新选择状态
+      if (selectionState.selectedBplusId !== urlSessionId) {
+        setSelectedBplusId(urlSessionId);
+      }
+    } else if (selectionState.selectedBplusId && historyStorage) {
+      // URL 中没有 ID，但选择状态中有，加载选择的会话
+      handleSessionSelect(selectionState.selectedBplusId);
+    }
+  }, [searchParams, selectionState.selectedBplusId, historyStorage, handleSessionSelect, setSelectedBplusId]);
 
   // 操作面板设置变更处理
   const handleOperationSettingsChange = useCallback((newSettings: typeof operationSettings) => {
