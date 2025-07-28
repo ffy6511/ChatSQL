@@ -25,20 +25,6 @@ interface HistoryItemProps {
   onEditTitle: (historyId: string, newTitle: string) => void;
 }
 
-// 获取模块图标
-const getModuleIcon = (module: string) => {
-  switch (module) {
-    case 'coding':
-      return '💻';
-    case 'ER':
-      return '🔗';
-    case 'Bplus':
-      return '🌳';
-    default:
-      return '💬';
-  }
-};
-
 // 格式化时间显示
 const formatTimeDisplay = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -122,36 +108,21 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
           sx={{
             borderRadius: 1,
             mb: 0.5,
-            backgroundColor: isSelected ? 'var(--selected-bg)' : 'transparent',
+            backgroundColor: isSelected ? 'var(--hover-bg)' : 'transparent',
             '&:hover': {
-              backgroundColor: isSelected ? 'var(--selected-bg)' : 'var(--hover-bg)',
+              backgroundColor: isSelected ? 'var(--hover-bg)' : 'var(--hover-bg)',
             },
             '&.Mui-selected': {
-              backgroundColor: 'var(--selected-bg)',
+              backgroundColor: 'var(--hover-bg)',
               '&:hover': {
-                backgroundColor: 'var(--selected-bg)',
+                backgroundColor: 'var(--hover-bg)',
               },
             },
             px: 2,
             py: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
-            {/* 模块图标 */}
-            <Box
-              sx={{
-                fontSize: '16px',
-                flexShrink: 0,
-                width: 20,
-                height: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {getModuleIcon(history.module)}
-            </Box>
-
+          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}> 
             {/* 内容区域 */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
               {isEditing ? (

@@ -19,6 +19,9 @@ interface IconSidebarProps {
   isHistoryOpen: boolean;
 }
 
+// 参数配置
+const ICON_SIZE = 36;
+
 const IconSidebar: React.FC<IconSidebarProps> = ({
   onNewChat,
   onToggleHistory,
@@ -47,13 +50,11 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
           sx={{
             color: 'var(--icon-color)',
             backgroundColor: 'var(--button-bg)',
-            border: '1px solid var(--button-border)',
-            borderRadius: 1,
-            width: 36,
-            height: 36,
+            borderRadius: 4,
+            width: ICON_SIZE,
+            height: ICON_SIZE,
             '&:hover': {
-              backgroundColor: 'var(--button-hover-bg)',
-              borderColor: 'var(--button-hover-border)',
+             backgroundColor: 'var(--hover-bg)',
             },
           }}
         >
@@ -67,12 +68,12 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
           onClick={onToggleHistory}
           sx={{
             color: isHistoryOpen ? 'var(--primary-color)' : 'var(--icon-color)',
-            backgroundColor: isHistoryOpen ? 'var(--selected-bg)' : 'transparent',
-            borderRadius: 1,
-            width: 36,
-            height: 36,
+            backgroundColor:  'transparent',
+            borderRadius: 4,
+            width: ICON_SIZE,
+            height: ICON_SIZE,
             '&:hover': {
-              backgroundColor: isHistoryOpen ? 'var(--selected-bg)' : 'var(--hover-bg)',
+              backgroundColor: isHistoryOpen ? 'var(--hover-bg)' : 'var(--hover-bg)',
             },
           }}
         >
@@ -86,7 +87,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
                 height: 16,
                 minWidth: 16,
                 right: -2,
-                top: -2,
+                top: 3,
               },
             }}
           >
@@ -104,9 +105,9 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
           onClick={onOpenSettings}
           sx={{
             color: 'var(--icon-color)',
-            borderRadius: 1,
-            width: 36,
-            height: 36,
+            borderRadius: 4,
+            width: ICON_SIZE,
+            height: ICON_SIZE,
             '&:hover': {
               backgroundColor: 'var(--hover-bg)',
             },

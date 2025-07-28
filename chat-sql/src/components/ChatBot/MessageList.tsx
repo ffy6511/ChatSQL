@@ -133,7 +133,7 @@ const MessageList: React.FC<MessageListProps> = ({
         }}
       >
         {/* AI头像 */}
-        {!isUser && (
+        {/* {!isUser && (
           <Box
             sx={{
               width: 32,
@@ -149,7 +149,7 @@ const MessageList: React.FC<MessageListProps> = ({
           >
             <AIIcon sx={{ fontSize: 18, color: 'white' }} />
           </Box>
-        )}
+        )} */}
 
         {/* 消息内容 */}
         <Paper
@@ -306,7 +306,6 @@ const MessageList: React.FC<MessageListProps> = ({
           }}
         >
           <Box>
-            <AIIcon sx={{ fontSize: 48, color: 'var(--icon-color)', mb: 2 }} />
             <Typography variant="body2" color="var(--secondary-text)">
               有什么可以帮您？
             </Typography>

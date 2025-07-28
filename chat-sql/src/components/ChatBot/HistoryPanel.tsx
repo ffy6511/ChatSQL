@@ -79,93 +79,101 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           pointerEvents: isOpen ? 'auto' : 'none',
         }}
       >
-        {/* 搜索框 */}
-        <Box sx={{ p: 2, pb: 1 }}>
-          <TextField
-            placeholder="搜索历史记录..."
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            fullWidth
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: 'var(--icon-color)', fontSize: 18 }} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: 'var(--input-bg)',
-                borderRadius: 1,
-                '& fieldset': {
-                  borderColor: 'var(--input-border)',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'var(--input-hover-border)',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'var(--primary-color)',
-                },
-              },
-              '& .MuiInputBase-input': {
-                color: 'var(--primary-text)',
-                fontSize: '0.875rem',
-                '&::placeholder': {
-                  color: 'var(--secondary-text)',
-                  opacity: 1,
-                },
-              },
-            }}
-          />
-        </Box>
 
-        {/* 操作按钮 */}
-        <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1 }}>
-          <Tooltip title="新建对话">
-            <IconButton
-              onClick={onNewChat}
+        <Box sx = {{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          p: 2,
+          pb: 1,
+        }}>
+          {/* 搜索框 */}
+          <Box sx={{ flexGrow: 1}}>
+            <TextField
+              placeholder="搜索历史记录..."
               size="small"
-              sx={{
-                color: 'var(--icon-color)',
-                backgroundColor: 'var(--button-bg)',
-                border: '1px solid var(--button-border)',
-                borderRadius: 1,
-                '&:hover': {
-                  backgroundColor: 'var(--button-hover-bg)',
-                  borderColor: 'var(--button-hover-border)',
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'var(--icon-color)', fontSize: 18 }} />
+                    </InputAdornment>
+                  ),
                 },
               }}
-            >
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="清空所有历史记录">
-            <IconButton
-              onClick={handleClearAllClick}
-              size="small"
-              disabled={chatHistory.length === 0}
               sx={{
-                color: chatHistory.length === 0 ? 'var(--disabled-text)' : '#f44336',
-                backgroundColor: 'var(--button-bg)',
-                border: '1px solid var(--button-border)',
-                borderRadius: 1,
-                '&:hover': {
-                  backgroundColor: chatHistory.length === 0 ? 'var(--button-bg)' : 'rgba(244, 67, 54, 0.1)',
-                  borderColor: chatHistory.length === 0 ? 'var(--button-border)' : '#f44336',
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'var(--input-bg)',
+                  borderRadius: 1,
+                  '& fieldset': {
+                    borderColor: 'var(--input-border)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'var(--input-hover-border)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'var(--primary-color)',
+                  },
                 },
-                '&:disabled': {
+                '& .MuiInputBase-input': {
+                  color: 'var(--primary-text)',
+                  fontSize: '0.875rem',
+                  '&::placeholder': {
+                    color: 'var(--secondary-text)',
+                    opacity: 1,
+                  },
+                },
+              }}
+            />
+          </Box>
+
+          {/* 操作按钮 */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="新建对话">
+              <IconButton
+                onClick={onNewChat}
+                size="small"
+                sx={{
+                  color: 'var(--icon-color)',
                   backgroundColor: 'var(--button-bg)',
-                  borderColor: 'var(--button-border)',
-                },
-              }}
-            >
-              <DeleteSweepIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+                  borderRadius: 4,
+                  '&:hover': {
+                    backgroundColor: 'var(--hover-bg)',
+                    borderColor: 'var(--hover-bg)',
+                  },
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="清空所有历史记录">
+              <IconButton
+                onClick={handleClearAllClick}
+                size="small"
+                disabled={chatHistory.length === 0}
+                sx={{
+                  borderRadius: 4,
+                  color: chatHistory.length === 0 ? 'var(--disabled-text)' : '#f44336',
+                  backgroundColor: 'var(--button-bg)',
+                  // border: '1px solid var(--button-border)',
+                  '&:hover': {
+                    backgroundColor: chatHistory.length === 0 ? 'var(--button-bg)' : 'rgba(244, 67, 54, 0.1)',
+                    borderColor: chatHistory.length === 0 ? 'var(--button-border)' : '#f44336',
+                  },
+                  '&:disabled': {
+                    backgroundColor: 'var(--button-bg)',
+                    borderColor: 'var(--button-border)',
+                  },
+                }}
+              >
+                <DeleteSweepIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
 
         {/* 历史记录列表 */}
@@ -178,6 +186,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             onDeleteHistory={onDeleteHistory}
             onEditHistoryTitle={onEditHistoryTitle}
           />
+
         </Box>
       </Box>
 

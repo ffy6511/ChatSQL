@@ -17,10 +17,10 @@ import {
   Fullscreen as FullscreenIcon,
   FullscreenExit as FullscreenExitIcon,
   DragIndicator as DragIcon,
-  SmartToy as AIIcon,
   Add as AddIcon,
   History as HistoryIcon,
 } from '@mui/icons-material';
+import { Try as AIIcon } from '@mui/icons-material';
 import { ChatWindowProps, ActionConfig, Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
 import { useChatContext } from '@/contexts/ChatContext';
@@ -50,11 +50,37 @@ const convertChatMessagesToMessages = (chatMessages: ChatMessage[]): Message[] =
 const ChatWindow: React.FC<ChatWindowProps> = ({
   isOpen,
   onClose,
-  position = { x: 16, y: 16 },
-  size = { width: 400, height: 600 },
+  position = { x: 'center', y: 'center' },
+  size = { width: '50%', height: '60%' },
 }) => {
   // 状态管理
-  const [currentPosition, setCurrentPosition] = useState(position);
+  const [currentPosition, setCurrentPosition] = useState(() => {
+    const parsePosition = (value: number | 'center', base: number, size: number): number => {
+      if (value === 'center') {
+        return Math.floor((base - size) / 2);
+      }
+      return value;
+    };
+
+    const baseWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
+    const baseHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+    const width = typeof size.width === 'string' && size.width.endsWith('%')
+      ? Math.floor(baseWidth * parseFloat(size.width) / 100)
+      : typeof size.width === 'number'
+        ? size.width
+        : 400;
+    const height = typeof size.height === 'string' && size.height.endsWith('%')
+      ? Math.floor(baseHeight * parseFloat(size.height) / 100)
+      : typeof size.height === 'number'
+        ? size.height
+        : 600;
+
+    return {
+      x: parsePosition(position.x as number | 'center', baseWidth, width),
+      y: parsePosition(position.y as number | 'center', baseHeight, height),
+    };
+  });
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -84,8 +110,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     getWindowSize,
   } = useChatSettings();
 
-  // 从设置中获取窗口大小
-  const [currentSize, setCurrentSize] = useState(() => getWindowSize());
+  // 从设置中获取窗口大小，支持百分比初始值
+  const [currentSize, setCurrentSize] = useState<{ width: number; height: number }>(() => {
+    const baseWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
+    const baseHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+    const parseSize = (value: number | string, base: number): number => {
+      if (typeof value === 'string' && value.endsWith('%')) {
+        const percent = parseFloat(value) / 100;
+        return Math.floor(base * percent);
+      }
+      return typeof value === 'number' ? value : parseInt(value);
+    };
+
+    return {
+      width: parseSize(size.width, baseWidth),
+      height: parseSize(size.height, baseHeight),
+    };
+  });
 
   // Refs
   const windowRef = useRef<HTMLDivElement>(null);
@@ -358,7 +400,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   variant="subtitle2"
                   sx={{ color: 'var(--primary-text)', fontWeight: 'bold' }}
                 >
-                  智能助手
+                  多智能体系统
                 </Typography>
                 {isLoading && (
                   <Typography
@@ -379,18 +421,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                {!isFullscreen && (
-                  <Tooltip title={isMinimized ? '展开' : '最小化'}>
-                    <IconButton
-                      size="small"
-                      onClick={toggleMinimize}
-                      sx={{ color: 'var(--icon-color)' }}
-                    >
-                      <MinimizeIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-
                 <Tooltip title={isFullscreen ? '退出全屏' : '全屏'}>
                   <IconButton
                     size="small"
