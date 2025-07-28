@@ -335,6 +335,39 @@ export class ChatStorage implements ChatStorageInterface {
   }
 
   /**
+   * 清空所有会话和消息
+   */
+  public async clearAllSessions(): Promise<void> {
+    try {
+      const db = await this.initDB();
+      
+      // 获取所有会话
+      const sessions = await this.getAllSessions();
+      
+      // 删除所有消息
+      const messagesTransaction = db.transaction([ChatStorage.MESSAGES_STORE], 'readwrite');
+      const messagesStore = messagesTransaction.objectStore(ChatStorage.MESSAGES_STORE);
+      await new Promise<void>((resolve, reject) => {
+        const request = messagesStore.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(new Error(`清空消息失败: ${request.error?.message}`));
+      });
+
+      // 删除所有会话
+      const sessionsTransaction = db.transaction([ChatStorage.SESSIONS_STORE], 'readwrite');
+      const sessionsStore = sessionsTransaction.objectStore(ChatStorage.SESSIONS_STORE);
+      await new Promise<void>((resolve, reject) => {
+        const request = sessionsStore.clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(new Error(`清空会话失败: ${request.error?.message}`));
+      });
+    } catch (error) {
+      console.error('清空所有会话失败:', error);
+      throw error;
+    }
+  }
+
+  /**
    * 关闭数据库连接
    */
   public closeDB(): void {

@@ -22,7 +22,8 @@ type ChatAction =
   | { type: 'ADD_MESSAGE'; payload: ChatMessage }
   | { type: 'UPDATE_SESSION_IN_LIST'; payload: ChatSession }
   | { type: 'REMOVE_SESSION'; payload: string }
-  | { type: 'CLEAR_MESSAGES' };
+  | { type: 'CLEAR_MESSAGES' }
+  | { type: 'CLEAR_ALL_SESSIONS' };
 
 // Reducer函数
 const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
@@ -456,6 +457,28 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * 清空所有会话
+   */
+  const clearAllSessions = useCallback(async (): Promise<void> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      await chatStorage.clearAllSessions();
+      
+      // 更新状态
+      dispatch({ type: 'SET_SESSIONS', payload: [] });
+      dispatch({ type: 'SET_CURRENT_SESSION', payload: null });
+      dispatch({ type: 'SET_MESSAGES', payload: [] });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+    } catch (error) {
+      console.error('清空所有会话失败:', error);
+      dispatch({ type: 'SET_ERROR', payload: '清空所有会话失败' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, []);
+
+  /**
    * 清除错误信息
    */
   const clearError = useCallback((): void => {
@@ -477,6 +500,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     sendMessage,
     sendAgentMessage,
     deleteSession,
+    clearAllSessions,
 
     // 辅助方法
     clearError,

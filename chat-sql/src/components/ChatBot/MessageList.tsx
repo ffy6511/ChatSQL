@@ -127,35 +127,15 @@ const MessageList: React.FC<MessageListProps> = ({
         key={message.id}
         sx={{
           display: 'flex',
-          justifyContent: isUser ? 'flex-end' : 'flex-start',
           mb: 2,
           alignItems: 'flex-start',
+          justifyContent: isUser ? 'flex-end' : 'flex-start',
         }}
       >
-        {/* AI头像 */}
-        {/* {!isUser && (
-          <Box
-            sx={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              backgroundColor: 'primary.main',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mr: 1,
-              flexShrink: 0,
-            }}
-          >
-            <AIIcon sx={{ fontSize: 18, color: 'white' }} />
-          </Box>
-        )} */}
-
         {/* 消息内容 */}
         <Paper
           elevation={1}
           sx={{
-            maxWidth: '75%',
             p: 2,
             backgroundColor: isUser ? 'var(--link-color)' : 'var(--card-bg)',
             borderRadius: isUser ? '16px 16px 0 16px' : '16px 16px 16px 0',
@@ -164,6 +144,10 @@ const MessageList: React.FC<MessageListProps> = ({
             '&:hover .message-actions': {
               opacity: 1,
             },
+            flexGrow: 1,
+            maxWidth: '90%',
+            marginLeft: isUser? 'auto': 0,
+            marginRight: isUser? 0: 'auto',
           }}
         >
           {/* 消息文本 */}
@@ -347,6 +331,7 @@ const MessageList: React.FC<MessageListProps> = ({
                   borderRadius: '16px 16px 16px 0',
                   display: 'flex',
                   alignItems: 'center',
+                  flexGrow: 1,
                 }}
               >
                 <CircularProgress size={16} sx={{ mr: 1 }} />

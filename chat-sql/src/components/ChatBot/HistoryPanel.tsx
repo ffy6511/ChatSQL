@@ -159,7 +159,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                   borderRadius: 4,
                   color: chatHistory.length === 0 ? 'var(--disabled-text)' : '#f44336',
                   backgroundColor: 'var(--button-bg)',
-                  // border: '1px solid var(--button-border)',
                   '&:hover': {
                     backgroundColor: chatHistory.length === 0 ? 'var(--button-bg)' : 'rgba(244, 67, 54, 0.1)',
                     borderColor: chatHistory.length === 0 ? 'var(--button-border)' : '#f44336',

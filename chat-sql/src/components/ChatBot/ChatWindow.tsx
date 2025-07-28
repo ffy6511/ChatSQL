@@ -57,7 +57,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   isOpen,
   onClose,
   position = { x: 'center', y: 'center' },
-  size = { width: '50%', height: '60%' },
+  size = { width: '60%', height: '70%' },
 }) => {
   // 状态管理
   const [currentPosition, setCurrentPosition] = useState(() => {
@@ -108,6 +108,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     sendMessage,
     sendAgentMessage,
     deleteSession,
+    clearAllSessions,
     clearError,
   } = useChatContext();
 
@@ -523,7 +524,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             onLoadHistory={handleLoadHistory}
             onDeleteHistory={handleDeleteSession}
             onEditHistoryTitle={() => {}} // 暂时禁用编辑标题功能
-            onClearAllHistory={() => {}} // 暂时禁用清空所有历史功能
+            onClearAllHistory={clearAllSessions}
             currentHistoryId={currentSessionId || undefined}
             isHistoryOpen={isHistoryOpen}
             onToggleHistory={handleToggleHistory}
