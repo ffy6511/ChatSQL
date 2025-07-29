@@ -628,7 +628,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 <DynamicMessageInput
                   selectedAgent={selectedAgent}
                   onSendMessage={sendAgentMessage}
-                  disabled={isLoading || !currentSessionId}
+                  disabled={isLoading}
                 />
               </>
             )}

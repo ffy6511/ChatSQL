@@ -93,7 +93,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
   };
 
   // 处理键盘事件
-  const handleKeyPress = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSendMessage();
@@ -136,7 +136,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
           maxRows={isMultiline ? 6 : 1}
           value={value}
           onChange={(e) => handleInputChange(field.name, e.target.value)}
-          onKeyPress={!isMultiline ? handleKeyPress : undefined}
+          onKeyDown={handleKeyDown}
           placeholder={field.placeholder}
           disabled={disabled}
           error={!!error}
