@@ -234,7 +234,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
               padding: '16px',
               backgroundColor: 'transparent',
               fontSize: '14px',
-              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+              fontFamily: 'Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
             }}
           >
             {displayJson}

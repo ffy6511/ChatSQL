@@ -143,7 +143,7 @@ const SqlRenderer: React.FC<RendererProps> = ({
             paddingTop: '40px', // 为复制按钮留出空间
             backgroundColor: 'transparent',
             fontSize: '14px',
-            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+            fontFamily: ' Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
           }}
         >
           {processedSql}

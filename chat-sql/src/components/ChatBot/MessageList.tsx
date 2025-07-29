@@ -294,9 +294,9 @@ const MessageList: React.FC<MessageListProps> = ({
                   p: 2,
                   backgroundColor: 'grey.100',
                   borderRadius: '16px 16px 16px 0',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  flexGrow: 1,
+                  // flexGrow: 1,
                 }}
               >
                 <CircularProgress size={16} sx={{ mr: 1 }} />

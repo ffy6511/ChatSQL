@@ -140,7 +140,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
           placeholder={field.placeholder}
           disabled={disabled}
           error={!!error}
-          helperText={error || field.description}
+          // helperText={error || field.description}
           variant="outlined"
           size="small"
           sx={{
@@ -183,9 +183,8 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
       elevation={0}
       sx={{
         p: 2,
-        borderTop: '1px solid var(--card-border)',
         backgroundColor: 'var(--card-bg)',
-        maxHeight: '40%', // 设置最大高度为40%
+        maxHeight: '35%', // 设置最大高度为35%
         overflowY: 'auto', // 添加Y轴滚动条
         display: 'flex',
         flexDirection: 'column',

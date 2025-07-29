@@ -3,7 +3,6 @@
 // 主要组件
 export { default as ChatWindow } from './ChatWindow';
 export { default as MessageList } from './MessageList';
-export { default as MessageInput } from './MessageInput';
 export { default as AgentSelector } from './AgentSelector';
 export { default as DynamicMessageInput } from './DynamicMessageInput';
 export { default as ChatSidebar } from './ChatSidebar';

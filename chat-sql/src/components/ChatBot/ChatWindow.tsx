@@ -31,7 +31,6 @@ import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { useRouter } from 'next/navigation';
 import { ERDiagramData } from '@/types/erDiagram';
 import MessageList from './MessageList';
-import MessageInput from './MessageInput';
 import DynamicMessageInput from './DynamicMessageInput';
 import ChatSidebar from './ChatSidebar';
 import SettingsModal from './SettingsModal';
@@ -495,12 +494,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       <Slide direction="up" in={isOpen} mountOnEnter unmountOnExit>
         <Paper
           ref={windowRef}
-          elevation={8}
+          elevation={2}
           sx={{
             ...getWindowStyle(),
             backgroundColor: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
-            borderRadius: isFullscreen ? 0 : 2,
+            // border: '1px solid var(--card-border)',
+            borderRadius: isFullscreen ? 0 : 6,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'row',
