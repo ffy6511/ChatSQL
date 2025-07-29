@@ -14,6 +14,7 @@ import {
   Send as SendIcon,
 } from '@mui/icons-material';
 import { AgentType, AGENTS_INFO, AgentInputField } from '@/types/agents';
+import ERDiagramSelector from './MessageInput/ERDiagramSelector';
 
 interface DynamicMessageInputProps {
   selectedAgent: AgentType;
@@ -124,56 +125,64 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
         >
           {field.label}
           {field.required && (
-            <span style={{ color: 'var(--error-color, #f44336)' }}> *</span>
+            <Typography component="span" sx={{ color: 'var(--error-color, #f44336)' }}> *</Typography>
           )}
         </Typography>
         
-        <TextField
-          ref={index === 0 ? firstInputRef : undefined}
-          fullWidth
-          multiline={isMultiline}
-          rows={isMultiline ? 3 : 1}
-          maxRows={isMultiline ? 6 : 1}
-          value={value}
-          onChange={(e) => handleInputChange(field.name, e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={field.placeholder}
-          disabled={disabled}
-          error={!!error}
-          // helperText={error || field.description}
-          variant="outlined"
-          size="small"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: 'var(--input-bg)',
-              borderRadius: 1,
-              fontSize: '0.875rem',
-              '& fieldset': {
-                borderColor: 'var(--input-border)',
+        {field.type === 'er-diagram-selector' ? (
+          <ERDiagramSelector
+            value={value}
+            onChange={(newValue) => handleInputChange(field.name, newValue)}
+            placeholder={field.placeholder}
+          />
+        ) : (
+          <TextField
+            ref={index === 0 ? firstInputRef : undefined}
+            fullWidth
+            multiline={isMultiline}
+            rows={isMultiline ? 3 : 1}
+            maxRows={isMultiline ? 6 : 1}
+            value={value}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={field.placeholder}
+            disabled={disabled}
+            error={!!error}
+            // helperText={error || field.description}
+            variant="outlined"
+            size="small"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'var(--input-bg)',
+                borderRadius: 1,
+                fontSize: '0.875rem',
+                '& fieldset': {
+                  borderColor: 'var(--input-border)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-error fieldset': {
+                  borderColor: 'var(--error-color, #f44336)',
+                },
               },
-              '&:hover fieldset': {
-                borderColor: 'primary.main',
+              '& .MuiInputBase-input': {
+                color: 'var(--input-text)',
+                '&::placeholder': {
+                  color: 'var(--secondary-text)',
+                  opacity: 1,
+                },
               },
-              '&.Mui-focused fieldset': {
-                borderColor: 'primary.main',
+              '& .MuiFormHelperText-root': {
+                fontSize: '0.7rem',
+                color: error ? 'var(--error-color, #f44336)' : 'var(--secondary-text)',
               },
-              '&.Mui-error fieldset': {
-                borderColor: 'var(--error-color, #f44336)',
-              },
-            },
-            '& .MuiInputBase-input': {
-              color: 'var(--input-text)',
-              '&::placeholder': {
-                color: 'var(--secondary-text)',
-                opacity: 1,
-              },
-            },
-            '& .MuiFormHelperText-root': {
-              fontSize: '0.7rem',
-              color: error ? 'var(--error-color, #f44336)' : 'var(--secondary-text)',
-            },
-          }}
-        />
+            }}
+          />
+        )}
       </Box>
     );
   };
@@ -184,7 +193,6 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
       sx={{
         p: 2,
         backgroundColor: 'var(--card-bg)',
-        maxHeight: '35%', // 设置最大高度为35%
         overflowY: 'auto', // 添加Y轴滚动条
         display: 'flex',
         flexDirection: 'column',

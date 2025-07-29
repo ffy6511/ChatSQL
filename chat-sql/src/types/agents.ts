@@ -117,6 +117,8 @@ export enum AgentType {
   SCHEMA_GENERATOR = 'schema-generator',
   ER_GENERATOR = 'er-generator',
   CHAT = 'chat', // 默认聊天智能体
+  ER_QUIZ_GENERATOR = 'er_quiz_generator',
+  ER_VERIFIER = 'er_verifier',
 }
 
 /**
@@ -126,7 +128,7 @@ export interface AgentInputField {
   name: string;
   label: string;
   description: string;
-  type: 'text' | 'textarea';
+  type: 'text' | 'textarea' | 'er-diagram-selector';
   required: boolean;
   placeholder?: string;
 }
@@ -235,7 +237,62 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
       },
     ],
   },
+  [AgentType.ER_QUIZ_GENERATOR]: {
+    type: AgentType.ER_QUIZ_GENERATOR,
+    name: 'ER图出题助手',
+    description: '根据自然语言描述生成ER图设计题目',
+    icon: 'Quiz',
+    endpoint: '/api/er_quiz_generator', 
+    inputFields: [
+      {
+        name: 'problem_description',
+        label: '题目要求描述',
+        description: '请描述需要生成的ER图设计题目要求',
+        type: 'textarea',
+        required: true,
+        placeholder: '例如：设计一个学生选课系统，包含学生、课程、教师实体...',
+      },
+    ],
+  },
+  [AgentType.ER_VERIFIER]: {
+    type: AgentType.ER_VERIFIER,
+    name: 'ER图测评助手',
+    description: '检验ER图与需求描述的一致性',
+    icon: 'Rule',
+    endpoint: '/api/er_verifier', 
+    inputFields: [
+      {
+        name: 'verification_description',
+        label: '检验要求',
+        description: '描述需要检验的具体要求',
+        type: 'textarea',
+        required: true,
+        placeholder: '描述需要检验的具体要求...',
+      },
+      {
+        name: 'er_diagram_json',
+        label: 'ER图数据',
+        description: '粘贴ER图JSON数据或从历史记录选择',
+        type: 'er-diagram-selector',
+        required: true,
+        placeholder: '粘贴ER图JSON数据或从历史记录选择',
+      },
+    ],
+  },
 };
+
+/**
+ * ER助手Tab配置
+ */
+export interface ERAssistantTab {
+  agentType: AgentType;
+  label: string;
+}
+
+export const ER_ASSISTANT_TABS: ERAssistantTab[] = [
+  { agentType: AgentType.ER_QUIZ_GENERATOR, label: '出题模式' },
+  { agentType: AgentType.ER_VERIFIER, label: '测评模式' },
+];
 
 /**
  * 通用智能体请求接口

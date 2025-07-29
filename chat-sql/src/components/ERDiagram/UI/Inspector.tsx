@@ -66,7 +66,7 @@ const Inspector: React.FC<InspectorProps> = ({ activeTab }) => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 2, overflowY: 'auto' }}>
       {renderContent()}
     </Box>
   );

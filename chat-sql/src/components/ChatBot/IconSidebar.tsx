@@ -12,6 +12,8 @@ import {
   Chat as ChatIcon,
   Storage as StorageIcon,
   AccountTree as AccountTreeIcon,
+  Quiz as QuizIcon,
+  Rule as VerifyIcon,
 } from '@mui/icons-material';
 import { AgentType } from '@/types/agents';
 
@@ -46,6 +48,10 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
         return StorageIcon;
       case AgentType.ER_GENERATOR:
         return AccountTreeIcon;
+      case AgentType.ER_QUIZ_GENERATOR:
+        return QuizIcon;  
+      case AgentType.ER_VERIFIER:
+        return VerifyIcon;
       default:
         return ChatIcon;
     }
@@ -60,6 +66,10 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
         return 'DDL生成器';
       case AgentType.ER_GENERATOR:
         return 'ER图生成器';
+      case AgentType.ER_QUIZ_GENERATOR:
+        return 'ER图出题助手';
+      case AgentType.ER_VERIFIER:
+        return 'ER图测评助手';
       default:
         return '通用聊天';
     }
