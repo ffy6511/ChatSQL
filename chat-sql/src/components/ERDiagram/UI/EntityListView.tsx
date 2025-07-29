@@ -29,17 +29,14 @@ import {
 } from '@mui/icons-material';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { ERAttribute } from '@/types/erDiagram';
+import {
+  dataTypeParamConfig,
+  dataTypeOptions,
+  parseDataType,
+  buildDataType,
+  getDefaultParams
+} from '@/types/dataTypes';
 import styles from './Inspector.module.css';
-
-// 数据类型参数配置
-const dataTypeParamConfig: Record<string, { paramCount: number; paramLabels: string[] }> = {
-  VARCHAR: { paramCount: 1, paramLabels: ['Max Length'] },
-  char: { paramCount: 1, paramLabels: ['Length'] },
-  CHAR: { paramCount: 1, paramLabels: ['Length'] },
-  NUMERIC: { paramCount: 2, paramLabels: ['Precision', 'Scale'] },
-  'DOUBLE PRECISION': { paramCount: 0, paramLabels: [] },
-  // 其他类型如有需要可继续添加
-};
 
 const EntityListView: React.FC = () => {
   const { state, deleteEntity, setSelectedElement, updateAttribute, addAttribute, deleteAttribute } = useERDiagramContext();
@@ -94,16 +91,14 @@ const EntityListView: React.FC = () => {
     const attribute = entity?.attributes.find(attr => attr.id === attributeId);
     if (!attribute) return;
 
-    const match = attribute.dataType?.match(/^(\w+)(?:\((.*)\))?$/);
-    const currentParams = match?.[2] ? match[2].split(',').map(s => s.trim()) : [];
+    const { params: currentParams } = parseDataType(attribute.dataType || '');
 
     // 更新指定索引的参数
     const newParams = [...currentParams];
     newParams[paramIndex] = value;
 
     // 构建新的数据类型字符串
-    const filteredParams = newParams.filter(p => p && p.trim());
-    const newDataType = filteredParams.length > 0 ? `${typeName}(${filteredParams.join(',')})` : typeName;
+    const newDataType = buildDataType(typeName, newParams);
 
     // 保存更新
     await updateAttribute(entityId, attributeId, { dataType: newDataType });
@@ -114,17 +109,10 @@ const EntityListView: React.FC = () => {
     const newParams: { [attrId: string]: string[] } = {};
     entities.forEach(entity => {
       entity.attributes.forEach(attribute => {
-        let typeName = attribute.dataType || 'VARCHAR';
-        let params: string[] = [];
-        const match = typeName.match(/^(\w+)(?:\((.*)\))?$/);
-        if (match) {
-          typeName = match[1];
-          if (match[2]) {
-            params = match[2].split(',').map(s => s.trim());
-          }
-        }
+        const { typeName, params } = parseDataType(attribute.dataType || 'VARCHAR');
+
         if (dataTypeParamConfig[typeName] && !attributeParams[attribute.id]) {
-          newParams[attribute.id] = params.length ? params : Array(dataTypeParamConfig[typeName].paramCount).fill('');
+          newParams[attribute.id] = params.length ? params : getDefaultParams(typeName);
         }
       });
     });
@@ -207,31 +195,12 @@ const EntityListView: React.FC = () => {
 
 
 
-  // 数据类型选项
-  const dataTypeOptions = [
-    'char',
-    'VARCHAR',
-    'INT',
-    'SMALLINT',
-    'NUMERIC',
-    'FLOAT',
-    'DOUBLE PRECISION',
-    'BOOLEAN',
-    'DATE',
-    'TIME',
-    'TIMESTAMP',
-    'INTERVAL',
-    'ENUM'
-  ];
+  // 数据类型选项已从 @/types/dataTypes 导入
 
   const renderAttributeItem = (attribute: ERAttribute, entityId: string) => {
     const isWeakEntity = entities.find(e => e.id === entityId)?.isWeakEntity;
     // 解析当前类型和参数
-    let typeName = attribute.dataType || 'VARCHAR';
-    const match = typeName.match(/^(\w+)(?:\((.*)\))?$/);
-    if (match) {
-      typeName = match[1];
-    }
+    const { typeName } = parseDataType(attribute.dataType || 'VARCHAR');
     return (
       <Box
         key={attribute.id}
@@ -244,51 +213,26 @@ const EntityListView: React.FC = () => {
           borderColor: 'divider'
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <TextField
-            size="small"
-            value={editingAttributeNames[attribute.id] !== undefined ? editingAttributeNames[attribute.id] : attribute.name}
-            onChange={(e) => handleAttributeNameChange(attribute.id, e.target.value)}
-            onBlur={() => handleAttributeNameSave(entityId, attribute.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !isComposing[attribute.id]) {
-                e.preventDefault();
-                handleAttributeNameSave(entityId, attribute.id);
-                (e.target as HTMLInputElement).blur();
-              }
-            }}
-            onCompositionStart={() => handleCompositionStart(attribute.id)}
-            onCompositionEnd={() => handleCompositionEnd(attribute.id)}
-            variant="outlined"
-            placeholder="属性名称"
-            sx={{
-              maxWidth: '100px',
-              '& .MuiInputBase-input': {
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                fontSize: '0.8em',
-              }
-            }}
-          />
-
-        {/* 数据类型编辑 */}
-        <Autocomplete
-          disableClearable
-          size="small"
-          value={typeName}
-          onChange={(_, newValue) => {
-            if (newValue) {
-              handleAttributeTypeChange(entityId, attribute.id, newValue);
-            }
-          }}
-          options={dataTypeOptions}
-          renderInput={(params) => (
+        <Stack direction="row" alignItems="center" spacing={1} sx = {{ overflow: 'hidden', flexWrap: 'nowrap'}}>
+          <Box sx = {{flexGrow: 1, display: 'flex', gap: 1}}>
             <TextField
-              {...params}
+              size="small"
+              value={editingAttributeNames[attribute.id] !== undefined ? editingAttributeNames[attribute.id] : attribute.name}
+              onChange={(e) => handleAttributeNameChange(attribute.id, e.target.value)}
+              onBlur={() => handleAttributeNameSave(entityId, attribute.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !isComposing[attribute.id]) {
+                  e.preventDefault();
+                  handleAttributeNameSave(entityId, attribute.id);
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              onCompositionStart={() => handleCompositionStart(attribute.id)}
+              onCompositionEnd={() => handleCompositionEnd(attribute.id)}
               variant="outlined"
+              placeholder="属性名称"
               sx={{
-                maxWidth: '180px',
+                maxWidth: '100px',
                 '& .MuiInputBase-input': {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -297,9 +241,37 @@ const EntityListView: React.FC = () => {
                 }
               }}
             />
-          )}
-          sx={{ minWidth: '140px' }}
-        />
+
+            {/* 数据类型编辑 */}
+            <Autocomplete
+              disableClearable
+              size="small"
+              value={typeName}
+              onChange={(_, newValue) => {
+                if (newValue) {
+                  handleAttributeTypeChange(entityId, attribute.id, newValue);
+                }
+              }}
+              options={dataTypeOptions}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  sx={{
+                    maxWidth: '180px',
+                    '& .MuiInputBase-input': {
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      fontSize: '0.8em',
+                    }
+                  }}
+                />
+              )}
+              sx={{ minWidth: '140px' }}
+            />
+
+          </Box>
 
           {/* 主键标识移到右侧，优化样式 */}
           <Chip
@@ -364,8 +336,7 @@ const EntityListView: React.FC = () => {
             <>
               {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
                 // 解析当前参数值
-                const match = attribute.dataType?.match(/^(\w+)(?:\((.*)\))?$/);
-                const currentParams = match?.[2] ? match[2].split(',').map(s => s.trim()) : [];
+                const { params: currentParams } = parseDataType(attribute.dataType || '');
                 const currentValue = currentParams[idx] || '';
 
                 return (

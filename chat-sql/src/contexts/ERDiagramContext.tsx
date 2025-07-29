@@ -42,6 +42,10 @@ type ERDiagramAction =
   | { type: 'DELETE_ATTRIBUTE'; payload: { entityId: string; attributeId: string } }
   | { type: 'UPDATE_ATTRIBUTE'; payload: { entityId: string; attributeId: string; updates: Partial<import('@/types/erDiagram').ERAttribute> } }
   | { type: 'UPDATE_CONNECTION'; payload: { relationshipId: string; entityId: string; updates: Partial<import('@/types/erDiagram').ERConnection> } }
+  // 关系属性编辑相关的Action
+  | { type: 'ADD_RELATIONSHIP_ATTRIBUTE'; payload: { relationshipId: string; attribute: import('@/types/erDiagram').ERAttribute } }
+  | { type: 'DELETE_RELATIONSHIP_ATTRIBUTE'; payload: { relationshipId: string; attributeId: string } }
+  | { type: 'UPDATE_RELATIONSHIP_ATTRIBUTE'; payload: { relationshipId: string; attributeId: string; updates: Partial<import('@/types/erDiagram').ERAttribute> } }
   // 连接管理相关Action
   | { type: 'CREATE_CONNECTION'; payload: { relationshipId: string; connection: import('@/types/erDiagram').ERConnection } }
   | { type: 'DELETE_CONNECTION'; payload: { relationshipId: string; entityId: string } }
@@ -274,6 +278,75 @@ function erDiagramReducer(state: ERDiagramState, action: ERDiagramAction): ERDia
         editingNodeId: null,
         nodeEditMode: 'none',
       };
+    
+      // 关系属性编辑相关
+    case 'ADD_RELATIONSHIP_ATTRIBUTE':
+      if(!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(relationship =>
+            relationship.id === action.payload.relationshipId
+              ? {
+                  ...relationship,
+                  attributes: [...(relationship.attributes || []), action.payload.attribute]
+                }
+              : relationship
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+
+    case 'DELETE_RELATIONSHIP_ATTRIBUTE':
+      if(!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          relationships: state.diagramData.relationships.map(relationship =>
+            relationship.id === action.payload.relationshipId
+              ? {
+                  ...relationship,
+                  attributes: (relationship.attributes || []).filter(attr => attr.id !== action.payload.attributeId)
+                }
+              : relationship
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+
+      case 'UPDATE_RELATIONSHIP_ATTRIBUTE':
+        if(!state.diagramData) return state;
+        return {
+          ...state,
+          diagramData: {
+            ...state.diagramData,
+            relationships: state.diagramData.relationships.map(relationship =>
+              relationship.id === action.payload.relationshipId
+                ? {
+                    ...relationship,
+                    attributes: (relationship.attributes || []).map(attr =>
+                      attr.id === action.payload.attributeId
+                        ? { ...attr, ...action.payload.updates }
+                        : attr
+                    )
+                  }
+                : relationship
+            ),
+            metadata: {
+              ...state.diagramData.metadata,
+              updatedAt: new Date().toISOString(),
+            },
+          },
+        };
+
     case 'ADD_ATTRIBUTE':
       if (!state.diagramData) return state;
       return {
@@ -467,6 +540,12 @@ interface ERDiagramContextType {
   deleteAttribute: (entityId: string, attributeId: string) => Promise<void>;
   updateAttribute: (entityId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => Promise<void>;
   updateConnection: (relationshipId: string, entityId: string, updates: Partial<import('@/types/erDiagram').ERConnection>) => Promise<void>;
+
+  // 关系属性的编辑方法
+  addRelationshipAttribute: (relationshipId: string, attribute: import('@/types/erDiagram').ERAttribute) => Promise<void>;
+  deleteRelationshipAttribute: (relationshipId: string, attributeId: string) => Promise<void>;
+  updateRelationshipAttribute: (relationshipId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => Promise<void>;
+  
   // 连接管理相关方法
   createConnection: (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => Promise<void>;
   deleteConnection: (relationshipId: string, entityId: string) => Promise<void>;
@@ -915,6 +994,123 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     }
   };
 
+  // 关系属性编辑相关实现
+  const addRelationshipAttribute = async(relationshipId: string, attribute: import('@/types/erDiagram').ERAttribute) => {
+    if( !state.diagramData || !state.currentDiagramId){
+      showNotification('无法添加关系属性，未找到当前图表', 'error');
+      return;
+    }
+
+    try{
+      //更新视图
+      dispatch({ type: 'ADD_RELATIONSHIP_ATTRIBUTE', payload: { relationshipId, attribute } });
+
+      // 持久化存储
+      const updatedRelationships = state.diagramData.relationships.map(relationship => {
+        return relationship.id === relationshipId
+          ? { ...relationship, attributes: [...(relationship.attributes || []), attribute] }
+          : relationship
+      });
+
+      const updatedData = {
+        ...state.diagramData,
+        relationships: updatedRelationships,
+        metadata:{
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      await saveDiagram(updatedData, state.currentDiagramId);
+      showNotification('关系属性添加成功', 'success');
+    }catch(error){
+      console.error('添加关系属性失败:', error);
+      showNotification('添加关系属性失败，请重试', 'error');
+    }
+  }
+
+  const deleteRelationshipAttribute = async (relationshipId: string, attributeId: string) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法删除关系属性，未找到当前图表', 'error');
+      return;
+    }
+
+    try{
+      // 更新视图
+      dispatch({ type: 'DELETE_RELATIONSHIP_ATTRIBUTE', payload: { relationshipId, attributeId } });
+
+      // 持久化存储
+      const updatedRelationships = state.diagramData.relationships.map(relationship => {
+        if (relationship.id === relationshipId) {
+          return {
+            ...relationship,
+            attributes: (relationship.attributes || []).filter(attr => attr.id !== attributeId)
+          };
+        }
+        return relationship;
+      });
+
+      const updatedData = {
+        ...state.diagramData,
+        relationships: updatedRelationships,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      await saveDiagram(updatedData, state.currentDiagramId);
+      showNotification('关系属性删除成功', 'success');
+    } catch (error) {
+      console.error('删除关系属性失败:', error);
+      showNotification('删除关系属性失败，请重试', 'error');
+    }
+  }
+
+  const updateRelationshipAttribute = async (relationshipId: string, attributeId: string, updates: Partial<import('@/types/erDiagram').ERAttribute>) => {
+    if (!state.diagramData || !state.currentDiagramId) {
+      showNotification('无法更新关系属性，未找到当前图表', 'error');
+      return;
+    }
+
+    try{
+      if(updates.name === ''){
+        showNotification("关系属性的名称不能为空", 'warning');
+        return;
+      }
+
+      dispatch({ type: 'UPDATE_RELATIONSHIP_ATTRIBUTE', payload: { relationshipId, attributeId, updates } });
+
+      // 计算下一个状态
+      const updatedRelationships = state.diagramData.relationships.map(relationship => {
+        if (relationship.id === relationshipId) {
+          return {
+            ...relationship,
+            attributes: (relationship.attributes || []).map(attr =>
+              attr.id === attributeId ? { ...attr, ...updates } : attr
+            )
+          };
+        }
+        return relationship;
+      });
+
+      const updatedData = {
+        ...state.diagramData,
+        relationships: updatedRelationships,
+        metadata: {
+          ...state.diagramData.metadata,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      await saveDiagram(updatedData, state.currentDiagramId);
+      showNotification('关系属性更新成功', 'success');
+    }catch(error){
+      console.error('更新关系属性失败:', error);
+      showNotification('更新关系属性失败，请重试', 'error');
+    }
+  }
+
   // 连接管理相关方法实现
   const createConnection = async (relationshipId: string, connection: import('@/types/erDiagram').ERConnection) => {
     dispatch({ type: 'CREATE_CONNECTION', payload: { relationshipId, connection } });
@@ -1158,6 +1354,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     deleteAttribute,
     updateAttribute,
     updateConnection,
+    // 关系属性编辑方法
+    addRelationshipAttribute, 
+    deleteRelationshipAttribute,
+    updateRelationshipAttribute,
     // 连接管理相关方法
     createConnection,
     deleteConnection,
