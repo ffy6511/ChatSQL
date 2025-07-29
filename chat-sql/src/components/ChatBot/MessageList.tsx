@@ -12,8 +12,6 @@ import {
   DialogContent,
   DialogActions,
   Chip,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
 import {
   SmartToy as AIIcon,
@@ -21,10 +19,10 @@ import {
   Launch as LaunchIcon,
   Visibility as VisualizeIcon,
   Update as UpdateIcon,
-  ContentCopy as CopyIcon,
 } from '@mui/icons-material';
 import { MessageListProps, Message, ActionConfig } from '@/types/chatbot';
 import { formatTimestamp } from '@/utils/chatbot/storage';
+import MessageContentRenderer from './renderers/MessageContentRenderer';
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,
@@ -150,17 +148,12 @@ const MessageList: React.FC<MessageListProps> = ({
             marginRight: isUser? 0: 'auto',
           }}
         >
-          {/* 消息文本 */}
-          <Typography
-            variant="body2"
-            sx={{
-              color: isUser ? 'white' : 'var(--primary-text)',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
-            {message.content}
-          </Typography>
+          {/* 消息内容渲染 */}
+          <MessageContentRenderer
+            message={message}
+            isUser={isUser}
+            onCopy={handleCopyMessage}
+          />
 
           {/* 模块标签 */}
           {!isUser && message.metadata?.module && (
@@ -202,35 +195,7 @@ const MessageList: React.FC<MessageListProps> = ({
             </Box>
           )}
 
-          {/* 消息操作按钮 */}
-          <Box
-            className="message-actions"
-            sx={{
-              position: 'absolute',
-              top: -8,
-              right: isUser ? -40 : 8,
-              opacity: 0,
-              transition: 'opacity 0.2s',
-            }}
-          >
-            <Tooltip title="复制消息">
-              <IconButton
-                size="small"
-                onClick={() => handleCopyMessage(message.content)}
-                sx={{
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--icon-color)',
-                  border: '1px solid var(--card-border)',
-                  boxShadow: 1,
-                  '&:hover': {
-                    backgroundColor: 'var(--button-hover)',
-                  },
-                }}
-              >
-                <CopyIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+
 
           {/* 时间戳 */}
           <Typography

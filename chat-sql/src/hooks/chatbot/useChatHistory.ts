@@ -235,13 +235,19 @@ export const useChatHistory = () => {
         coding: 0,
         ER: 0,
         Bplus: 0,
+        DDL: 0,
+        default: 0,
       },
       totalMessages: 0,
       averageMessagesPerChat: 0,
     };
 
     chatHistory.forEach(history => {
-      stats.byModule[history.module]++;
+      if (stats.byModule.hasOwnProperty(history.module)) {
+        stats.byModule[history.module as keyof typeof stats.byModule]++;
+      } else {
+        stats.byModule.default++;
+      }
       stats.totalMessages += history.messages.length;
     });
 

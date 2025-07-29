@@ -459,7 +459,10 @@ export async function POST(request: NextRequest) {
         data: {
           text: cleanText,
           sessionId: response.output.session_id,
-          metadata,
+          metadata: {
+            module: 'default',
+            ...metadata,
+          },
         },
         usage: response.usage ? {
           inputTokens: response.usage.input_tokens,

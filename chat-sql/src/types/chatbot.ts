@@ -1,6 +1,6 @@
 // 智能体聊天窗口相关类型定义
 
-export type ModuleType = 'coding' | 'ER' | 'Bplus';
+export type ModuleType = 'coding' | 'ER' | 'Bplus' | 'DDL' | 'default';
 
 export type ActionType = 'navigate' | 'visualize' | 'update';
 
