@@ -111,6 +111,110 @@ export interface ERGeneratorResponse {
 }
 
 /**
+ * ER-quiz-generator 智能体请求参数 - 支持百炼AI标准格式
+ */
+export interface ERQuizGeneratorRequest {
+  // 新格式：百炼AI标准格式
+  input?: {
+    prompt?: string;
+    session_id?: string;
+    biz_params: {
+      description: string;
+      // TODO: 添加难度
+    };
+  };
+  parameters?: {
+    temperature?: number;
+    maxTokens?: number;
+    stream?: boolean;
+  };
+  debug?: any;
+}
+
+/**
+ * ER-quiz-generator 智能体响应数据
+ */
+export interface ERQuizGeneratorResponse {
+  success: boolean;
+  data?: {
+    description: string;
+    erData: ERDiagramData;
+    sessionId: string;
+    metadata?: {
+      module?: string;
+      topic?: string;
+      action?: {
+        type: string;
+        target: string;
+        params?: Record<string, any>;
+      };
+    };
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+  usage?: {
+    inputTokens: number;
+    outputTokens: number;
+    totalTokens: number;
+  };
+}
+
+/**
+ * ER-verifier 智能体请求参数 - 支持百炼AI标准格式
+ */
+export interface ERVerifierRequest {
+  // 新格式：百炼AI标准格式
+  input?: {
+    prompt?: string;
+    session_id?: string;
+    biz_params: { 
+      description: string;
+      er_diagram_done: string;
+      er_diagram_ans: string;
+    };
+  };
+  parameters?: {
+    temperature?: number;
+    maxTokens?: number;
+    stream?: boolean;
+  };
+  debug?: any;
+}
+
+/**
+ * ER-verifier 智能体响应数据
+ */
+// TODO；在后端将智能体的回复按照字段处理，返回给前端
+export interface ERVerifierResponse {
+    success: boolean;
+  data?: {
+    output: string; // 包含了评价
+    sessionId: string;
+    metadata?: {
+      module?: string;
+      topic?: string;
+      action?: {
+        type: string;
+        target: string;
+        params?: Record<string, any>;
+      };
+    };
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+  usage?: {
+    inputTokens: number;
+    outputTokens: number;
+    totalTokens: number;
+  };
+}
+
+
+/**
  * 智能体类型枚举
  */
 export enum AgentType {
@@ -170,6 +274,17 @@ export const AGENT_CONFIG = {
   CHAT: {
     APP_ID: '6533b3711b8143068af6b09b98a3323c', // 默认聊天智能体
     INPUT_PARAM: 'message',
+    OUTPUT_PARAM: 'text',
+  },
+  ER_QUIZ_GENERATOR: {
+    // TODO：替换为正确的id
+    APP_ID: '6533b3711b8143068af6b09b98a3323c', // 默认聊天智能体
+    INPUT_PARAM: 'message',
+    OUTPUT_PARAM: 'text',
+  },
+  ER_VERIFIER: {
+    APP_ID: '6533b3711b8143068af6b09b98a3323c', // 默认聊天智能体
+    INPUT_PARAMS: ['verification_description', 'er_diagram_json'],
     OUTPUT_PARAM: 'text',
   },
 } as const;

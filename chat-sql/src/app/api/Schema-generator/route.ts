@@ -16,6 +16,9 @@ import {
   AGENT_CONFIG,
 } from '@/types/agents';
 
+import * as agentsHandlers from '@/services/agentsHandlers';
+
+
 /**
  * 解析智能体响应中的元数据
  */
@@ -244,7 +247,13 @@ export async function POST(request: NextRequest) {
     const schemaResponse: SchemaGeneratorResponse = {
       success: true,
       data: {
-        result: cleanText,
+        output: {
+          result: cleanText,
+          summary: cleanText,
+          rawText: response.output.text,
+          hasStructuredData: !!cleanText,
+          outputType: 'single',
+        },
         sessionId: response.output.session_id,
         metadata: {
           module: 'coding',

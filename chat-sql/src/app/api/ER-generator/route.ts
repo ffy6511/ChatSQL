@@ -242,7 +242,7 @@ async function callSchemaGeneratorAPI(
       throw new Error(data.error?.message || 'Schema-generator API返回错误');
     }
 
-    const ddlResult = data.data?.result;
+    const ddlResult = data.data?.output?.result;
     if (!ddlResult) {
       throw new Error('Schema-generator API未返回有效的DDL语句');
     }
@@ -376,7 +376,14 @@ export async function POST(request: NextRequest) {
     const erResponse: ERGeneratorResponse = {
       success: true,
       data: {
-        output: erData || cleanText,
+        output: {
+          erData: erData,
+          description: cleanText,
+          summary: cleanText,
+          rawText: response.output.text,
+          hasStructuredData: !!erData,
+          outputType: erData ? 'multiple' : 'single',
+        },
         sessionId: response.output.session_id,
         metadata: {
           module: 'ER',
@@ -384,7 +391,7 @@ export async function POST(request: NextRequest) {
           action: {
             type: 'visualize',
             target: '/er-diagram',
-            params: { erData: erData || cleanText },
+            params: { erData: erData },
           },
           ...metadata,
         },
