@@ -13,6 +13,7 @@ import {
 } from '@/types/chatbot/bailianai';
 import {
   AGENT_CONFIG,
+  ERGeneratorResponse,
   ERQuizGeneratorRequest,
   ERQuizGeneratorResponse,
 } from '@/types/agents';
@@ -26,32 +27,63 @@ function parseERQuizResponse(
   text: string
 ): { cleanText: string; description: string; erData: ERDiagramData; metadata?: any } {
   try {
-    // 尝试使用正则表达式提取 JSON 字符串（从完整响应文本中提取有效 JSON）
-    const match = text.match(/```json\s*([\s\S]*?)\s*```/);
-    if( !match || !match[1]){
-        throw new Error('未找到有效的JSON数据');
+    let cleanText = text;
+    let description = '';
+    let erData: ERDiagramData | undefined;
+    let metadata: any  | undefined;
+
+
+    // 尝试从响应文本中提取JSON格式的ER图数据
+    const erDataRegex = /```json\s*(\{[\s\S]*?"erData"[\s\S]*?\})\s*```/;
+    const descriptionRegex = /```description\s*(\{[\s\S]*?\})\s*```/;
+    const metadataRegex = /```metadata\s*(\{[\s\S]*?\})\s*```/;
+
+    const erMatch = text.match(erDataRegex);
+    const descriptionMatch = text.match(descriptionRegex);
+    const metadataMatch = text.match(metadataRegex);
+
+    if(erMatch){
+        try{
+            erData = JSON.parse(erMatch[1]) as ERDiagramData;
+            cleanText = cleanText.replace(erDataRegex, '').trim();
+        }
+        catch (parseError) {
+            console.warn('Failed to parse ER data from response:', parseError);
+        }
+    }
+    
+    if (metadataMatch) {
+        try {
+            metadata = JSON.parse(metadataMatch[1]);
+            cleanText = cleanText.replace(metadataRegex, '').trim();
+        } catch (parseError) {
+            console.warn('Failed to parse metadata from response:', parseError);
+        }
     }
 
-    const jsonString = match[1];
-    const json = JSON.parse(jsonString);
-
-    const description = json.description;
-    const erData = json.erData;
-    const metadata = json.metadata;
-
-    if (!description || !erData) {
-      throw new Error('缺少必须字段 description 或 erData');
+    if (descriptionMatch) {
+        try {
+            description = JSON.parse(descriptionMatch[1]);
+            cleanText = cleanText.replace(descriptionRegex, '').trim();
+        } catch (parseError) {
+            console.warn('Failed to parse description from response:', parseError);
+        }
     }
+
+    if(!erData)
+        throw new Error('ER图数据解析失败');
 
     return {
-      cleanText: text.trim(),
-      description,
-      erData,
-      metadata,
-    };
+        cleanText,
+        description,
+        erData,
+        metadata,
+    }
+
+
   } catch (err) {
-    console.error('解析ERQuiz响应失败:', err);
-    throw new Error('解析ERQuiz响应失败');
+    console.error('解析ERQuiz响应失败: 内容为 \n', text, '\n 错误为 \n', err);
+    throw new Error(`解析ERQuiz响应失败：返回内容为 '${text}'， 错误为 '${err}'`);
   }
 }
 
@@ -61,13 +93,15 @@ function parseERQuizResponse(
 function createERQuizGeneratorRequest(
     description: string,
     sessionId?: string,
-    parameters?: any
+    difficulty?: string,
+    parameters?: any,
 ): BailianAIRequest {
     const request: BailianAIRequest = {
         input:{
             prompt:"根据用户的描述生成合适的ER-quiz，请将输出结果包裹在 \`\`\`json ... \`\`\` 的代码块中， 并确保包含 description, erData字段",
             biz_params:{
                 "description": description,
+                "difficulty": difficulty,
             },
         },
         parameters: parameters || {},
@@ -86,7 +120,7 @@ function createERQuizGeneratorRequest(
 async function callBailianAPI(
     request: BailianAIRequest
 ): Promise<BailianAIResponse>{
-    const apiKey = process.env.DashScope_API_KEY;
+    const apiKey = process.env.DASHSCOPE_API_KEY;
     const apiId = AGENT_CONFIG.ER_QUIZ_GENERATOR.APP_ID;
 
     if(!apiKey){
@@ -121,81 +155,68 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    let description_input: string;
-    let sessionId: string | undefined;
-    let parameters: any;
+    const { description: userInput, difficulty = 'simple', sessionId} = body.input.biz_params;
 
-    if(body.input && body.input.biz_params){
-        description_input = body.input.biz_params.description;
-        sessionId = body.input.session_id;
-        parameters = body.parameters;
-    }else{
-        throw new BailianAIAPIError(
-            '请求参数错误',
-            ErrorType.PARAMETER_ERROR,
-        );
+    // 调用提示词增强的智能体
+    const quizGenRequest = createERQuizGeneratorRequest(userInput, sessionId, difficulty);
+    const quizGenResponse = await callBailianAPI(quizGenRequest) as BailianAIResponse;
+    const enhancedDescription = quizGenResponse.output.text; // 得到智能体的增强描述
+
+    // 调用ER-generator得到ER图数据
+    const erGenRequestBody = {
+        input:{
+            biz_params:{
+                "natural_language_query": enhancedDescription,
+                "provided_schema": "",
+            },
+            session_id: sessionId,
+        }
+    };
+
+    // 发起内部的调用
+    const erGenApiResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/ER-generator`,{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(erGenRequestBody),
+    });
+
+    if(!erGenApiResponse.ok){
+        const errorData = await erGenApiResponse.json();
+        throw new Error(`ER-generator调用失败: ${errorData.error?.message || '未知错误'}`);
     }
 
-    if(!description_input || typeof description_input !== 'string'){
-        console.log('Error: 缺少对题目的描述', description_input);
-        return NextResponse.json({
-            success: false,
-            error:{
-                code: 'INVALID_DESCRIPTION',
-                message: '缺少对题目的描述',
+    const erGenResult: ERGeneratorResponse = await erGenApiResponse.json();
+    console.log('ER-generator调用成功，得到的ER图数据:', erGenResult);
+
+    // 整合增强描述和ER图数据返回
+    const finalResponse: ERQuizGeneratorResponse = {
+        success: true,
+        data: {
+            output: {
+                description: enhancedDescription,
+                erData: erGenResult.data?.output.erData,
             },
-        }as ERQuizGeneratorResponse,
-        {status: HTTPStatus.BAD_REQUEST}
-    );
-  }
-
-  console.log('创建ER-quiz-generator请求:', createERQuizGeneratorRequest(description_input, sessionId, parameters));
-
-  const request = createERQuizGeneratorRequest(description_input, sessionId, parameters);
-
-  const response = await callBailianAPI(request) as BailianAIResponse;
-
-  const { cleanText, description, erData, metadata } = parseERQuizResponse(response.output.text);
-
-  // 验证必需字段
-  if (!description || !erData) {
-    throw new BailianAIAPIError(
-      'ER-quiz-generator响应缺少必需字段: description 或 erData',
-      ErrorType.PARAMETER_ERROR,
-    );
-  }
-
-  const erQuizGeneratorResponse: ERQuizGeneratorResponse = {
-    success: true,
-    data: {
-      output: {
-        description: description,
-        erData: erData as ERDiagramData,
-        summary: `题目：${description}`,
-        rawText: response.output.text,
-        hasStructuredData: !!(description && erData),
-        outputType: 'multiple',
-      },
-      sessionId: response.output.session_id,
-      metadata: {
-        module: 'ER',
-        topic: 'er-quiz-generation',
-        action: {
-          type: 'visualize',
-          target: '/er-diagram',
-          params: { erData: erData, isQuiz: true },
+            sessionId: sessionId,
+            metadata:{
+                module: 'ER',
+                topic: 'er-quiz-generation',
+                action: {
+                    type: 'visualize',
+                    target: '/er-diagram',
+                    params: { erData: erGenResult.data?.output.erData, isQuiz: true },
+                },
+            },
         },
-        ...metadata,
-      },
-    },
-    usage: response.usage ? {
-      inputTokens: response.usage.input_tokens,
-      outputTokens: response.usage.output_tokens,
-      totalTokens: response.usage.total_tokens,
-    } : undefined,
-  };
+        usage: erGenResult.usage?{
+            inputTokens: erGenResult.usage.inputTokens,
+            outputTokens: erGenResult.usage.outputTokens,
+            totalTokens: erGenResult.usage.totalTokens,
+        } : undefined,
+    };
 
-  return NextResponse.json(erQuizGeneratorResponse);
+    return NextResponse.json(finalResponse);
   } catch (error) {
     console.error('ER-quiz-generator API error:', error);
 

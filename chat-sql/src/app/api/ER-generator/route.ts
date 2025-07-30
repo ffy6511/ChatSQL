@@ -371,16 +371,13 @@ export async function POST(request: NextRequest) {
 
     // ER-generator不支持流式响应
     const response = await callBailianAPI(bailianRequest) as BailianAIResponse;
-    const { cleanText, erData, metadata } = parseERResponse(response.output.text);
+    const { erData, metadata } = parseERResponse(response.output.text);
 
     const erResponse: ERGeneratorResponse = {
       success: true,
       data: {
         output: {
           erData: erData,
-          description: cleanText,
-          summary: cleanText,
-          rawText: response.output.text,
           hasStructuredData: !!erData,
           outputType: erData ? 'multiple' : 'single',
         },

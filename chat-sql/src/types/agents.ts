@@ -303,8 +303,7 @@ export const AGENT_CONFIG = {
     OUTPUT_PARAM: 'text',
   },
   ER_QUIZ_GENERATOR: {
-    // TODO：替换为正确的id
-    APP_ID: '6533b3711b8143068af6b09b98a3323c', // 默认聊天智能体
+    APP_ID: 'be6e28193aea4049949d4fcb6a29f92e', 
     INPUT_PARAM: 'message',
     OUTPUT_PARAM: 'text',
   },
