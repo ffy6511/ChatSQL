@@ -15,6 +15,7 @@ import {
 } from '@mui/icons-material';
 import { AgentType, AGENTS_INFO, AgentInputField } from '@/types/agents';
 import ERDiagramSelector from './MessageInput/ERDiagramSelector';
+import QuizSelector from './MessageInput/QuizSelector';
 
 interface DynamicMessageInputProps {
   selectedAgent: AgentType;
@@ -134,6 +135,13 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             value={value}
             onChange={(newValue) => handleInputChange(field.name, newValue)}
             placeholder={field.placeholder}
+          />
+        ) : field.type === 'quiz-selector' ? (
+          <QuizSelector
+            value={value}
+            onChange={(newValue) => handleInputChange(field.name, newValue)}
+            placeholder={field.placeholder}
+            error={error}
           />
         ) : (
           <TextField

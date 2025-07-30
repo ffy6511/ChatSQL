@@ -3,6 +3,34 @@
 import { ERDiagramData } from './erDiagram';
 
 /**
+ * 统一的智能体输出数据结构
+ */
+export interface UnifiedAgentOutput {
+  // Schema Generator 输出
+  result?: string;
+
+  // ER Generator 输出
+  erData?: ERDiagramData;
+  description?: string;
+
+  // ER Quiz Generator 输出
+  // description 和 erData 已在上面定义
+
+  // ER Verifier 输出
+  evaluation?: string;
+  score?: number;
+  suggestions?: string[];
+
+  // 通用字段
+  summary?: string;
+  rawText?: string;
+
+  // 元数据
+  hasStructuredData?: boolean;
+  outputType?: 'single' | 'multiple';
+}
+
+/**
  * Schema-generator 智能体请求参数 - 支持百炼AI标准格式
  */
 export interface SchemaGeneratorRequest {
@@ -32,7 +60,7 @@ export interface SchemaGeneratorRequest {
 export interface SchemaGeneratorResponse {
   success: boolean;
   data?: {
-    result: string; // DDL语句
+    output: UnifiedAgentOutput; // 改为统一结构
     sessionId: string;
     metadata?: {
       module?: string;
@@ -87,7 +115,7 @@ export interface ERGeneratorRequest {
 export interface ERGeneratorResponse {
   success: boolean;
   data?: {
-    output: string | ERDiagramData; // JSON格式的ER图数据
+    output: UnifiedAgentOutput; // 改为统一结构
     sessionId: string;
     metadata?: {
       module?: string;
@@ -137,8 +165,7 @@ export interface ERQuizGeneratorRequest {
 export interface ERQuizGeneratorResponse {
   success: boolean;
   data?: {
-    description: string;
-    erData: ERDiagramData;
+    output: UnifiedAgentOutput; // 改为统一结构
     sessionId: string;
     metadata?: {
       module?: string;
@@ -186,11 +213,10 @@ export interface ERVerifierRequest {
 /**
  * ER-verifier 智能体响应数据
  */
-// TODO；在后端将智能体的回复按照字段处理，返回给前端
 export interface ERVerifierResponse {
-    success: boolean;
+  success: boolean;
   data?: {
-    output: string; // 包含了评价
+    output: UnifiedAgentOutput; // 改为统一结构
     sessionId: string;
     metadata?: {
       module?: string;
@@ -232,7 +258,7 @@ export interface AgentInputField {
   name: string;
   label: string;
   description: string;
-  type: 'text' | 'textarea' | 'er-diagram-selector';
+  type: 'text' | 'textarea' | 'er-diagram-selector' | 'quiz-selector';
   required: boolean;
   placeholder?: string;
 }
@@ -360,7 +386,7 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
     endpoint: '/api/er_quiz_generator', 
     inputFields: [
       {
-        name: 'problem_description',
+        name: 'description_input',
         label: '题目要求描述',
         description: '请描述需要生成的ER图设计题目要求',
         type: 'textarea',
@@ -374,23 +400,23 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
     name: 'ER图测评助手',
     description: '检验ER图与需求描述的一致性',
     icon: 'Rule',
-    endpoint: '/api/er_verifier', 
+    endpoint: '/api/er_verifier',
     inputFields: [
       {
-        name: 'verification_description',
-        label: '检验要求',
-        description: '描述需要检验的具体要求',
-        type: 'textarea',
+        name: 'quiz_id',
+        label: '选择要检验的题目',
+        description: '从已保存的题目中选择一个进行检验',
+        type: 'quiz-selector',
         required: true,
-        placeholder: '描述需要检验的具体要求...',
+        placeholder: '请选择一个题目进行检验',
       },
       {
-        name: 'er_diagram_json',
-        label: 'ER图数据',
-        description: '粘贴ER图JSON数据或从历史记录选择',
+        name: 'user_answer_session_id',
+        label: '选择你的ER图设计',
+        description: '从历史记录中选择你设计的ER图',
         type: 'er-diagram-selector',
         required: true,
-        placeholder: '粘贴ER图JSON数据或从历史记录选择',
+        placeholder: '请选择你设计的ER图',
       },
     ],
   },

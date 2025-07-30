@@ -7,9 +7,10 @@ import PropertyEditor from './PropertyEditor';
 import ComponentLibraryView from './ComponentLibraryView';
 import EntityListView from './EntityListView';
 import RelationshipListView from './RelationshipListView';
+import QuizHistoryPanel from './QuizHistoryPanel';
 import { EREntity, ERRelationship } from '@/types/erDiagram';
 
-type ActiveTab = 'components' | 'entities' | 'relationships';
+type ActiveTab = 'components' | 'entities' | 'relationships' | 'quiz-history';
 
 interface InspectorProps {
   activeTab: ActiveTab;
@@ -60,6 +61,8 @@ const Inspector: React.FC<InspectorProps> = ({ activeTab }) => {
         return <EntityListView />;
       case 'relationships':
         return <RelationshipListView />;
+      case 'quiz-history':
+        return <QuizHistoryPanel />;
       default:
         return <ComponentLibraryView />;
     }

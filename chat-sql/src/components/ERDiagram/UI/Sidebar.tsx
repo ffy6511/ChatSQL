@@ -9,7 +9,8 @@ import {
   TableOutlined,
   ShareAltOutlined,
   QuestionCircleOutlined,
-  GithubOutlined
+  GithubOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import ThemeToggle from '@/components/SideBar/ThemeToggle';
@@ -17,7 +18,7 @@ import NewDiagramModal from './NewDiagramModal';
 import OpenDiagramModal from './OpenDiagramModal';
 import styles from './Sidebar.module.css';
 
-type ActiveTab = 'components' | 'entities' | 'relationships';
+type ActiveTab = 'components' | 'entities' | 'relationships' | 'quiz-history';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -48,6 +49,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
 
   const handleRelationshipsClick = () => {
     onTabChange('relationships');
+  };
+
+  const handleQuizHistoryClick = () => {
+    onTabChange('quiz-history');
   };
 
   const handleHelpClick = () => {
@@ -115,6 +120,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
               icon={<ShareAltOutlined />}
               className={`global-sidebar-action-button${activeTab === 'relationships' ? ' selected' : ''}`}
               onClick={handleRelationshipsClick}
+            />
+          </Tooltip>
+        </div>
+
+        <div className="global-sidebar-menu-items">
+          <Tooltip title="题目历史" placement="right">
+            <Button
+              type="text"
+              icon={<FileTextOutlined />}
+              className={`global-sidebar-action-button${activeTab === 'quiz-history' ? ' selected' : ''}`}
+              onClick={handleQuizHistoryClick}
             />
           </Tooltip>
         </div>

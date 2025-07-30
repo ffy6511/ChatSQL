@@ -5,7 +5,7 @@ import { ERDiagramData, sampleERData, employeeDepartmentERData, weakEntityERData
 import { erDiagramStorage, ERDiagramMetadata } from '@/services/erDiagramStorage';
 import { useEffect, useCallback } from 'react';
 
-type ActiveTab = 'components' | 'entities' | 'relationships';
+type ActiveTab = 'components' | 'entities' | 'relationships' | 'quiz-history';
 type NodeEditMode = 'none' | 'rename' | 'properties';
 
 interface ERDiagramState {

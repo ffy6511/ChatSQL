@@ -1,6 +1,6 @@
 // ER图智能助手面板组件
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Paper,
   Box,
@@ -21,9 +21,11 @@ import {
 } from '@mui/icons-material';
 import { AgentType, ER_ASSISTANT_TABS, AGENTS_INFO } from '@/types/agents';
 import { useChatContext } from '@/contexts/ChatContext';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { MessageList, DynamicMessageInput } from '@/components/ChatBot';
 import { Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
+import { quizStorage } from '@/services/quizStorage';
 
 interface ERAssistantPanelProps {
   className?: string;
@@ -42,16 +44,17 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
 
   // 使用ChatContext
   const {
-    sessions,
     currentSessionId,
     messages,
     isLoading,
-    error,
     selectSession,
     createNewSession,
     sendAgentMessage,
-    clearError,
   } = useChatContext();
+
+  // 使用ERDiagramContext
+  const { state } = useERDiagramContext();
+  const erDiagramData = state.diagramData;
 
   // 转换ChatMessage到Message格式
   const convertChatMessagesToMessages = useCallback((chatMessages: ChatMessage[]): Message[] => {
@@ -69,7 +72,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   }, []);
 
   // Tab切换处理
-  const handleTabChange = useCallback(async (event: React.SyntheticEvent, newTabIndex: number) => {
+  const handleTabChange = useCallback(async (_event: React.SyntheticEvent, newTabIndex: number) => {
     const agentType = ER_ASSISTANT_TABS[newTabIndex].agentType;
     let sessionId = sessionIds[agentType];
     
@@ -96,10 +99,115 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
     setIsExpanded(prev => !prev);
   }, []);
 
-  // 消息发送处理
+  // 消息发送处理 - 重写以支持出题成功后的自动保存和验证请求处理
   const handleSendMessage = useCallback(async (agentType: string, inputValues: Record<string, string>) => {
-    await sendAgentMessage(agentType as AgentType, inputValues);
-  }, [sendAgentMessage]);
+    try {
+      // 如果是ER_VERIFIER，需要预处理验证请求数据
+      if (agentType === AgentType.ER_VERIFIER) {
+        const { quiz_id, user_answer_session_id } = inputValues;
+
+        if (!quiz_id || !user_answer_session_id) {
+          console.error('验证请求缺少必要参数');
+          return;
+        }
+
+        try {
+          // 1. 从QuizStore获取题目的标准答案
+          const quiz = await quizStorage.getQuiz(quiz_id);
+          if (!quiz) {
+            console.error('未找到指定的题目');
+            return;
+          }
+
+          // 2. 从用户选择的会话中获取ER图数据（这里需要实现获取会话ER图数据的逻辑）
+          // 暂时使用当前画布的ER图数据作为用户答案
+          const userErData = erDiagramData;
+
+          if (!userErData || (!userErData.entities?.length && !userErData.relationships?.length)) {
+            console.error('用户ER图数据为空');
+            return;
+          }
+
+          // 3. 构建验证请求参数
+          const verificationInputValues = {
+            description: quiz.description,
+            erDiagramDone: JSON.stringify(userErData),
+            erDiagramAns: JSON.stringify(quiz.referenceAnswer),
+          };
+
+          // 发送验证请求
+          await sendAgentMessage(agentType as AgentType, verificationInputValues);
+
+        } catch (error) {
+          console.error('处理验证请求失败:', error);
+          return;
+        }
+      } else {
+        // 发送消息到智能体
+        await sendAgentMessage(agentType as AgentType, inputValues);
+
+        // 如果是ER Quiz Generator，需要在发送成功后处理题目保存
+        if (agentType === AgentType.ER_QUIZ_GENERATOR) {
+          // 等待一小段时间确保消息已经添加到messages中
+          setTimeout(async () => {
+            try {
+              // 获取最新的消息
+              if (messages && messages.length > 0) {
+                const latestMessage = messages[messages.length - 1];
+
+                // 检查是否是assistant消息且包含metadata
+                if (latestMessage.role === 'assistant' && latestMessage.metadata) {
+                  // 通过重新调用API来获取完整的响应数据
+                  const response = await fetch('/api/er_quiz_generator', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      input: {
+                        biz_params: {
+                          description_input: inputValues.description_input,
+                        },
+                        session_id: latestMessage.session_id,
+                      },
+                      parameters: {
+                        stream: false,
+                        temperature: 0.7,
+                        maxTokens: 2000,
+                      },
+                    }),
+                  });
+
+                  if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.success && data.data?.output) {
+                      const { description, erData } = data.data.output;
+
+                      if (description && erData) {
+                        // 存储到QuizStore
+                        const quizId = await quizStorage.addQuiz({
+                          name: `ER图题目 - ${new Date().toLocaleString()}`,
+                          description: description,
+                          referenceAnswer: erData,
+                        });
+
+                        console.log('题目创建成功，ID:', quizId);
+                      }
+                    }
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('保存题目失败:', error);
+            }
+          }, 1000); // 延迟1秒执行
+        }
+      }
+    } catch (error) {
+      console.error('发送消息失败:', error);
+    }
+  }, [sendAgentMessage, messages, erDiagramData, quizStorage]);
 
   // 获取当前激活的智能体类型
   const currentAgentType = ER_ASSISTANT_TABS[activeTabIndex]?.agentType || AgentType.ER_QUIZ_GENERATOR;
@@ -153,7 +261,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
             },
           }}
         >
-          {ER_ASSISTANT_TABS.map((tab, index) => (
+          {ER_ASSISTANT_TABS.map((tab) => (
             <Tab
               key={tab.agentType}
               label={

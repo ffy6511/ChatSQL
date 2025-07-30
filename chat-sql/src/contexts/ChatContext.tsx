@@ -349,6 +349,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           natural_language_query: inputValues.natural_language_query,
           provided_schema: inputValues.provided_schema,
         };
+      } else if (agentType === AgentType.ER_QUIZ_GENERATOR) {
+        requestBody.input.biz_params = {
+          description_input: inputValues.description_input,
+        };
+      } else if (agentType === AgentType.ER_VERIFIER) {
+        requestBody.input.biz_params = {
+          description: inputValues.description,
+          erDiagramDone: inputValues.erDiagramDone,
+          erDiagramAns: inputValues.erDiagramAns,
+        };
       } else {
         // 默认聊天智能体 - 使用message字段
         requestBody.input.biz_params = {
@@ -397,11 +407,34 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // 获取AI回复内容
       let aiContent = '';
       if (agentType === AgentType.SCHEMA_GENERATOR) {
-        aiContent = data.data?.result || '抱歉，无法生成DDL语句。';
+        aiContent = data.data?.output?.result || '抱歉，无法生成DDL语句。';
       } else if (agentType === AgentType.ER_GENERATOR) {
-        aiContent = typeof data.data?.output === 'string'
-          ? data.data.output
-          : JSON.stringify(data.data?.output, null, 2) || '抱歉，无法生成ER图数据。';
+        const output = data.data?.output;
+        if (output?.erData) {
+          aiContent = `ER图生成成功！\n描述：${output.description || '无描述'}\n\nER图数据已生成，可在画布中查看。`;
+        } else {
+          aiContent = output?.description || '抱歉，无法生成ER图数据。';
+        }
+      } else if (agentType === AgentType.ER_QUIZ_GENERATOR) {
+        const output = data.data?.output;
+        if (output?.description && output?.erData) {
+          aiContent = `题目生成成功！\n\n题目描述：\n${output.description}\n\nER图数据已生成，题目已自动保存。`;
+        } else {
+          aiContent = '抱歉，无法生成完整的题目数据。';
+        }
+      } else if (agentType === AgentType.ER_VERIFIER) {
+        const output = data.data?.output;
+        if (output?.evaluation) {
+          aiContent = `评价结果：\n${output.evaluation}`;
+          if (output.score !== undefined) {
+            aiContent += `\n\n得分：${output.score}分`;
+          }
+          if (output.suggestions && output.suggestions.length > 0) {
+            aiContent += `\n\n改进建议：\n${output.suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}`;
+          }
+        } else {
+          aiContent = '抱歉，无法完成ER图验证。';
+        }
       } else {
         aiContent = data.data?.text || '抱歉，我无法处理您的请求。';
       }
