@@ -1,4 +1,4 @@
-// 百炼平台API相关类型定义
+import { AgentOutputPart } from '@/types/agents';
 
 /**
  * 百炼平台API请求参数
@@ -117,7 +117,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   success: boolean;
   data?: {
-    text: string;
+    output: AgentOutputPart[];
     sessionId: string;
     metadata?: {
       module?: string;

@@ -11,6 +11,9 @@ import { AgentOutputPart } from '@/types/agents';
 // 导入渲染器组件
 import DefaultTextRenderer from './DefaultTextRenderer';
 import MessagePartsRenderer from './MessagePartsRenderer';
+import SqlRenderer from './SqlRenderer';
+import JsonRenderer from './JsonRenderer';
+import { getRendererByModule } from './RendererFactory';
 
 interface MessageContentRendererProps {
   message: Message;
@@ -34,21 +37,15 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
 }) => {
   // 检查是否为parts数组格式（新格式）
   if (Array.isArray(message.content)) {
-    const handleVisualize = (data: any) => {
-      if (onAction) {
-        onAction('visualize', data);
-      }
-    };
-
     return (
       <MessagePartsRenderer
         parts={message.content}
-        onVisualize={handleVisualize}
       />
     );
   }
 
-  // 对于字符串内容，构建传统渲染器属性
+  // 对于字符串内容，根据内容类型选择合适的渲染器
+  const rendererType = getRendererByModule(message);
   const rendererProps = {
     message: {
       ...message,
@@ -59,8 +56,15 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
     onCopy,
   };
 
-  // 简化：使用默认文本渲染器
-  return <DefaultTextRenderer {...rendererProps} />;
+  // 根据内容类型选择渲染器
+  switch (rendererType) {
+    case 'sql':
+      return <SqlRenderer {...rendererProps} />;
+    case 'json':
+      return <JsonRenderer {...rendererProps} />;
+    default:
+      return <DefaultTextRenderer {...rendererProps} />;
+  }
 };
 
 export default MessageContentRenderer;

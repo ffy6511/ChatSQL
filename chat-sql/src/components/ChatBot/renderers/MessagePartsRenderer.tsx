@@ -5,10 +5,12 @@ import { MoreVert, ContentCopy, Visibility } from '@mui/icons-material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { AgentOutputPart } from '@/types/agents';
+import { visualize } from '@/services/visualizationService';
+import JsonRenderer from './JsonRenderer';
+import SqlRenderer from './SqlRenderer';
 
 interface MessagePartsRendererProps {
   parts: AgentOutputPart[];
-  onVisualize?: (data: any) => void;
 }
 
 /**
@@ -16,9 +18,9 @@ interface MessagePartsRendererProps {
  */
 const ActionMenu: React.FC<{
   content: any;
-  onVisualize?: (data: any) => void;
   isERDiagram?: boolean;
-}> = ({ content, onVisualize, isERDiagram }) => {
+  contentType?: 'text' | 'sql' | 'json';
+}> = ({ content, isERDiagram, contentType }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -37,9 +39,9 @@ const ActionMenu: React.FC<{
   };
 
   const handleVisualize = () => {
-    if (onVisualize) {
-      onVisualize(content);
-    }
+    // 根据内容类型确定可视化类型
+    const visualizeType = isERDiagram ? 'er-diagram' : (contentType === 'sql' ? 'sql' : 'er-diagram');
+    visualize(content, visualizeType);
     handleClose();
   };
 
@@ -71,7 +73,7 @@ const ActionMenu: React.FC<{
           <ContentCopy sx={{ mr: 1 }} />
           复制
         </MenuItem>
-        {(isERDiagram || onVisualize) && (
+        {(isERDiagram || contentType === 'sql') && (
           <MenuItem onClick={handleVisualize}>
             <Visibility sx={{ mr: 1 }} />
             可视化
@@ -86,81 +88,48 @@ const ActionMenu: React.FC<{
  * 基于类型数组的消息部分渲染器 - 简化版本
  */
 export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
-  parts,
-  onVisualize
+  parts
 }) => {
   // 渲染单个部分
   const renderPart = (part: AgentOutputPart, index: number) => {
     const { type, content, metadata } = part;
 
+    // 创建模拟的Message对象供渲染器使用
+    const mockMessage = {
+      id: `part-${index}`,
+      content: content,
+      role: 'assistant' as const,
+      sender: 'ai' as const,
+      timestamp: new Date().toISOString(),
+    };
+
     switch (type) {
       case 'text':
         return (
-          <Box key={index} sx={{ mb: 2, display: 'flex', alignItems: 'flex-start' }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                {content}
-              </Typography>
-            </Box>
-            <ActionMenu content={content} onVisualize={onVisualize} />
+          <Box key={index} sx={{ mb: 2 }}>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', color: 'var(--primary-text)' }}>
+              {content}
+            </Typography>
           </Box>
         );
 
       case 'sql':
         return (
           <Box key={index} sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-              <Box sx={{ flex: 1 }}>
-                <Paper elevation={1} sx={{ overflow: 'hidden' }}>
-                  <SyntaxHighlighter
-                    language={metadata?.language || 'sql'}
-                    style={vscDarkPlus}
-                    customStyle={{
-                      margin: 0,
-                      fontSize: '14px',
-                      lineHeight: '1.5',
-                    }}
-                  >
-                    {content}
-                  </SyntaxHighlighter>
-                </Paper>
-              </Box>
-              <ActionMenu content={content} onVisualize={onVisualize} />
-            </Box>
+            <SqlRenderer
+              message={mockMessage}
+              isUser={false}
+            />
           </Box>
         );
 
       case 'json':
-        const isERDiagram = metadata?.dataType === 'er-diagram';
         return (
           <Box key={index} sx={{ mb: 2 }}>
-            {isERDiagram && (
-              <Typography variant="subtitle2" sx={{ mb: 1, color: 'var(--secondary-text)' }}>
-                ER图数据
-              </Typography>
-            )}
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-              <Box sx={{ flex: 1 }}>
-                <Paper elevation={1} sx={{ overflow: 'hidden' }}>
-                  <SyntaxHighlighter
-                    language="json"
-                    style={vscDarkPlus}
-                    customStyle={{
-                      margin: 0,
-                      fontSize: '14px',
-                      lineHeight: '1.5',
-                    }}
-                  >
-                    {typeof content === 'string' ? content : JSON.stringify(content, null, 2)}
-                  </SyntaxHighlighter>
-                </Paper>
-              </Box>
-              <ActionMenu
-                content={content}
-                onVisualize={onVisualize}
-                isERDiagram={isERDiagram}
-              />
-            </Box>
+            <JsonRenderer
+              message={mockMessage}
+              isUser={false}
+            />
           </Box>
         );
 
@@ -175,7 +144,7 @@ export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
                 {typeof content === 'string' ? content : JSON.stringify(content)}
               </Typography>
             </Box>
-            <ActionMenu content={content} onVisualize={onVisualize} />
+            <ActionMenu content={content} contentType="text" />
           </Box>
         );
     }

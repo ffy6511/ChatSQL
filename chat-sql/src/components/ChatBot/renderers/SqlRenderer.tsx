@@ -7,8 +7,9 @@ import React, { useMemo } from 'react';
 import { Box, Paper, IconButton, Tooltip } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github, githubGist } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { ContentCopy as CopyIcon } from '@mui/icons-material';
+import { ContentCopy as CopyIcon, Visibility as VisualizeIcon } from '@mui/icons-material';
 import { RendererProps, SqlRendererConfig } from '@/types/chatbot/renderers';
+import { visualize } from '@/services/visualizationService';
 
 /**
  * SQL 渲染器组件 - 专注于 SQL 语法高亮渲染
@@ -92,6 +93,11 @@ const SqlRenderer: React.FC<RendererProps> = ({
     }
   };
 
+  // 处理可视化 - 使用全局服务
+  const handleVisualize = () => {
+    visualize(processedSql, 'sql');
+  };
+
   return (
     <Box className={className}>
       <Paper
@@ -104,7 +110,7 @@ const SqlRenderer: React.FC<RendererProps> = ({
           overflow: 'hidden',
         }}
       >
-        {/* 复制按钮 */}
+        {/* 操作按钮 */}
         <Box
           sx={{
             position: 'absolute',
@@ -115,8 +121,28 @@ const SqlRenderer: React.FC<RendererProps> = ({
             transition: 'opacity 0.2s',
             '&:hover': { opacity: 1 },
             '.message-bubble:hover &': { opacity: 1 },
+            display: 'flex',
+            gap: 1,
           }}
         >
+          {/* 可视化按钮 */}
+          <Tooltip title="可视化 SQL">
+            <IconButton
+              size="small"
+              onClick={handleVisualize}
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'var(--secondary-text)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+              }}
+            >
+              <VisualizeIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          {/* 复制按钮 */}
           <Tooltip title="复制 SQL">
             <IconButton
               size="small"

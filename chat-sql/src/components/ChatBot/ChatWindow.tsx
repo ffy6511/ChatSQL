@@ -26,6 +26,8 @@ import { ChatMessage } from '@/types/chat';
 import { AgentType } from '@/types/agents';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
+import { useRouter } from 'next/navigation';
+import { setVisualizationRouter } from '@/services/visualizationService';
 
 import MessageList from './MessageList';
 import DynamicMessageInput from './DynamicMessageInput';
@@ -132,6 +134,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     saveSettings,
     updateWindowSize,
   } = useChatSettings();
+
+  const router = useRouter();
+
+  // 初始化可视化服务的路由器
+  useEffect(() => {
+    setVisualizationRouter(router);
+  }, [router]);
 
   // 从设置中获取窗口大小，支持百分比初始值
   const [currentSize, setCurrentSize] = useState<{ width: number; height: number }>(() => {

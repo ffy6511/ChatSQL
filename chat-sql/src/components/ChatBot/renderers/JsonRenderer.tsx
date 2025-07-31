@@ -11,9 +11,11 @@ import {
   ContentCopy as CopyIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  Code as CodeIcon
+  Code as CodeIcon,
+  Visibility as VisualizeIcon,
 } from '@mui/icons-material';
 import { RendererProps, JsonRendererConfig } from '@/types/chatbot/renderers';
+import { visualize } from '@/services/visualizationService';
 
 /**
  * JSON 渲染器组件 - 专注于 JSON 格式化和语法高亮
@@ -87,12 +89,35 @@ const JsonRenderer: React.FC<RendererProps> = ({
     };
   }, [message.content]);
 
+  // 检测是否为ER图数据
+  const isERDiagramData = useMemo(() => {
+    if (!processedJson.isValid || !processedJson.parsedJson) return false;
+
+    const data = processedJson.parsedJson;
+    // 检查是否包含ER图的基本结构
+    return (
+      data &&
+      typeof data === 'object' &&
+      (data.entities || data.relationships ||
+       (Array.isArray(data) && data.some((item: any) =>
+         item && (item.entities || item.relationships || item.type === 'entity' || item.type === 'relationship')
+       )))
+    );
+  }, [processedJson]);
+
   // 格式化 JSON
   const formatJson = (obj: any): string => {
     try {
       return JSON.stringify(obj, null, jsonConfig.indent);
     } catch (error) {
       return JSON.stringify(obj);
+    }
+  };
+
+  // 处理可视化 - 使用全局服务
+  const handleVisualize = () => {
+    if (processedJson.isValid && processedJson.parsedJson) {
+      visualize(processedJson.parsedJson, 'er-diagram');
     }
   };
 
@@ -200,6 +225,25 @@ const JsonRenderer: React.FC<RendererProps> = ({
                   }}
                 >
                   <CodeIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {/* 可视化按钮 */}
+            {isERDiagramData && (
+              <Tooltip title="可视化 ER 图">
+                <IconButton
+                  size="small"
+                  onClick={handleVisualize}
+                  sx={{
+                    backgroundColor: 'rgba(0,0,0,0.1)',
+                    color: 'var(--icon-color)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0,0,0,0.2)',
+                    },
+                  }}
+                >
+                  <VisualizeIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             )}

@@ -451,13 +451,22 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // 非流式响应
+      // 构建基于类型数组的输出格式
+      const outputParts: import('@/types/agents').AgentOutputPart[] = [];
       const response = await callBailianAPI(bailianRequest, false) as BailianAIResponse;
       const { cleanText, metadata } = parseMetadata(response.output.text);
+
+      if( cleanText ){
+        outputParts.push({
+          type: 'text',
+          content: cleanText,
+        })
+      }
 
       const chatResponse: ChatResponse = {
         success: true,
         data: {
-          text: cleanText,
+          output: outputParts,
           sessionId: response.output.session_id,
           metadata: {
             module: 'default',
