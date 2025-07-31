@@ -10,7 +10,7 @@ import {
   generateId
 } from '@/types/chat';
 import { chatStorage } from '@/services/chatStorage';
-import { AgentType, AGENTS_INFO, AgentOutputPart } from '@/types/agents';
+import { AgentType, AGENTS_INFO, AgentOutputPart } from '@/types/chatBotTypes/agents';
 import { quizStorage } from '@/services/quizStorage';
 
 // 状态管理的Action类型

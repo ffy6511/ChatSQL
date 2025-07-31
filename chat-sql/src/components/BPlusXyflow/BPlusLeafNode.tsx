@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { BPlusNodeData } from '@/types/bPlusTree';
+import { BPlusNodeData } from '@/types/BplusTypes/bPlusTree';
 import styles from './BPlusTreeVisualizer.module.css';
 
 const BPlusLeafNode: React.FC<NodeProps> = ({ data }) => {

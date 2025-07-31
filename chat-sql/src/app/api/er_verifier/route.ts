@@ -5,12 +5,12 @@ import {
   BailianAIAPIError,
   ErrorType,
   HTTPStatus,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import {
   AGENT_CONFIG,
   ERVerifierRequest,
   ERVerifierResponse,
-} from '@/types/agents';
+} from '@/types/chatBotTypes/agents';
 import * as agentsHandlers from '@/services/agentsHandlers';
 
 /**
@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
     const { cleanText, evaluation, score, suggestions } = parseERVerifierResponse(response.output.text);
 
     // 构建基于类型数组的输出格式
-    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+    const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
 
     // 构建完整的评估文本
     let fullEvaluationText = '';

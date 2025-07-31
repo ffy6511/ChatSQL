@@ -16,7 +16,7 @@ import {
   Timeline as TimelineIcon
 } from '@mui/icons-material';
 
-import { HistorySession } from '@/types/bPlusHistory';
+import { HistorySession } from '@/types/BplusTypes/bPlusHistory';
 import { BPlusHistorySessionItem, BPlusHistoryStepItem } from './BPlusHistoryItem';
 import HistoryActionBar from './HistoryActionBar';
 

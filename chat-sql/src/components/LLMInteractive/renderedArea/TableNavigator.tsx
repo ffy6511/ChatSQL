@@ -12,7 +12,7 @@ import ListIcon from '@mui/icons-material/List';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled } from '@mui/material/styles';
-import { Table } from '@/types/database';
+import { Table } from '@/types/CodingTypes/database';
 import styles from './TableNavigator.module.css';
 
 // 组件 Props 类型

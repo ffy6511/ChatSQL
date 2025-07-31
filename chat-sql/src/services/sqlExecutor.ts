@@ -1,6 +1,6 @@
-import { TableStructure, TableTuple } from '@/types/dify';
+import { TableStructure, TableTuple } from '@/types/CodingTypes/dify';
 import { Parser } from 'node-sql-parser';
-import { TableData, SQLQueryResult } from '@/types/sqlExecutor';
+import { TableData, SQLQueryResult } from '@/types/CodingTypes/sqlExecutor';
 import { evaluateCondition } from '@/lib/conditionEvaluator';
 
 // 导入辅助函数

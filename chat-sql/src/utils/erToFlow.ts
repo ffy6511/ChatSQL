@@ -1,7 +1,7 @@
 import { Node, Edge } from '@xyflow/react';
-import { ERDiagramData, EREntity, ERRelationship } from '../types/erDiagram';
-import { EntityNodeData } from '../components/ERDiagram/EntityNode';
-import { DiamondNodeData } from '../components/ERDiagram/DiamondNode';
+import { ERDiagramData, EREntity, ERRelationship } from '../types/ERDiagramTypes/erDiagram';
+import { EntityNodeData } from '../components/ERDiagram/canvasRelated/EntityNode';
+import { DiamondNodeData } from '../components/ERDiagram/canvasRelated/DiamondNode';
 
 // 布局配置
 interface LayoutConfig {

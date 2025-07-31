@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import { Message } from '@/types/chatbot';
-import { AgentOutputPart } from '@/types/agents';
+import { Message } from '@/types/chatBotTypes/chatbot';
+import { AgentOutputPart } from '@/types/chatBotTypes/agents';
 
 // 导入渲染器组件
 import DefaultTextRenderer from './DefaultTextRenderer';

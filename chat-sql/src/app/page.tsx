@@ -66,7 +66,7 @@ const Page: React.FC = () => {
   // 加载编码记录的辅助函数
   const loadCodingRecord = async (recordId: number) => {
     try {
-      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const { getProblemById } = await import('@/services/codingStorage');
       const record = await getProblemById(recordId);
 
       if (record) {

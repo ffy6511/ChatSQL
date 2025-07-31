@@ -1,4 +1,4 @@
-import { ERDiagramData } from '@/types/erDiagram';
+import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
 import { NextRequest, NextResponse } from 'next/server';
 import axios, { AxiosError } from 'axios';
 import {
@@ -10,13 +10,13 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import {
   AGENT_CONFIG,
   ERGeneratorResponse,
   ERQuizGeneratorRequest,
   ERQuizGeneratorResponse,
-} from '@/types/agents';
+} from '@/types/chatBotTypes/agents';
 
 import * as agentsHandlers from '@/services/agentsHandlers';
 
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
     console.log('ER-generator调用成功，得到的ER图数据:', erGenResult);
 
     // 构建基于类型数组的输出格式
-    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+    const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
 
     // 添加题目描述部分
     if (enhancedDescription) {

@@ -1,10 +1,10 @@
 'use client'
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { areResultsEqual } from '@/lib/resultComparator';
+import { areResultsEqual } from '@/lib/codingLib/resultComparator';
 import { useLLMContext } from './LLMContext';
 import { useQueryContext } from './QueryContext';
-import { TableTuple } from '@/types/dify';
+import { TableTuple } from '@/types/CodingTypes/dify';
 import { ProgressService } from '@/services/progressService';
 import { isTutorialRecord } from '@/utils/progressUtils';
 import { message } from 'antd';
@@ -66,7 +66,7 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     try {
       // 获取当前记录并检查是否为教程
-      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const { getProblemById } = await import('@/services/codingStorage');
       const record = await getProblemById(currentProblemId);
 
       if (!record || !isTutorialRecord(record)) {
@@ -101,7 +101,7 @@ export const CompletionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     try {
       // 获取当前记录并检查是否为教程
-      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const { getProblemById } = await import('@/services/codingStorage');
       const record = await getProblemById(currentProblemId);
 
       if (!record || !isTutorialRecord(record)) {

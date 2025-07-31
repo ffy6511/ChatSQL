@@ -2,7 +2,7 @@
 'use client'
 
 import React, { createContext, useContext, useState } from 'react';
-import { DifyResponse } from '@/types/dify';
+import { DifyResponse } from '@/types/CodingTypes/dify';
 
 interface LLMContextType {
   showLLMWindow: boolean;

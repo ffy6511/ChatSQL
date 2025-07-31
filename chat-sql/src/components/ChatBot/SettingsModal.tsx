@@ -33,7 +33,7 @@ import {
   Download as DownloadIcon,
   Upload as UploadIcon,
 } from '@mui/icons-material';
-import { SettingsModalProps, ChatSettings } from '@/types/chatbot';
+import { SettingsModalProps, ChatSettings } from '@/types/chatBotTypes/chatbot';
 
 interface TabPanelProps {
   children?: React.ReactNode;

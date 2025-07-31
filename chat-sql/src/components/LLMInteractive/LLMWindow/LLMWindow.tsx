@@ -11,9 +11,9 @@ import {
   CloseOutlined
 } from '@ant-design/icons';
 import { useLLMContext } from '@/contexts/LLMContext';
-import LLMResultView from '@/lib/LLMResultView';
+import LLMResultView from '@/lib/codingLib/LLMResultView';
 import { useSimpleStorage } from '@/hooks/useRecords';
-import { DifyResponse } from '@/types/dify';
+import { DifyResponse } from '@/types/CodingTypes/dify';
 import {
   Typography,
   TextField,

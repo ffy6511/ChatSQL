@@ -1,6 +1,6 @@
 // 聊天系统核心数据类型定义
 
-import { AgentOutputPart } from '../agents';
+import { AgentOutputPart } from '../chatBotTypes/agents';
 
 /**
  * 聊天消息接口

@@ -8,7 +8,7 @@ import {
   DEFAULT_POSITION,
   DEFAULT_SIZE,
   Message
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';
 
 /**
  * IndexedDB存储管理类
@@ -631,13 +631,13 @@ export const formatTimestamp = (timestamp: string): string => {
 /**
  * 截取文本用于显示标题
  */
-export const truncateText = (text: string | import('@/types/agents').AgentOutputPart[], maxLength: number = 30): string => {
+export const truncateText = (text: string | import('@/types/chatBotTypes/agents').AgentOutputPart[], maxLength: number = 30): string => {
   // 处理结构化对象（parts数组）
   if (typeof text === 'object' && Array.isArray(text)) {
     // 从parts数组中提取文本内容
-    const textParts = text.filter((part: import('@/types/agents').AgentOutputPart) =>
+    const textParts = text.filter((part: import('@/types/chatBotTypes/agents').AgentOutputPart) =>
       part.type === 'text'
-    ).map((part: import('@/types/agents').AgentOutputPart) => part.content).join(' ') || '';
+    ).map((part: import('@/types/chatBotTypes/agents').AgentOutputPart) => part.content).join(' ') || '';
 
     const textContent = textParts || JSON.stringify(text);
     if (textContent.length <= maxLength) {

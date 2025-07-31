@@ -8,7 +8,7 @@ import { Box, Paper, IconButton, Tooltip } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github, githubGist } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { ContentCopy as CopyIcon, Visibility as VisualizeIcon } from '@mui/icons-material';
-import { RendererProps, SqlRendererConfig } from '@/types/chatbot/renderers';
+import { RendererProps, SqlRendererConfig } from '@/types/chatBotTypes/renderers';
 import { visualize } from '@/services/visualizationService';
 
 /**

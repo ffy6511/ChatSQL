@@ -14,7 +14,7 @@ import {
   Person as UserIcon,
   ContentCopy as CopyIcon,
 } from '@mui/icons-material';
-import { MessageListProps, Message } from '@/types/chatbot';
+import { MessageListProps, Message } from '@/types/chatBotTypes/chatbot';
 import { formatTimestamp } from '@/utils/chatbot/storage';
 import MessageContentRenderer from './renderers/MessageContentRenderer';
 

@@ -4,7 +4,7 @@ import { Box, Typography, Paper, IconButton, Menu, MenuItem, Tooltip } from '@mu
 import { MoreVert, ContentCopy, Visibility } from '@mui/icons-material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { AgentOutputPart } from '@/types/agents';
+import { AgentOutputPart } from '@/types/chatBotTypes/agents';
 import { visualize } from '@/services/visualizationService';
 import JsonRenderer from './JsonRenderer';
 import SqlRenderer from './SqlRenderer';

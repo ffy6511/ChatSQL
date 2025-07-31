@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { ChatSidebarProps, ChatHistory } from '@/types/chatbot';
-import { AgentType } from '@/types/agents';
+import { ChatSidebarProps, ChatHistory } from '@/types/chatBotTypes/chatbot';
+import { AgentType } from '@/types/chatBotTypes/agents';
 import IconSidebar from './IconSidebar';
 import HistoryPanel from './HistoryPanel';
 

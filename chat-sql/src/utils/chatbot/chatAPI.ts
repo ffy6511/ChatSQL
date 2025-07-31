@@ -5,7 +5,7 @@ import {
   ChatAPIResponse,
   ChatSettings,
   Message
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';
 
 /**
  * 聊天API管理类

@@ -28,11 +28,11 @@ export type {
   JsonRendererConfig,
   SqlRendererConfig,
   RendererContextType,
-} from '@/types/chatbot/renderers';
+} from '@/types/chatBotTypes/renderers';
 
 // 默认配置
 export {
   DEFAULT_RENDERER_CONFIG,
   DEFAULT_SQL_RENDERER_CONFIG,
   DEFAULT_JSON_RENDERER_CONFIG,
-} from '@/types/chatbot/renderers';
+} from '@/types/chatBotTypes/renderers';

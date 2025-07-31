@@ -26,7 +26,7 @@ import {
   Quiz as QuizIcon,
   CalendarToday as DateIcon,
 } from '@mui/icons-material';
-import { Quiz, QuizSelectorProps } from '@/types/quiz';
+import { Quiz, QuizSelectorProps } from '@/types/ERDiagramTypes/quiz';
 import { quizStorage } from '@/services/quizStorage';
 
 /**

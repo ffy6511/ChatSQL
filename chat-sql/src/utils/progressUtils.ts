@@ -1,4 +1,4 @@
-import { LLMProblem } from '@/services/recordsIndexDB';
+import { LLMProblem } from '@/services/codingStorage';
 
 /**
  * 进度状态枚举

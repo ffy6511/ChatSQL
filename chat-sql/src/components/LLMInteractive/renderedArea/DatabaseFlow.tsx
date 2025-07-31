@@ -31,7 +31,7 @@ import { TableNavigator } from './TableNavigator';
 import { useThemeContext } from '@/contexts/ThemeContext';
 
 // 删除原有的类型定义，改为导入
-import { Column, Table, Edge } from '@/types/database';
+import { Column, Table, Edge } from '@/types/CodingTypes/database';
 
 
 type TableNodeData = {

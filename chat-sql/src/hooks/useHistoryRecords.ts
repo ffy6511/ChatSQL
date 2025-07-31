@@ -32,7 +32,7 @@ export const useHistoryRecords = () => {
     setLoading(true);
     setError(null);
     try {
-      const { getAllProblems } = await import('@/services/recordsIndexDB');
+      const { getAllProblems } = await import('@/services/codingStorage');
       const records = await getAllProblems();
       setRecentRecords(records);
       // 暂时将收藏记录设为空数组，可以根据需要实现收藏功能
@@ -48,7 +48,7 @@ export const useHistoryRecords = () => {
   // 删除历史记录
   const handleDelete = useCallback(async (id: number) => {
     try {
-      const { deleteProblem } = await import('@/services/recordsIndexDB');
+      const { deleteProblem } = await import('@/services/codingStorage');
       await deleteProblem(id);
       await fetchRecords(); // 刷新列表
     } catch (err) {
@@ -60,7 +60,7 @@ export const useHistoryRecords = () => {
   // 重命名历史记录
   const handleRename = useCallback(async (id: number, newTitle: string) => {
     try {
-      const { getProblemById, updateProblem } = await import('@/services/recordsIndexDB');
+      const { getProblemById, updateProblem } = await import('@/services/codingStorage');
       const problem = await getProblemById(id);
       if (problem) {
         problem.title = newTitle;

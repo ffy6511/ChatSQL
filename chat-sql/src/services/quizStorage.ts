@@ -7,7 +7,7 @@ import {
   QuizStorageService,
   QuizSearchOptions,
   QuizStats
-} from '@/types/quiz';
+} from '@/types/ERDiagramTypes/quiz';
 
 /**
  * IndexedDB数据库结构定义

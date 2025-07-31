@@ -19,13 +19,13 @@ import {
 } from '@xyflow/react';
 import { Box, Alert, Snackbar, Tooltip } from '@mui/material';
 
-import { BPlusTreeAlgorithm } from '../../lib/bplus-tree/algorithm';
-import { AnimationManager, AnimationState } from '../../lib/bplus-tree/animationManager';
-import { CommandExecutor } from '../../lib/bplus-tree/commandExecutor';
+import { BPlusTreeAlgorithm } from '../../lib/bplusLib/algorithm';
+import { AnimationManager, AnimationState } from '../../lib/bplusLib/animationManager';
+import { CommandExecutor } from '../../lib/bplusLib/commandExecutor';
 import AnimationControls from './AnimationControls';
 import BPlusInternalNode from './BPlusInternalNode';
 import BPlusLeafNode from './BPlusLeafNode';
-import { BPlusNodeData } from '@/types/bPlusTree';
+import { BPlusNodeData } from '@/types/BplusTypes/bPlusTree';
 import styles from './BPlusTreeVisualizer.module.css';
 import '@xyflow/react/dist/style.css';
 import { promises } from 'dns';

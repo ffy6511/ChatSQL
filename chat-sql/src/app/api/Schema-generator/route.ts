@@ -9,12 +9,12 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import {
   SchemaGeneratorRequest,
   SchemaGeneratorResponse,
   AGENT_CONFIG,
-} from '@/types/agents';
+} from '@/types/chatBotTypes/agents';
 
 import * as agentsHandlers from '@/services/agentsHandlers';
 
@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
     const { cleanText } = parseMetadata(response.output.text);
 
     // 构建基于类型数组的输出格式
-    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+    const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
     if (cleanText) {
       outputParts.push({
         type: 'sql' as const,

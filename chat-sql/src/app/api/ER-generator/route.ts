@@ -9,14 +9,14 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import {
   ERGeneratorRequest,
   ERGeneratorResponse,
   SchemaGeneratorResponse,
   AGENT_CONFIG,
-} from '@/types/agents';
-import { ERDiagramData } from '@/types/erDiagram';
+} from '@/types/chatBotTypes/agents';
+import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
 
 /**
  * 解析智能体响应中的元数据和ER图数据
@@ -371,7 +371,7 @@ export async function POST(request: NextRequest) {
     const { erData } = parseERResponse(response.output.text);
 
     // 构建基于类型数组的输出格式
-    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+    const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
 
     // 添加ER图数据部分（作为JSON类型）
     if (erData) {

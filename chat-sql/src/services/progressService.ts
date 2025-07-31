@@ -1,4 +1,4 @@
-import { LLMProblem, getProblemById, updateProblem } from './recordsIndexDB';
+import { LLMProblem, getProblemById, updateProblem } from './codingStorage';
 import { calculateProgressStatus } from '@/utils/progressUtils';
 
 /**

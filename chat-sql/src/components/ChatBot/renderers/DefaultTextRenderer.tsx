@@ -6,7 +6,7 @@
 import React from 'react';
 import { Typography, Box, IconButton, Tooltip } from '@mui/material';
 import { ContentCopy as CopyIcon } from '@mui/icons-material';
-import { RendererProps } from '@/types/chatbot/renderers';
+import { RendererProps } from '@/types/chatBotTypes/renderers';
 
 /**
  * 默认文本渲染器组件

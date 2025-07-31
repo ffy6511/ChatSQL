@@ -17,7 +17,7 @@ import {
   Add as AddIcon,
   DeleteSweep as DeleteSweepIcon,
 } from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatbot';
+import { ChatHistory } from '@/types/chatBotTypes/chatbot';
 import HistoryList from './HistoryList';
 
 interface HistoryPanelProps {

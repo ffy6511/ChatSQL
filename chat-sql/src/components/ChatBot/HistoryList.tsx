@@ -12,7 +12,7 @@ import {
 import {
   HistoryOutlined as HistoryIcon,
 } from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatbot';
+import { ChatHistory } from '@/types/chatBotTypes/chatbot';
 import HistoryItem from './HistoryItem';
 
 interface HistoryListProps {

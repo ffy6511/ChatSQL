@@ -31,7 +31,7 @@ export type {
   ChatAPIRequest,
   ChatAPIResponse,
   StorageKeys,
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';
 
 // 常量
 export {
@@ -41,4 +41,4 @@ export {
   DEFAULT_POSITION,
   DEFAULT_SIZE,
   KEYBOARD_SHORTCUTS,
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';

@@ -1,4 +1,4 @@
-import { EREntity, ERRelationship, ERAttribute } from '@/types/erDiagram';
+import { EREntity, ERRelationship, ERAttribute } from '@/types/ERDiagramTypes/erDiagram';
 
 // 生成唯一ID的工具函数
 export function generateUniqueId(prefix: string): string {

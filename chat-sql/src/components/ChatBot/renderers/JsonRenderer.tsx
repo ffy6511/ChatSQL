@@ -14,7 +14,7 @@ import {
   Code as CodeIcon,
   Visibility as VisualizeIcon,
 } from '@mui/icons-material';
-import { RendererProps, JsonRendererConfig } from '@/types/chatbot/renderers';
+import { RendererProps, JsonRendererConfig } from '@/types/chatBotTypes/renderers';
 import { visualize } from '@/services/visualizationService';
 
 /**

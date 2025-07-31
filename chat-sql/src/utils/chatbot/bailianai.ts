@@ -12,7 +12,7 @@ import {
   ErrorType,
   APICallOptions,
   DEFAULT_BAILIAN_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 
 /**
  * 会话管理器类

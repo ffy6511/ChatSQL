@@ -1,4 +1,4 @@
-import { ERDiagramData } from '@/types/erDiagram';
+import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
 
 // 数据库配置
 const DB_NAME = 'ChatSQL_ERDiagrams';

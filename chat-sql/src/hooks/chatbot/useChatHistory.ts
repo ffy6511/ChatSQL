@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ChatHistory,
   Message
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';
 import { ChatStorage, ChatIndexedDB, generateId, truncateText } from '@/utils/chatbot/storage';
 
 export const useChatHistory = () => {

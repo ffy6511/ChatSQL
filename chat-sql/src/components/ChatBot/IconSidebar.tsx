@@ -15,7 +15,7 @@ import {
   Quiz as QuizIcon,
   Rule as VerifyIcon,
 } from '@mui/icons-material';
-import { AgentType } from '@/types/agents';
+import { AgentType } from '@/types/chatBotTypes/agents';
 
 interface IconSidebarProps {
   onNewChat: () => void;

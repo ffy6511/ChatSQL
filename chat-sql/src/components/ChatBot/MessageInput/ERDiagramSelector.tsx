@@ -24,7 +24,7 @@ import {
   Visibility as PreviewIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
-import { ERDiagramData } from '@/types/erDiagram';
+import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
 import { erDiagramStorage } from '@/services/erDiagramStorage';
 import { formatTimestamp } from '@/utils/chatbot/storage';
 

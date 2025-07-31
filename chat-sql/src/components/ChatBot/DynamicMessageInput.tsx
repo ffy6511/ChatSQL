@@ -13,7 +13,7 @@ import {
 import {
   Send as SendIcon,
 } from '@mui/icons-material';
-import { AgentType, AGENTS_INFO, AgentInputField, AgentOutputPart } from '@/types/agents';
+import { AgentType, AGENTS_INFO, AgentInputField, AgentOutputPart } from '@/types/chatBotTypes/agents';
 import ERDiagramSelector from './MessageInput/ERDiagramSelector';
 import QuizSelector from './MessageInput/QuizSelector';
 import { quizStorage } from '@/services/quizStorage';

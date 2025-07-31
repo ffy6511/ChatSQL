@@ -3,8 +3,8 @@
  * 实现渲染器选择逻辑，根据 metadata.module 字段选择合适的渲染器组件
  */
 
-import { Message } from '@/types/chatbot';
-import { MessageRenderer, RendererFactory, RendererType } from '@/types/chatbot/renderers';
+import { Message } from '@/types/chatBotTypes/chatbot';
+import { MessageRenderer, RendererFactory, RendererType } from '@/types/chatBotTypes/renderers';
 
 /**
  * 渲染器工厂实现类

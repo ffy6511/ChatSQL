@@ -24,7 +24,7 @@ import {
   FastRewind,
   Replay
 } from '@mui/icons-material';
-import { AnimationState } from '../../lib/bplus-tree/animationManager';
+import { AnimationState } from '../../lib/bplusLib/animationManager';
 
 interface AnimationControlsProps {
   animationState: AnimationState;

@@ -1,7 +1,7 @@
 
 
 import { useState } from 'react';
-import { saveLLMProblem, LLMProblem } from '@/services/recordsIndexDB';
+import { saveLLMProblem, LLMProblem } from '@/services/codingStorage';
 import { message } from 'antd';
 
 export const useSimpleStorage = () => {

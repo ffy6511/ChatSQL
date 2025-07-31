@@ -1,7 +1,7 @@
 // 聊天设置管理Hook
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatbot';
+import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatBotTypes/chatbot';
 import { ChatStorage } from '@/utils/chatbot/storage';
 import { ChatAPI } from '@/utils/chatbot/chatAPI';
 

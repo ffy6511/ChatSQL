@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Box, Paper } from '@mui/material';
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
-import { TableTuple } from '@/types/dify';
+import { TableTuple } from '@/types/CodingTypes/dify';
 
 interface TableDisplayProps {
   tableInfo: TableTuple;

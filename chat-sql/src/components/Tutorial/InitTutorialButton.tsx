@@ -4,7 +4,7 @@ import { ReadOutlined } from '@ant-design/icons';
 import { tutorials } from './tutorialData';
 import { useSimpleStorage } from '@/hooks/useRecords';
 import { useLLMContext } from '@/contexts/LLMContext';
-import { LLMProblem } from '@/services/recordsIndexDB';
+import { LLMProblem } from '@/services/codingStorage';
 
 
 const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => {
@@ -14,7 +14,7 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
   const { setCurrentProblemId, setLLMResult } = useLLMContext();
 
   const handleInitTutorials = async () => {
-    const { getAllProblems } = await import('@/services/recordsIndexDB');
+    const { getAllProblems } = await import('@/services/codingStorage');
 
     try {
       setIsProcessing(true);
@@ -81,7 +81,7 @@ const InitTutorialButton: React.FC<{ className?: string }> = ({ className }) => 
         setLLMResult(null);  // 清除之前的结果
 
         // 验证保存结果
-        const { getProblemById } = await import('@/services/recordsIndexDB');
+        const { getProblemById } = await import('@/services/codingStorage');
         const savedRecord = await getProblemById(lastSavedId);
         console.log('验证保存结果:', savedRecord);
 

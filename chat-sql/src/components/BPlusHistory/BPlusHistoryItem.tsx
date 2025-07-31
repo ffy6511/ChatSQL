@@ -16,7 +16,7 @@ import {
   ReloadOutlined,
   DotChartOutlined
 } from '@ant-design/icons';
-import { HistorySession, HistoryStep } from '@/types/bPlusHistory';
+import { HistorySession, HistoryStep } from '@/types/BplusTypes/bPlusHistory';
 import styles from './BPlusHistoryItem.module.css';
 
 interface BPlusHistorySessionItemProps {

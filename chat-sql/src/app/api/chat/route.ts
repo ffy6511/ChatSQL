@@ -12,7 +12,7 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 
 /**
  * 解析智能体响应中的元数据
@@ -452,7 +452,7 @@ export async function POST(request: NextRequest) {
     } else {
       // 非流式响应
       // 构建基于类型数组的输出格式
-      const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+      const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
       const response = await callBailianAPI(bailianRequest, false) as BailianAIResponse;
       const { cleanText, metadata } = parseMetadata(response.output.text);
 

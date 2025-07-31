@@ -21,9 +21,9 @@ import {
   History as HistoryIcon,
 } from '@mui/icons-material';
 import { Try as AIIcon } from '@mui/icons-material';
-import { ChatWindowProps, Message } from '@/types/chatbot';
+import { ChatWindowProps, Message } from '@/types/chatBotTypes/chatbot';
 import { ChatMessage } from '@/types/chat';
-import { AgentType } from '@/types/agents';
+import { AgentType } from '@/types/chatBotTypes/agents';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
 import { useRouter } from 'next/navigation';

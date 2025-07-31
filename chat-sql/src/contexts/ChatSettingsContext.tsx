@@ -1,7 +1,7 @@
 // ChatSettings Context - 全局管理聊天设置状态
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatbot';
+import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatBotTypes/chatbot';
 import { ChatStorage } from '@/utils/chatbot/storage';
 import { ChatAPI } from '@/utils/chatbot/chatAPI';
 

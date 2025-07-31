@@ -1,5 +1,5 @@
 // 智能体消息渲染工具函数
-import { AgentOutputPart } from '@/types/agents';
+import { AgentOutputPart } from '@/types/chatBotTypes/agents';
 
 /**
  * 消息类型定义

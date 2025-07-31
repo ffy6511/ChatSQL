@@ -6,7 +6,7 @@ import DatabaseFlow from './DatabaseFlow';
 import TupleViewer from './TupleViewer';
 import ProblemViewer from './ProblemViewer';
 import { useLLMContext } from '@/contexts/LLMContext';
-import { parseJSONToTables } from '@/lib/parseMySQL';
+import { parseJSONToTables } from '@/lib/codingLib/parseMySQL';
 import SchemaIcon from '@mui/icons-material/Schema';
 import TableChartIcon from '@mui/icons-material/TableChart';
 

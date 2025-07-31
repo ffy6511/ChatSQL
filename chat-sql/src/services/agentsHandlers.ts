@@ -9,12 +9,12 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import {
   SchemaGeneratorRequest,
   SchemaGeneratorResponse,
   AGENT_CONFIG,
-} from '@/types/agents';
+} from '@/types/chatBotTypes/agents';
 
 
 /**

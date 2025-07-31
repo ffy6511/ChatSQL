@@ -7,7 +7,7 @@ import {
   toggleFavorite, 
   renameProblem, 
   LLMProblem 
-} from '@/services/recordsIndexDB';
+} from '@/services/codingStorage';
 import { message } from 'antd';
 
 export const useHistoryRecords = () => {

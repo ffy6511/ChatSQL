@@ -5,11 +5,11 @@ import {
   ChatState,
   Message,
   DEFAULT_CHAT_STATE
-} from '@/types/chatbot';
+} from '@/types/chatBotTypes/chatbot';
 import {
   StreamChatResponse,
   ChatRequest
-} from '@/types/chatbot/bailianai';
+} from '@/types/chatBotTypes/bailianai';
 import { generateId, ChatStorage } from '@/utils/chatbot/storage';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
 

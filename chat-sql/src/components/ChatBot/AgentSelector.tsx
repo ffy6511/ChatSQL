@@ -13,7 +13,7 @@ import {
   Storage as StorageIcon,
   AccountTree as AccountTreeIcon,
 } from '@mui/icons-material';
-import { AgentType, AGENTS_INFO } from '@/types/agents';
+import { AgentType, AGENTS_INFO } from '@/types/chatBotTypes/agents';
 
 interface AgentSelectorProps {
   selectedAgent: AgentType;

@@ -15,7 +15,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatbot';
+import { ChatHistory } from '@/types/chatBotTypes/chatbot';
 
 interface HistoryItemProps {
   history: ChatHistory;
