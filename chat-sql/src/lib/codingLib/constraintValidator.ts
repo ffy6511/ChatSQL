@@ -4,7 +4,7 @@
  * 该模块提供了用于验证数据库约束（如主键、外键）的函数集合。
  */
 
-import { TableData } from '../types/CodingTypes/sqlExecutor';
+import { TableData } from '@/types/CodingTypes/sqlExecutor';
 
 /**
  * 验证主键约束

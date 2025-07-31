@@ -1,7 +1,7 @@
 import { TableStructure, TableTuple } from '@/types/CodingTypes/dify';
 import { Parser } from 'node-sql-parser';
 import { TableData, SQLQueryResult } from '@/types/CodingTypes/sqlExecutor';
-import { evaluateCondition } from '@/lib/conditionEvaluator';
+import { evaluateCondition } from '@/lib/codingLib/conditionEvaluator';
 
 // 导入辅助函数
 import {
@@ -13,7 +13,7 @@ import {
   executeGroupBy,
   executeOrderBy,
   isAggregateFunction
-} from '@/lib';
+} from '@/lib/codingLib';
 
 enum JoinType {
   INNER = 'INNER JOIN',

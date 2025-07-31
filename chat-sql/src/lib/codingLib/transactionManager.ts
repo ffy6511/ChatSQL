@@ -4,7 +4,7 @@
  * 该模块提供了用于管理SQL事务的函数集合，包括开始、提交和回滚事务。
  */
 
-import { TableData } from '../types/CodingTypes/sqlExecutor';
+import { TableData } from '@/types/CodingTypes/sqlExecutor';
 
 /**
  * 开始事务

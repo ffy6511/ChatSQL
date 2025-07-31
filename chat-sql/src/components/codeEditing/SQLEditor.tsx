@@ -107,8 +107,8 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
 
   const handleEditorWillMount = useCallback((monaco: any) => {
     // 导入自动补全提供器和悬停提示提供器
-    const { createSQLCompletionProvider } = require('@/lib/sqlCompletionProvider');
-    const { createSQLHoverProvider } = require('@/lib/sqlHoverProvider');
+    const { createSQLCompletionProvider } = require('@/lib/codingLib/sqlCompletionProvider');
+    const { createSQLHoverProvider } = require('@/lib/codingLib/sqlHoverProvider');
 
     // 尝试清除所有已注册的SQL自动补全提供器
     try {

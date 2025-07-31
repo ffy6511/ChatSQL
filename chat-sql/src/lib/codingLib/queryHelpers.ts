@@ -4,7 +4,7 @@
 
 import { evaluateCondition } from './conditionEvaluator';
 import { executeAggregateFunction as executeAggregate } from './aggregateFunctions';
-import { TableData } from '../../types/CodingTypes/sqlExecutor';
+import { TableData } from '@/types/CodingTypes/sqlExecutor';
 
 /**
  * 执行JOIN操作

@@ -8,7 +8,7 @@ import SQLEditor from '@/components/codeEditing/SQLEditor';
 import Container from '@/components/LLMInteractive/renderedArea/Container';
 import LLMWindow from '@/components/LLMInteractive/LLMWindow/LLMWindow';
 import { useLLMContext } from '@/contexts/LLMContext';
-import HistoryPanel from '@/components/History/HistoryPanel';
+import HistoryPanel from '@/components/codingHistory/HistoryPanel';
 import SideBar from '@/components/SideBar';
 import { useQueryContext } from '@/contexts/QueryContext';
 import { useEditorContext } from '@/contexts/EditorContext';
