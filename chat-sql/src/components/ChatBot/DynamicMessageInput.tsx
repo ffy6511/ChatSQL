@@ -13,13 +13,14 @@ import {
 import {
   Send as SendIcon,
 } from '@mui/icons-material';
-import { AgentType, AGENTS_INFO, AgentInputField } from '@/types/agents';
+import { AgentType, AGENTS_INFO, AgentInputField, AgentOutputPart } from '@/types/agents';
 import ERDiagramSelector from './MessageInput/ERDiagramSelector';
 import QuizSelector from './MessageInput/QuizSelector';
+import QuizStorage from '@/services/quizStorage';
 
 interface DynamicMessageInputProps {
   selectedAgent: AgentType;
-  onSendMessage: (agentType: string, inputValues: Record<string, string>) => Promise<void>;
+  onSendMessage: (agentType: string, inputValues: Record<string, string>) => Promise<AgentOutputPart[] | null>;
   disabled?: boolean;
 }
 
@@ -81,14 +82,39 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
     }
 
     try {
-      await onSendMessage(selectedAgent, inputValues);
+      const output: AgentOutputPart[] | null = await onSendMessage(selectedAgent, inputValues);
+      
       setInputValues({});
       setErrors({});
-      
+
       // 重新聚焦第一个输入框
       setTimeout(() => {
         firstInputRef.current?.focus();
       }, 100);
+      
+      if( output ){
+        // 如果是ER出题，保存到对应的indexDB
+        if( selectedAgent === AgentType.ER_QUIZ_GENERATOR ){
+          const descriptionPart = output.find( p => p.type === 'text');
+          const erDataPart = output.find ( p=> p.type === 'json');
+          if (descriptionPart &&  erDataPart){
+            // 保存到QuizStore
+            const quizData = {
+              name: `New Quiz ${new Date().toLocaleString()}`,
+              description: descriptionPart.content,
+              referenceAnswer: erDataPart.content,
+            };
+            await QuizStorage.addQuiz(quizData);
+
+            // TODO: 通过Snack通知用户成功保存
+          }else{
+            console.warn('智能体返回的数据不完整，无法保存')
+          }
+        }
+      }
+      else{
+        console.warn('onSendMessage 未返回有效的输出。')
+      }
     } catch (error) {
       console.error('发送消息失败:', error);
     }
@@ -156,7 +182,6 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             placeholder={field.placeholder}
             disabled={disabled}
             error={!!error}
-            // helperText={error || field.description}
             variant="outlined"
             size="small"
             sx={{

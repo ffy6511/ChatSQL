@@ -27,7 +27,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
   className,
   onCopy,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
 
   // 合并配置

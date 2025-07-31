@@ -272,9 +272,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, [state.currentSessionId, state.sessions, refreshSessions]);
 
   /**
-   * 发送智能体消息 - 支持动态智能体选择和参数适配
+   * 发送智能体消息 - 支持动态智能体选择和参数适配， 并且返回对应的内容
    */
-  const sendAgentMessage = useCallback(async (agentType: string, inputValues: Record<string, string>): Promise<void> => {
+  const sendAgentMessage = useCallback(async (agentType: string, inputValues: Record<string, string>): Promise<AgentOutputPart[] | null> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
@@ -435,9 +435,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // 刷新会话列表以更新统计信息
       await refreshSessions();
 
+      return data.data.output as AgentOutputPart[];
+
     } catch (error) {
       console.error('发送智能体消息失败:', error);
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : '发送消息失败，请重试' });
+      return null;
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
