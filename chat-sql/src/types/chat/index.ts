@@ -1,5 +1,7 @@
 // 聊天系统核心数据类型定义
 
+import { AgentOutputPart } from '../agents';
+
 /**
  * 聊天消息接口
  */
@@ -7,7 +9,7 @@ export interface ChatMessage {
   /** 消息唯一标识符 */
   id: string;
   /** 消息内容 */
-  content: string;
+  content: string | AgentOutputPart[];
   /** 消息发送者角色 */
   role: 'user' | 'assistant';
   /** 消息创建时间戳 */
@@ -26,6 +28,11 @@ export interface ChatMessage {
       target: string;
       params?: Record<string, any>;
     };
+  } | {
+    /** parts格式的metadata */
+    type: 'parts';
+    agentType: string;
+    originalOutput: any;
   };
 }
 
@@ -154,7 +161,22 @@ export const formatTimestamp = (timestamp: string): string => {
 /**
  * 截断文本的工具函数
  */
-export const truncateText = (text: string, maxLength: number): string => {
+export const truncateText = (text: string | AgentOutputPart[], maxLength: number): string => {
+  // 处理结构化对象
+  if (typeof text === 'object' && Array.isArray(text)) {
+    // 从parts数组中提取文本内容
+    const textParts = text.filter((part: AgentOutputPart) =>
+      part.type === 'text'
+    ).map((part: AgentOutputPart) => part.content).join(' ') || '';
+
+    const textContent = textParts || JSON.stringify(text);
+    if (textContent.length <= maxLength) {
+      return textContent;
+    }
+    return textContent.substring(0, maxLength) + '...';
+  }
+
+  // 处理字符串
   if (text.length <= maxLength) {
     return text;
   }

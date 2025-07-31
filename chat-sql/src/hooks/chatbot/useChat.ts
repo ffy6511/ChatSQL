@@ -27,7 +27,7 @@ export const useChat = () => {
   const createNewSession = useCallback(async (): Promise<string> => {
     try {
       // 创建新会话（不包含欢迎消息）
-      const newSessionId = await ChatStorage.createSession([], 'coding');
+      const newSessionId = await ChatStorage.createSession([]);
 
       // 更新当前会话ID
       setCurrentSessionId(newSessionId);
@@ -172,9 +172,6 @@ export const useChat = () => {
           content: result.data.text,
           sender: 'ai',
           timestamp: new Date().toISOString(),
-          metadata: {
-            module: 'coding' as const,
-          },
         };
 
         // 更新状态：添加AI消息，结束加载
@@ -312,7 +309,10 @@ export const useChat = () => {
       }));
 
       // 重新发送消息
-      sendMessage(lastUserMessage.content);
+      const contentStr = typeof lastUserMessage.content === 'string'
+        ? lastUserMessage.content
+        : JSON.stringify(lastUserMessage.content);
+      sendMessage(contentStr);
     }
   }, [chatState.currentMessages, sendMessage]);
 
@@ -349,7 +349,6 @@ export const useChat = () => {
       content: '',
       sender: 'ai',
       timestamp: new Date().toISOString(),
-      metadata: { module: 'coding' },
     };
 
     // 更新状态：添加用户消息和临时AI消息，开始加载
@@ -495,9 +494,6 @@ export const useChat = () => {
       content: '有什么可以帮您？我可以协助您解决SQL编程、ER图建模、B+树可视化等相关问题。',
       sender: 'ai',
       timestamp: new Date().toISOString(),
-      metadata: {
-        module: 'coding',
-      },
     };
 
     setChatState(prev => ({

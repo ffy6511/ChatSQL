@@ -21,15 +21,12 @@ import {
   History as HistoryIcon,
 } from '@mui/icons-material';
 import { Try as AIIcon } from '@mui/icons-material';
-import { ChatWindowProps, ActionConfig, Message } from '@/types/chatbot';
+import { ChatWindowProps, Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
 import { AgentType } from '@/types/agents';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useChatSettings } from '@/contexts/ChatSettingsContext';
-import { useSelection } from '@/contexts/SelectionContext';
-import { useERDiagramContext } from '@/contexts/ERDiagramContext';
-import { useRouter } from 'next/navigation';
-import { ERDiagramData } from '@/types/erDiagram';
+
 import MessageList from './MessageList';
 import DynamicMessageInput from './DynamicMessageInput';
 import ChatSidebar from './ChatSidebar';
@@ -39,17 +36,37 @@ import SettingsModal from './SettingsModal';
  * 将ChatMessage转换为MessageList组件期望的Message格式
  */
 const convertChatMessagesToMessages = (chatMessages: ChatMessage[]): Message[] => {
-  return chatMessages.map(msg => ({
-    id: msg.id,
-    content: msg.content,
-    sender: msg.role === 'user' ? 'user' : 'ai',
-    timestamp: msg.timestamp,
-    metadata: msg.metadata && msg.metadata.module ? {
-      module: msg.metadata.module,
-      topic: msg.metadata.topic,
-      action: msg.metadata.action
-    } : undefined
-  }));
+  return chatMessages.map(msg => {
+    let metadata: any = undefined;
+
+    if (msg.metadata) {
+      // 处理parts格式的metadata
+      if ('type' in msg.metadata && msg.metadata.type === 'parts') {
+        // 从originalOutput中提取module信息
+        const originalOutput = msg.metadata.originalOutput;
+        metadata = {
+          module: 'ER' as const, // parts格式通常来自ER模块
+          topic: 'er-generation',
+          action: originalOutput?.action || undefined
+        };
+      } else if ('module' in msg.metadata && msg.metadata.module) {
+        // 处理标准格式的metadata
+        metadata = {
+          module: msg.metadata.module,
+          topic: msg.metadata.topic,
+          action: msg.metadata.action
+        };
+      }
+    }
+
+    return {
+      id: msg.id,
+      content: msg.content,
+      sender: msg.role === 'user' ? 'user' : 'ai',
+      timestamp: msg.timestamp,
+      metadata
+    };
+  });
 };
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -86,7 +103,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       y: parsePosition(position.y as number | 'center', baseHeight, height),
     };
   });
-  const [isMinimized, setIsMinimized] = useState(false);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -104,7 +121,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     error,
     selectSession,
     createNewSession,
-    sendMessage,
     sendAgentMessage,
     deleteSession,
     clearAllSessions,
@@ -115,14 +131,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     settings,
     saveSettings,
     updateWindowSize,
-    getWindowSize,
   } = useChatSettings();
-
-  // 选择状态管理
-  const { setSelectedERId, setSelectedBplusId, setSelectedCodingId } = useSelection();
-
-  // 路由管理
-  const router = useRouter();
 
   // 从设置中获取窗口大小，支持百分比初始值
   const [currentSize, setCurrentSize] = useState<{ width: number; height: number }>(() => {
@@ -243,156 +252,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // 处理动作确认 - 智能体结果持久化与可视化系统
-  const handleActionConfirm = async (action: ActionConfig) => {
-    console.log('Action confirmed:', action);
 
-    // 检查是否在客户端环境
-    if (typeof window === 'undefined') return;
 
-    try {
-      // 根据action类型和目标执行相应操作
-      switch (action.type) {
-        case 'navigate':
-          // 直接页面跳转
-          router.push(action.target);
-          break;
 
-        case 'visualize':
-          // 可视化操作 - 保存数据并跳转
-          await handleVisualizationAction(action);
-          break;
-
-        case 'update':
-          // 更新当前页面内容
-          console.log('Update action:', action.params);
-          break;
-      }
-    } catch (error) {
-      console.error('执行动作失败:', error);
-    }finally{
-      // 关闭窗口
-      onClose();
-    }
-  };
-
-  // 处理可视化动作的核心逻辑
-  const handleVisualizationAction = async (action: ActionConfig) => {
-    const { target, params } = action;
-
-    // 根据目标页面执行不同的保存和跳转逻辑
-    switch (target) {
-      case '/er-diagram':
-        await handleERDiagramVisualization(params);
-        break;
-
-      case '/Bplus':
-        await handleBPlusVisualization(params);
-        break;
-
-      case '/':
-        await handleCodingVisualization(params);
-        break;
-
-      default:
-        // 默认跳转
-        router.push(`${target}?${new URLSearchParams(params || {})}`);
-    }
-  };
-
-  // ER图可视化处理
-  const handleERDiagramVisualization = async (params: Record<string, any> | undefined) => {
-    if (!params || !params.erData) {
-      console.error('ER图数据缺失');
-      return;
-    }
-
-    try {
-      // 动态导入 ERDiagramContext 以避免循环依赖
-      const { erDiagramStorage } = await import('@/services/erDiagramStorage');
-
-      // 解析 ER 图数据
-      let erDiagramData: ERDiagramData;
-      if (typeof params.erData === 'string') {
-        erDiagramData = JSON.parse(params.erData);
-      } else {
-        erDiagramData = params.erData;
-      }
-
-      // 保存新记录并获取 ID
-      const newDiagramId = await erDiagramStorage.saveDiagram(erDiagramData);
-
-      // 更新全局选择状态
-      setSelectedERId(newDiagramId);
-
-      // 跳转到可视化页面
-      router.push(`/er-diagram?id=${newDiagramId}`);
-
-    } catch (error) {
-      console.error('ER图可视化处理失败:', error);
-    }
-  };
-
-  // B+树可视化处理
-  const handleBPlusVisualization = async (params: Record<string, any> | undefined) => {
-    if (!params) {
-      console.error('B+树参数缺失');
-      return;
-    }
-
-    try {
-      // 动态导入 B+树历史存储服务
-      const { getBPlusHistoryStorage } = await import('@/lib/bplus-tree/historyStorage');
-      const historyStorage = await getBPlusHistoryStorage();
-
-      // 创建新的 B+树会话
-      const sessionData = {
-        name: params.sessionName || '智能体生成的B+树',
-        description: params.description || '由AI智能体自动生成',
-        order: params.order || 3,
-        tags: ['AI生成', '智能体'],
-        steps: [],
-        currentStepIndex: -1,
-        isCompleted: false,
-      };
-
-      const newSessionId = await historyStorage.createSession(sessionData);
-
-      // 更新全局选择状态
-      setSelectedBplusId(newSessionId);
-
-      // 跳转到可视化页面
-      router.push(`/Bplus?sessionId=${newSessionId}`);
-
-    } catch (error) {
-      console.error('B+树可视化处理失败:', error);
-    }
-  };
-
-  // 编码可视化处理
-  const handleCodingVisualization = async (params: Record<string, any> | undefined) => {
-    if (!params || !params.codingData) {
-      console.error('编码数据缺失');
-      return;
-    }
-
-    try {
-      // 动态导入记录存储服务
-      const { saveLLMProblem } = await import('@/services/recordsIndexDB');
-
-      // 保存编码数据
-      const newRecordId = await saveLLMProblem(params.codingData);
-
-      // 更新全局选择状态
-      setSelectedCodingId(newRecordId);
-
-      // 跳转到主页面
-      router.push(`/?recordId=${newRecordId}`);
-
-    } catch (error) {
-      console.error('编码可视化处理失败:', error);
-    }
-  };
 
   // 处理新建对话
   const handleNewChat = async () => {
@@ -428,10 +290,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   };
 
-  // 切换最小化
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
-  };
+
 
   // 根据智能体类型获取标题
   const getAgentTitle = (agentType: AgentType): string => {
@@ -474,7 +333,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         bottom: 16,
         right: 16,
         width: currentSize.width,
-        height: isMinimized ? 'auto' : currentSize.height,
+        height: currentSize.height,
         zIndex: 1300,
       };
     }
@@ -484,7 +343,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       bottom: window.innerHeight - currentPosition.y - currentSize.height,
       right: window.innerWidth - currentPosition.x - currentSize.width,
       width: currentSize.width,
-      height: isMinimized ? 'auto' : currentSize.height,
+      height: currentSize.height,
       zIndex: 1300,
     };
   };
@@ -615,25 +474,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             )}
 
             {/* 聊天内容 */}
-            {!isMinimized && (
-              <>
-                <MessageList
-                  messages={convertChatMessagesToMessages(messages)}
-                  isLoading={isLoading}
-                  onActionConfirm={handleActionConfirm}
-                />
+            <MessageList
+              messages={convertChatMessagesToMessages(messages)}
+              isLoading={isLoading}
+            />
 
-                {/* 动态消息输入 */}
-                <DynamicMessageInput
-                  selectedAgent={selectedAgent}
-                  onSendMessage={sendAgentMessage}
-                  disabled={isLoading}
-                />
-              </>
-            )}
+            {/* 动态消息输入 */}
+            <DynamicMessageInput
+              selectedAgent={selectedAgent}
+              onSendMessage={sendAgentMessage}
+              disabled={isLoading}
+            />
 
             {/* 调整大小手柄 */}
-            {!isFullscreen && !isMinimized && (
+            {!isFullscreen && (
               <Box
                 onMouseDown={handleResizeMouseDown}
                 sx={{

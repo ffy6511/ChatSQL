@@ -92,8 +92,8 @@ function parseERQuizResponse(
  */
 function createERQuizGeneratorRequest(
     description: string,
-    sessionId?: string,
     difficulty?: string,
+    sessionId?: string,
     parameters?: any,
 ): BailianAIRequest {
     const request: BailianAIRequest = {
@@ -155,10 +155,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    const { description: userInput, difficulty = 'simple', sessionId} = body.input.biz_params;
+    const { description: userInput, difficulty = 'simple', } = body.input.biz_params;
+    let sessionId: string | undefined = body.input.session_id;
 
     // 调用提示词增强的智能体
-    const quizGenRequest = createERQuizGeneratorRequest(userInput, sessionId, difficulty);
+    const quizGenRequest = createERQuizGeneratorRequest(userInput,  difficulty);
     const quizGenResponse = await callBailianAPI(quizGenRequest) as BailianAIResponse;
     const enhancedDescription = quizGenResponse.output.text; // 得到智能体的增强描述
 
@@ -169,7 +170,6 @@ export async function POST(req: NextRequest) {
                 "natural_language_query": enhancedDescription,
                 "provided_schema": "",
             },
-            session_id: sessionId,
         }
     };
 
@@ -190,24 +190,38 @@ export async function POST(req: NextRequest) {
     const erGenResult: ERGeneratorResponse = await erGenApiResponse.json();
     console.log('ER-generator调用成功，得到的ER图数据:', erGenResult);
 
-    // 整合增强描述和ER图数据返回
+    // 构建基于类型数组的输出格式
+    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+
+    // 添加题目描述部分
+    if (enhancedDescription) {
+      outputParts.push({
+        type: 'text',
+        content: enhancedDescription
+      });
+    }
+
+    // 添加ER图数据部分（作为JSON类型）
+    const finalErData = erGenResult.data?.output?.find(part =>
+      part.type === 'json' && part.metadata?.dataType === 'er-diagram'
+    )?.content;
+
+    if (finalErData) {
+      outputParts.push({
+        type: 'json',
+        content: finalErData,
+        metadata: {
+          dataType: 'er-diagram'
+        }
+      });
+    }
+
+    // 整合响应
     const finalResponse: ERQuizGeneratorResponse = {
         success: true,
         data: {
-            output: {
-                description: enhancedDescription,
-                erData: erGenResult.data?.output.erData,
-            },
-            sessionId: sessionId,
-            metadata:{
-                module: 'ER',
-                topic: 'er-quiz-generation',
-                action: {
-                    type: 'visualize',
-                    target: '/er-diagram',
-                    params: { erData: erGenResult.data?.output.erData, isQuiz: true },
-                },
-            },
+            output: outputParts,
+            sessionId: quizGenResponse.output.session_id ,
         },
         usage: erGenResult.usage?{
             inputTokens: erGenResult.usage.inputTokens,

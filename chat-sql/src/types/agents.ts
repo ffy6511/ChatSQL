@@ -1,33 +1,30 @@
 // 智能体API相关类型定义
 
-import { ERDiagramData } from './erDiagram';
+/**
+ * 智能体输出部分的类型枚举 - 简化版本
+ */
+export type AgentOutputPartType =
+  | 'text'           // 纯文本内容
+  | 'sql'            // SQL代码
+  | 'json';          // JSON数据（包括ER图数据）
 
 /**
- * 统一的智能体输出数据结构
+ * 智能体输出的单个部分 - 简化版本
  */
-export interface UnifiedAgentOutput {
-  // Schema Generator 输出
-  result?: string;
+export interface AgentOutputPart {
+  /** 部分类型，决定如何渲染 */
+  type: AgentOutputPartType;
 
-  // ER Generator 输出
-  erData?: ERDiagramData;
-  description?: string;
+  /** 内容数据，可以是字符串、对象或数组 */
+  content: any;
 
-  // ER Quiz Generator 输出
-  // description 和 erData 已在上面定义
-
-  // ER Verifier 输出
-  evaluation?: string;
-  score?: number;
-  suggestions?: string[];
-
-  // 通用字段
-  summary?: string;
-  rawText?: string;
-
-  // 元数据
-  hasStructuredData?: boolean;
-  outputType?: 'single' | 'multiple';
+  /** 元数据，用于控制渲染行为 */
+  metadata?: {
+    /** 代码语言，用于语法高亮 */
+    language?: string;
+    /** 数据类型，用于特殊处理 */
+    dataType?: string;
+  };
 }
 
 /**
@@ -48,10 +45,6 @@ export interface SchemaGeneratorRequest {
     stream?: boolean;
   };
   debug?: any;
-
-  // 旧格式：向后兼容
-  sessionId?: string;
-  natural_language_query?: string;
 }
 
 /**
@@ -60,17 +53,8 @@ export interface SchemaGeneratorRequest {
 export interface SchemaGeneratorResponse {
   success: boolean;
   data?: {
-    output: UnifiedAgentOutput; // 改为统一结构
+    output: AgentOutputPart[];
     sessionId: string;
-    metadata?: {
-      module?: string;
-      topic?: string;
-      action?: {
-        type: string;
-        target: string;
-        params?: Record<string, any>;
-      };
-    };
   };
   error?: {
     code: string;
@@ -102,11 +86,6 @@ export interface ERGeneratorRequest {
     stream?: boolean;
   };
   debug?: any;
-
-  // 旧格式：向后兼容
-  natural_language_query?: string;
-  provided_schema?: string; // 保持可选
-  sessionId?: string;
 }
 
 /**
@@ -115,17 +94,8 @@ export interface ERGeneratorRequest {
 export interface ERGeneratorResponse {
   success: boolean;
   data?: {
-    output: UnifiedAgentOutput; // 改为统一结构
+    output: AgentOutputPart[];
     sessionId: string;
-    metadata?: {
-      module?: string;
-      topic?: string;
-      action?: {
-        type: string;
-        target: string;
-        params?: Record<string, any>;
-      };
-    };
   };
   error?: {
     code: string;
@@ -165,17 +135,8 @@ export interface ERQuizGeneratorRequest {
 export interface ERQuizGeneratorResponse {
   success: boolean;
   data?: {
-    output: UnifiedAgentOutput; // 改为统一结构
+    output: AgentOutputPart[];
     sessionId: string;
-    metadata?: {
-      module?: string;
-      topic?: string;
-      action?: {
-        type: string;
-        target: string;
-        params?: Record<string, any>;
-      };
-    };
   };
   error?: {
     code: string;
@@ -216,17 +177,8 @@ export interface ERVerifierRequest {
 export interface ERVerifierResponse {
   success: boolean;
   data?: {
-    output: UnifiedAgentOutput; // 改为统一结构
+    output: AgentOutputPart[];
     sessionId: string;
-    metadata?: {
-      module?: string;
-      topic?: string;
-      action?: {
-        type: string;
-        target: string;
-        params?: Record<string, any>;
-      };
-    };
   };
   error?: {
     code: string;
@@ -453,15 +405,6 @@ export interface BaseAgentResponse {
   success: boolean;
   data?: {
     sessionId: string;
-    metadata?: {
-      module?: string;
-      topic?: string;
-      action?: {
-        type: string;
-        target: string;
-        params?: Record<string, any>;
-      };
-    };
   };
   error?: {
     code: string;

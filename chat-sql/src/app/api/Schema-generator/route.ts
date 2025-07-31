@@ -242,29 +242,25 @@ export async function POST(request: NextRequest) {
 
     // Schema-generator不支持流式响应
     const response = await callBailianAPI(bailianRequest) as BailianAIResponse;
-    const { cleanText, metadata } = parseMetadata(response.output.text);
+    const { cleanText } = parseMetadata(response.output.text);
+
+    // 构建基于类型数组的输出格式
+    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+    if (cleanText) {
+      outputParts.push({
+        type: 'sql' as const,
+        content: cleanText,
+        metadata: {
+          language: 'sql'
+        }
+      });
+    }
 
     const schemaResponse: SchemaGeneratorResponse = {
       success: true,
       data: {
-        output: {
-          result: cleanText,
-          summary: cleanText,
-          rawText: response.output.text,
-          hasStructuredData: !!cleanText,
-          outputType: 'single',
-        },
+        output: outputParts,
         sessionId: response.output.session_id,
-        metadata: {
-          module: 'coding',
-          topic: 'schema-generation',
-          action: {
-            type: 'update',
-            target: 'schema-editor',
-            params: { ddl: cleanText },
-          },
-          ...metadata,
-        },
       },
       usage: response.usage ? {
         inputTokens: response.usage.input_tokens,

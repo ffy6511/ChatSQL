@@ -3,7 +3,7 @@ import React from 'react';
 import { Box, Typography, Paper, Chip, Divider } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UnifiedAgentOutput } from '@/types/agents';
+import { AgentOutputPart } from '@/types/agents';
 import { 
   renderAgentMessage, 
   getOutputTypeLabel, 
@@ -12,13 +12,13 @@ import {
 } from '@/utils/agentMessageRenderer';
 
 interface AgentMessageRendererProps {
-  output: UnifiedAgentOutput;
+  output: AgentOutputPart[];
   className?: string;
 }
 
 /**
  * 智能体消息渲染组件
- * 根据UnifiedAgentOutput自动渲染为合适的UI组件
+ * 根据AgentOutputPart[]自动渲染为合适的UI组件
  */
 export const AgentMessageRenderer: React.FC<AgentMessageRendererProps> = ({
   output,

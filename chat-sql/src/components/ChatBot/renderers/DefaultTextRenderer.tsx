@@ -20,10 +20,14 @@ const DefaultTextRenderer: React.FC<RendererProps> = ({
 }) => {
   // 复制功能
   const handleCopy = () => {
+    const contentStr = typeof message.content === 'string'
+      ? message.content
+      : JSON.stringify(message.content);
+
     if (onCopy) {
-      onCopy(message.content);
+      onCopy(contentStr);
     } else {
-      navigator.clipboard.writeText(message.content);
+      navigator.clipboard.writeText(contentStr);
     }
   };
 
@@ -101,7 +105,7 @@ const DefaultTextRenderer: React.FC<RendererProps> = ({
           pr: 5, // 为复制按钮留出空间
         }}
       >
-        {renderTextContent(message.content)}
+        {renderTextContent(typeof message.content === 'string' ? message.content : JSON.stringify(message.content))}
       </Typography>
     </Box>
   );

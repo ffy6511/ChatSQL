@@ -1,10 +1,9 @@
 // 聊天历史记录管理Hook
 
 import { useState, useCallback, useEffect } from 'react';
-import { 
-  ChatHistory, 
-  Message, 
-  ModuleType 
+import {
+  ChatHistory,
+  Message
 } from '@/types/chatbot';
 import { ChatStorage, ChatIndexedDB, generateId, truncateText } from '@/utils/chatbot/storage';
 
@@ -52,7 +51,6 @@ export const useChatHistory = () => {
    */
   const saveCurrentChat = useCallback(async (
     messages: Message[],
-    module: ModuleType = 'coding',
     customTitle?: string
   ): Promise<string> => {
     try {
@@ -69,7 +67,6 @@ export const useChatHistory = () => {
         id: generateId(),
         timestamp: new Date().toISOString(),
         messages,
-        module,
         title,
       };
 
@@ -199,24 +196,20 @@ export const useChatHistory = () => {
       }
       
       // 搜索消息内容
-      return history.messages.some(message => 
-        message.content.toLowerCase().includes(lowerKeyword)
-      );
+      return history.messages.some(message => {
+        const contentStr = typeof message.content === 'string'
+          ? message.content
+          : JSON.stringify(message.content);
+        return contentStr.toLowerCase().includes(lowerKeyword);
+      });
     });
-  }, [chatHistory]);
-
-  /**
-   * 按模块筛选历史记录
-   */
-  const filterByModule = useCallback((module: ModuleType): ChatHistory[] => {
-    return chatHistory.filter(history => history.module === module);
   }, [chatHistory]);
 
   /**
    * 按时间范围筛选历史记录
    */
   const filterByDateRange = useCallback((
-    startDate: Date, 
+    startDate: Date,
     endDate: Date
   ): ChatHistory[] => {
     return chatHistory.filter(history => {
@@ -231,28 +224,16 @@ export const useChatHistory = () => {
   const getHistoryStats = useCallback(() => {
     const stats = {
       total: chatHistory.length,
-      byModule: {
-        coding: 0,
-        ER: 0,
-        Bplus: 0,
-        DDL: 0,
-        default: 0,
-      },
       totalMessages: 0,
       averageMessagesPerChat: 0,
     };
 
     chatHistory.forEach(history => {
-      if (stats.byModule.hasOwnProperty(history.module)) {
-        stats.byModule[history.module as keyof typeof stats.byModule]++;
-      } else {
-        stats.byModule.default++;
-      }
       stats.totalMessages += history.messages.length;
     });
 
-    stats.averageMessagesPerChat = stats.total > 0 
-      ? Math.round(stats.totalMessages / stats.total) 
+    stats.averageMessagesPerChat = stats.total > 0
+      ? Math.round(stats.totalMessages / stats.total)
       : 0;
 
     return stats;
@@ -333,7 +314,6 @@ export const useChatHistory = () => {
     
     // 搜索和筛选
     searchHistory,
-    filterByModule,
     filterByDateRange,
     
     // 统计和导入导出

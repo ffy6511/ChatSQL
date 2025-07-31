@@ -10,7 +10,7 @@ import {
   generateId
 } from '@/types/chat';
 import { chatStorage } from '@/services/chatStorage';
-import { AgentType, AGENTS_INFO } from '@/types/agents';
+import { AgentType, AGENTS_INFO, AgentOutputPart } from '@/types/agents';
 
 // 状态管理的Action类型
 type ChatAction = 
@@ -304,14 +304,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         await refreshSessions();
       }
 
-      // 创建用户消息（显示用户的输入）
-      const userContent = agentInfo.inputFields.length === 1
-        ? inputValues[agentInfo.inputFields[0].name]
-        : agentInfo.inputFields.map(field => `${field.label}: ${inputValues[field.name]}`).join('\n');
+      // 创建用户消息（使用结构化格式）
+      const userMessageParts: AgentOutputPart[] = agentInfo.inputFields.map(field => ({
+        type: 'text',
+        content: inputValues[field.name]
+      }));
 
       const userMessage: ChatMessage = {
         id: generateId(),
-        content: userContent,
+        content: userMessageParts,
         role: 'user',
         timestamp: new Date().toISOString(),
         session_id: currentSession!.session_id || currentSessionId
@@ -386,8 +387,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         throw new Error(data.error?.message || 'API调用失败');
       }
 
-      // 从响应中获取session_id
+      // 直接获取核心数据
+      const output = data.data?.output;
+      const metadata = data.data?.metadata;
       const backendSessionId = data.data?.sessionId;
+
+      // 验证新的数据结构是否存在
+      if (!output || !Array.isArray(output)) {
+        // 如果后端没有返回期望的 parts 数组，这是一个错误
+        throw new Error('API响应格式不正确，缺少 output 数组。');
+      }
 
       // 如果是新会话且获得了后端session_id，更新会话和消息
       if (!currentSession!.session_id && backendSessionId) {
@@ -404,49 +413,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         await chatStorage.saveMessage(userMessage);
       }
 
-      // 获取AI回复内容
-      let aiContent = '';
-      if (agentType === AgentType.SCHEMA_GENERATOR) {
-        aiContent = data.data?.output?.result || '抱歉，无法生成DDL语句。';
-      } else if (agentType === AgentType.ER_GENERATOR) {
-        const output = data.data?.output;
-        if (output?.erData) {
-          aiContent = `ER图生成成功！\n描述：${output.description || '无描述'}\n\nER图数据已生成，可在画布中查看。`;
-        } else {
-          aiContent = output?.description || '抱歉，无法生成ER图数据。';
-        }
-      } else if (agentType === AgentType.ER_QUIZ_GENERATOR) {
-        const output = data.data?.output;
-        if (output?.description && output?.erData) {
-          aiContent = `题目生成成功！\n\n题目描述：\n${output.description}\n\nER图数据已生成，题目已自动保存。`;
-        } else {
-          aiContent = '抱歉，无法生成完整的题目数据。';
-        }
-      } else if (agentType === AgentType.ER_VERIFIER) {
-        const output = data.data?.output;
-        if (output?.evaluation) {
-          aiContent = `评价结果：\n${output.evaluation}`;
-          if (output.score !== undefined) {
-            aiContent += `\n\n得分：${output.score}分`;
-          }
-          if (output.suggestions && output.suggestions.length > 0) {
-            aiContent += `\n\n改进建议：\n${output.suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}`;
-          }
-        } else {
-          aiContent = '抱歉，无法完成ER图验证。';
-        }
-      } else {
-        aiContent = data.data?.text || '抱歉，我无法处理您的请求。';
-      }
-
-      // 创建AI回复消息
+      // 创建AI回复消息，content 直接使用后端返回的 output 对象
       const aiMessage: ChatMessage = {
         id: generateId(),
-        content: aiContent,
+        content: output, // 直接使用 AgentOutputPart[] 数组
         role: 'assistant',
         timestamp: new Date().toISOString(),
         session_id: backendSessionId || currentSession!.session_id || currentSessionId,
-        metadata: data.data?.metadata
+        metadata: metadata // 直接使用后端返回的元数据
       };
 
       // 显示AI回复

@@ -1,39 +1,18 @@
 // 智能体聊天窗口相关类型定义
 
-export type ModuleType = 'coding' | 'ER' | 'Bplus' | 'DDL' | 'default';
-
-export type ActionType = 'navigate' | 'visualize' | 'update';
-
-export interface ActionConfig {
-  type: ActionType;
-  target: string;
-  params?: Record<string, any>;
-}
-
-export interface AIResponseMetadata {
-  module: ModuleType;
-  topic?: string;
-  action?: ActionConfig;
-}
-
-export interface AIResponse {
-  text: string;
-  metadata: AIResponseMetadata;
-}
+import { AgentOutputPart } from './agents';
 
 export interface Message {
   id: string;
-  content: string;
+  content: string | AgentOutputPart[];
   sender: 'user' | 'ai';
   timestamp: string;
-  metadata?: AIResponseMetadata;
 }
 
 export interface ChatHistory {
   id: string;
   timestamp: string;
   messages: Message[];
-  module: ModuleType;
   title?: string;
 }
 
@@ -90,7 +69,6 @@ export interface ChatWindowProps {
 export interface MessageListProps {
   messages: Message[];
   isLoading?: boolean;
-  onActionConfirm?: (action: ActionConfig) => void;
 }
 
 export interface MessageInputProps {
@@ -108,8 +86,6 @@ export interface ChatSidebarProps {
   onToggleHistory?: () => void;
 }
 
-
-
 export interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
@@ -126,7 +102,9 @@ export interface ChatAPIRequest {
 
 export interface ChatAPIResponse {
   success: boolean;
-  data?: AIResponse;
+  data?: {
+    text: string;
+  };
   error?: string;
 }
 

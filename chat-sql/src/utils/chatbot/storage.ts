@@ -7,8 +7,7 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_POSITION,
   DEFAULT_SIZE,
-  Message,
-  ModuleType
+  Message
 } from '@/types/chatbot';
 
 /**
@@ -355,12 +354,10 @@ export class ChatStorage {
   /**
    * 创建新会话
    * @param initialMessages 可选的初始消息数组
-   * @param module 模块类型，默认为'coding'
    * @returns 返回新创建的会话ID
    */
   static async createSession(
-    initialMessages: Message[] = [],
-    module: ModuleType = 'coding'
+    initialMessages: Message[] = []
   ): Promise<string> {
     try {
       // 生成会话标题
@@ -373,7 +370,6 @@ export class ChatStorage {
         id: generateId(),
         timestamp: new Date().toISOString(),
         messages: initialMessages,
-        module,
         title,
       };
 
@@ -635,9 +631,33 @@ export const formatTimestamp = (timestamp: string): string => {
 /**
  * 截取文本用于显示标题
  */
-export const truncateText = (text: string, maxLength: number = 30): string => {
-  if (text.length <= maxLength) {
-    return text;
+export const truncateText = (text: string | import('@/types/agents').AgentOutputPart[], maxLength: number = 30): string => {
+  // 处理结构化对象（parts数组）
+  if (typeof text === 'object' && Array.isArray(text)) {
+    // 从parts数组中提取文本内容
+    const textParts = text.filter((part: import('@/types/agents').AgentOutputPart) =>
+      part.type === 'text'
+    ).map((part: import('@/types/agents').AgentOutputPart) => part.content).join(' ') || '';
+
+    const textContent = textParts || JSON.stringify(text);
+    if (textContent.length <= maxLength) {
+      return textContent;
+    }
+    return textContent.substring(0, maxLength) + '...';
   }
-  return text.substring(0, maxLength) + '...';
+
+  // 处理字符串
+  if (typeof text === 'string') {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.substring(0, maxLength) + '...';
+  }
+
+  // 处理其他类型
+  const stringText = JSON.stringify(text);
+  if (stringText.length <= maxLength) {
+    return stringText;
+  }
+  return stringText.substring(0, maxLength - 3) + '...';
 };

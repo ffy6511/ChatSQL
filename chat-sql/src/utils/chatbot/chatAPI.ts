@@ -1,11 +1,10 @@
 // 聊天API调用封装
 
-import { 
-  ChatAPIRequest, 
-  ChatAPIResponse, 
-  AIResponse, 
+import {
+  ChatAPIRequest,
+  ChatAPIResponse,
   ChatSettings,
-  Message 
+  Message
 } from '@/types/chatbot';
 
 /**
@@ -147,9 +146,9 @@ export class ChatAPI {
   /**
    * 解析AI响应，提取metadata信息
    */
-  private static parseAIResponse(content: string): AIResponse {
+  private static parseAIResponse(content: string): { text: string; metadata?: any } {
     // 默认响应结构
-    const defaultResponse: AIResponse = {
+    const defaultResponse = {
       text: content,
       metadata: {
         module: 'coding', // 默认模块
@@ -236,7 +235,7 @@ export class ChatAPI {
 /**
  * 模拟AI响应（用于开发测试）
  */
-export const mockAIResponse = async (message: string): Promise<AIResponse> => {
+export const mockAIResponse = async (message: string): Promise<{ text: string; metadata?: any }> => {
   // 模拟网络延迟
   await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
   

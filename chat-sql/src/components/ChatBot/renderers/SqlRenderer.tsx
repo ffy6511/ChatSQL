@@ -36,7 +36,10 @@ const SqlRenderer: React.FC<RendererProps> = ({
 
   // 提取和处理 SQL 内容
   const processedSql = useMemo(() => {
-    let sql = message.content;
+    // 确保内容是字符串类型
+    let sql = typeof message.content === 'string'
+      ? message.content
+      : JSON.stringify(message.content);
 
     // 如果包含代码块，提取其中的 SQL
     const codeBlockRegex = /```sql\s*([\s\S]*?)\s*```/;

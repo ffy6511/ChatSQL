@@ -51,6 +51,11 @@ class RendererFactoryImpl implements RendererFactory {
  * 检测消息是否包含 SQL 内容
  */
 export const detectSqlContent = (message: Message): boolean => {
+  // 只处理字符串内容
+  if (typeof message.content !== 'string') {
+    return false;
+  }
+
   const content = message.content.toLowerCase();
   
   // 检查是否有 SQL 代码块
@@ -76,6 +81,11 @@ export const detectSqlContent = (message: Message): boolean => {
  * 检测消息是否包含 JSON 内容
  */
 export const detectJsonContent = (message: Message): boolean => {
+  // 只处理字符串内容
+  if (typeof message.content !== 'string') {
+    return false;
+  }
+
   const content = message.content.trim();
   
   // 检查是否有 JSON 代码块
@@ -101,35 +111,7 @@ export const detectJsonContent = (message: Message): boolean => {
  * 基于模块类型的渲染器选择逻辑
  */
 export const getRendererByModule = (message: Message): RendererType => {
-  const messageModule = message.metadata?.module;
-  
-  switch (messageModule) {
-    case 'ER':
-      // ER 模块优先使用 JSON 渲染器
-      if (detectJsonContent(message)) {
-        return 'json';
-      }
-      break;
-      
-    case 'coding':
-      // 编程模块优先检测 SQL
-      if (detectSqlContent(message)) {
-        return 'sql';
-      }
-      if (detectJsonContent(message)) {
-        return 'json';
-      }
-      break;
-      
-    case 'Bplus':
-      // B+树模块可能包含 JSON 配置
-      if (detectJsonContent(message)) {
-        return 'json';
-      }
-      break;
-  }
-  
-  // 内容类型检测（不依赖模块）
+  // 简化：直接进行内容检测
   if (detectSqlContent(message)) {
     return 'sql';
   }
@@ -161,10 +143,6 @@ export const createRendererFactory = (): RendererFactory => {
     component: null as any, // 将在组件中动态导入
     canRender: (message: Message) => {
       // 优先检查模块类型
-      if (message.metadata?.module === 'coding') {
-        return detectSqlContent(message);
-      }
-      // 然后检查内容类型
       return detectSqlContent(message);
     },
     priority: 10, // 高优先级
@@ -176,10 +154,6 @@ export const createRendererFactory = (): RendererFactory => {
     component: null as any, // 将在组件中动态导入
     canRender: (message: Message) => {
       // 优先检查模块类型
-      if (message.metadata?.module === 'ER') {
-        return detectJsonContent(message);
-      }
-      // 然后检查内容类型
       return detectJsonContent(message);
     },
     priority: 10, // 高优先级

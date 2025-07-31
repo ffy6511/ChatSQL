@@ -18,11 +18,6 @@ export { ChatStorage, generateId, formatTimestamp, truncateText } from '@/utils/
 
 // 类型定义
 export type {
-  ModuleType,
-  ActionType,
-  ActionConfig,
-  AIResponseMetadata,
-  AIResponse,
   Message,
   ChatHistory,
   ChatSettings,

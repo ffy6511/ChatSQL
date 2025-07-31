@@ -45,7 +45,10 @@ const JsonRenderer: React.FC<RendererProps> = ({
 
   // 提取和处理 JSON 内容
   const processedJson = useMemo(() => {
-    let jsonString = message.content;
+    // 确保内容是字符串类型
+    let jsonString = typeof message.content === 'string'
+      ? message.content
+      : JSON.stringify(message.content, null, 2);
 
     // 如果包含代码块，提取其中的 JSON
     const codeBlockRegex = /```json\s*([\s\S]*?)\s*```/;

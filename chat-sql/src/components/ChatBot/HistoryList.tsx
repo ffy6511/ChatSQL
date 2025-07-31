@@ -43,9 +43,13 @@ const HistoryList: React.FC<HistoryListProps> = ({
 
     return chatHistory.filter(history =>
       (history.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      history.messages.some(msg =>
-        msg.content.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      history.messages.some(msg => {
+        // 处理不同类型的消息内容
+        const contentStr = typeof msg.content === 'string'
+          ? msg.content
+          : JSON.stringify(msg.content);
+        return contentStr.toLowerCase().includes(searchQuery.toLowerCase());
+      })
     );
   }, [chatHistory, searchQuery]);
 

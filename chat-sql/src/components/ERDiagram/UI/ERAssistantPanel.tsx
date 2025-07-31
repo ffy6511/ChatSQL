@@ -20,12 +20,14 @@ import {
   Rule as RuleIcon,
 } from '@mui/icons-material';
 import { AgentType, ER_ASSISTANT_TABS, AGENTS_INFO } from '@/types/agents';
-import { useChatContext } from '@/contexts/ChatContext';
+import { useERContext } from '@/contexts/ERContext';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { MessageList, DynamicMessageInput } from '@/components/ChatBot';
 import { Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
 import { quizStorage } from '@/services/quizStorage';
+import HistoryModal, { HistoryRecord } from '@/components/common/HistoryModal';
+import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 
 interface ERAssistantPanelProps {
   className?: string;
@@ -40,64 +42,137 @@ const ICON_MAP = {
 const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
-  const [sessionIds, setSessionIds] = useState<Partial<Record<AgentType, string>>>({});
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
-  // 使用ChatContext
+  // 使用ERContext
   const {
-    currentSessionId,
     messages,
     isLoading,
-    selectSession,
-    createNewSession,
+    error,
     sendAgentMessage,
-  } = useChatContext();
+    clearMessages,
+    clearError,
+  } = useERContext();
 
   // 使用ERDiagramContext
   const { state } = useERDiagramContext();
   const erDiagramData = state.diagramData;
 
+  // 使用历史记录hook
+  const {
+    recentRecords,
+    loading: historyLoading,
+    handleDelete: deleteHistoryRecord,
+    handleRename: renameHistoryRecord,
+    refreshRecords
+  } = useHistoryRecords();
+
   // 转换ChatMessage到Message格式
   const convertChatMessagesToMessages = useCallback((chatMessages: ChatMessage[]): Message[] => {
-    return chatMessages.map(msg => ({
-      id: msg.id,
-      content: msg.content,
-      sender: msg.role === 'user' ? 'user' : 'ai',
-      timestamp: msg.timestamp,
-      metadata: msg.metadata ? {
-        module: msg.metadata.module || 'ER',
-        topic: msg.metadata.topic,
-        action: msg.metadata.action,
-      } : undefined,
-    }));
+    return chatMessages.map(msg => {
+      let metadata: any = undefined;
+
+      if (msg.metadata) {
+        // 处理parts格式的metadata
+        if ('type' in msg.metadata && msg.metadata.type === 'parts') {
+          // 从originalOutput中提取module信息
+          const originalOutput = msg.metadata.originalOutput;
+          metadata = {
+            module: 'ER' as const, // parts格式通常来自ER模块
+            topic: 'er-generation',
+            action: originalOutput?.action || undefined
+          };
+        } else if ('module' in msg.metadata && msg.metadata.module) {
+          // 处理标准格式的metadata
+          metadata = {
+            module: msg.metadata.module,
+            topic: msg.metadata.topic,
+            action: msg.metadata.action
+          };
+        }
+      }
+
+      return {
+        id: msg.id,
+        content: msg.content,
+        sender: msg.role === 'user' ? 'user' : 'ai',
+        timestamp: msg.timestamp,
+        metadata
+      };
+    });
   }, []);
 
   // Tab切换处理
-  const handleTabChange = useCallback(async (_event: React.SyntheticEvent, newTabIndex: number) => {
-    const agentType = ER_ASSISTANT_TABS[newTabIndex].agentType;
-    let sessionId = sessionIds[agentType];
-    
-    if (!sessionId) {
-      // 创建新会话
-      await createNewSession();
-      // 获取新创建的会话ID
-      const newSessionId = currentSessionId;
-      if (newSessionId) {
-        sessionId = newSessionId;
-        setSessionIds(prev => ({ ...prev, [agentType]: sessionId }));
-      }
-    }
-
-    // 选择会话
-    if (sessionId) {
-      await selectSession(sessionId);
-    }
+  const handleTabChange = useCallback((_event: React.SyntheticEvent, newTabIndex: number) => {
     setActiveTabIndex(newTabIndex);
-  }, [sessionIds, createNewSession, selectSession]);
+    // ER模块使用独立的消息状态，不需要会话管理
+  }, []);
 
   // 收起/展开处理
   const handleToggleExpanded = useCallback(() => {
     setIsExpanded(prev => !prev);
   }, []);
+
+  // 打开历史记录模态框
+  const handleHistoryClick = useCallback(() => {
+    setHistoryModalOpen(true);
+    refreshRecords(); // 刷新历史记录
+  }, [refreshRecords]);
+
+  // 关闭历史记录模态框
+  const handleHistoryClose = useCallback(() => {
+    setHistoryModalOpen(false);
+  }, []);
+
+  // 选择历史记录
+  const handleHistorySelect = useCallback(async (record: HistoryRecord) => {
+    try {
+      // 从 IndexedDB 获取完整记录
+      const { getProblemById } = await import('@/services/recordsIndexDB');
+      const problem = await getProblemById(parseInt(record.id));
+
+      if (problem) {
+        console.log('加载问题成功:', problem);
+
+        // 构造 DifyResponse 格式的数据
+        const difyResponse = {
+          data: {
+            outputs: problem.data
+          }
+        };
+
+        // 这里可以根据需要处理历史记录的加载
+        console.log('历史记录数据:', difyResponse);
+        // TODO: 可以在这里添加将历史记录数据加载到ER图的逻辑
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+    }
+    setHistoryModalOpen(false);
+  }, []);
+
+  // 转换历史记录格式
+  const convertToHistoryRecords = useCallback((records: any[]): HistoryRecord[] => {
+    return records.map(record => ({
+      id: record.id.toString(),
+      title: record.title || '未命名记录',
+      description: record.description,
+      createdAt: new Date(record.createdAt),
+      updatedAt: record.updatedAt ? new Date(record.updatedAt) : undefined,
+      type: record.type || 'ER',
+      metadata: record.metadata,
+    }));
+  }, []);
+
+  // 删除历史记录包装函数
+  const handleHistoryDelete = useCallback((recordId: string) => {
+    deleteHistoryRecord(parseInt(recordId));
+  }, [deleteHistoryRecord]);
+
+  // 重命名历史记录包装函数
+  const handleHistoryRename = useCallback((recordId: string, newTitle: string) => {
+    renameHistoryRecord(parseInt(recordId), newTitle);
+  }, [renameHistoryRecord]);
 
   // 消息发送处理 - 重写以支持出题成功后的自动保存和验证请求处理
   const handleSendMessage = useCallback(async (agentType: string, inputValues: Record<string, string>) => {
@@ -181,8 +256,13 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
                   if (response.ok) {
                     const data = await response.json();
 
-                    if (data.success && data.data?.output) {
-                      const { description, erData } = data.data.output;
+                    if (data.success && data.data?.output && Array.isArray(data.data.output)) {
+                      // 从AgentOutputPart[]中提取数据
+                      const textPart = data.data.output.find((part: any) => part.type === 'text');
+                      const jsonPart = data.data.output.find((part: any) => part.type === 'json' && part.metadata?.dataType === 'er-diagram');
+
+                      const description = textPart?.content;
+                      const erData = jsonPart?.content;
 
                       if (description && erData) {
                         // 存储到QuizStore
@@ -279,7 +359,11 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         {/* 右侧按钮组 */}
         <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
           <Tooltip title="历史记录">
-            <IconButton size="small" sx={{ color: 'var(--secondary-text)' }}>
+            <IconButton
+              size="small"
+              sx={{ color: 'var(--secondary-text)' }}
+              onClick={handleHistoryClick}
+            >
               <HistoryIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -319,7 +403,6 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
             <MessageList
               messages={convertChatMessagesToMessages(messages)}
               isLoading={isLoading}
-              onActionConfirm={() => {}} // 暂时空实现
             />
           </Box>
 
@@ -340,6 +423,20 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
           </Box>
         </Box>
       </Collapse>
+
+      {/* 历史记录模态框 */}
+      <HistoryModal
+        open={historyModalOpen}
+        onClose={handleHistoryClose}
+        title="ER图历史记录"
+        records={convertToHistoryRecords(recentRecords)}
+        loading={historyLoading}
+        onSelect={handleHistorySelect}
+        onDelete={handleHistoryDelete}
+        onEdit={handleHistoryRename}
+        searchPlaceholder="搜索ER图记录..."
+        emptyMessage="暂无ER图历史记录"
+      />
     </Paper>
   );
 };

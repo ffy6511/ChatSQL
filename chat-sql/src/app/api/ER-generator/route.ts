@@ -242,7 +242,7 @@ async function callSchemaGeneratorAPI(
       throw new Error(data.error?.message || 'Schema-generator API返回错误');
     }
 
-    const ddlResult = data.data?.output?.result;
+    const ddlResult = data.data?.output?.find(part => part.type === 'sql')?.content;
     if (!ddlResult) {
       throw new Error('Schema-generator API未返回有效的DDL语句');
     }
@@ -301,24 +301,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('接收到的请求体:', JSON.stringify(body, null, 2));
 
-    // 支持两种格式：新格式（百炼AI标准）和旧格式（向后兼容）
     let natural_language_query: string;
     let provided_schema: string;
     let sessionId: string | undefined;
     let parameters: any;
 
     if (body.input && body.input.biz_params) {
-      // 新格式：百炼AI标准格式
       natural_language_query = body.input.biz_params.natural_language_query;
       provided_schema = body.input.biz_params.provided_schema;
       sessionId = body.input.session_id;
       parameters = body.parameters;
     } else {
-      // 旧格式：向后兼容
-      natural_language_query = body.natural_language_query;
-      provided_schema = body.provided_schema;
-      sessionId = body.sessionId;
-      parameters = body.parameters;
+        throw new BailianAIAPIError(
+          '请求格式错误：缺少input.biz_params',
+          ErrorType.VALIDATION_ERROR
+        );
     }
 
     if (!natural_language_query || typeof natural_language_query !== 'string') {
@@ -371,27 +368,27 @@ export async function POST(request: NextRequest) {
 
     // ER-generator不支持流式响应
     const response = await callBailianAPI(bailianRequest) as BailianAIResponse;
-    const { erData, metadata } = parseERResponse(response.output.text);
+    const { erData } = parseERResponse(response.output.text);
+
+    // 构建基于类型数组的输出格式
+    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+
+    // 添加ER图数据部分（作为JSON类型）
+    if (erData) {
+      outputParts.push({
+        type: 'json',
+        content: erData,
+        metadata: {
+          dataType: 'er-diagram'
+        }
+      });
+    }
 
     const erResponse: ERGeneratorResponse = {
       success: true,
       data: {
-        output: {
-          erData: erData,
-          hasStructuredData: !!erData,
-          outputType: erData ? 'multiple' : 'single',
-        },
+        output: outputParts,
         sessionId: response.output.session_id,
-        metadata: {
-          module: 'ER',
-          topic: 'er-generation',
-          action: {
-            type: 'visualize',
-            target: '/er-diagram',
-            params: { erData: erData },
-          },
-          ...metadata,
-        },
       },
       usage: response.usage ? {
         inputTokens: response.usage.input_tokens,

@@ -202,34 +202,46 @@ export async function POST(req: NextRequest) {
       AGENT_CONFIG.ER_VERIFIER.APP_ID
     ) as BailianAIResponse;
 
-    const { cleanText, evaluation, score, suggestions, metadata } = parseERVerifierResponse(response.output.text);
+    const { cleanText, evaluation, score, suggestions } = parseERVerifierResponse(response.output.text);
+
+    // 构建基于类型数组的输出格式
+    const outputParts: import('@/types/agents').AgentOutputPart[] = [];
+
+    // 构建完整的评估文本
+    let fullEvaluationText = '';
+
+    if (evaluation || cleanText) {
+      fullEvaluationText += `评估结果：\n${evaluation || cleanText}\n\n`;
+    }
+
+    if (score !== undefined) {
+      fullEvaluationText += `评分：${score}\n\n`;
+    }
+
+    if (suggestions && suggestions.length > 0) {
+      fullEvaluationText += `改进建议：\n`;
+      if (Array.isArray(suggestions)) {
+        suggestions.forEach((suggestion, index) => {
+          fullEvaluationText += `${index + 1}. ${suggestion}\n`;
+        });
+      } else {
+        fullEvaluationText += suggestions;
+      }
+    }
+
+    // 添加完整的评估结果作为单个文本部分
+    if (fullEvaluationText.trim()) {
+      outputParts.push({
+        type: 'text',
+        content: fullEvaluationText.trim()
+      });
+    }
 
     const erVerifierResponse: ERVerifierResponse = {
       success: true,
       data: {
-        output: {
-          evaluation: evaluation || cleanText,
-          score: score,
-          suggestions: suggestions,
-          summary: cleanText,
-          rawText: response.output.text,
-          hasStructuredData: !!(evaluation || score || suggestions),
-          outputType: 'multiple',
-        },
+        output: outputParts,
         sessionId: response.output.session_id,
-        metadata: {
-          module: 'ER',
-          topic: 'er-verification',
-          action: {
-            type: 'evaluate',
-            target: '/er-diagram',
-            params: {
-              score: score,
-              hasEvaluation: !!evaluation
-            },
-          },
-          ...metadata,
-        },
       },
       usage: response.usage ? {
         inputTokens: response.usage.input_tokens,

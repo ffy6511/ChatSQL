@@ -12,6 +12,7 @@ import ERAssistantPanel from '@/components/ERDiagram/UI/ERAssistantPanel';
 import { ERDiagramProvider, useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { useSelection } from '@/contexts/SelectionContext';
 import { ChatProvider } from '@/contexts/ChatContext';
+import { ERProvider } from '@/contexts/ERContext';
 import { Box, Snackbar, Alert } from '@mui/material';
 
 const ERDiagramContent: React.FC = () => {
@@ -136,31 +137,33 @@ const ERDiagramPage: React.FC = () => {
   }, []); 
 
   return (
-    <ERDiagramProvider showNotification={handleShowNotification}>
-      <ERDiagramContent />
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        onClose={handleSnackbarClose}
-        sx = {{mt:4}}
-      >
-        <Alert
+    <ERProvider>
+      <ERDiagramProvider showNotification={handleShowNotification}>
+        <ERDiagramContent />
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          sx={{
-            width: '100%',
-            bgcolor: `var(--${snackbar.severity}-bg)`,
-            color: 'var(--snackbar-text)',
-            '& .MuiAlert-icon': {
-              color: `var(--${snackbar.severity}-icon)`,
-            }
-          }}
+          sx = {{mt:4}}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </ERDiagramProvider>
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={snackbar.severity}
+            sx={{
+              width: '100%',
+              bgcolor: `var(--${snackbar.severity}-bg)`,
+              color: 'var(--snackbar-text)',
+              '& .MuiAlert-icon': {
+                color: `var(--${snackbar.severity}-icon)`,
+              }
+            }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </ERDiagramProvider>
+    </ERProvider>
   );
 };
 
