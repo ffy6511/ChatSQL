@@ -16,7 +16,7 @@ import {
 import { AgentType, AGENTS_INFO, AgentInputField, AgentOutputPart } from '@/types/agents';
 import ERDiagramSelector from './MessageInput/ERDiagramSelector';
 import QuizSelector from './MessageInput/QuizSelector';
-import QuizStorage from '@/services/quizStorage';
+import { quizStorage } from '@/services/quizStorage';
 
 interface DynamicMessageInputProps {
   selectedAgent: AgentType;
@@ -104,7 +104,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
               description: descriptionPart.content,
               referenceAnswer: erDataPart.content,
             };
-            await QuizStorage.addQuiz(quizData);
+            await quizStorage.addQuiz(quizData);
 
             // TODO: 通过Snack通知用户成功保存
           }else{

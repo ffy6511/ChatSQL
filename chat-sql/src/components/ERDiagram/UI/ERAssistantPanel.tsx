@@ -19,13 +19,11 @@ import {
   Quiz as QuizIcon,
   Rule as RuleIcon,
 } from '@mui/icons-material';
-import { AgentType, ER_ASSISTANT_TABS, AGENTS_INFO } from '@/types/agents';
-import { useERContext } from '@/contexts/ERContext';
-import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import { AgentType, ER_ASSISTANT_TABS, AGENTS_INFO, AgentOutputPart } from '@/types/agents';
+import { useChatContext } from '@/contexts/ChatContext';
 import { MessageList, DynamicMessageInput } from '@/components/ChatBot';
 import { Message } from '@/types/chatbot';
 import { ChatMessage } from '@/types/chat';
-import { quizStorage } from '@/services/quizStorage';
 import HistoryModal, { HistoryRecord } from '@/components/common/HistoryModal';
 import { useHistoryRecords } from '@/hooks/useHistoryRecords';
 
@@ -44,19 +42,13 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
-  // 使用ERContext
+  // 使用ChatContext
   const {
     messages,
     isLoading,
     error,
     sendAgentMessage,
-    clearMessages,
-    clearError,
-  } = useERContext();
-
-  // 使用ERDiagramContext
-  const { state } = useERDiagramContext();
-  const erDiagramData = state.diagramData;
+  } = useChatContext();
 
   // 使用历史记录hook
   const {
@@ -174,120 +166,16 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
     renameHistoryRecord(parseInt(recordId), newTitle);
   }, [renameHistoryRecord]);
 
-  // 消息发送处理 - 重写以支持出题成功后的自动保存和验证请求处理
-  const handleSendMessage = useCallback(async (agentType: string, inputValues: Record<string, string>) => {
+  // 消息发送处理 - 直接传递给ChatContext处理
+  const handleSendMessage = useCallback(async (agentType: string, inputValues: Record<string, string>): Promise<AgentOutputPart[] | null> => {
     try {
-      // 如果是ER_VERIFIER，需要预处理验证请求数据
-      if (agentType === AgentType.ER_VERIFIER) {
-        const { quiz_id, user_answer_session_id } = inputValues;
-
-        if (!quiz_id || !user_answer_session_id) {
-          console.error('验证请求缺少必要参数');
-          return;
-        }
-
-        try {
-          // 1. 从QuizStore获取题目的标准答案
-          const quiz = await quizStorage.getQuiz(quiz_id);
-          if (!quiz) {
-            console.error('未找到指定的题目');
-            return;
-          }
-
-          // 2. 从用户选择的会话中获取ER图数据（这里需要实现获取会话ER图数据的逻辑）
-          // 暂时使用当前画布的ER图数据作为用户答案
-          const userErData = erDiagramData;
-
-          if (!userErData || (!userErData.entities?.length && !userErData.relationships?.length)) {
-            console.error('用户ER图数据为空');
-            return;
-          }
-
-          // 3. 构建验证请求参数
-          const verificationInputValues = {
-            description: quiz.description,
-            erDiagramDone: JSON.stringify(userErData),
-            erDiagramAns: JSON.stringify(quiz.referenceAnswer),
-          };
-
-          // 发送验证请求
-          await sendAgentMessage(agentType as AgentType, verificationInputValues);
-
-        } catch (error) {
-          console.error('处理验证请求失败:', error);
-          return;
-        }
-      } else {
-        // 发送消息到智能体
-        await sendAgentMessage(agentType as AgentType, inputValues);
-
-        // 如果是ER Quiz Generator，需要在发送成功后处理题目保存
-        if (agentType === AgentType.ER_QUIZ_GENERATOR) {
-          // 等待一小段时间确保消息已经添加到messages中
-          setTimeout(async () => {
-            try {
-              // 获取最新的消息
-              if (messages && messages.length > 0) {
-                const latestMessage = messages[messages.length - 1];
-
-                // 检查是否是assistant消息且包含metadata
-                if (latestMessage.role === 'assistant' && latestMessage.metadata) {
-                  // 通过重新调用API来获取完整的响应数据
-                  const response = await fetch('/api/er_quiz_generator', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      input: {
-                        biz_params: {
-                          description_input: inputValues.description_input,
-                        },
-                        session_id: latestMessage.session_id,
-                      },
-                      parameters: {
-                        stream: false,
-                        temperature: 0.7,
-                        maxTokens: 2000,
-                      },
-                    }),
-                  });
-
-                  if (response.ok) {
-                    const data = await response.json();
-
-                    if (data.success && data.data?.output && Array.isArray(data.data.output)) {
-                      // 从AgentOutputPart[]中提取数据
-                      const textPart = data.data.output.find((part: any) => part.type === 'text');
-                      const jsonPart = data.data.output.find((part: any) => part.type === 'json' && part.metadata?.dataType === 'er-diagram');
-
-                      const description = textPart?.content;
-                      const erData = jsonPart?.content;
-
-                      if (description && erData) {
-                        // 存储到QuizStore
-                        const quizId = await quizStorage.addQuiz({
-                          name: `ER图题目 - ${new Date().toLocaleString()}`,
-                          description: description,
-                          referenceAnswer: erData,
-                        });
-
-                        console.log('题目创建成功，ID:', quizId);
-                      }
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              console.error('保存题目失败:', error);
-            }
-          }, 1000); // 延迟1秒执行
-        }
-      }
+      // 直接发送消息到智能体，让ChatContext处理所有逻辑
+      return await sendAgentMessage(agentType as AgentType, inputValues);
     } catch (error) {
       console.error('发送消息失败:', error);
+      return null;
     }
-  }, [sendAgentMessage, messages, erDiagramData, quizStorage]);
+  }, [sendAgentMessage]);
 
   // 获取当前激活的智能体类型
   const currentAgentType = ER_ASSISTANT_TABS[activeTabIndex]?.agentType || AgentType.ER_QUIZ_GENERATOR;

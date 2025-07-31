@@ -11,6 +11,7 @@ import {
 } from '@/types/chat';
 import { chatStorage } from '@/services/chatStorage';
 import { AgentType, AGENTS_INFO, AgentOutputPart } from '@/types/agents';
+import { quizStorage } from '@/services/quizStorage';
 
 // 状态管理的Action类型
 type ChatAction = 
@@ -355,10 +356,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           description_input: inputValues.description_input,
         };
       } else if (agentType === AgentType.ER_VERIFIER) {
+        // 验证必需字段
+        if (!inputValues.quiz_id?.trim()) {
+          throw new Error('请选择要检验的题目');
+        }
+
+        // 从中提取ID
+        const quizId = inputValues.quiz_id;
+
+        // 在indexDB中获取记录
+        const { quizStorage } = await import('@/services/quizStorage');
+        const quizData = await quizStorage.getQuiz(quizId);
+
+        if (!quizData) {
+          throw new Error('未找到选中的题目，请重新选择');
+        }
+
         requestBody.input.biz_params = {
-          description: inputValues.description,
-          erDiagramDone: inputValues.erDiagramDone,
-          erDiagramAns: inputValues.erDiagramAns,
+          description: quizData.description,
+          erDiagramDone: inputValues.erDiagramDone || '{}',
+          erDiagramAns: quizData.referenceAnswer ? JSON.stringify(quizData.referenceAnswer) : '{}',
         };
       } else {
         // 默认聊天智能体 - 使用message字段

@@ -87,7 +87,7 @@ export interface ChatContextType {
   selectSession: (sessionId: string) => Promise<void>;
   createNewSession: () => Promise<void>;
   sendMessage: (userInput: string) => Promise<void>;
-  sendAgentMessage: (agentType: string, inputValues: Record<string, string>) => Promise<void>;
+  sendAgentMessage: (agentType: string, inputValues: Record<string, string>) => Promise<AgentOutputPart[] | null>;
   deleteSession: (sessionId: string) => Promise<void>;
   clearAllSessions: () => Promise<void>;
 

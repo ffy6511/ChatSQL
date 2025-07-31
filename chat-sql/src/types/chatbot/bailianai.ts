@@ -5,7 +5,7 @@ import { AgentOutputPart } from '@/types/agents';
  */
 export interface BailianAIRequest {
   input: {
-    prompt: string;
+    prompt: Record<string, string> | string;
     session_id?: string;
     biz_params?: {
       user_prompt_params?: Record<string, string>;

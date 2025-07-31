@@ -12,7 +12,6 @@ import ERAssistantPanel from '@/components/ERDiagram/UI/ERAssistantPanel';
 import { ERDiagramProvider, useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { useSelection } from '@/contexts/SelectionContext';
 import { ChatProvider } from '@/contexts/ChatContext';
-import { ERProvider } from '@/contexts/ERContext';
 import { Box, Snackbar, Alert } from '@mui/material';
 
 const ERDiagramContent: React.FC = () => {
@@ -137,7 +136,7 @@ const ERDiagramPage: React.FC = () => {
   }, []); 
 
   return (
-    <ERProvider>
+    <ChatProvider>
       <ERDiagramProvider showNotification={handleShowNotification}>
         <ERDiagramContent />
         <Snackbar
@@ -163,7 +162,7 @@ const ERDiagramPage: React.FC = () => {
           </Alert>
         </Snackbar>
       </ERDiagramProvider>
-    </ERProvider>
+    </ChatProvider>
   );
 };
 

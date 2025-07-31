@@ -159,8 +159,8 @@ export interface ERVerifierRequest {
     session_id?: string;
     biz_params: { 
       description: string;
-      er_diagram_done: string;
-      er_diagram_ans: string;
+      erDiagramDone: string;
+      erDiagramAns: string;
     };
   };
   parameters?: {
@@ -261,7 +261,7 @@ export const AGENT_CONFIG = {
   },
   ER_VERIFIER: {
     APP_ID: '6533b3711b8143068af6b09b98a3323c', // 默认聊天智能体
-    INPUT_PARAMS: ['verification_description', 'er_diagram_json'],
+    INPUT_PARAMS: ['description', 'erDiagramDone', 'erDiagramAns'],
     OUTPUT_PARAM: 'text',
   },
 } as const;
@@ -362,7 +362,7 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
         placeholder: '请选择一个题目进行检验',
       },
       {
-        name: 'user_answer_session_id',
+        name: 'erDiagramDone',
         label: '选择你的ER图设计',
         description: '从历史记录中选择你设计的ER图',
         type: 'er-diagram-selector',

@@ -106,14 +106,16 @@ function createERVerifierRequest(
   sessionId?: string,
   parameters?: any
 ): BailianAIRequest {
+  // 将三个参数合并为一个json字段, 因为在智能体中直接使用query参数
+  const mergedParams = {
+    original_problem: description,
+    user_er_diagram: erDiagramDone,
+    model_answer_er_diagram: erDiagramAns,
+  };
+
   const request: BailianAIRequest = {
     input: {
-      prompt: "对比用户提交的ER图与标准答案，给出详细评价",
-      biz_params: {
-        description: description,
-        er_diagram_done: erDiagramDone,
-        er_diagram_ans: erDiagramAns,
-      },
+      prompt: mergedParams,
     },
     parameters: parameters || {},
     debug: {},
@@ -142,8 +144,8 @@ export async function POST(req: NextRequest) {
 
     if (body.input && body.input.biz_params) {
       description = body.input.biz_params.description;
-      erDiagramDone = body.input.biz_params.er_diagram_done;
-      erDiagramAns = body.input.biz_params.er_diagram_ans;
+      erDiagramDone = body.input.biz_params.erDiagramDone;
+      erDiagramAns = body.input.biz_params.erDiagramAns;
       sessionId = body.input.session_id;
       parameters = body.parameters;
     } else {
