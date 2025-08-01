@@ -242,21 +242,7 @@ const BPlusOperationPanel: React.FC<BPlusOperationPanelProps> = ({
             error={insertValue !== '' && !validateInput(insertValue)}
             helperText={insertValue !== '' && !validateInput(insertValue) ? '请输入有效的整数（-99999～99999）' : ''}
             sx={{
-              flex: 1,
-              '& .MuiInputLabel-root': {
-                color: 'var(--secondary-text)'
-              },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'var(--input-border)'
-                },
-                '&:hover fieldset': {
-                  borderColor: 'var(--link-color)'
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: 'var(--primary-text)' // ✅ 输入值的颜色
-                }
-              }
+              flex: 1,             
             }}
           />
           <Button

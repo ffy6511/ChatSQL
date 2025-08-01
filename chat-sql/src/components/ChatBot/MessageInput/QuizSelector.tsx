@@ -194,7 +194,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { height: '70vh' }
+          sx: { height: '70vh', backgroundColor: 'var(--card-bg)' }
         }}
       >
         <DialogTitle>
@@ -228,7 +228,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                 </InputAdornment>
               ),
             }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, color: 'var(--secondary-text)' }}
           />
 
           {/* 加载状态 */}
@@ -275,7 +275,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                         >
                           <Box sx={{ width: '100%', mb: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              <Typography variant="subtitle2" color="var(--secondary-text)"  sx={{ fontWeight: 600 }}>
                                 {quiz.name}
                               </Typography>
                               <Chip
@@ -287,7 +287,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                             </Box>
                             <Typography
                               variant="body2"
-                              color="text.secondary"
+                              color="var(--secondary-text)"
                               sx={{
                                 display: '-webkit-box',
                                 WebkitLineClamp: 2,
@@ -296,7 +296,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                                 lineHeight: 1.4,
                               }}
                             >
-                              {quiz.description}
+                              {JSON.parse(quiz.description).description}
                             </Typography>
                           </Box>
                         </ListItemButton>

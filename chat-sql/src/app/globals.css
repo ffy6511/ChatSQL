@@ -74,6 +74,12 @@
   --info-icon:#2C93D6;
 
   --snackbar-text: var(--secondary-text);
+
+  /* MUI组件额外变量 */
+  --header-bg: var(--background);
+  --background-light: #fafafa;
+  --border-color: var(--card-border);
+  --primary-color: var(--link-color);
 }
 
 [data-theme="dark"] {
@@ -147,6 +153,12 @@
   --info-icon: #5dade2;
 
   --snackbar-text: var(--secondary-text);
+
+  /* MUI组件额外变量 - 暗色模式 */
+  --header-bg: var(--background);
+  --background-light: #2a2a2a;
+  --border-color: var(--card-border);
+  --primary-color: var(--link-color);
 }
 
 @theme inline {
