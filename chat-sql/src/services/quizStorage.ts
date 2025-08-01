@@ -68,7 +68,7 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async addQuiz(quizData: CreateQuizInput): Promise<string> {
     try {
       const db = await this.initDB();
-      const id = uuidv4();
+      const id = quizData.tutorialID || uuidv4();
       const now = Date.now();
 
       const quiz: Quiz = {

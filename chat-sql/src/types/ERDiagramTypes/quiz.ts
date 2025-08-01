@@ -14,9 +14,11 @@ export interface Quiz {
 }
 
 /**
- * 创建Quiz时的输入数据类型
+ * 创建Quiz时的输入数据类型(使用 tutorialID 来检查教程的是否重复)
  */
-export type CreateQuizInput = Omit<Quiz, 'id' | 'createdAt'>;
+export type CreateQuizInput = Omit<Quiz, 'id' | 'createdAt'> & {
+  tutorialID?: string;
+};
 
 /**
  * 更新Quiz时的输入数据类型

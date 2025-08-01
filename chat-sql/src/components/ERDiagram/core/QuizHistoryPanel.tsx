@@ -33,11 +33,13 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   DeleteSweep as DeleteSweepIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { Quiz, QuizHistoryPanelProps } from '@/types/ERDiagramTypes/quiz';
 import { quizStorage } from '@/services/quizStorage';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
 import styles from './QuizHistoryPanel.module.css';
+import { tutorialQuizzes, getTutorialQuizIds } from '@/data/tutorialQuizzes';
 
 /**
  * Quiz历史管理面板组件
@@ -58,6 +60,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [expandedQuizzes, setExpandedQuizzes] = useState<Set<string>>(new Set());
+  const [loadingTutorial, setLoadingTutorial] = useState(false);
 
   const { setDiagramData } = useERDiagramContext();
   const { showSnackbar } = useSnackbar();
@@ -113,7 +116,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     }
     
     setDeleteAllDialogOpen(true);
-  }, []);
+  }, [quizzes, showSnackbar]);
 
   // 关闭删除全部确认对话框
   const handleDeleteAllClose = useCallback(() => {
@@ -134,6 +137,60 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     }
   }, [loadQuizzes]);
 
+  // 填充教程数据
+  const handleFillTutorialData = useCallback(async () => {
+    try {
+      setLoadingTutorial(true);
+
+      // 1. 获取所有已存在的题目，并提取出它们的教程ID
+      const existingQuizzes = await quizStorage.getAllQuizzes();
+      const existingTutorialIds = new Set(
+        existingQuizzes.map(q => q.id).filter(Boolean)
+      );
+
+      // 2. 找出尚未被添加的教程
+      const missingTutorials = tutorialQuizzes.filter(
+        tutorial => !existingTutorialIds.has(tutorial.id)
+      );
+
+      // 3. 如果没有缺失的教程，则提示用户并退出
+      if (missingTutorials.length === 0) {
+        showSnackbar('所有教程数据均已存在', 'info');
+        return;
+      }
+
+      // 4. 只添加缺失的教程
+      let successCount = 0;
+      for (const tutorialQuiz of missingTutorials) {
+        try {
+          const quizInput = {
+            tutorialID: tutorialQuiz.id,
+            name: tutorialQuiz.name,
+            description: tutorialQuiz.description,
+            referenceAnswer: tutorialQuiz.referenceAnswer,
+          };
+          await quizStorage.addQuiz(quizInput);
+          successCount++;
+        } catch (error) {
+          console.error(`创建教程 ${tutorialQuiz.name} 失败:`, error);
+        }
+      }
+
+      // 5. 根据结果给出反馈
+      if (successCount > 0) {
+        await loadQuizzes();
+        showSnackbar(`成功补充 ${successCount} 个教程题目`, 'success');
+      } else {
+        showSnackbar('补充教程数据失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('填充教程数据失败:', error);
+      setError('填充教程数据失败，请重试');
+    } finally {
+      setLoadingTutorial(false);
+    }
+  }, [loadQuizzes, showSnackbar]);
+
 
   // 组件挂载时加载题目
   useEffect(() => {
@@ -150,7 +207,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   // 关闭菜单
   const handleMenuClose = useCallback(() => {
     setAnchorEl(null);
-    setSelectedQuiz(null);
+    // We don't reset selectedQuiz here immediately, 
+    // as dialogs might need it.
   }, []);
 
   // 打开编辑对话框
@@ -159,13 +217,14 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       setEditName(selectedQuiz.name);
       setEditDialogOpen(true);
     }
-    handleMenuClose();
-  }, [selectedQuiz, handleMenuClose]);
+    setAnchorEl(null); // Close menu
+  }, [selectedQuiz]);
 
   // 关闭编辑对话框
   const handleEditClose = useCallback(() => {
     setEditDialogOpen(false);
     setEditName('');
+    setSelectedQuiz(null); // Clean up selection
   }, []);
 
   // 确认编辑
@@ -182,22 +241,27 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       console.error('更新题目失败:', err);
       setError('更新题目失败，请重试');
     }
-  }, [selectedQuiz, editName, loadQuizzes, onQuizUpdate, handleEditClose]);
+  }, [selectedQuiz, editName, loadQuizzes, onQuizUpdate, handleEditClose, showSnackbar]);
 
   // 打开删除确认对话框
   const handleDeleteOpen = useCallback(() => {
     setDeleteDialogOpen(true);
-    handleMenuClose();
-  }, [handleMenuClose]);
+    setAnchorEl(null); // Close menu
+  }, []);
 
   // 关闭删除确认对话框
   const handleDeleteClose = useCallback(() => {
     setDeleteDialogOpen(false);
+    setSelectedQuiz(null); // Clean up selection
   }, []);
 
   // 确认删除
   const handleDeleteConfirm = useCallback(async () => {
-    if (!selectedQuiz) return;
+    if (!selectedQuiz) {
+      showSnackbar('未选中要删除的题目', 'info');
+      return;
+    }
+    console.log('删除题目:', selectedQuiz.id);
 
     try {
       await quizStorage.deleteQuiz(selectedQuiz.id);
@@ -209,7 +273,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       console.error('删除题目失败:', err);
       setError('删除题目失败，请重试');
     }
-  }, [selectedQuiz, loadQuizzes, onQuizDelete, handleDeleteClose]);
+  }, [selectedQuiz, loadQuizzes, onQuizDelete, handleDeleteClose, showSnackbar]);
 
   // 查看答案ER图
   const handleViewAnswer = useCallback(() => {
@@ -217,8 +281,9 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       setDiagramData(selectedQuiz.referenceAnswer);
       onQuizSelect?.(selectedQuiz);
     }
-    handleMenuClose();
-  }, [selectedQuiz, setDiagramData, onQuizSelect, handleMenuClose]);
+    setAnchorEl(null); // Close menu
+    setSelectedQuiz(null); // Clean up selection
+  }, [selectedQuiz, setDiagramData, onQuizSelect]);
 
   // 格式化日期
   const formatDate = (timestamp: number) => {
@@ -245,6 +310,18 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
           />
 
           <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+            <Tooltip title="填充教程数据">
+              <Button
+                className={styles.tutorialButton}
+                size='small'
+                onClick={handleFillTutorialData}
+                startIcon={<SchoolIcon/>}
+                disabled={loadingTutorial}
+              >
+                {loadingTutorial ? '创建中...' : '教程'}
+              </Button>
+            </Tooltip>
+
             <Tooltip title={expandedQuizzes.size === quizzes.length ? "全部收起" : "全部展开"}>
               <Button
                 className={styles.expandButton}
