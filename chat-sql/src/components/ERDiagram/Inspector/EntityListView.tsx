@@ -333,7 +333,7 @@ const EntityListView: React.FC = () => {
         >
           {/* 根据数据类型显示参数编辑选项 */}
           {dataTypeParamConfig[typeName] && (
-            <>
+            <div>
               {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
                 // 解析当前参数值
                 const { params: currentParams } = parseDataType(attribute.dataType || '');
@@ -358,7 +358,7 @@ const EntityListView: React.FC = () => {
                 );
               })}
               <Divider />
-            </>
+            </div>
           )}
 
           <MenuItem

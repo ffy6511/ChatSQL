@@ -1,7 +1,7 @@
 'use client';
 
-import React, {useState, useCallback, useEffect} from 'react';
-import { message, Splitter} from 'antd';
+import React, {useEffect} from 'react';
+import { message} from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import styles from './page.module.css';
@@ -9,10 +9,10 @@ import Sidebar from '@/components/ERDiagram/core/Sidebar';
 import Canvas from '@/components/ERDiagram/core/Canvas';
 import Inspector from '@/components/ERDiagram/Inspector/Inspector';
 import ERAssistantPanel from '@/components/ERDiagram/core/ERAssistantPanel';
-import { ERDiagramProvider, useERDiagramContext } from '@/contexts/ERDiagramContext';
+import {  useERDiagramContext } from '@/contexts/ERDiagramContext';
 import { useSelection } from '@/contexts/SelectionContext';
 import { ChatProvider } from '@/contexts/ChatContext';
-import { Box, Snackbar, Alert } from '@mui/material';
+import { Box } from '@mui/material';
 
 const ERDiagramContent: React.FC = () => {
   const searchParams = useSearchParams();
@@ -115,53 +115,10 @@ const ERDiagramContent: React.FC = () => {
 };
 
 const ERDiagramPage: React.FC = () => {
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'info' | 'warning' | 'error';
-  }>({
-    open: false,
-    message: '',
-    severity: 'info',
-  });
-
-  // 用于显示通知的回调函数
-  const handleShowNotification = useCallback((message:string, severity:'success' | 'info' | 'warning' | 'error' = 'info') => {
-    setSnackbar({open:true, message, severity});
-  }, []);
-
- // Snackbar关闭处理
-  const handleSnackbarClose = useCallback(() => {
-    setSnackbar(prev => ({ ...prev, open: false }));
-  }, []); 
 
   return (
     <ChatProvider>
-      <ERDiagramProvider showNotification={handleShowNotification}>
         <ERDiagramContent />
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={3000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          onClose={handleSnackbarClose}
-          sx = {{mt:4}}
-        >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={snackbar.severity}
-            sx={{
-              width: '100%',
-              bgcolor: `var(--${snackbar.severity}-bg)`,
-              color: 'var(--snackbar-text)',
-              '& .MuiAlert-icon': {
-                color: `var(--${snackbar.severity}-icon)`,
-              }
-            }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      </ERDiagramProvider>
     </ChatProvider>
   );
 };

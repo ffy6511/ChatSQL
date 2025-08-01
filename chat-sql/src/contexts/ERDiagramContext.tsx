@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 import { ERDiagramData, sampleERData, employeeDepartmentERData, weakEntityERData, EREntity, ERRelationship } from '@/types/ERDiagramTypes/erDiagram';
 import { erDiagramStorage, ERDiagramMetadata } from '@/services/erDiagramStorage';
 import { useEffect, useCallback } from 'react';
@@ -550,7 +551,7 @@ interface ERDiagramContextType {
   diagramList: ERDiagramMetadata[];
   fetchDiagramList: () => Promise<void>;
   // 显示通知的函数
-  showNotification:(message: string, severity: 'info' | 'success' | 'warning' | 'error') => void;
+  showSnackbar: (message: string, severity: 'info' | 'success' | 'warning' | 'error') => void;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(undefined);
@@ -565,10 +566,10 @@ export const useERDiagramContext = () => {
 
 interface ERDiagramProviderProps {
   children: ReactNode;
-  showNotification: (message: string, severity: 'info' | 'success' | 'warning' | 'error') => void;
 }
 
-export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, showNotification }) => {
+export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children }) => {
+  const { showSnackbar } = useSnackbar();
   const [state, dispatch] = useReducer(erDiagramReducer, initialState);
 
   const setActiveTab = (tab: ActiveTab) => {
@@ -633,7 +634,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
 
   const updateEntity = async (id: string, entity: Partial<EREntity>) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法更新实体：未找到当前图表', 'error');
+      showSnackbar('无法更新实体：未找到当前图表', 'error');
       return;
     }
 
@@ -656,16 +657,16 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'UPDATE_ENTITY', payload: { id, entity } });
 
-      showNotification('实体更新成功', 'success');
+      showSnackbar('实体更新成功', 'success');
     } catch (error) {
       console.error('更新实体失败:', error);
-      showNotification('更新实体失败，请重试', 'error');
+      showSnackbar('更新实体失败，请重试', 'error');
     }
   };
 
   const updateRelationship = async (id: string, relationship: Partial<ERRelationship>) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法更新关系：未找到当前图表', 'error');
+      showSnackbar('无法更新关系：未找到当前图表', 'error');
       return;
     }
 
@@ -688,17 +689,17 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'UPDATE_RELATIONSHIP', payload: { id, relationship } });
 
-      showNotification('关系更新成功', 'success');
+      showSnackbar('关系更新成功', 'success');
     } catch (error) {
       console.error('更新关系失败:', error);
-      showNotification('更新关系失败，请重试', 'error');
+      showSnackbar('更新关系失败，请重试', 'error');
       // 可以考虑回滚UI状态，但这里保持简单
     }
   };
 
   const deleteEntity = async (id: string) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法删除实体：未找到当前图表', 'error');
+      showSnackbar('无法删除实体：未找到当前图表', 'error');
       return;
     }
 
@@ -718,16 +719,16 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'DELETE_ENTITY', payload: { id } });
 
-      showNotification('实体删除成功', 'success');
+      showSnackbar('实体删除成功', 'success');
     } catch (error) {
       console.error('删除实体失败:', error);
-      showNotification('删除实体失败，请重试', 'error');
+      showSnackbar('删除实体失败，请重试', 'error');
     }
   };
 
   const deleteRelationship = async (id: string) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法删除关系：未找到当前图表', 'error');
+      showSnackbar('无法删除关系：未找到当前图表', 'error');
       return;
     }
 
@@ -746,10 +747,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'DELETE_RELATIONSHIP', payload: { id } });
 
-      showNotification('关系删除成功', 'success');
+      showSnackbar('关系删除成功', 'success');
     } catch (error) {
       console.error('删除关系失败:', error);
-      showNotification('删除关系失败，请重试', 'error');
+      showSnackbar('删除关系失败，请重试', 'error');
     }
   };
 
@@ -768,7 +769,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
 
   const renameNode = async (nodeId: string, newName: string) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法重命名节点：未找到当前图表', 'error');
+      showSnackbar('无法重命名节点：未找到当前图表', 'error');
       return;
     }
 
@@ -796,17 +797,17 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'RENAME_NODE', payload: { nodeId, newName } });
 
-      showNotification('节点重命名成功', 'success');
+      showSnackbar('节点重命名成功', 'success');
     } catch (error) {
       console.error('重命名节点失败:', error);
-      showNotification('重命名节点失败，请重试', 'error');
+      showSnackbar('重命名节点失败，请重试', 'error');
     }
   };
 
   // 属性编辑相关方法实现
   const addAttribute = async (entityId: string, attribute: import('@/types/ERDiagramTypes/erDiagram').ERAttribute) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法添加属性：未找到当前图表', 'error');
+      showSnackbar('无法添加属性：未找到当前图表', 'error');
       return;
     }
 
@@ -832,22 +833,22 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
 
       // 保存到持久化存储
       await saveDiagram(updatedData, state.currentDiagramId);
-      showNotification('属性添加成功', 'success');
+      showSnackbar('属性添加成功', 'success');
     } catch (error) {
       console.error('添加属性失败:', error);
-      showNotification('添加属性失败，请重试', 'error');
+      showSnackbar('添加属性失败，请重试', 'error');
     }
   };
 
   const deleteAttribute = async (entityId: string, attributeId: string) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法删除属性：未找到当前图表', 'error');
+      showSnackbar('无法删除属性：未找到当前图表', 'error');
       return;
     }
 
     const entityToUpdate = state.diagramData.entities.find(e => e.id === entityId);
     if (!entityToUpdate) {
-      showNotification('未找到指定实体', 'error');
+      showSnackbar('未找到指定实体', 'error');
       return;
     }
 
@@ -856,7 +857,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     if (attributeToDelete?.isPrimaryKey) {
       const primaryKeyCount = entityToUpdate.attributes.filter(attr => attr.isPrimaryKey).length;
       if (primaryKeyCount <= 1) {
-        showNotification('无法删除：实体至少需要一个主键/标识符属性', 'warning');
+        showSnackbar('无法删除：实体至少需要一个主键/标识符属性', 'warning');
         return;
       }
     }
@@ -883,10 +884,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
 
       // 保存到持久化存储
       await saveDiagram(updatedData, state.currentDiagramId);
-      showNotification('属性删除成功', 'success');
+      showSnackbar('属性删除成功', 'success');
     } catch (error) {
       console.error('删除属性失败:', error);
-      showNotification('删除属性失败，请重试', 'error');
+      showSnackbar('删除属性失败，请重试', 'error');
     }
   };
 
@@ -905,13 +906,13 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       const primaryKeyCount = entityToUpdate.attributes.filter(attr => attr.isPrimaryKey).length;
 
       if(primaryKeyCount <= 1){
-        showNotification('实体至少需要一个主键/标识符属性', 'warning');
+        showSnackbar('实体至少需要一个主键/标识符属性', 'warning');
         return;
       }
     }
 
     if(updates.name === ''){
-      showNotification('属性名称不能为空', 'warning');
+      showSnackbar('属性名称不能为空', 'warning');
       return;
     }
 
@@ -948,7 +949,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
 
   const updateConnection = async (relationshipId: string, entityId: string, updates: Partial<import('@/types/ERDiagramTypes/erDiagram').ERConnection>) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法更新连接：未找到当前图表', 'error');
+      showSnackbar('无法更新连接：未找到当前图表', 'error');
       return;
     }
 
@@ -977,17 +978,17 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       await saveDiagram(updatedData, state.currentDiagramId);
       dispatch({ type: 'UPDATE_CONNECTION', payload: { relationshipId, entityId, updates } });
 
-      showNotification('连接更新成功', 'success');
+      showSnackbar('连接更新成功', 'success');
     } catch (error) {
       console.error('更新连接失败:', error);
-      showNotification('更新连接失败，请重试', 'error');
+      showSnackbar('更新连接失败，请重试', 'error');
     }
   };
 
   // 关系属性编辑相关实现
   const addRelationshipAttribute = async(relationshipId: string, attribute: import('@/types/ERDiagramTypes/erDiagram').ERAttribute) => {
     if( !state.diagramData || !state.currentDiagramId){
-      showNotification('无法添加关系属性，未找到当前图表', 'error');
+      showSnackbar('无法添加关系属性，未找到当前图表', 'error');
       return;
     }
 
@@ -1012,16 +1013,16 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       };
 
       await saveDiagram(updatedData, state.currentDiagramId);
-      showNotification('关系属性添加成功', 'success');
+      showSnackbar('关系属性添加成功', 'success');
     }catch(error){
       console.error('添加关系属性失败:', error);
-      showNotification('添加关系属性失败，请重试', 'error');
+      showSnackbar('添加关系属性失败，请重试', 'error');
     }
   }
 
   const deleteRelationshipAttribute = async (relationshipId: string, attributeId: string) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法删除关系属性，未找到当前图表', 'error');
+      showSnackbar('无法删除关系属性，未找到当前图表', 'error');
       return;
     }
 
@@ -1050,22 +1051,22 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       };
 
       await saveDiagram(updatedData, state.currentDiagramId);
-      showNotification('关系属性删除成功', 'success');
+      showSnackbar('关系属性删除成功', 'success');
     } catch (error) {
       console.error('删除关系属性失败:', error);
-      showNotification('删除关系属性失败，请重试', 'error');
+      showSnackbar('删除关系属性失败，请重试', 'error');
     }
   }
 
   const updateRelationshipAttribute = async (relationshipId: string, attributeId: string, updates: Partial<import('@/types/ERDiagramTypes/erDiagram').ERAttribute>) => {
     if (!state.diagramData || !state.currentDiagramId) {
-      showNotification('无法更新关系属性，未找到当前图表', 'error');
+      showSnackbar('无法更新关系属性，未找到当前图表', 'error');
       return;
     }
 
     try{
       if(updates.name === ''){
-        showNotification("关系属性的名称不能为空", 'warning');
+        showSnackbar("关系属性的名称不能为空", 'warning');
         return;
       }
 
@@ -1094,10 +1095,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
       };
 
       await saveDiagram(updatedData, state.currentDiagramId);
-      showNotification('关系属性更新成功', 'success');
+      showSnackbar('关系属性更新成功', 'success');
     }catch(error){
       console.error('更新关系属性失败:', error);
-      showNotification('更新关系属性失败，请重试', 'error');
+      showSnackbar('更新关系属性失败，请重试', 'error');
     }
   }
 
@@ -1362,7 +1363,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({ children, 
     diagramList: state.diagramList,
     fetchDiagramList,
     // 显示通知的函数
-    showNotification,
+    showSnackbar,
   };
 
   return (
