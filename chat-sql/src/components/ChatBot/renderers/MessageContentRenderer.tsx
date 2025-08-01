@@ -9,7 +9,7 @@ import { Message } from '@/types/chatBotTypes/chatbot';
 import { AgentOutputPart } from '@/types/chatBotTypes/agents';
 
 // 导入渲染器组件
-import DefaultTextRenderer from './DefaultTextRenderer';
+import MarkdownRenderer from './MarkdownRenderer';
 import MessagePartsRenderer from './MessagePartsRenderer';
 import SqlRenderer from './SqlRenderer';
 import JsonRenderer from './JsonRenderer';
@@ -63,7 +63,7 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
     case 'json':
       return <JsonRenderer {...rendererProps} />;
     default:
-      return <DefaultTextRenderer {...rendererProps} />;
+      return <MarkdownRenderer {...rendererProps} />;
   }
 };
 

@@ -3,7 +3,7 @@
  */
 
 // 渲染器组件
-export { default as DefaultTextRenderer } from './DefaultTextRenderer';
+export { default as MarkdownRenderer } from './MarkdownRenderer';
 export { default as SqlRenderer } from './SqlRenderer';
 export { default as JsonRenderer } from './JsonRenderer';
 export { default as MessageContentRenderer } from './MessageContentRenderer';

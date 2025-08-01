@@ -1,17 +1,15 @@
 /**
- * 默认文本渲染器组件
- * 处理普通文本内容的显示，保持现有的样式和功能
+ * 处理 Markdown 格式文本内容的显示
  */
 
 import React from 'react';
 import { Typography, Box, IconButton, Tooltip } from '@mui/material';
 import { ContentCopy as CopyIcon } from '@mui/icons-material';
 import { RendererProps } from '@/types/chatBotTypes/renderers';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-/**
- * 默认文本渲染器组件
- */
-const DefaultTextRenderer: React.FC<RendererProps> = ({
+const MarkdownRenderer: React.FC<RendererProps> = ({
   message,
   isUser,
   config,
@@ -31,19 +29,15 @@ const DefaultTextRenderer: React.FC<RendererProps> = ({
     }
   };
 
-  // 处理文本内容，支持换行和链接
-  const renderTextContent = (content: string) => {
-    // 简单的链接检测和渲染
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = content.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
+  // 渲染 Markdown 内容
+  const renderMarkdown = (content: string) => (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        a: ({node, ...props}) => (
           <Typography
-            key={index}
             component="a"
-            href={part}
+            {...props}
             target="_blank"
             rel="noopener noreferrer"
             sx={{
@@ -53,14 +47,41 @@ const DefaultTextRenderer: React.FC<RendererProps> = ({
                 textDecoration: 'none',
               },
             }}
-          >
-            {part}
-          </Typography>
-        );
-      }
-      return part;
-    });
-  };
+          />
+        ),
+        p: ({node, ...props}) => (
+          <Typography component="div" {...props} />
+        ),
+        code: ({node, ...props}) => (
+          <Typography 
+            component="code" 
+            {...props}
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.1)',
+              padding: '0.2em 0.4em',
+              borderRadius: '3px',
+              fontFamily: 'monospace'
+            }}
+          />
+        ),
+        pre: ({node, ...props}) => (
+          <Box 
+            component="pre" 
+            {...props}
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              padding: '1em',
+              borderRadius: '4px',
+              overflow: 'auto',
+              margin: '1em 0'
+            }}
+          />
+        )
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
 
   return (
     <Box className={className} sx={{ position: 'relative' }}>
@@ -105,10 +126,10 @@ const DefaultTextRenderer: React.FC<RendererProps> = ({
           pr: 5, // 为复制按钮留出空间
         }}
       >
-        {renderTextContent(typeof message.content === 'string' ? message.content : JSON.stringify(message.content))}
+        {renderMarkdown(typeof message.content === 'string' ? message.content : JSON.stringify(message.content))}
       </Typography>
     </Box>
   );
 };
 
-export default DefaultTextRenderer;
+export default MarkdownRenderer;

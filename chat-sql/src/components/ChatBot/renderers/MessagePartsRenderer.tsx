@@ -8,6 +8,7 @@ import { AgentOutputPart } from '@/types/chatBotTypes/agents';
 import { visualize } from '@/services/visualizationService';
 import JsonRenderer from './JsonRenderer';
 import SqlRenderer from './SqlRenderer';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface MessagePartsRendererProps {
   parts: AgentOutputPart[];
@@ -107,9 +108,10 @@ export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
       case 'text':
         return (
           <Box key={index} sx={{ mb: 2 }}>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', color: 'var(--primary-text)' }}>
-              {content}
-            </Typography>
+            <MarkdownRenderer
+              message={mockMessage}
+              isUser={false}
+            />
           </Box>
         );
 
