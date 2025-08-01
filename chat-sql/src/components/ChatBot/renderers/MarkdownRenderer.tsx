@@ -1,7 +1,3 @@
-/**
- * 处理 Markdown 格式文本内容的显示
- */
-
 import React from 'react';
 import { Typography, Box, IconButton, Tooltip } from '@mui/material';
 import { ContentCopy as CopyIcon } from '@mui/icons-material';
@@ -12,7 +8,6 @@ import remarkGfm from 'remark-gfm';
 const MarkdownRenderer: React.FC<RendererProps> = ({
   message,
   isUser,
-  config,
   className,
   onCopy,
 }) => {
@@ -29,62 +24,12 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
     }
   };
 
-  // 渲染 Markdown 内容
-  const renderMarkdown = (content: string) => (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        a: ({node, ...props}) => (
-          <Typography
-            component="a"
-            {...props}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              color: isUser ? 'rgba(255,255,255,0.9)' : 'var(--link-color)',
-              textDecoration: 'underline',
-              '&:hover': {
-                textDecoration: 'none',
-              },
-            }}
-          />
-        ),
-        p: ({node, ...props}) => (
-          <Typography component="div" {...props} />
-        ),
-        code: ({node, ...props}) => (
-          <Typography 
-            component="code" 
-            {...props}
-            sx={{
-              backgroundColor: 'rgba(0,0,0,0.1)',
-              padding: '0.2em 0.4em',
-              borderRadius: '3px',
-              fontFamily: 'monospace'
-            }}
-          />
-        ),
-        pre: ({node, ...props}) => (
-          <Box 
-            component="pre" 
-            {...props}
-            sx={{
-              backgroundColor: 'rgba(0,0,0,0.05)',
-              padding: '1em',
-              borderRadius: '4px',
-              overflow: 'auto',
-              margin: '1em 0'
-            }}
-          />
-        )
-      }}
-    >
-      {content}
-    </ReactMarkdown>
-  );
+  const contentStr = typeof message.content === 'string'
+    ? message.content
+    : JSON.stringify(message.content);
 
   return (
-    <Box className={className} sx={{ position: 'relative' }}>
+    <Box className={className} sx={{ position: 'relative', pr: 5, fontFamily: 'inherit' }}>
       {/* 复制按钮 */}
       <Box
         sx={{
@@ -114,20 +59,72 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
         </Tooltip>
       </Box>
 
-      <Typography
-        variant="body2"
-        sx={{
-          color: isUser ? 'white' : 'var(--primary-text)',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          lineHeight: 1.6,
-          fontSize: '14px',
-          fontFamily: 'inherit',
-          pr: 5, // 为复制按钮留出空间
-        }}
-      >
-        {renderMarkdown(typeof message.content === 'string' ? message.content : JSON.stringify(message.content))}
-      </Typography>
+      <Box sx={{
+        color: isUser ? 'white' : 'var(--primary-text)',
+        wordBreak: 'break-word',
+        fontSize: '14px',
+        lineHeight: 1.5,
+        '& h1, & h2, & h3, & h4, & h5, & h6': {
+          fontWeight: 600,
+          marginTop: '1em',
+          marginBottom: '0.4em',
+        },
+        '& h1': { fontSize: '1.5em' },
+        '& h2': { fontSize: '1.35em' },
+        '& h3': { fontSize: '1.2em' },
+        '& p': {
+          // 大幅减小段落的垂直边距，解决间隔过大的问题
+          marginBlockStart: '0.2em',
+          marginBlockEnd: '0.2em',
+        },
+        
+        '& ul, & ol': {
+          paddingLeft: '1em',
+          // 减小整个列表的垂直边距
+          marginBlockStart: '0.2em',
+          marginBlockEnd: '0.4em', // 列表结束后可以稍微多留一点空间
+        },
+        '& ul': {
+          listStyleType: 'disc',
+        },
+        '& ol': {
+          listStyleType: 'decimal',
+        },
+        '& li': {
+          marginBlockStart: '0.1em',
+          marginBlockEnd: '0.1em',
+        },
+        '& a': {
+          color: 'var(--link-color)',
+          textDecoration: 'underline',
+          '&:hover': {
+            textDecoration: 'none',
+          },
+        },
+        '& code': {
+          backgroundColor: 'rgba(0,0,0,0.1)',
+          padding: '0.2em 0.4em',
+          borderRadius: '3px',
+          fontFamily: 'monospace',
+          fontSize: '0.9em',
+        },
+        '& pre': {
+          backgroundColor: 'rgba(0,0,0,0.05)',
+          padding: '1em',
+          borderRadius: '4px',
+          overflow: 'auto',
+          margin: '1em 0',
+        },
+        '& pre code': {
+          padding: 0,
+          backgroundColor: 'transparent',
+          fontSize: 'inherit',
+        }
+      }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {contentStr}
+        </ReactMarkdown>
+      </Box>
     </Box>
   );
 };

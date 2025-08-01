@@ -13,8 +13,6 @@ import {
   Collapse,
 } from '@mui/material';
 import {
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
   History as HistoryIcon,
   Quiz as QuizIcon,
   Rule as RuleIcon,
@@ -38,19 +36,21 @@ const ICON_MAP = {
 };
 
 const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
   // 使用ChatContext
   const {
+    sessions,
     messages,
     isLoading,
     error,
     sendAgentMessage,
+    selectSession,
+    refreshSessions,
   } = useChatContext();
 
-  // 使用历史记录hook
+  // 使用历史记录hook（保留用于ER图特定的历史记录）
   const {
     recentRecords,
     loading: historyLoading,
@@ -84,9 +84,18 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         }
       }
 
+      // 检查是否存在结构化输出部分
+      let content: string | AgentOutputPart[] = msg.content;
+      if (msg.metadata && 'type' in msg.metadata && msg.metadata.type === 'parts') {
+        const parts = msg.metadata.originalOutput?.parts;
+        if (Array.isArray(parts) && parts.length > 0) {
+          content = parts;
+        }
+      }
+
       return {
         id: msg.id,
-        content: msg.content,
+        content,
         sender: msg.role === 'user' ? 'user' : 'ai',
         timestamp: msg.timestamp,
         metadata
@@ -100,16 +109,12 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
     // ER模块使用独立的消息状态，不需要会话管理
   }, []);
 
-  // 收起/展开处理
-  const handleToggleExpanded = useCallback(() => {
-    setIsExpanded(prev => !prev);
-  }, []);
-
   // 打开历史记录模态框
   const handleHistoryClick = useCallback(() => {
     setHistoryModalOpen(true);
-    refreshRecords(); // 刷新历史记录
-  }, [refreshRecords]);
+    refreshRecords(); // 刷新ER图特定的历史记录
+    refreshSessions(); // 刷新聊天会话历史记录
+  }, [refreshRecords, refreshSessions]);
 
   // 关闭历史记录模态框
   const handleHistoryClose = useCallback(() => {
@@ -119,33 +124,53 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   // 选择历史记录
   const handleHistorySelect = useCallback(async (record: HistoryRecord) => {
     try {
-      // 从 IndexedDB 获取完整记录
-      const { getProblemById } = await import('@/services/codingStorage');
-      const problem = await getProblemById(parseInt(record.id));
+      // 检查是否是聊天会话记录
+      if (record.type === 'CHAT_SESSION') {
+        // 加载聊天会话
+        await selectSession(record.id);
+        console.log('已加载聊天会话:', record.id);
+      } else {
+        // 处理ER图特定的历史记录
+        const { getProblemById } = await import('@/services/codingStorage');
+        const problem = await getProblemById(parseInt(record.id));
 
-      if (problem) {
-        console.log('加载问题成功:', problem);
+        if (problem) {
+          console.log('加载问题成功:', problem);
 
-        // 构造 DifyResponse 格式的数据
-        const difyResponse = {
-          data: {
-            outputs: problem.data
-          }
-        };
+          // 构造 DifyResponse 格式的数据
+          const difyResponse = {
+            data: {
+              outputs: problem.data
+            }
+          };
 
-        // 这里可以根据需要处理历史记录的加载
-        console.log('历史记录数据:', difyResponse);
-        // TODO: 可以在这里添加将历史记录数据加载到ER图的逻辑
+          // 这里可以根据需要处理历史记录的加载
+          console.log('历史记录数据:', difyResponse);
+          // TODO: 可以在这里添加将历史记录数据加载到ER图的逻辑
+        }
       }
     } catch (error) {
       console.error('加载历史记录失败:', error);
     }
     setHistoryModalOpen(false);
-  }, []);
+  }, [selectSession]);
 
-  // 转换历史记录格式
+  // 转换历史记录格式 - 合并聊天会话和ER图记录
   const convertToHistoryRecords = useCallback((records: any[]): HistoryRecord[] => {
-    return records.map(record => ({
+    // 合并聊天会话和ER图特定记录
+    const chatSessions: HistoryRecord[] = sessions
+      .filter(session => session.module === 'ER' || session.messageCount > 0) // 只显示ER模块或有消息的会话
+      .map(session => ({
+        id: session.id,
+        title: session.title,
+        description: `聊天会话 - ${session.messageCount} 条消息`,
+        createdAt: new Date(session.createdAt),
+        updatedAt: new Date(session.updatedAt),
+        type: 'CHAT_SESSION' as const,
+        metadata: { module: session.module },
+      }));
+
+    const erRecords: HistoryRecord[] = records.map(record => ({
       id: record.id.toString(),
       title: record.title || '未命名记录',
       description: record.description,
@@ -154,7 +179,15 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
       type: record.type || 'ER',
       metadata: record.metadata,
     }));
-  }, []);
+
+    // 合并并按更新时间排序
+    const allRecords = [...chatSessions, ...erRecords];
+    return allRecords.sort((a, b) => {
+      const timeA = a.updatedAt?.getTime() || a.createdAt.getTime();
+      const timeB = b.updatedAt?.getTime() || b.createdAt.getTime();
+      return timeB - timeA; // 降序排列，最新的在前
+    });
+  }, [sessions]);
 
   // 删除历史记录包装函数
   const handleHistoryDelete = useCallback((recordId: string) => {
@@ -215,6 +248,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
           sx={{
             flex: 1,
             minHeight: 48,
+            width: '50%',
             '& .MuiTab-root': {
               minHeight: 48,
               textTransform: 'none',
@@ -255,28 +289,18 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
               <HistoryIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          
-          <Tooltip title={isExpanded ? '收起' : '展开'}>
-            <IconButton
-              size="small"
-              onClick={handleToggleExpanded}
-              sx={{ color: 'var(--secondary-text)' }}
-            >
-              {isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
         </Box>
       </Box>
 
       {/* 内容区域 */}
-      <Collapse in={isExpanded} timeout={200}>
+      <Collapse in={true} timeout={200}>
         <Box
           sx={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            height: isExpanded ? 'calc(100vh - 200px)' : 0, // 动态高度
-            minHeight: isExpanded ? 300 : 0,
+            height: 'calc(100vh - 200px)', // 动态高度
+            minHeight: 300,
           }}
         >
           {/* 消息列表 */}
@@ -297,7 +321,6 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
           {/* 输入区域 */}
           <Box
             sx={{
-              // borderTop: '1px solid var(--card-border)',
               backgroundColor: 'var(--input-bg)',
               p: 1,
               flexShrink: 0,
@@ -316,14 +339,14 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
       <HistoryModal
         open={historyModalOpen}
         onClose={handleHistoryClose}
-        title="ER图历史记录"
+        title="历史会话"
         records={convertToHistoryRecords(recentRecords)}
         loading={historyLoading}
         onSelect={handleHistorySelect}
         onDelete={handleHistoryDelete}
         onEdit={handleHistoryRename}
-        searchPlaceholder="搜索ER图记录..."
-        emptyMessage="暂无ER图历史记录"
+        searchPlaceholder="搜索历史会话..."
+        emptyMessage="暂无历史会话"
       />
     </Paper>
   );

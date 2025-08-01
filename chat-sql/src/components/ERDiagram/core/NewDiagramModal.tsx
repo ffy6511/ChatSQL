@@ -119,7 +119,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
 
   // 在文本输入框上绑定回车的创建
   const handleKeyDown = (event: React.KeyboardEvent) =>{
-    if(event.key === 'Enter'){
+    if(event.key === 'Enter' && !event.nativeEvent.isComposing) {
       // 组织默认的回车（文本换行）
       event.preventDefault();
       if(!isCreating){

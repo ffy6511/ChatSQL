@@ -68,7 +68,7 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
     description: '',
     tags: []
   });
-  
+
   // 表单验证错误
   const [errors, setErrors] = useState<{
     name?: string;
@@ -94,12 +94,8 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
   const validateForm = useCallback((): boolean => {
     const newErrors: typeof errors = {};
 
-    // 验证名称
-    if (!formData.name.trim()) {
-      newErrors.name = '请输入会话名称';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = '会话名称至少需要2个字符';
-    } else if (formData.name.trim().length > 50) {
+    // 验证名称长度
+    if (formData.name.trim().length > 50) {
       newErrors.name = '会话名称不能超过50个字符';
     }
 
@@ -142,13 +138,23 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
     handleFieldChange('tags', formData.tags?.filter(tag => tag !== tagToRemove) || []);
   }, [formData.tags, handleFieldChange]);
 
+  // 在文本输入框上绑定回车的创建
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      if (!loading) {
+        handleConfirm();
+      }
+    }
+  };
+
   // 处理确认
   const handleConfirm = useCallback(() => {
     if (validateForm()) {
       // 生成默认名称（如果为空）
       const finalFormData = {
         ...formData,
-        name: formData.name.trim() || `B+树会话 ${new Date().toLocaleString('zh-CN')}`,
+        name: formData.name.trim() || `默认会话 ${new Date().toLocaleString('zh-CN')}`,
         description: formData.description?.trim() || undefined,
         tags: formData.tags?.length ? formData.tags : ['新建']
       };
@@ -204,14 +210,15 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* 会话名称 */}
           <TextField
-            label="会话名称"
+            label="会话名称（可选）"
             value={formData.name}
             onChange={(e) => handleFieldChange('name', e.target.value)}
             error={!!errors.name}
             helperText={errors.name || '为您的B+树操作会话起一个名称'}
             fullWidth
-            placeholder={`B+树会话 ${new Date().toLocaleString('zh-CN')}`}
+            placeholder={`默认会话 ${new Date().toLocaleString('zh-CN')}`}
             disabled={loading}
+            onKeyDown={handleKeyDown}
             sx={{
               '& .MuiInputLabel-root': {
                 color: 'var(--secondary-text)'
