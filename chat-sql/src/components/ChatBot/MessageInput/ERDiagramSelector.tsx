@@ -27,6 +27,8 @@ import {
 import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
 import { erDiagramStorage } from '@/services/erDiagramStorage';
 import { formatTimestamp } from '@/utils/chatbot/storage';
+import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 
 interface ERDiagramSelectorProps {
   value: string;
@@ -54,6 +56,12 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
     open: boolean;
     data: ERDiagramData | null;
   }>({ open: false, data: null });
+
+  // 用于在选择自己的会话前“预览”——直接切换id
+  const { loadDiagram } = useERDiagramContext();
+
+  const { showSnackbar } = useSnackbar();
+
 
   // 从IndexedDB加载ER图历史记录
   const loadDiagrams = useCallback(async () => {
@@ -97,10 +105,12 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
     setDialogOpen(false);
   }, [onChange]);
 
-  // 预览ER图
+  // 切换ER图
   const handlePreviewDiagram = useCallback((diagram: DiagramHistoryItem) => {
-    setPreviewDialog({ open: true, data: diagram.data });
-  }, []);
+    loadDiagram(diagram.id);
+    showSnackbar(`已将当前ER图切换到 ${diagram.name}`, 'info');
+    setDialogOpen(false);
+  }, [loadDiagram, showSnackbar]);
 
   // 关闭预览
   const handleClosePreview = useCallback(() => {
@@ -243,69 +253,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* 预览对话框 */}
-      <Dialog
-        open={previewDialog.open}
-        onClose={handleClosePreview}
-        maxWidth="lg"
-        fullWidth
-        slotProps={{
-          paper: { sx: { height: '80vh' } }
-        }}
-      >
-        <DialogTitle>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Typography variant="h6">ER图预览</Typography>
-            <IconButton onClick={handleClosePreview} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-        </DialogTitle>
-        
-        <DialogContent dividers>
-          {previewDialog.data && (
-            <Box>
-              <Typography variant="subtitle2" gutterBottom>
-                JSON数据预览:
-              </Typography>
-              <TextField
-                multiline
-                fullWidth
-                value={JSON.stringify(previewDialog.data, null, 2)}
-                slotProps={{
-                  input: {
-                    readOnly: true,
-                    sx: {
-                      fontSize: '0.8em',
-                      fontFamily: 'monospace',
-                      maxHeight: '60vh',
-                      overflow: 'auto',
-                    }
-                  }
-                }}
-                variant="outlined"
-              />
-            </Box>
-          )}
-        </DialogContent>
-        
-        <DialogActions>
-          <Button onClick={handleClosePreview}>关闭</Button>
-          {previewDialog.data && (
-            <Button
-              onClick={() => {
-                const jsonData = JSON.stringify(previewDialog.data, null, 2);
-                onChange(jsonData);
-                handleClosePreview();
-                setDialogOpen(false);
-              }}
-              variant="contained"
-            >
-              选择此图表
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      {/* 预览对话框已移除 */}
     </Box>
   );
 };

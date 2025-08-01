@@ -25,48 +25,9 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
     startEditNode(node.id, 'rename');
   }, [startEditNode]);
 
-  if (!hasData) {
-    return (
-      <div className={styles.canvasContainer}>
-        <div className={styles.canvasContent}>
-          <Empty
-            image={<DatabaseOutlined className={styles.emptyIcon} />}
-            description={
-              <div className={styles.emptyDescription}>
-                <h3>ER图画布</h3>
-                <p>从左侧组件库拖拽组件到此处开始创建ER图</p>
-                <p>或者点击"新建图表"创建一个新的ER图</p>
-              </div>
-            }
-          />
-        </div>
-
-        {/* 临时网格背景，便于查看布局 */}
-        <div className={styles.gridBackground}></div>
-      </div>
-    );
-  }
-
-  if (!state.diagramData) {
-    return (
-      <div className={styles.canvasContainer}>
-        <div className={styles.canvasContent}>
-          <Empty
-            image={<DatabaseOutlined className={styles.emptyIcon} />}
-            description={
-              <div className={styles.emptyDescription}>
-                <h3>ER图画布</h3>
-                <p>暂无数据</p>
-              </div>
-            }
-          />
-        </div>
-      </div>
-    );
-  }
 
   // 检查是否选中图表
-  const noSelected = !state.currentDiagramId;
+  const noSelected = !state.currentDiagramId && !state.diagramData;
   if (noSelected) {
     return (
       <div
@@ -91,7 +52,7 @@ const CanvasWithDrop: React.FC<CanvasProps> = ({ hasData = true }) => {
       className={styles.canvasContainer}
     >
       <ERDiagram
-        data={state.diagramData}
+        data={state.diagramData!}
         showControls={true}
         showBackground={true}
         onNodeClick={(node) => {

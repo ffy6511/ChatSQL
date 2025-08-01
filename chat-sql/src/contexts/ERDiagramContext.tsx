@@ -56,17 +56,7 @@ type ERDiagramAction =
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
-  diagramData: {
-    entities: [],
-    relationships: [],
-    metadata: {
-      title: '新建ER图',
-      description: '空白ER图，开始您的数据建模之旅',
-      version: '1.0.0',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  },
+  diagramData: null, 
   activeSidebarTab: 'components',
   selectedElementId: null,
   //节点编辑相关初始状态
