@@ -19,6 +19,7 @@ import {
   Chip,
   Stack,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import {
   Quiz as QuizIcon,
@@ -28,10 +29,14 @@ import {
   Visibility as VisibilityIcon,
   CalendarToday as DateIcon,
   Description as DescriptionIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  DeleteSweep as DeleteSweepIcon,
 } from '@mui/icons-material';
 import { Quiz, QuizHistoryPanelProps } from '@/types/ERDiagramTypes/quiz';
 import { quizStorage } from '@/services/quizStorage';
 import { useERDiagramContext } from '@/contexts/ERDiagramContext';
+import styles from './QuizHistoryPanel.module.css';
 
 /**
  * Quiz历史管理面板组件
@@ -49,11 +54,40 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [editName, setEditName] = useState('');
+  const [expandedQuizzes, setExpandedQuizzes] = useState<Set<string>>(new Set());
 
   const { setDiagramData } = useERDiagramContext();
 
-  // 加载题目列表
+  // 切换单个题目的展开状态
+  const toggleExpand = useCallback((quizId: string) => {
+    setExpandedQuizzes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(quizId)) {
+        newSet.delete(quizId);
+      } else {
+        newSet.add(quizId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  // 全部展开/收起
+  const handleToggleAll = useCallback(() => {
+    const allQuizIds = quizzes.map(q => q.id);
+    const allCurrentlyExpanded = allQuizIds.every(id => expandedQuizzes.has(id));
+
+    if (allCurrentlyExpanded) {
+      // 全部收起
+      setExpandedQuizzes(new Set());
+    } else {
+      // 全部展开
+      setExpandedQuizzes(new Set(allQuizIds));
+    }
+  }, [quizzes, expandedQuizzes]);
+
+    // 加载题目列表
   const loadQuizzes = useCallback(async () => {
     try {
       setLoading(true);
@@ -67,6 +101,30 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       setLoading(false);
     }
   }, []);
+
+  // 打开删除全部确认对话框
+  const handleDeleteAllOpen = useCallback(() => {
+    setDeleteAllDialogOpen(true);
+  }, []);
+
+  // 关闭删除全部确认对话框
+  const handleDeleteAllClose = useCallback(() => {
+    setDeleteAllDialogOpen(false);
+  }, []);
+
+  // 删除全部记录的函数
+  const handleDeleteAllConfirm = useCallback(async () => {
+    try {
+      await quizStorage.deleteAllQuizzes();
+      await loadQuizzes();
+      setExpandedQuizzes(new Set());
+      setDeleteAllDialogOpen(false);
+    } catch (error) {
+      console.error('删除全部记录失败:', error);
+      setError('删除全部记录失败，请重试');
+    }
+  }, [loadQuizzes]);
+
 
   // 组件挂载时加载题目
   useEffect(() => {
@@ -156,16 +214,12 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     return new Date(timestamp).toLocaleString('zh-CN');
   };
 
-  // 截取描述文本
-  const truncateDescription = (text: string, maxLength: number = 80) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
-
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* 头部标题 */}
-      <Box sx={{ p: 2, borderBottom: '1px solid var(--card-border)' }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
+      <Box sx={{ p: 0, borderBottom: '1px solid var(--card-border)' }}>
+        <Stack direction="row" alignItems="center" spacing={1} display='flex'>
+
           <QuizIcon sx={{ color: 'var(--secondary-text)' }} />
           <Typography variant="h6" sx={{ color: 'var(--primary-text)' }}>
             题目历史
@@ -178,6 +232,33 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
               color: 'var(--secondary-text)',
             }}
           />
+
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+            <Tooltip title={expandedQuizzes.size === quizzes.length ? "全部收起" : "全部展开"}>
+              <Button
+                className={styles.expandButton}
+                size='small'
+                onClick={handleToggleAll}
+                startIcon={expandedQuizzes.size === quizzes.length ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                disabled={quizzes.length === 0}
+              >
+                {expandedQuizzes.size === quizzes.length ? "收起" : "展开"}
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="删除全部记录">
+              <Button
+                className={styles.deleteAllButton}
+                size='small'
+                onClick={handleDeleteAllOpen}
+                startIcon={<DeleteSweepIcon/>}
+                disabled={quizzes.length === 0}
+              >
+                清空
+              </Button>
+            </Tooltip>
+          </Box>
+          
         </Stack>
       </Box>
 
@@ -212,74 +293,90 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
               </Box>
             ) : (
               <Stack spacing={1}>
-                {quizzes.map((quiz) => (
-                  <Card
-                    key={quiz.id}
-                    sx={{
-                      backgroundColor: 'var(--card-bg)',
-                      border: '1px solid var(--card-border)',
-                      '&:hover': {
-                        backgroundColor: 'var(--hover-bg)',
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          {/* 题目名称 */}
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              fontWeight: 600,
-                              color: 'var(--primary-text)',
-                              mb: 0.5,
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            {quiz.name}
-                          </Typography>
-
-                          {/* 创建时间 */}
-                          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
-                            <DateIcon sx={{ fontSize: 14, color: 'var(--secondary-text)' }} />
-                            <Typography variant="caption" color="var(--secondary-text)">
-                              {formatDate(quiz.createdAt)}
-                            </Typography>
-                          </Stack>
-
-                          {/* 题目描述 */}
-                          <Stack direction="row" alignItems="flex-start" spacing={0.5}>
-                            <DescriptionIcon sx={{ fontSize: 14, color: 'var(--secondary-text)', mt: 0.2 }} />
+                {quizzes.map((quiz) => {
+                  const isExpanded = expandedQuizzes.has(quiz.id);
+                  return (
+                    <Card
+                      key={quiz.id}
+                      onClick={() => toggleExpand(quiz.id)}
+                      sx={{
+                        backgroundColor: 'var(--card-bg)',
+                        border: '1px solid var(--card-border)',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: 'var(--hover-bg)',
+                        },
+                      }}
+                    >
+                      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            {/* 题目名称 */}
                             <Typography
-                              variant="body2"
-                              color="var(--secondary-text)"
+                              variant="subtitle2"
                               sx={{
-                                lineHeight: 1.4,
+                                fontWeight: 600,
+                                color: 'var(--primary-text)',
+                                mb: 0.5,
                                 wordBreak: 'break-word',
                               }}
                             >
-                              {truncateDescription(quiz.description)}
+                              {quiz.name}
                             </Typography>
-                          </Stack>
-                        </Box>
 
-                        {/* 操作按钮 */}
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleMenuOpen(e, quiz)}
-                          sx={{
-                            color: 'var(--secondary-text)',
-                            '&:hover': {
-                              backgroundColor: 'var(--hover-bg)',
-                            },
-                          }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
+                            {/* 创建时间 */}
+                            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
+                              <DateIcon sx={{ fontSize: 14, color: 'var(--secondary-text)' }} />
+                              <Typography variant="caption" color="var(--secondary-text)">
+                                {formatDate(quiz.createdAt)}
+                              </Typography>
+                            </Stack>
+
+                            {/* 题目描述 */}
+                            <Stack direction="row" alignItems="flex-start" spacing={0.5}>
+                              <DescriptionIcon sx={{ fontSize: 14, color: 'var(--secondary-text)', mt: 0.2 }} />
+                              <Box
+                                className={`${styles.expandContainer} ${isExpanded ? styles.expanded : styles.collapsed}`}
+                                sx={{ flex: 1 }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  color= {isExpanded? 'var(--primary-text)': 'var(--secondary-text)'}
+                                  sx={{
+                                    lineHeight: 1.4,
+                                    wordBreak: 'break-word',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: isExpanded ? 'unset' : 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: isExpanded ? 'unset' : 'ellipsis',
+                                  }}
+                                >
+                                  {/* 取出字段内部的内容显示 */}
+                                  {JSON.parse(quiz.description).description}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+
+                          {/* 操作按钮 */}
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleMenuOpen(e, quiz)}
+                            sx={{
+                              color: 'var(--secondary-text)',
+                              '&:hover': {
+                                backgroundColor: 'var(--hover-bg)',
+                              },
+                            }}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </Stack>
             )}
           </>
@@ -291,10 +388,15 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
-        PaperProps={{
-          sx: {
-            backgroundColor: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
+              '.MuiMenu-list': {
+                color: 'var(--primary-text)',
+              },
+            },
           },
         }}
       >
@@ -335,7 +437,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* 删除确认对话框 */}
+      {/* 删��确认对话框 */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteClose}>
         <DialogTitle>确认删除</DialogTitle>
         <DialogContent>
@@ -347,6 +449,22 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
           <Button onClick={handleDeleteClose}>取消</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
             删除
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 删除全部确认对话框 */}
+      <Dialog open={deleteAllDialogOpen} onClose={handleDeleteAllClose}>
+        <DialogTitle>确认删除全部</DialogTitle>
+        <DialogContent>
+          <Typography>
+            确定要删除全部 {quizzes.length} 个题目吗？此操作不可撤销。
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteAllClose}>取消</Button>
+          <Button onClick={handleDeleteAllConfirm} color="error" variant="contained">
+            删除全部
           </Button>
         </DialogActions>
       </Dialog>

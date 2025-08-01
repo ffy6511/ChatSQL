@@ -10,6 +10,7 @@ export interface Quiz {
   referenceAnswer: ERDiagramData; // 标准答案ER图数据（来自er_quiz_generator的erData字段）
   createdAt: number; // 创建时间戳
   updatedAt?: number; // 可选的更新时间戳
+  expanded?: boolean; // 是否被展开查看
 }
 
 /**

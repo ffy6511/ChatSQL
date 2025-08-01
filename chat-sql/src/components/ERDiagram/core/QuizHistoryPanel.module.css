@@ -1,0 +1,57 @@
+/* Quiz历史面板专用样式 */
+
+.expandButton {
+  min-width: 60px !important;
+  height: 30px !important;
+  font-size: 0.75rem !important;
+  padding: 0 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: var(--icon-color) !important;
+  background: transparent;
+  text-transform: none !important;
+}
+
+.expandButton:hover {
+  background: var(--button-hover) !important;
+  color: var(--icon-color-hover) !important;
+}
+
+
+.deleteAllButton {
+  min-width: 50px !important;
+  height: 30px !important;
+  font-size: 0.75rem !important;
+  padding: 0 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: var(--icon-color) !important;
+  background: transparent;
+  text-transform: none !important;
+}
+
+.deleteAllButton:hover {
+  background: var(--button-hover) !important;
+  color: var(--icon-color-hover) !important;
+}
+
+
+/* 展开动画容器 */
+.expandContainer {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expandContainer.collapsed {
+  max-height: 42px; /* 约2行文本的高度 */
+}
+
+.expandContainer.expanded {
+  max-height: 500px; /* 足够的最大高度 */
+}

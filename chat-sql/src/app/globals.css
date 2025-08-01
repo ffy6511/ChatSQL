@@ -99,7 +99,7 @@
   
   /* 图标颜色 */
   --icon-color: #b0b0b0;
-  --icon-color: #f0f0f0;
+  --icon-color-hover: #f0f0f0;
   
   /* 按钮颜色 */
   --button-text: #b0b0b0;
@@ -400,7 +400,6 @@ hr {
 }
 
 /* snack的样式 */
-
 
 
 @import '../styles/globalSidebar.css';

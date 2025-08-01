@@ -156,6 +156,19 @@ class QuizStorageServiceImpl implements QuizStorageService {
     }
   }
 
+  // 删除全部题目
+  async deleteAllQuizzes(): Promise<void> {
+    try{
+      const db = await this.initDB();
+      await db.clear('quizzes');
+      console.log('所有题目已删除');
+    }catch (error){
+      console.error('删除所有题目失败:', error);
+      throw new Error('删除所有题目失败');
+    }
+  }
+  
+
   /**
    * 搜索题目
    */
