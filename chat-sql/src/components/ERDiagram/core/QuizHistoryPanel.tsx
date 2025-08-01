@@ -1,5 +1,6 @@
 // Quiz历史管理面板组件
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 import {
   Box,
   Card,
@@ -59,6 +60,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   const [expandedQuizzes, setExpandedQuizzes] = useState<Set<string>>(new Set());
 
   const { setDiagramData } = useERDiagramContext();
+  const { showSnackbar } = useSnackbar();
 
   // 切换单个题目的展开状态
   const toggleExpand = useCallback((quizId: string) => {
@@ -104,6 +106,12 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
 
   // 打开删除全部确认对话框
   const handleDeleteAllOpen = useCallback(() => {
+    // 判断是否存在题目
+    if( quizzes.length === 0){
+      showSnackbar('没有可删除的题目', 'info');
+      return;
+    }
+    
     setDeleteAllDialogOpen(true);
   }, []);
 
@@ -119,6 +127,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       await loadQuizzes();
       setExpandedQuizzes(new Set());
       setDeleteAllDialogOpen(false);
+      showSnackbar('删除全部记录成功', 'success');
     } catch (error) {
       console.error('删除全部记录失败:', error);
       setError('删除全部记录失败，请重试');
@@ -168,6 +177,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       await loadQuizzes(); // 重新加载列表
       onQuizUpdate?.(selectedQuiz.id, { name: editName.trim() });
       handleEditClose();
+      showSnackbar('修改题目名称成功', 'success');
     } catch (err) {
       console.error('更新题目失败:', err);
       setError('更新题目失败，请重试');
@@ -194,6 +204,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       await loadQuizzes(); // 重新加载列表
       onQuizDelete?.(selectedQuiz.id);
       handleDeleteClose();
+      showSnackbar('删除题目成功', 'success');
     } catch (err) {
       console.error('删除题目失败:', err);
       setError('删除题目失败，请重试');
@@ -240,7 +251,9 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                 size='small'
                 onClick={handleToggleAll}
                 startIcon={expandedQuizzes.size === quizzes.length ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-                disabled={quizzes.length === 0}
+                sx = {{
+                  cursor: quizzes.length === 0 ? 'not-allowed' : 'pointer',
+                }}
               >
                 {expandedQuizzes.size === quizzes.length ? "收起" : "展开"}
               </Button>
@@ -252,7 +265,9 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                 size='small'
                 onClick={handleDeleteAllOpen}
                 startIcon={<DeleteSweepIcon/>}
-                disabled={quizzes.length === 0}
+                sx = {{
+                  cursor: quizzes.length === 0 ? 'not-allowed' : 'pointer',
+                }}
               >
                 清空
               </Button>
