@@ -420,7 +420,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           />
 
           {/* 主内容区域 */}
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             {/* 标题栏 */}
             <Box
               ref={headerRef}

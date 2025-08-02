@@ -17,6 +17,7 @@ import {
 import { MessageListProps, Message } from '@/types/chatBotTypes/chatbot';
 import { formatTimestamp } from '@/utils/chatbot/storage';
 import MessageContentRenderer from './renderers/MessageContentRenderer';
+import styles from './MessageList.module.css';
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,
@@ -51,7 +52,7 @@ const MessageList: React.FC<MessageListProps> = ({
         key={message.id}
         sx={{
           display: 'flex',
-          mb: 2,
+          mb: 1,
           alignItems: 'flex-start',
           justifyContent: isUser ? 'flex-end' : 'flex-start',
         }}
@@ -78,19 +79,17 @@ const MessageList: React.FC<MessageListProps> = ({
         {/* 消息内容 */}
         <Paper
           elevation={1}
+          className={isUser ? styles.userMessage : styles.aiMessage}
           sx={{
-            p: 2,
-            backgroundColor: isUser ? 'var(--link-color)' : 'var(--card-bg)',
-            borderRadius: isUser ? '16px 16px 0 16px' : '16px 16px 16px 0',
-            border: '1px solid var(--card-border)',
+            p: '4px',
+            borderRadius: '16px',
             position: 'relative',
             '&:hover .message-actions': {
               opacity: 1,
             },
-            flexGrow: 1,
-            maxWidth: '90%',
-            marginLeft: isUser? 'auto': 0,
-            marginRight: isUser? 0: 'auto',
+            maxWidth: '80%',
+            alignSelf: isUser ? 'flex-end' : 'flex-start',
+            wordBreak: 'break-word',
           }}
         >
           {/* 消息内容渲染 */}
@@ -100,70 +99,21 @@ const MessageList: React.FC<MessageListProps> = ({
             onCopy={handleCopyMessage}
           />
 
-          {/* 复制按钮 */}
-          <Box
-            className="message-actions"
-            sx={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              opacity: 0,
-              transition: 'opacity 0.2s',
-            }}
-          >
-            <Tooltip title="复制消息">
-              <IconButton
-                size="small"
-                onClick={() => {
-                  const content = typeof message.content === 'string' 
-                    ? message.content 
-                    : JSON.stringify(message.content, null, 2);
-                  handleCopyMessage(content);
-                }}
-                sx={{
-                  backgroundColor: 'rgba(0,0,0,0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0,0,0,0.2)',
-                  },
-                }}
-              >
-                <CopyIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-
           {/* 时间戳 */}
           <Typography
             variant="caption"
             sx={{
               display: 'block',
               mt: 1,
-              color: isUser ? 'rgba(255,255,255,0.7)' : 'var(--secondary-text)',
-              textAlign: isUser ? 'right' : 'left',
+              color: 'var(--secondary-text)',
+              textAlign: isUser ? 'left' : 'right',
+              mr: isUser ? 0 : 1,
+              ml: isUser ? 1 : 0,
             }}
           >
             {formatTimestamp(message.timestamp)}
           </Typography>
         </Paper>
-
-        {/* 用户头像 */}
-        {isUser && (
-          <Box
-            sx={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              backgroundColor: 'var(--secondary-text)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              ml: 1,
-              flexShrink: 0,
-            }}
-          >
-            <UserIcon sx={{ fontSize: 18, color: 'white' }} />
-          </Box>
-        )}
       </Box>
     );
   };

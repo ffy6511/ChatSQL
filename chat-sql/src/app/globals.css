@@ -80,6 +80,14 @@
   --background-light: #fafafa;
   --border-color: var(--card-border);
   --primary-color: var(--link-color);
+
+  /* chat的消息样式 */
+  --user-message-bg: #E9EEF6;
+  --user-message-border: #eaeaea;
+  --user-message-text: #171717;
+  --ai-message-bg: #f3f1f1;
+  --ai-message-border: #eaeaea;
+  --ai-message-text: #171717;
 }
 
 [data-theme="dark"] {
@@ -159,6 +167,14 @@
   --background-light: #2a2a2a;
   --border-color: var(--card-border);
   --primary-color: var(--link-color);
+
+  /* chat的消息样式 */
+  --user-message-bg: #333537;
+  --user-message-border: #333333;
+  --user-message-text: #ffffff;
+  --ai-message-bg: #333333;
+  --ai-message-border: #444444;
+  --ai-message-text: #ffffff;
 }
 
 @theme inline {
@@ -179,7 +195,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary-text);
 }
 
-p, span, div {
+p, div {
   color: var(--primary-text);
 }
 
@@ -200,7 +216,7 @@ input, textarea, select {
 
 /* 代码块全局样式 */
 code, pre {
-  background-color: var(--code-bg);
+  /* background-color: var(--code-bg); */
   color: var(--code-text);
 }
 
@@ -411,7 +427,7 @@ hr {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* snack的样式 */
+
 
 
 @import '../styles/globalSidebar.css';

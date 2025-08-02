@@ -12,6 +12,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 
 interface MessagePartsRendererProps {
   parts: AgentOutputPart[];
+  isUser: boolean;
 }
 
 /**
@@ -89,7 +90,8 @@ const ActionMenu: React.FC<{
  * 基于类型数组的消息部分渲染器 - 简化版本
  */
 export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
-  parts
+  parts,
+  isUser,
 }) => {
   // 渲染单个部分
   const renderPart = (part: AgentOutputPart, index: number) => {
@@ -110,7 +112,7 @@ export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
           <Box key={index} sx={{ mb: 2 }}>
             <MarkdownRenderer
               message={mockMessage}
-              isUser={false}
+              isUser={isUser}
             />
           </Box>
         );
@@ -120,7 +122,7 @@ export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
           <Box key={index} sx={{ mb: 2 }}>
             <SqlRenderer
               message={mockMessage}
-              isUser={false}
+              isUser={isUser}
             />
           </Box>
         );
@@ -130,7 +132,7 @@ export const MessagePartsRenderer: React.FC<MessagePartsRendererProps> = ({
           <Box key={index} sx={{ mb: 2 }}>
             <JsonRenderer
               message={mockMessage}
-              isUser={false}
+              isUser={isUser}
             />
           </Box>
         );

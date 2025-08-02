@@ -171,8 +171,6 @@ const JsonRenderer: React.FC<RendererProps> = ({
         elevation={1}
         sx={{
           position: 'relative',
-          backgroundColor: 'var(--code-bg)',
-          border: '1px solid var(--card-border)',
           borderRadius: 2,
           overflow: 'hidden',
         }}
@@ -185,7 +183,6 @@ const JsonRenderer: React.FC<RendererProps> = ({
             justifyContent: 'space-between',
             padding: '8px 12px',
             backgroundColor: 'rgba(0,0,0,0.05)',
-            borderBottom: '1px solid var(--card-border)',
           }}
         >
           <Typography variant="caption" sx={{ color: 'var(--secondary-text)' }}>
@@ -194,7 +191,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
 
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             {/* 展开/折叠按钮 */}
-            <Tooltip title={isExpanded ? "折叠" : "展开"}>
+            <Tooltip title={isExpanded ? "Collapse" : "Expand"}>
               <IconButton
                 size="small"
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -250,7 +247,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
 
             {/* 复制按钮 */}
             {jsonConfig.copyable && (
-              <Tooltip title="复制 JSON">
+              <Tooltip title="Copy">
                 <IconButton
                   size="small"
                   onClick={handleCopy}
@@ -271,21 +268,22 @@ const JsonRenderer: React.FC<RendererProps> = ({
 
         {/* JSON 内容 */}
         <Collapse in={isExpanded}>
-          <SyntaxHighlighter
-            language="json"
-            style={getTheme()}
-            showLineNumbers={jsonConfig.showLineNumbers}
-            wrapLines={true}
-            customStyle={{
-              margin: 0,
-              padding: '16px',
-              backgroundColor: 'transparent',
-              fontSize: '14px',
-              fontFamily: 'Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
-            }}
-          >
-            {displayJson}
-          </SyntaxHighlighter>
+          <Box sx={{ overflowX: 'auto', backgroundColor:'transparent'}}>
+            <SyntaxHighlighter
+              language="json"
+              style={getTheme()}
+              showLineNumbers={jsonConfig.showLineNumbers}
+              customStyle={{
+                margin: 0,
+                padding: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                fontFamily: 'Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
+              }}
+            >
+              {displayJson}
+            </SyntaxHighlighter>
+          </Box>
         </Collapse>
       </Paper>
     </Box>

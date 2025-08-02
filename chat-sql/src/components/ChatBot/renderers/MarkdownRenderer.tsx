@@ -42,7 +42,7 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
           '.message-bubble:hover &': { opacity: 1 },
         }}
       >
-        <Tooltip title="复制文本">
+        <Tooltip title="Copy">
           <IconButton
             size="small"
             onClick={handleCopy}
@@ -60,10 +60,11 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
       </Box>
 
       <Box sx={{
-        color: isUser ? 'white' : 'var(--primary-text)',
+        color: 'var(--primary-text)',
         wordBreak: 'break-word',
         fontSize: '14px',
         lineHeight: 1.5,
+        pl: 2,
         '& h1, & h2, & h3, & h4, & h5, & h6': {
           fontWeight: 600,
           marginTop: '1em',

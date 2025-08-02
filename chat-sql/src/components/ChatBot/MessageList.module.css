@@ -1,0 +1,13 @@
+.userMessage {
+  background-color: var(--user-message-bg) !important;
+  border-color: var(--user-message-border) !important;
+  color: var(--user-message-text) !important;
+}
+
+.aiMessage {
+  /* background-color: var(--ai-message-bg) !important; */
+  background-color: transparent !important;
+  /* border-color: var(--ai-message-border) !important; */
+  border: none !important;
+  color: var(--ai-message-text) !important;
+}

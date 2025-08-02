@@ -40,6 +40,7 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
     return (
       <MessagePartsRenderer
         parts={message.content}
+        isUser={isUser}
       />
     );
   }

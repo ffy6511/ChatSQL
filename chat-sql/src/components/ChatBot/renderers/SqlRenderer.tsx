@@ -104,8 +104,7 @@ const SqlRenderer: React.FC<RendererProps> = ({
         elevation={1}
         sx={{
           position: 'relative',
-          backgroundColor: 'var(--code-bg)',
-          border: '1px solid var(--card-border)',
+          border: 'none',
           borderRadius: 2,
           overflow: 'hidden',
         }}
@@ -169,7 +168,7 @@ const SqlRenderer: React.FC<RendererProps> = ({
           customStyle={{
             margin: 0,
             padding: '16px',
-            paddingTop: '40px', // 为复制按钮留出空间
+            paddingTop: '16px', // 为复制按钮留出空间
             backgroundColor: 'transparent',
             fontSize: '14px',
             fontFamily: ' Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
