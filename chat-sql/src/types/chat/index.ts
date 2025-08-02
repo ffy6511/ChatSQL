@@ -90,6 +90,7 @@ export interface ChatContextType {
   sendAgentMessage: (agentType: string, inputValues: Record<string, string>) => Promise<AgentOutputPart[] | null>;
   deleteSession: (sessionId: string) => Promise<void>;
   clearAllSessions: () => Promise<void>;
+  renameSession: (sessionId: string, newSession: ChatSession) => Promise<void>;
 
   // 辅助方法
   clearError: () => void;
@@ -105,6 +106,7 @@ export interface ChatStorageInterface {
   getAllSessions(): Promise<ChatSession[]>;
   getSession(sessionId: string): Promise<ChatSession | null>;
   updateSession(session: ChatSession): Promise<void>;
+  renameSession(sessionId: string, newTitle: string): Promise<void>;
   deleteSession(sessionId: string): Promise<void>;
   
   // 消息管理

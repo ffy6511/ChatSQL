@@ -152,6 +152,40 @@ export class ChatStorage implements ChatStorageInterface {
   }
 
   /**
+   * 重命名会话
+   */
+  public async renameSession(sessionId: string, newName: string): Promise<void> {
+    try {
+      const db = await this.initDB();
+      const transaction = db.transaction([ChatStorage.SESSIONS_STORE], 'readwrite');
+      const store = transaction.objectStore(ChatStorage.SESSIONS_STORE);
+
+      return new Promise<void>((resolve, reject) => {
+        const getRequest = store.get(sessionId);
+        getRequest.onsuccess = () => {
+          const session = getRequest.result;
+          if (!session) {
+            reject(new Error('会话不存在'));
+            return;
+          }
+
+          session.title = newName;
+          session.updatedAt = new Date().toISOString();
+
+          const putRequest = store.put(session);
+          putRequest.onsuccess = () => resolve();
+          putRequest.onerror = () => reject(new Error(`重命名会话失败: ${putRequest.error?.message}`));
+        };
+        getRequest.onerror = () => reject(new Error(`获取会话失败: ${getRequest.error?.message}`));
+      });
+    } catch (error) {
+      console.error('重命名会话失败:', error);
+      throw error;
+    }
+  }
+
+
+  /**
    * 获取指定会话
    */
   public async getSession(sessionId: string): Promise<ChatSession | null> {
@@ -184,12 +218,12 @@ export class ChatStorage implements ChatStorageInterface {
       const transaction = db.transaction([ChatStorage.SESSIONS_STORE], 'readwrite');
       const store = transaction.objectStore(ChatStorage.SESSIONS_STORE);
 
-      const updatedSession = {
-        ...session,
-        updatedAt: new Date().toISOString()
-      };
+      return new Promise<void>((resolve, reject) => {
+        const updatedSession = {
+          ...session,
+          updatedAt: new Date().toISOString()
+        };
 
-      await new Promise<void>((resolve, reject) => {
         const request = store.put(updatedSession);
         request.onsuccess = () => resolve();
         request.onerror = () => reject(new Error(`更新会话失败: ${request.error?.message}`));

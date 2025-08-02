@@ -21,9 +21,9 @@ import { AgentType, ER_ASSISTANT_TABS, AGENTS_INFO, AgentOutputPart } from '@/ty
 import { useChatContext } from '@/contexts/ChatContext';
 import { MessageList, DynamicMessageInput } from '@/components/ChatBot';
 import { Message } from '@/types/chatBotTypes/chatbot';
-import { ChatMessage } from '@/types/chat';
+import { ChatMessage, ChatSession } from '@/types/chat';
 import HistoryModal, { HistoryRecord } from '@/components/ERDiagram/core/QuizHistoryModal';
-import { useHistoryRecords } from '@/hooks/useHistoryRecords';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 
 interface ERAssistantPanelProps {
   className?: string;
@@ -44,20 +44,23 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
     sessions,
     messages,
     isLoading,
-    error,
     sendAgentMessage,
     selectSession,
     refreshSessions,
+    deleteSession,
+    renameSession,
   } = useChatContext();
 
-  // 使用历史记录hook（保留用于ER图特定的历史记录）
-  const {
-    recentRecords,
-    loading: historyLoading,
-    handleDelete: deleteHistoryRecord,
-    handleRename: renameHistoryRecord,
-    refreshRecords
-  } = useHistoryRecords();
+  const { showSnackbar } = useSnackbar();
+
+    // 处理删除会话
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      await deleteSession(sessionId);
+    } catch (error) {
+      console.error('删除会话失败:', error);
+    }
+  };
 
   // 转换ChatMessage到Message格式
   const convertChatMessagesToMessages = useCallback((chatMessages: ChatMessage[]): Message[] => {
@@ -112,9 +115,8 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   // 打开历史记录模态框
   const handleHistoryClick = useCallback(() => {
     setHistoryModalOpen(true);
-    refreshRecords(); // 刷新ER图特定的历史记录
     refreshSessions(); // 刷新聊天会话历史记录
-  }, [refreshRecords, refreshSessions]);
+  }, [refreshSessions]);
 
   // 关闭历史记录模态框
   const handleHistoryClose = useCallback(() => {
@@ -156,7 +158,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   }, [selectSession]);
 
   // 转换历史记录格式 - 合并聊天会话和ER图记录
-  const convertToHistoryRecords = useCallback((records: any[]): HistoryRecord[] => {
+  const convertToHistoryRecords = useCallback((sessions: ChatSession[]): HistoryRecord[] => {
     // 合并聊天会话和ER图特定记录
     const chatSessions: HistoryRecord[] = sessions
       .filter(session => session.module === 'ER' || session.messageCount > 0) // 只显示ER模块或有消息的会话
@@ -170,18 +172,8 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         metadata: { module: session.module },
       }));
 
-    const erRecords: HistoryRecord[] = records.map(record => ({
-      id: record.id.toString(),
-      title: record.title || '未命名记录',
-      description: record.description,
-      createdAt: new Date(record.createdAt),
-      updatedAt: record.updatedAt ? new Date(record.updatedAt) : undefined,
-      type: record.type || 'ER',
-      metadata: record.metadata,
-    }));
-
     // 合并并按更新时间排序
-    const allRecords = [...chatSessions, ...erRecords];
+    const allRecords = [...chatSessions];
     return allRecords.sort((a, b) => {
       const timeA = a.updatedAt?.getTime() || a.createdAt.getTime();
       const timeB = b.updatedAt?.getTime() || b.createdAt.getTime();
@@ -189,15 +181,19 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
     });
   }, [sessions]);
 
-  // 删除历史记录包装函数
-  const handleHistoryDelete = useCallback((recordId: string) => {
-    deleteHistoryRecord(parseInt(recordId));
-  }, [deleteHistoryRecord]);
 
   // 重命名历史记录包装函数
-  const handleHistoryRename = useCallback((recordId: string, newTitle: string) => {
-    renameHistoryRecord(parseInt(recordId), newTitle);
-  }, [renameHistoryRecord]);
+  const handleRenameSession = async (recordId: string, newTitle: string) => {
+    const session = sessions.find(s => s.id === recordId);
+    if (session) {
+      const newSession = { ...session, title: newTitle };
+      await renameSession(recordId, newSession);
+
+      showSnackbar('会话重命名成功', 'success');
+    }else{
+      showSnackbar('会话不存在', 'error');
+    }
+  };
 
   // 消息发送处理 - 直接传递给ChatContext处理
   const handleSendMessage = useCallback(async (agentType: string, inputValues: Record<string, string>): Promise<AgentOutputPart[] | null> => {
@@ -340,11 +336,11 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         open={historyModalOpen}
         onClose={handleHistoryClose}
         title="历史会话"
-        records={convertToHistoryRecords(recentRecords)}
-        loading={historyLoading}
+        records={convertToHistoryRecords(sessions)}
+        loading={isLoading}
         onSelect={handleHistorySelect}
-        onDelete={handleHistoryDelete}
-        onEdit={handleHistoryRename}
+        onDelete={handleDeleteSession}
+        onEdit={handleRenameSession}
         searchPlaceholder="搜索历史会话..."
         emptyMessage="暂无历史会话"
       />

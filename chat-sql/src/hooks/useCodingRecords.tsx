@@ -10,7 +10,7 @@ import {
 } from '@/services/codingStorage';
 import { message } from 'antd';
 
-export const useHistoryRecords = () => {
+export const useCodingRecords = () => {
   const [records, setRecords] = useState<LLMProblem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

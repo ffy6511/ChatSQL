@@ -159,6 +159,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   }, [refreshSessions]);
 
+  // 重命名会话
+  const renameSession = useCallback(async (sessionId: string, newSession: ChatSession): Promise<void> => {
+    try{
+      dispatch({ type: 'UPDATE_SESSION_IN_LIST', payload: newSession });
+
+      await chatStorage.renameSession(sessionId, newSession.title);
+      await refreshSessions();
+    } catch (error) {
+      console.error('重命名会话失败:', error);
+      dispatch({ type: 'SET_ERROR', payload: '重命名会话失败' });
+    }
+  }, [refreshSessions]);
+
   /**
    * 发送消息 - 确保正确传递session_id给后端API
    */
@@ -528,6 +541,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     sendAgentMessage,
     deleteSession,
     clearAllSessions,
+    renameSession,
 
     // 辅助方法
     clearError,

@@ -19,7 +19,7 @@ import {
 import { useLLMContext } from '@/contexts/LLMContext';
 import { useCompletionContext } from '@/contexts/CompletionContext';
 import { useEditorContext } from '@/contexts/EditorContext';
-import { useHistoryRecords } from '@/hooks/useHistoryRecords';
+import { useCodingRecords } from '@/hooks/useCodingRecords';
 import HistoryItem from './HistoryItem';
 import StatusFilter from './StatusFilter';
 import styles from './HistoryPanel.module.css';
@@ -41,7 +41,7 @@ const HistoryPanel: React.FC = () => {
     handleToggleFavorite,
     handleRename,
     refreshRecords
-  } = useHistoryRecords();
+  } = useCodingRecords();
 
   const { 
     setLLMResult, 

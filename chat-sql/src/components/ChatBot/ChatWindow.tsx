@@ -33,6 +33,7 @@ import MessageList from './MessageList';
 import DynamicMessageInput from './DynamicMessageInput';
 import ChatSidebar from './ChatSidebar';
 import SettingsModal from './SettingsModal';
+import { useSnackbar } from '@/contexts/SnackbarContext';
 
 /**
  * 将ChatMessage转换为MessageList组件期望的Message格式
@@ -127,6 +128,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     deleteSession,
     clearAllSessions,
     clearError,
+    renameSession
   } = useChatContext();
 
   const {
@@ -137,10 +139,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const router = useRouter();
 
+  const { showSnackbar } = useSnackbar();
+
   // 初始化可视化服务的路由器
   useEffect(() => {
     setVisualizationRouter(router);
   }, [router]);
+
+  // 重命名历史记录包装函数
+  const handleRenameSession = async (recordId: string, newTitle: string) => {
+    const session = sessions.find(s => s.id === recordId);
+    if (session) {
+      const newSession = { ...session, title: newTitle };
+      await renameSession(recordId, newSession);
+
+      showSnackbar('会话重命名成功', 'success');
+    }else{
+      showSnackbar('会话不存在', 'error');
+    }
+  };
 
   // 从设置中获取窗口大小，支持百分比初始值
   const [currentSize, setCurrentSize] = useState<{ width: number; height: number }>(() => {
@@ -277,6 +294,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   // 处理加载历史记录（选择会话）
   const handleLoadHistory = async (historyId: string) => {
     try {
+      // 选择之后关闭窗口
+      setIsHistoryOpen(false);
+
       await selectSession(historyId);
     } catch (error) {
       console.error('加载会话失败:', error);
@@ -390,7 +410,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             }))}
             onLoadHistory={handleLoadHistory}
             onDeleteHistory={handleDeleteSession}
-            onEditHistoryTitle={() => {}} // 暂时禁用编辑标题功能
+            onEditHistoryTitle={handleRenameSession}
             onClearAllHistory={clearAllSessions}
             currentHistoryId={currentSessionId || undefined}
             isHistoryOpen={isHistoryOpen}
