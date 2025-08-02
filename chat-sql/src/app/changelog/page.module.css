@@ -11,7 +11,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('/images/grid-pattern.svg');
+  background-image: url("/images/grid-pattern.svg");
   background-size: 30px 30px;
   opacity: 0.05;
   z-index: 0;
@@ -36,7 +36,7 @@
 }
 
 .yearTitle::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -5px;
   left: 0;

@@ -1,6 +1,6 @@
 // 百炼平台ChatBot工具函数
 
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError } from "axios";
 import {
   BailianAIRequest,
   BailianAIResponse,
@@ -12,7 +12,7 @@ import {
   ErrorType,
   APICallOptions,
   DEFAULT_BAILIAN_CONFIG,
-} from '@/types/chatBotTypes/bailianai';
+} from "@/types/chatBotTypes/bailianai";
 
 /**
  * 会话管理器类
@@ -33,10 +33,10 @@ export class SessionManager {
       lastUsedAt: new Date().toISOString(),
       messageCount: 0,
     };
-    
+
     this.sessions.set(sessionId, sessionInfo);
     this.cleanupExpiredSessions();
-    
+
     return sessionId;
   }
 
@@ -86,18 +86,21 @@ export class SessionManager {
       }
     }
 
-    expiredSessions.forEach(sessionId => {
+    expiredSessions.forEach((sessionId) => {
       this.sessions.delete(sessionId);
     });
 
     // 如果会话数量超过限制，删除最旧的会话
     if (this.sessions.size > this.maxSessions) {
-      const sortedSessions = Array.from(this.sessions.entries())
-        .sort(([, a], [, b]) => 
-          new Date(a.lastUsedAt).getTime() - new Date(b.lastUsedAt).getTime()
-        );
-      
-      const toDelete = sortedSessions.slice(0, this.sessions.size - this.maxSessions);
+      const sortedSessions = Array.from(this.sessions.entries()).sort(
+        ([, a], [, b]) =>
+          new Date(a.lastUsedAt).getTime() - new Date(b.lastUsedAt).getTime(),
+      );
+
+      const toDelete = sortedSessions.slice(
+        0,
+        this.sessions.size - this.maxSessions,
+      );
       toDelete.forEach(([sessionId]) => {
         this.sessions.delete(sessionId);
       });
@@ -126,14 +129,15 @@ export class ChatBotAPIClient {
   private readonly baseUrl: string;
 
   constructor(apiKey?: string, appId?: string) {
-    this.apiKey = apiKey || process.env.DASHSCOPE_API_KEY || '';
-    this.appId = appId || process.env.BAILIAN_APP_ID || '6533b3711b8143068af6b09b98a3323c';
-    this.baseUrl = DEFAULT_BAILIAN_CONFIG.baseUrl || '';
+    this.apiKey = apiKey || process.env.DASHSCOPE_API_KEY || "";
+    this.appId =
+      appId || process.env.BAILIAN_APP_ID || "6533b3711b8143068af6b09b98a3323c";
+    this.baseUrl = DEFAULT_BAILIAN_CONFIG.baseUrl || "";
 
     if (!this.apiKey) {
       throw new BailianAIAPIError(
-        'API密钥未配置',
-        ErrorType.AUTHENTICATION_ERROR
+        "API密钥未配置",
+        ErrorType.AUTHENTICATION_ERROR,
       );
     }
   }
@@ -144,13 +148,13 @@ export class ChatBotAPIClient {
   async sendMessage(
     message: string,
     sessionId?: string,
-    options?: APICallOptions
+    options?: APICallOptions,
   ): Promise<ChatResponse> {
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
+      const response = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message,
@@ -167,7 +171,7 @@ export class ChatBotAPIClient {
       }
 
       const result: ChatResponse = await response.json();
-      
+
       // 更新会话信息
       if (result.success && result.data?.sessionId) {
         sessionManager.updateSession(result.data.sessionId);
@@ -175,10 +179,10 @@ export class ChatBotAPIClient {
 
       return result;
     } catch (error) {
-      console.error('发送消息失败:', error);
+      console.error("发送消息失败:", error);
       throw new BailianAIAPIError(
-        error instanceof Error ? error.message : '发送消息失败',
-        ErrorType.NETWORK_ERROR
+        error instanceof Error ? error.message : "发送消息失败",
+        ErrorType.NETWORK_ERROR,
       );
     }
   }
@@ -190,13 +194,13 @@ export class ChatBotAPIClient {
     message: string,
     sessionId?: string,
     onChunk?: (chunk: StreamChatResponse) => void,
-    options?: APICallOptions
+    options?: APICallOptions,
   ): Promise<string> {
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
+      const response = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message,
@@ -214,44 +218,44 @@ export class ChatBotAPIClient {
 
       const reader = response.body?.getReader();
       if (!reader) {
-        throw new Error('无法读取响应流');
+        throw new Error("无法读取响应流");
       }
 
-      let fullText = '';
+      let fullText = "";
       let finalSessionId = sessionId;
 
       try {
         while (true) {
           const { done, value } = await reader.read();
-          
+
           if (done) break;
 
           const chunk = new TextDecoder().decode(value);
-          const lines = chunk.split('\n');
+          const lines = chunk.split("\n");
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               try {
                 const data: StreamChatResponse = JSON.parse(line.slice(6));
-                
-                if (data.type === 'chunk' && data.data) {
+
+                if (data.type === "chunk" && data.data) {
                   fullText += data.data.text;
                   if (data.data.sessionId) {
                     finalSessionId = data.data.sessionId;
                   }
                 }
-                
+
                 onChunk?.(data);
-                
-                if (data.type === 'done') {
+
+                if (data.type === "done") {
                   break;
                 }
-                
-                if (data.type === 'error') {
-                  throw new Error(data.error?.message || '流式响应错误');
+
+                if (data.type === "error") {
+                  throw new Error(data.error?.message || "流式响应错误");
                 }
               } catch (parseError) {
-                console.warn('解析流式数据失败:', parseError);
+                console.warn("解析流式数据失败:", parseError);
               }
             }
           }
@@ -267,10 +271,10 @@ export class ChatBotAPIClient {
 
       return fullText;
     } catch (error) {
-      console.error('发送流式消息失败:', error);
+      console.error("发送流式消息失败:", error);
       throw new BailianAIAPIError(
-        error instanceof Error ? error.message : '发送流式消息失败',
-        ErrorType.NETWORK_ERROR
+        error instanceof Error ? error.message : "发送流式消息失败",
+        ErrorType.NETWORK_ERROR,
       );
     }
   }
@@ -302,13 +306,13 @@ export class ChatBotAPIClient {
  */
 export function validateAPIConfig(): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   if (!process.env.DASHSCOPE_API_KEY) {
-    errors.push('缺少环境变量: DASHSCOPE_API_KEY');
+    errors.push("缺少环境变量: DASHSCOPE_API_KEY");
   }
-  
+
   if (!process.env.BAILIAN_APP_ID) {
-    errors.push('缺少环境变量: BAILIAN_APP_ID');
+    errors.push("缺少环境变量: BAILIAN_APP_ID");
   }
 
   return {
@@ -324,12 +328,12 @@ export function formatErrorMessage(error: unknown): string {
   if (error instanceof BailianAIAPIError) {
     return `[${error.type}] ${error.message}`;
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
-  return '未知错误';
+
+  return "未知错误";
 }
 
 /**
@@ -337,9 +341,9 @@ export function formatErrorMessage(error: unknown): string {
  */
 export async function checkNetworkConnection(): Promise<boolean> {
   try {
-    const response = await fetch('https://dashscope.aliyuncs.com', {
-      method: 'HEAD',
-      mode: 'no-cors',
+    const response = await fetch("https://dashscope.aliyuncs.com", {
+      method: "HEAD",
+      mode: "no-cors",
     });
     return true;
   } catch {

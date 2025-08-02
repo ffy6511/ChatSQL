@@ -4,51 +4,51 @@
   /* 基础颜色 */
   --background: #ffffff;
   --foreground: #171717;
-  --font-mono: 'Maple Mono', monospace;
-  --navbar-height: 40px;  /* 导航栏高度变量 */
-  
+  --font-mono: "Maple Mono", monospace;
+  --navbar-height: 40px; /* 导航栏高度变量 */
+
   /* 侧边栏 */
   --sidebar-bg: #fff;
   --sidebar-border: #f0f0f0;
-  
+
   /* 卡片 */
   --card-bg: #fff;
   --card-border: #eaeaea;
   --component-card: #f3f1f1;
-  
+
   /* 文本颜色 */
   --primary-text: #171717;
   --secondary-text: #666666;
   --tertiary-text: #999999;
 
   --inverted-text: #b0b0b0;
-  
+
   /* 图标颜色 */
   --icon-color: #666666;
   --icon-color-hover: #333333;
-  
+
   /* 按钮颜色 */
   --button-text: #666666;
   --button-bg: transparent;
   --button-border: #eaeaea;
-  --button-hover: #E5E7EB;
-  
+  --button-hover: #e5e7eb;
+
   /* 输入框 */
   --input-bg: #ffffff;
   --input-border: #d9d9d9;
   --input-text: #171717;
-  
+
   /* 链接颜色 */
   --link-color: #1677ff;
   --link-hover: #4096ff;
-  
+
   /* 代码块 */
   --code-bg: #f5f5f5;
   --code-text: #333333;
-  
+
   /* 分割线 */
   --divider-color: #f0f0f0;
-  
+
   /* 消息提示颜色 */
   --success-color: #52c41a;
   --info-color: #1677ff;
@@ -70,8 +70,8 @@
   --warning-bg: #fff3cd;
   --warning-icon: #ed6c02;
 
-  --info-bg: #E5F6FD;
-  --info-icon:#2C93D6;
+  --info-bg: #e5f6fd;
+  --info-icon: #2c93d6;
 
   --snackbar-text: var(--secondary-text);
 
@@ -82,7 +82,7 @@
   --primary-color: var(--link-color);
 
   /* chat的消息样式 */
-  --user-message-bg: #E9EEF6;
+  --user-message-bg: #e9eef6;
   --user-message-border: #eaeaea;
   --user-message-text: #171717;
   --ai-message-bg: #f3f1f1;
@@ -94,48 +94,48 @@
   /* 基础颜色 */
   --background: #121212;
   --foreground: #f0f0f0;
-  
+
   /* 侧边栏 */
   --sidebar-bg: #1e1e1e;
   --sidebar-border: #333333;
   --button-hover: #333333;
-  
+
   /* 卡片 */
   --card-bg: #1e1e1e;
   --card-border: #333333;
   --component-card: #252424;
-  
+
   /* 文本颜色 */
   --primary-text: #f0f0f0;
   --secondary-text: #b0b0b0;
   --tertiary-text: #808080;
   --inverted-text: #6e6d6d;
-  
+
   /* 图标颜色 */
   --icon-color: #b0b0b0;
   --icon-color-hover: #f0f0f0;
-  
+
   /* 按钮颜色 */
   --button-text: #b0b0b0;
   --button-bg: transparent;
   --button-border: #333333;
-  
+
   /* 输入框 */
   --input-bg: #2c2c2c;
   --input-border: #444444;
   --input-text: #f0f0f0;
-  
+
   /* 链接颜色 */
   --link-color: #4096ff;
   --link-hover: #69b1ff;
-  
+
   /* 代码块 */
   --code-bg: #2c2c2c;
   --code-text: #e0e0e0;
-  
+
   /* 分割线 */
   --divider-color: #333333;
-  
+
   /* 消息提示颜色 */
   --success-color: #52c41a;
   --info-color: #1677ff;
@@ -191,11 +191,17 @@ body {
 }
 
 /* 全局文本样式 */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--primary-text);
 }
 
-p, div {
+p,
+div {
   color: var(--primary-text);
 }
 
@@ -208,14 +214,17 @@ a:hover {
 }
 
 /* 输入框全局样式 */
-input, textarea, select {
+input,
+textarea,
+select {
   background-color: var(--input-bg);
   border-color: var(--input-border);
   color: var(--input-text);
 }
 
 /* 代码块全局样式 */
-code, pre {
+code,
+pre {
   /* background-color: var(--code-bg); */
   color: var(--code-text);
 }
@@ -225,7 +234,6 @@ hr {
   border-color: var(--divider-color);
 }
 
-
 /* 全局快捷键提示样式 */
 .shortcut-tooltip {
   display: flex;
@@ -233,7 +241,6 @@ hr {
   padding: 4px 0;
   color: var(--tertiary-text);
 }
-
 
 .shortcut-icon {
   font-size: 1em !important;
@@ -253,41 +260,41 @@ hr {
 
 /* 定义字体 */
 @font-face {
-    font-family: 'Maple Mono';
-    font-style: normal;
-    font-weight: normal;
-    src: url('/fonts/MapleMono-Regular.ttf') format('truetype');
-    font-display: swap;
+  font-family: "Maple Mono";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/MapleMono-Regular.ttf") format("truetype");
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'Maple Mono';
-    font-style: italic;
-    font-weight: normal;
-    src: url('/fonts/MapleMono-Italic.ttf') format('truetype');
-    font-display: swap;
+  font-family: "Maple Mono";
+  font-style: italic;
+  font-weight: normal;
+  src: url("/fonts/MapleMono-Italic.ttf") format("truetype");
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'Maple Mono';
-    font-style: normal;
-    font-weight: bold;
-    src: url('/fonts/MapleMono-Bold.ttf') format('truetype');
-    font-display: swap;
+  font-family: "Maple Mono";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/MapleMono-Bold.ttf") format("truetype");
+  font-display: swap;
 }
 
 /* 在:root中定义变量 */
 :root {
-    --font-mono: 'Maple Mono', monospace !important;
+  --font-mono: "Maple Mono", monospace !important;
 }
 
 /* 强制应用到Monaco编辑器 */
 .monaco-editor {
-    font-family: var(--font-mono) !important;
+  font-family: var(--font-mono) !important;
 }
 
 .monaco-editor .view-line * {
-    font-family: var(--font-mono) !important;
+  font-family: var(--font-mono) !important;
 }
 
 /* 添加页面过渡动画 */
@@ -333,12 +340,11 @@ hr {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-
 /* Badge */
 
 .pkBadge {
   background: #ffeaea !important;
-  color: #D3302F !important;
+  color: #d3302f !important;
   font-size: 13px;
   font-weight: bold;
   padding: 2px 10px 2px 10px;
@@ -368,7 +374,10 @@ hr {
 [data-theme="dark"] .ant-dropdown-menu {
   background-color: #1f1f1f !important;
   border-color: #333 !important;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48), 0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.48),
+    0 6px 16px 0 rgba(0, 0, 0, 0.32),
+    0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="dark"] .ant-dropdown-menu-item {
@@ -382,7 +391,6 @@ hr {
 [data-theme="dark"] .ant-dropdown-menu-item-icon {
   color: #b0b0b0 !important;
 }
-
 
 .pageContainer {
   height: calc(100vh - var(--navbar-height));
@@ -427,8 +435,4 @@ hr {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-
-
-
-@import '../styles/globalSidebar.css';
-
+@import "../styles/globalSidebar.css";

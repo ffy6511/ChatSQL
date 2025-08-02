@@ -1,11 +1,13 @@
 // 聊天历史记录管理Hook
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from "react";
+import { ChatHistory, Message } from "@/types/chatBotTypes/chatbot";
 import {
-  ChatHistory,
-  Message
-} from '@/types/chatBotTypes/chatbot';
-import { ChatStorage, ChatIndexedDB, generateId, truncateText } from '@/utils/chatbot/storage';
+  ChatStorage,
+  ChatIndexedDB,
+  generateId,
+  truncateText,
+} from "@/utils/chatbot/storage";
 
 export const useChatHistory = () => {
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
@@ -29,17 +31,17 @@ export const useChatHistory = () => {
       }
 
       setChatHistory(history);
-      console.log('Chat history loaded:', history.length, 'records');
+      console.log("Chat history loaded:", history.length, "records");
     } catch (err) {
-      console.error('Failed to load chat history:', err);
-      setError('加载历史记录失败');
+      console.error("Failed to load chat history:", err);
+      setError("加载历史记录失败");
 
       // 如果IndexedDB完全失败，尝试从localStorage加载
       try {
         const fallbackHistory = await ChatStorage.getChatHistory();
         setChatHistory(fallbackHistory);
       } catch (fallbackErr) {
-        console.error('Failed to load fallback history:', fallbackErr);
+        console.error("Failed to load fallback history:", fallbackErr);
       }
     } finally {
       setIsLoading(false);
@@ -49,76 +51,84 @@ export const useChatHistory = () => {
   /**
    * 保存当前对话到历史记录
    */
-  const saveCurrentChat = useCallback(async (
-    messages: Message[],
-    customTitle?: string
-  ): Promise<string> => {
-    try {
-      if (messages.length === 0) {
-        throw new Error('没有消息可保存');
+  const saveCurrentChat = useCallback(
+    async (messages: Message[], customTitle?: string): Promise<string> => {
+      try {
+        if (messages.length === 0) {
+          throw new Error("没有消息可保存");
+        }
+
+        // 生成标题
+        const firstUserMessage = messages.find((msg) => msg.sender === "user");
+        const title =
+          customTitle ||
+          (firstUserMessage
+            ? truncateText(firstUserMessage.content, 30)
+            : "新对话");
+
+        const newHistory: ChatHistory = {
+          id: generateId(),
+          timestamp: new Date().toISOString(),
+          messages,
+          title,
+        };
+
+        // 保存到IndexedDB和localStorage
+        await ChatStorage.addChatHistory(newHistory);
+
+        // 更新本地状态
+        setChatHistory((prev) => [newHistory, ...prev]);
+
+        setError(null);
+        return newHistory.id;
+      } catch (err) {
+        console.error("Failed to save chat history:", err);
+        setError("保存对话失败");
+        throw err;
       }
-
-      // 生成标题
-      const firstUserMessage = messages.find(msg => msg.sender === 'user');
-      const title = customTitle ||
-        (firstUserMessage ? truncateText(firstUserMessage.content, 30) : '新对话');
-
-      const newHistory: ChatHistory = {
-        id: generateId(),
-        timestamp: new Date().toISOString(),
-        messages,
-        title,
-      };
-
-      // 保存到IndexedDB和localStorage
-      await ChatStorage.addChatHistory(newHistory);
-
-      // 更新本地状态
-      setChatHistory(prev => [newHistory, ...prev]);
-
-      setError(null);
-      return newHistory.id;
-    } catch (err) {
-      console.error('Failed to save chat history:', err);
-      setError('保存对话失败');
-      throw err;
-    }
-  }, []);
+    },
+    [],
+  );
 
   /**
    * 根据ID加载特定的历史记录
    */
-  const loadHistoryById = useCallback(async (historyId: string): Promise<Message[] | null> => {
-    try {
-      // 首先从当前状态中查找
-      const currentHistory = chatHistory.find(item => item.id === historyId);
-      if (currentHistory) {
-        setError(null);
-        return currentHistory.messages;
-      }
-
-      // 如果当前状态中没有，从IndexedDB查找
-      const allHistory = await ChatIndexedDB.getChatHistory();
-      const history = allHistory.find(item => item.id === historyId);
-
-      if (!history) {
-        // 最后尝试从ChatStorage查找
-        const localHistory = await ChatStorage.getChatHistoryById(historyId);
-        if (localHistory) {
+  const loadHistoryById = useCallback(
+    async (historyId: string): Promise<Message[] | null> => {
+      try {
+        // 首先从当前状态中查找
+        const currentHistory = chatHistory.find(
+          (item) => item.id === historyId,
+        );
+        if (currentHistory) {
           setError(null);
-          return localHistory.messages;
+          return currentHistory.messages;
         }
-        throw new Error('历史记录不存在');
-      }
 
-      setError(null);
-      return history.messages;
-    } catch (err) {
-      console.error('Failed to load history by ID:', err);
-      setError('加载指定历史记录失败');
-      return null;
-    }
-  }, [chatHistory]);
+        // 如果当前状态中没有，从IndexedDB查找
+        const allHistory = await ChatIndexedDB.getChatHistory();
+        const history = allHistory.find((item) => item.id === historyId);
+
+        if (!history) {
+          // 最后尝试从ChatStorage查找
+          const localHistory = await ChatStorage.getChatHistoryById(historyId);
+          if (localHistory) {
+            setError(null);
+            return localHistory.messages;
+          }
+          throw new Error("历史记录不存在");
+        }
+
+        setError(null);
+        return history.messages;
+      } catch (err) {
+        console.error("Failed to load history by ID:", err);
+        setError("加载指定历史记录失败");
+        return null;
+      }
+    },
+    [chatHistory],
+  );
 
   /**
    * 删除历史记录
@@ -128,12 +138,12 @@ export const useChatHistory = () => {
       await ChatStorage.deleteChatHistory(historyId);
 
       // 更新本地状态
-      setChatHistory(prev => prev.filter(item => item.id !== historyId));
+      setChatHistory((prev) => prev.filter((item) => item.id !== historyId));
 
       setError(null);
     } catch (err) {
-      console.error('Failed to delete chat history:', err);
-      setError('删除历史记录失败');
+      console.error("Failed to delete chat history:", err);
+      setError("删除历史记录失败");
     }
   }, []);
 
@@ -143,15 +153,19 @@ export const useChatHistory = () => {
   const deleteMultipleHistory = useCallback(async (historyIds: string[]) => {
     try {
       // 并行删除所有历史记录
-      await Promise.all(historyIds.map(id => ChatStorage.deleteChatHistory(id)));
+      await Promise.all(
+        historyIds.map((id) => ChatStorage.deleteChatHistory(id)),
+      );
 
       // 更新本地状态
-      setChatHistory(prev => prev.filter(item => !historyIds.includes(item.id)));
+      setChatHistory((prev) =>
+        prev.filter((item) => !historyIds.includes(item.id)),
+      );
 
       setError(null);
     } catch (err) {
-      console.error('Failed to delete multiple chat history:', err);
-      setError('批量删除历史记录失败');
+      console.error("Failed to delete multiple chat history:", err);
+      setError("批量删除历史记录失败");
     }
   }, []);
 
@@ -162,61 +176,69 @@ export const useChatHistory = () => {
     try {
       // 清空IndexedDB中的所有历史记录
       const allHistory = await ChatIndexedDB.getChatHistory();
-      await Promise.all(allHistory.map(history => ChatIndexedDB.deleteChatHistory(history.id)));
+      await Promise.all(
+        allHistory.map((history) =>
+          ChatIndexedDB.deleteChatHistory(history.id),
+        ),
+      );
 
       // 清空localStorage（如果还有残留数据）
       try {
-        localStorage.removeItem('chat_history');
+        localStorage.removeItem("chat_history");
       } catch (localError) {
-        console.warn('Failed to clear localStorage:', localError);
+        console.warn("Failed to clear localStorage:", localError);
       }
 
       // 更新本地状态
       setChatHistory([]);
       setError(null);
     } catch (err) {
-      console.error('Failed to clear all chat history:', err);
-      setError('清空历史记录失败');
+      console.error("Failed to clear all chat history:", err);
+      setError("清空历史记录失败");
     }
   }, []);
 
   /**
    * 搜索历史记录
    */
-  const searchHistory = useCallback((keyword: string): ChatHistory[] => {
-    if (!keyword.trim()) {
-      return chatHistory;
-    }
-
-    const lowerKeyword = keyword.toLowerCase();
-    return chatHistory.filter(history => {
-      // 搜索标题
-      if (history.title?.toLowerCase().includes(lowerKeyword)) {
-        return true;
+  const searchHistory = useCallback(
+    (keyword: string): ChatHistory[] => {
+      if (!keyword.trim()) {
+        return chatHistory;
       }
-      
-      // 搜索消息内容
-      return history.messages.some(message => {
-        const contentStr = typeof message.content === 'string'
-          ? message.content
-          : JSON.stringify(message.content);
-        return contentStr.toLowerCase().includes(lowerKeyword);
+
+      const lowerKeyword = keyword.toLowerCase();
+      return chatHistory.filter((history) => {
+        // 搜索标题
+        if (history.title?.toLowerCase().includes(lowerKeyword)) {
+          return true;
+        }
+
+        // 搜索消息内容
+        return history.messages.some((message) => {
+          const contentStr =
+            typeof message.content === "string"
+              ? message.content
+              : JSON.stringify(message.content);
+          return contentStr.toLowerCase().includes(lowerKeyword);
+        });
       });
-    });
-  }, [chatHistory]);
+    },
+    [chatHistory],
+  );
 
   /**
    * 按时间范围筛选历史记录
    */
-  const filterByDateRange = useCallback((
-    startDate: Date,
-    endDate: Date
-  ): ChatHistory[] => {
-    return chatHistory.filter(history => {
-      const historyDate = new Date(history.timestamp);
-      return historyDate >= startDate && historyDate <= endDate;
-    });
-  }, [chatHistory]);
+  const filterByDateRange = useCallback(
+    (startDate: Date, endDate: Date): ChatHistory[] => {
+      return chatHistory.filter((history) => {
+        const historyDate = new Date(history.timestamp);
+        return historyDate >= startDate && historyDate <= endDate;
+      });
+    },
+    [chatHistory],
+  );
 
   /**
    * 获取历史记录统计信息
@@ -228,13 +250,12 @@ export const useChatHistory = () => {
       averageMessagesPerChat: 0,
     };
 
-    chatHistory.forEach(history => {
+    chatHistory.forEach((history) => {
       stats.totalMessages += history.messages.length;
     });
 
-    stats.averageMessagesPerChat = stats.total > 0
-      ? Math.round(stats.totalMessages / stats.total)
-      : 0;
+    stats.averageMessagesPerChat =
+      stats.total > 0 ? Math.round(stats.totalMessages / stats.total) : 0;
 
     return stats;
   }, [chatHistory]);
@@ -249,48 +270,58 @@ export const useChatHistory = () => {
   /**
    * 导入历史记录
    */
-  const importHistory = useCallback(async (jsonData: string): Promise<boolean> => {
-    try {
-      const success = await ChatStorage.importData(jsonData);
-      if (success) {
-        await loadHistory(); // 重新加载历史记录
+  const importHistory = useCallback(
+    async (jsonData: string): Promise<boolean> => {
+      try {
+        const success = await ChatStorage.importData(jsonData);
+        if (success) {
+          await loadHistory(); // 重新加载历史记录
+        }
+        return success;
+      } catch (err) {
+        console.error("Failed to import history:", err);
+        setError("导入历史记录失败");
+        return false;
       }
-      return success;
-    } catch (err) {
-      console.error('Failed to import history:', err);
-      setError('导入历史记录失败');
-      return false;
-    }
-  }, [loadHistory]);
+    },
+    [loadHistory],
+  );
 
   /**
    * 更新历史记录标题
    */
-  const updateHistoryTitle = useCallback(async (historyId: string, newTitle: string) => {
-    try {
-      const allHistory = await ChatStorage.getChatHistory();
-      const targetHistory = allHistory.find(history => history.id === historyId);
+  const updateHistoryTitle = useCallback(
+    async (historyId: string, newTitle: string) => {
+      try {
+        const allHistory = await ChatStorage.getChatHistory();
+        const targetHistory = allHistory.find(
+          (history) => history.id === historyId,
+        );
 
-      if (targetHistory) {
-        const updatedHistory = { ...targetHistory, title: newTitle };
-        // 更新IndexedDB中的记录
-        await ChatIndexedDB.saveChatHistory(updatedHistory);
+        if (targetHistory) {
+          const updatedHistory = { ...targetHistory, title: newTitle };
+          // 更新IndexedDB中的记录
+          await ChatIndexedDB.saveChatHistory(updatedHistory);
 
-        // 更新本地状态
-        setChatHistory(prev => prev.map(history =>
-          history.id === historyId
-            ? { ...history, title: newTitle }
-            : history
-        ));
-        setError(null);
-      } else {
-        throw new Error('历史记录不存在');
+          // 更新本地状态
+          setChatHistory((prev) =>
+            prev.map((history) =>
+              history.id === historyId
+                ? { ...history, title: newTitle }
+                : history,
+            ),
+          );
+          setError(null);
+        } else {
+          throw new Error("历史记录不存在");
+        }
+      } catch (err) {
+        console.error("Failed to update history title:", err);
+        setError("更新标题失败");
       }
-    } catch (err) {
-      console.error('Failed to update history title:', err);
-      setError('更新标题失败');
-    }
-  }, []);
+    },
+    [],
+  );
 
   // 组件挂载时加载历史记录
   useEffect(() => {
@@ -302,7 +333,7 @@ export const useChatHistory = () => {
     chatHistory,
     isLoading,
     error,
-    
+
     // 操作
     loadHistory,
     saveCurrentChat,
@@ -311,11 +342,11 @@ export const useChatHistory = () => {
     deleteMultipleHistory,
     clearAllHistory,
     updateHistoryTitle,
-    
+
     // 搜索和筛选
     searchHistory,
     filterByDateRange,
-    
+
     // 统计和导入导出
     getHistoryStats,
     exportHistory,

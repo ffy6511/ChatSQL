@@ -1,5 +1,5 @@
 // 统一的历史记录模态框组件
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,7 +21,7 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   Close as CloseIcon,
@@ -30,7 +30,7 @@ import {
   Edit as EditIcon,
   Visibility as VisibilityIcon,
   CalendarToday as DateIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 // 通用历史记录项接口
 export interface HistoryRecord {
@@ -74,28 +74,29 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
   onDelete,
   onEdit,
   onPreview,
-  searchPlaceholder = '搜索历史记录...',
-  emptyMessage = '暂无历史记录',
+  searchPlaceholder = "搜索历史记录...",
+  emptyMessage = "暂无历史记录",
   showActions = true,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState('');
+  const [editTitle, setEditTitle] = useState("");
 
   // 过滤记录
-  const filteredRecords = records.filter(record =>
-    record.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    record.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRecords = records.filter(
+    (record) =>
+      record.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // 格式化日期
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('zh-CN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -110,14 +111,14 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
     if (editingId && editTitle.trim() && onEdit) {
       onEdit(editingId, editTitle.trim());
       setEditingId(null);
-      setEditTitle('');
+      setEditTitle("");
     }
   };
 
   // 取消编辑
   const handleEditCancel = () => {
     setEditingId(null);
-    setEditTitle('');
+    setEditTitle("");
   };
 
   // 处理删除
@@ -137,9 +138,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
   // 重置状态当模态框关闭时
   useEffect(() => {
     if (!open) {
-      setSearchQuery('');
+      setSearchQuery("");
       setEditingId(null);
-      setEditTitle('');
+      setEditTitle("");
     }
   }, [open]);
 
@@ -152,21 +153,23 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
       slotProps={{
         paper: {
           sx: {
-            backgroundColor: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
-            maxHeight: '80vh',
+            backgroundColor: "var(--card-bg)",
+            border: "1px solid var(--card-border)",
+            maxHeight: "80vh",
           },
         },
       }}
     >
-      <DialogTitle sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        color: 'var(--primary-text)',
-        borderBottom: '1px solid var(--card-border)',
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          color: "var(--primary-text)",
+          borderBottom: "1px solid var(--card-border)",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <HistoryIcon />
           <Typography variant="h6">{title}</Typography>
         </Box>
@@ -177,7 +180,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
 
       <DialogContent sx={{ p: 0 }}>
         {/* 搜索框 */}
-        <Box sx={{ p: 2, borderBottom: '1px solid var(--card-border)' }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid var(--card-border)" }}>
           <TextField
             fullWidth
             size="small"
@@ -187,18 +190,18 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: 'var(--secondary-text)' }} />
+                  <SearchIcon sx={{ color: "var(--secondary-text)" }} />
                 </InputAdornment>
               ),
             }}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: 'var(--input-bg)',
-                '& fieldset': {
-                  borderColor: 'var(--card-border)',
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: "var(--input-bg)",
+                "& fieldset": {
+                  borderColor: "var(--card-border)",
                 },
-                '&:hover fieldset': {
-                  borderColor: 'var(--primary-color)',
+                "&:hover fieldset": {
+                  borderColor: "var(--primary-color)",
                 },
               },
             }}
@@ -206,9 +209,9 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
         </Box>
 
         {/* 内容区域 */}
-        <Box sx={{ minHeight: 300, maxHeight: 400, overflow: 'auto' }}>
+        <Box sx={{ minHeight: 300, maxHeight: 400, overflow: "auto" }}>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
               <CircularProgress />
             </Box>
           ) : error ? (
@@ -216,17 +219,19 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
               <Alert severity="error">{error}</Alert>
             </Box>
           ) : filteredRecords.length === 0 ? (
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center', 
-              justifyContent: 'center',
-              p: 4,
-              color: 'var(--secondary-text)',
-            }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 4,
+                color: "var(--secondary-text)",
+              }}
+            >
               <HistoryIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
               <Typography variant="body2">
-                {searchQuery ? '未找到匹配的记录' : emptyMessage}
+                {searchQuery ? "未找到匹配的记录" : emptyMessage}
               </Typography>
             </Box>
           ) : (
@@ -237,8 +242,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                     <ListItemButton
                       onClick={() => onSelect(record)}
                       sx={{
-                        '&:hover': {
-                          backgroundColor: 'var(--hover-bg)',
+                        "&:hover": {
+                          backgroundColor: "var(--hover-bg)",
                         },
                       }}
                     >
@@ -250,23 +255,23 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                               value={editTitle}
                               onChange={(e) => setEditTitle(e.target.value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
+                                if (e.key === "Enter") {
                                   handleEditConfirm();
-                                } else if (e.key === 'Escape') {
+                                } else if (e.key === "Escape") {
                                   handleEditCancel();
                                 }
                               }}
                               onBlur={handleEditConfirm}
                               autoFocus
-                              sx={{ width: '100%' }}
+                              sx={{ width: "100%" }}
                             />
                           ) : (
                             <Typography
                               variant="subtitle2"
                               sx={{
                                 fontWeight: 600,
-                                color: 'var(--primary-text)',
-                                wordBreak: 'break-word',
+                                color: "var(--primary-text)",
+                                wordBreak: "break-word",
                               }}
                             >
                               {record.title}
@@ -279,17 +284,31 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                               <Typography
                                 variant="body2"
                                 sx={{
-                                  color: 'var(--secondary-text)',
+                                  color: "var(--secondary-text)",
                                   mb: 0.5,
-                                  wordBreak: 'break-word',
+                                  wordBreak: "break-word",
                                 }}
                               >
                                 {record.description}
                               </Typography>
                             )}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <DateIcon sx={{ fontSize: 14, color: 'var(--secondary-text)' }} />
-                              <Typography variant="caption" color="var(--secondary-text)">
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <DateIcon
+                                sx={{
+                                  fontSize: 14,
+                                  color: "var(--secondary-text)",
+                                }}
+                              />
+                              <Typography
+                                variant="caption"
+                                color="var(--secondary-text)"
+                              >
                                 {formatDate(record.createdAt)}
                               </Typography>
                               {record.type && (
@@ -306,7 +325,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                       />
                       {showActions && editingId !== record.id && (
                         <ListItemSecondaryAction>
-                          <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
                             {onPreview && (
                               <Tooltip title="预览">
                                 <IconButton
@@ -341,7 +360,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                                     e.stopPropagation();
                                     handleDelete(record.id);
                                   }}
-                                  sx={{ color: '#f44336' }}
+                                  sx={{ color: "#f44336" }}
                                 >
                                   <DeleteIcon fontSize="small" />
                                 </IconButton>
@@ -360,10 +379,8 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ borderTop: '1px solid var(--card-border)' }}>
-        <Button onClick={onClose}>
-          关闭
-        </Button>
+      <DialogActions sx={{ borderTop: "1px solid var(--card-border)" }}>
+        <Button onClick={onClose}>关闭</Button>
       </DialogActions>
     </Dialog>
   );

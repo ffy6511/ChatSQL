@@ -3,7 +3,7 @@
  * 提供动画播放、暂停、步骤导航等功能
  */
 
-import React from 'react';
+import React from "react";
 import {
   Box,
   IconButton,
@@ -12,8 +12,8 @@ import {
   Tooltip,
   Paper,
   Stack,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   PlayArrow,
   Pause,
@@ -22,9 +22,9 @@ import {
   SkipPrevious,
   FastForward,
   FastRewind,
-  Replay
-} from '@mui/icons-material';
-import { AnimationState } from '../../lib/bplusLib/animationManager';
+  Replay,
+} from "@mui/icons-material";
+import { AnimationState } from "../../lib/bplusLib/animationManager";
 
 interface AnimationControlsProps {
   animationState: AnimationState;
@@ -55,9 +55,10 @@ const AnimationControls: React.FC<AnimationControlsProps> = ({
   onJumpToNextBreakpoint,
   onJumpToPreviousBreakpoint,
   breakpoints = [],
-  disabled = false
+  disabled = false,
 }) => {
-  const { currentStep, totalSteps, isPlaying, isPaused, speed } = animationState;
+  const { currentStep, totalSteps, isPlaying, isPaused, speed } =
+    animationState;
 
   // 格式化速度显示
   const formatSpeed = (value: number): string => {
@@ -65,33 +66,43 @@ const AnimationControls: React.FC<AnimationControlsProps> = ({
   };
 
   // 处理步骤滑块变化
-  const handleStepSliderChange = (_event: Event, newValue: number | number[]): void => {
-    if (typeof newValue === 'number') {
+  const handleStepSliderChange = (
+    _event: Event,
+    newValue: number | number[],
+  ): void => {
+    if (typeof newValue === "number") {
       onJumpToStep(newValue);
     }
   };
 
   // 处理速度滑块变化
-  const handleSpeedSliderChange = (_event: Event, newValue: number | number[]): void => {
-    if (typeof newValue === 'number') {
+  const handleSpeedSliderChange = (
+    _event: Event,
+    newValue: number | number[],
+  ): void => {
+    if (typeof newValue === "number") {
       onSpeedChange(newValue);
     }
   };
 
   return (
-    <Paper 
-      elevation={2} 
-      sx={{ 
-        p: 2, 
-        backgroundColor: 'var(--background-paper)',
-        border: '1px solid var(--border-color)'
+    <Paper
+      elevation={2}
+      sx={{
+        p: 2,
+        backgroundColor: "var(--background-paper)",
+        border: "1px solid var(--border-color)",
       }}
     >
       <Stack spacing={2}>
-
         {/* 动画速度 */}
         <Box>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={1}
+          >
             <Typography variant="body2" color="var(--secondary-text)">
               动画速度
             </Typography>
@@ -99,7 +110,7 @@ const AnimationControls: React.FC<AnimationControlsProps> = ({
               {formatSpeed(speed)}
             </Typography>
           </Box>
-          
+
           <Slider
             value={speed}
             min={100}
@@ -108,19 +119,19 @@ const AnimationControls: React.FC<AnimationControlsProps> = ({
             onChange={handleSpeedSliderChange}
             disabled={disabled}
             marks={[
-              { value: 100, label: '快' },
-              { value: 500, label: '中' },
-              { value: 1000, label: '慢' },
-              { value: 2000, label: '很慢' }
+              { value: 100, label: "快" },
+              { value: 500, label: "中" },
+              { value: 1000, label: "慢" },
+              { value: 2000, label: "很慢" },
             ]}
             sx={{
-              color: 'var(--secondary-text)', // 控制滑块轨道、滑块本体颜色
-              '& .MuiSlider-markLabel': {
-                color: 'var(--primary-text)', // 控制 mark 的文字颜色
+              color: "var(--secondary-text)", // 控制滑块轨道、滑块本体颜色
+              "& .MuiSlider-markLabel": {
+                color: "var(--primary-text)", // 控制 mark 的文字颜色
               },
-              '& .MuiSlider-mark': {
-                backgroundColor: 'var(--secondary-text)', // 控制小圆点的颜色（可选）
-              }
+              "& .MuiSlider-mark": {
+                backgroundColor: "var(--secondary-text)", // 控制小圆点的颜色（可选）
+              },
             }}
           />
         </Box>

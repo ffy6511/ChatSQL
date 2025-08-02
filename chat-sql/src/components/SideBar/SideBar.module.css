@@ -7,7 +7,8 @@
   padding: 8px;
 }
 
-.topButtons, .bottomButtons {
+.topButtons,
+.bottomButtons {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -24,7 +25,7 @@
 
 .actionButton {
   width: 2em !important;
-  height: 2em!important;
+  height: 2em !important;
   padding: 0;
   display: flex;
   align-items: center;
@@ -48,11 +49,10 @@
   color: var(--icon-color-hover) !important;
 }
 
-
 .menuContainer {
   flex: 1;
   overflow-y: auto;
-  margin-top:2em;
+  margin-top: 2em;
 }
 
 .menuItems {
@@ -75,4 +75,3 @@
   align-items: center;
   justify-content: center;
 }
-

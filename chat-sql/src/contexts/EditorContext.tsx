@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 interface EditorContextType {
   sqlEditorValue: string;
@@ -12,23 +12,28 @@ const EditorContext = createContext<EditorContextType | null>(null);
 
 export const useEditorContext = () => {
   const ctx = useContext(EditorContext);
-  if (!ctx) throw new Error('useEditorContext must be used within EditorProvider');
+  if (!ctx)
+    throw new Error("useEditorContext must be used within EditorProvider");
   return ctx;
 };
 
-export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [sqlEditorValue, setSqlEditorValue] = useState<string>('');
+export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [sqlEditorValue, setSqlEditorValue] = useState<string>("");
 
   const clearEditor = () => {
-    setSqlEditorValue('');
+    setSqlEditorValue("");
   };
 
   return (
-    <EditorContext.Provider value={{
-      sqlEditorValue,
-      setSqlEditorValue,
-      clearEditor,
-    }}>
+    <EditorContext.Provider
+      value={{
+        sqlEditorValue,
+        setSqlEditorValue,
+        clearEditor,
+      }}
+    >
       {children}
     </EditorContext.Provider>
   );

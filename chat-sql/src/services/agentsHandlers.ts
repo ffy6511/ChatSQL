@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import axios, { AxiosError } from 'axios';
+import { NextRequest, NextResponse } from "next/server";
+import axios, { AxiosError } from "axios";
 import {
   BailianAIRequest,
   BailianAIResponse,
@@ -9,13 +9,12 @@ import {
   HTTPStatus,
   DEFAULT_BAILIAN_CONFIG,
   DEFAULT_RETRY_CONFIG,
-} from '@/types/chatBotTypes/bailianai';
+} from "@/types/chatBotTypes/bailianai";
 import {
   SchemaGeneratorRequest,
   SchemaGeneratorResponse,
   AGENT_CONFIG,
-} from '@/types/chatBotTypes/agents';
-
+} from "@/types/chatBotTypes/agents";
 
 /**
  * 处理API错误
@@ -28,52 +27,51 @@ export function handleAPIError(error: any): BailianAIAPIError {
     switch (status) {
       case HTTPStatus.UNAUTHORIZED:
         return new BailianAIAPIError(
-          'API密钥无效或已过期',
+          "API密钥无效或已过期",
           ErrorType.AUTHENTICATION_ERROR,
           data?.code,
           data?.request_id,
-          status
+          status,
         );
       case HTTPStatus.TOO_MANY_REQUESTS:
         return new BailianAIAPIError(
-          '请求频率过高，请稍后重试',
+          "请求频率过高，请稍后重试",
           ErrorType.RATE_LIMIT_ERROR,
           data?.code,
           data?.request_id,
-          status
+          status,
         );
       case HTTPStatus.BAD_REQUEST:
         return new BailianAIAPIError(
-          data?.message || '请求参数错误',
+          data?.message || "请求参数错误",
           ErrorType.VALIDATION_ERROR,
           data?.code,
           data?.request_id,
-          status
+          status,
         );
       default:
         return new BailianAIAPIError(
-          data?.message || error.message || '网络请求失败',
+          data?.message || error.message || "网络请求失败",
           ErrorType.NETWORK_ERROR,
           data?.code,
           data?.request_id,
-          status
+          status,
         );
     }
   }
 
   return new BailianAIAPIError(
-    error.message || '未知错误',
-    ErrorType.UNKNOWN_ERROR
+    error.message || "未知错误",
+    ErrorType.UNKNOWN_ERROR,
   );
 }
-
 
 /**
  * 实现指数退避重试
  */
 export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
-  config: typeof DEFAULT_RETRY_CONFIG = DEFAULT_RETRY_CONFIG
+  config: typeof DEFAULT_RETRY_CONFIG = DEFAULT_RETRY_CONFIG,
 ): Promise<T> {
   let lastError: Error;
 
@@ -90,8 +88,10 @@ export async function retryWithBackoff<T>(
 
       // 如果是认证错误或验证错误，不进行重试
       if (error instanceof BailianAIAPIError) {
-        if (error.type === ErrorType.AUTHENTICATION_ERROR || 
-            error.type === ErrorType.VALIDATION_ERROR) {
+        if (
+          error.type === ErrorType.AUTHENTICATION_ERROR ||
+          error.type === ErrorType.VALIDATION_ERROR
+        ) {
           throw error;
         }
       }
@@ -99,11 +99,11 @@ export async function retryWithBackoff<T>(
       // 计算延迟时间（指数退避）
       const delay = Math.min(
         config.baseDelay * Math.pow(config.backoffFactor, attempt),
-        config.maxDelay
+        config.maxDelay,
       );
 
       console.log(`请求失败，${delay}ms后进行第${attempt + 1}次重试:`, error);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
@@ -115,29 +115,29 @@ export async function retryWithBackoff<T>(
  */
 export async function callBailianAPI(
   request: BailianAIRequest,
-  appId: string
+  appId: string,
 ): Promise<BailianAIResponse> {
   const apiKey = process.env.DASHSCOPE_API_KEY;
 
   if (!apiKey) {
     throw new BailianAIAPIError(
-      'API密钥未配置，请检查环境变量DASHSCOPE_API_KEY',
-      ErrorType.AUTHENTICATION_ERROR
+      "API密钥未配置，请检查环境变量DASHSCOPE_API_KEY",
+      ErrorType.AUTHENTICATION_ERROR,
     );
   }
 
   const url = `${DEFAULT_BAILIAN_CONFIG.baseUrl}/${appId}/completion`;
 
   const headers = {
-    'Authorization': `Bearer ${apiKey}`,
-    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
   };
 
   return retryWithBackoff(async () => {
     const response = await axios.post(url, request, {
       headers,
       timeout: DEFAULT_BAILIAN_CONFIG.timeout,
-      responseType: 'json',
+      responseType: "json",
     });
 
     return response.data;
@@ -151,7 +151,7 @@ export function createAgentRequest(
   prompt: string,
   bizParams: Record<string, any>,
   sessionId?: string,
-  parameters?: any
+  parameters?: any,
 ): BailianAIRequest {
   const request: BailianAIRequest = {
     input: {
@@ -174,10 +174,10 @@ export function createAgentRequest(
  */
 export function validateRequiredParams(
   params: Record<string, any>,
-  requiredFields: string[]
+  requiredFields: string[],
 ): { isValid: boolean; missingField?: string } {
   for (const field of requiredFields) {
-    if (!params[field] || typeof params[field] !== 'string') {
+    if (!params[field] || typeof params[field] !== "string") {
       return { isValid: false, missingField: field };
     }
   }
@@ -189,7 +189,7 @@ export function validateRequiredParams(
  */
 export function parseRequestBody(
   body: any,
-  expectedBizParams: string[]
+  expectedBizParams: string[],
 ): {
   bizParams: Record<string, any>;
   sessionId?: string;
@@ -209,8 +209,8 @@ export function parseRequestBody(
     };
   } else {
     throw new BailianAIAPIError(
-      '请求参数格式错误，需要使用百炼AI标准格式',
-      ErrorType.VALIDATION_ERROR
+      "请求参数格式错误，需要使用百炼AI标准格式",
+      ErrorType.VALIDATION_ERROR,
     );
   }
 }
@@ -220,7 +220,7 @@ export function parseRequestBody(
  */
 export function createErrorResponse<T>(
   error: any,
-  ResponseType: new () => T
+  ResponseType: new () => T,
 ): { response: T; statusCode: number } {
   const apiError = handleAPIError(error);
   const errorResponse = {
@@ -234,4 +234,3 @@ export function createErrorResponse<T>(
   const statusCode = apiError.statusCode || HTTPStatus.INTERNAL_SERVER_ERROR;
   return { response: errorResponse, statusCode };
 }
-

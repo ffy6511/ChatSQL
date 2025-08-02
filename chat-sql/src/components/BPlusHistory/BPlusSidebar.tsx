@@ -3,19 +3,19 @@
  * 参考ER图页面和主页面的侧边栏实现
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button, Tooltip, Modal } from 'antd';
-import ThemeToggle from '@/components/SideBar/ThemeToggle';
+import React, { useState } from "react";
+import { Button, Tooltip, Modal } from "antd";
+import ThemeToggle from "@/components/SideBar/ThemeToggle";
 import {
   QuestionCircleOutlined,
   GithubOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  PlusCircleOutlined
-} from '@ant-design/icons';
-import styles from './BPlusSidebar.module.css';
+  PlusCircleOutlined,
+} from "@ant-design/icons";
+import styles from "./BPlusSidebar.module.css";
 
 interface BPlusSidebarProps {
   /** 是否显示历史记录区域 */
@@ -29,7 +29,7 @@ interface BPlusSidebarProps {
 const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
   showHistory,
   onToggleHistory,
-  onNewRecord
+  onNewRecord,
 }) => {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
@@ -38,7 +38,7 @@ const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
   };
 
   const handleGithubClick = () => {
-    window.open('https://github.com/ffy6511/chatSQL', '_blank');
+    window.open("https://github.com/ffy6511/chatSQL", "_blank");
   };
 
   return (
@@ -54,7 +54,10 @@ const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
           />
         </Tooltip>
 
-        <Tooltip title={showHistory ? "收起历史记录" : "展开历史记录"} placement="right">
+        <Tooltip
+          title={showHistory ? "收起历史记录" : "展开历史记录"}
+          placement="right"
+        >
           <Button
             type="text"
             icon={showHistory ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
@@ -66,7 +69,9 @@ const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
 
       {/* 中间区域：可扩展的功能按钮 */}
       <div className="global-sidebar-menu-container">
-        <div className="global-sidebar-menu-items"><ThemeToggle /></div>
+        <div className="global-sidebar-menu-items">
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* 底部区域：帮助和GitHub链接 */}
@@ -100,7 +105,9 @@ const BPlusSidebar: React.FC<BPlusSidebarProps> = ({
       >
         <div className={styles.helpModalContent}>
           <h3>B+树可视化学习工具</h3>
-          <p>这是一个交互式的B+树可视化学习工具，帮助您理解B+树的数据结构和操作原理。</p>
+          <p>
+            这是一个交互式的B+树可视化学习工具，帮助您理解B+树的数据结构和操作原理。
+          </p>
         </div>
       </Modal>
     </div>

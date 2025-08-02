@@ -1,5 +1,5 @@
-import { LLMProblem, getProblemById, updateProblem } from './codingStorage';
-import { calculateProgressStatus } from '@/utils/progressUtils';
+import { LLMProblem, getProblemById, updateProblem } from "./codingStorage";
+import { calculateProgressStatus } from "@/utils/progressUtils";
 
 /**
  * 进度更新服务
@@ -12,21 +12,26 @@ export class ProgressService {
    * @param completedProblemIndex 完成的问题索引（从0开始）
    * @returns 更新后的记录和状态信息
    */
-  static async updateProgress(recordId: number, completedProblemIndex: number): Promise<{
+  static async updateProgress(
+    recordId: number,
+    completedProblemIndex: number,
+  ): Promise<{
     record: LLMProblem;
     statusInfo: any;
     isNewCompletion: boolean;
   }> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const totalProblems = record.totalProblems ?? 1;
-    const completedProblems = record.completedProblems ?? new Array(totalProblems).fill(false);
+    const completedProblems =
+      record.completedProblems ?? new Array(totalProblems).fill(false);
 
     // 检查该问题是否已经完成
-    const isAlreadyCompleted = completedProblems[completedProblemIndex] === true;
+    const isAlreadyCompleted =
+      completedProblems[completedProblemIndex] === true;
 
     if (!isAlreadyCompleted) {
       // 标记该问题为已完成
@@ -40,7 +45,7 @@ export class ProgressService {
       const updatedRecord: LLMProblem = {
         ...record,
         progress: newProgress,
-        completedProblems: newCompletedProblems
+        completedProblems: newCompletedProblems,
       };
 
       await updateProblem(updatedRecord);
@@ -50,14 +55,14 @@ export class ProgressService {
       return {
         record: updatedRecord,
         statusInfo,
-        isNewCompletion: true
+        isNewCompletion: true,
       };
     }
 
     return {
       record,
       statusInfo: calculateProgressStatus(record),
-      isNewCompletion: false
+      isNewCompletion: false,
     };
   }
 
@@ -69,14 +74,14 @@ export class ProgressService {
   static async resetProgress(recordId: number): Promise<LLMProblem> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const totalProblems = record.totalProblems ?? 1;
     const updatedRecord: LLMProblem = {
       ...record,
       progress: 0,
-      completedProblems: new Array(totalProblems).fill(false)
+      completedProblems: new Array(totalProblems).fill(false),
     };
 
     await updateProblem(updatedRecord);
@@ -91,14 +96,14 @@ export class ProgressService {
   static async markAsCompleted(recordId: number): Promise<LLMProblem> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const totalProblems = record.totalProblems ?? 1;
     const updatedRecord: LLMProblem = {
       ...record,
       progress: totalProblems,
-      completedProblems: new Array(totalProblems).fill(true)
+      completedProblems: new Array(totalProblems).fill(true),
     };
 
     await updateProblem(updatedRecord);
@@ -118,20 +123,22 @@ export class ProgressService {
   }> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const statusInfo = calculateProgressStatus(record);
     const progress = record.progress ?? 0;
     const totalProblems = record.totalProblems ?? 1;
-    const percentage = totalProblems > 0 ? Math.round((progress / totalProblems) * 100) : 0;
-    const completedProblems = record.completedProblems ?? new Array(totalProblems).fill(false);
+    const percentage =
+      totalProblems > 0 ? Math.round((progress / totalProblems) * 100) : 0;
+    const completedProblems =
+      record.completedProblems ?? new Array(totalProblems).fill(false);
 
     return {
       record,
       statusInfo,
       percentage,
-      completedProblems
+      completedProblems,
     };
   }
 
@@ -143,7 +150,7 @@ export class ProgressService {
   static async getCompletedProblems(recordId: number): Promise<boolean[]> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const totalProblems = record.totalProblems ?? 1;
@@ -158,14 +165,14 @@ export class ProgressService {
   static async clearAllProgress(recordId: number): Promise<LLMProblem> {
     const record = await getProblemById(recordId);
     if (!record) {
-      throw new Error('记录不存在');
+      throw new Error("记录不存在");
     }
 
     const totalProblems = record.totalProblems ?? 1;
     const updatedRecord: LLMProblem = {
       ...record,
       progress: 0,
-      completedProblems: new Array(totalProblems).fill(false)
+      completedProblems: new Array(totalProblems).fill(false),
     };
 
     await updateProblem(updatedRecord);

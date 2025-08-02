@@ -1,10 +1,10 @@
 /**
  * 约束验证模块
- * 
+ *
  * 该模块提供了用于验证数据库约束（如主键、外键）的函数集合。
  */
 
-import { TableData } from '@/types/CodingTypes/sqlExecutor';
+import { TableData } from "@/types/CodingTypes/sqlExecutor";
 
 /**
  * 验证主键约束
@@ -14,17 +14,17 @@ import { TableData } from '@/types/CodingTypes/sqlExecutor';
  */
 export function validatePrimaryKey(table: TableData, row: any): void {
   const primaryKeys = table.structure.columns
-    .filter(col => col.isPrimary)
-    .map(col => col.name);
+    .filter((col) => col.isPrimary)
+    .map((col) => col.name);
 
   if (primaryKeys.length === 0) return;
 
-  const existingRow = table.data.find(existing =>
-    primaryKeys.every(key => existing[key] === row[key])
+  const existingRow = table.data.find((existing) =>
+    primaryKeys.every((key) => existing[key] === row[key]),
   );
 
   if (existingRow) {
-    throw new Error('违反主键约束');
+    throw new Error("违反主键约束");
   }
 }
 
@@ -36,22 +36,22 @@ export function validatePrimaryKey(table: TableData, row: any): void {
  * @throws 如果违反外键约束，则抛出错误
  */
 export function validateForeignKeys(
-  table: TableData, 
-  row: any, 
-  getTable: (tableName: string) => TableData | undefined
+  table: TableData,
+  row: any,
+  getTable: (tableName: string) => TableData | undefined,
 ): void {
   // 实现外键约束验证
-  table.structure.columns.forEach(column => {
+  table.structure.columns.forEach((column) => {
     if (column.foreignKeyRefs) {
-      column.foreignKeyRefs.forEach(ref => {
+      column.foreignKeyRefs.forEach((ref) => {
         const refTable = getTable(ref.tableName);
         if (!refTable) {
           throw new Error(`引用的表 ${ref.tableName} 不存在`);
         }
 
         const value = row[column.name];
-        const exists = refTable.data.some(refRow => 
-          refRow[ref.columnName] === value
+        const exists = refTable.data.some(
+          (refRow) => refRow[ref.columnName] === value,
         );
 
         if (!exists) {

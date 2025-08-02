@@ -1,6 +1,6 @@
 // 聊天系统核心数据类型定义
 
-import { AgentOutputPart } from '../chatBotTypes/agents';
+import { AgentOutputPart } from "../chatBotTypes/agents";
 
 /**
  * 聊天消息接口
@@ -11,29 +11,31 @@ export interface ChatMessage {
   /** 消息内容 */
   content: string | AgentOutputPart[];
   /** 消息发送者角色 */
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   /** 消息创建时间戳 */
   timestamp: string;
   /** 关联的会话ID（后端session_id） */
   session_id: string;
   /** 可选的元数据信息 */
-  metadata?: {
-    /** 模块类型 */
-    module?: 'coding' | 'ER' | 'Bplus';
-    /** 主题标签 */
-    topic?: string;
-    /** 动作配置 */
-    action?: {
-      type: 'navigate' | 'visualize' | 'update';
-      target: string;
-      params?: Record<string, any>;
-    };
-  } | {
-    /** parts格式的metadata */
-    type: 'parts';
-    agentType: string;
-    originalOutput: any;
-  };
+  metadata?:
+    | {
+        /** 模块类型 */
+        module?: "coding" | "ER" | "Bplus";
+        /** 主题标签 */
+        topic?: string;
+        /** 动作配置 */
+        action?: {
+          type: "navigate" | "visualize" | "update";
+          target: string;
+          params?: Record<string, any>;
+        };
+      }
+    | {
+        /** parts格式的metadata */
+        type: "parts";
+        agentType: string;
+        originalOutput: any;
+      };
 }
 
 /**
@@ -51,7 +53,7 @@ export interface ChatSession {
   /** 会话最后更新时间 */
   updatedAt: string;
   /** 会话模块类型 */
-  module?: 'coding' | 'ER' | 'Bplus';
+  module?: "coding" | "ER" | "Bplus";
   /** 消息数量统计 */
   messageCount: number;
 }
@@ -87,7 +89,10 @@ export interface ChatContextType {
   selectSession: (sessionId: string) => Promise<void>;
   createNewSession: () => Promise<void>;
   sendMessage: (userInput: string) => Promise<void>;
-  sendAgentMessage: (agentType: string, inputValues: Record<string, string>) => Promise<AgentOutputPart[] | null>;
+  sendAgentMessage: (
+    agentType: string,
+    inputValues: Record<string, string>,
+  ) => Promise<AgentOutputPart[] | null>;
   deleteSession: (sessionId: string) => Promise<void>;
   clearAllSessions: () => Promise<void>;
   renameSession: (sessionId: string, newSession: ChatSession) => Promise<void>;
@@ -108,7 +113,7 @@ export interface ChatStorageInterface {
   updateSession(session: ChatSession): Promise<void>;
   renameSession(sessionId: string, newTitle: string): Promise<void>;
   deleteSession(sessionId: string): Promise<void>;
-  
+
   // 消息管理
   saveMessage(message: ChatMessage): Promise<void>;
   getMessagesBySessionId(session_id: string): Promise<ChatMessage[]>;
@@ -144,18 +149,18 @@ export const formatTimestamp = (timestamp: string): string => {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-    return date.toLocaleTimeString('zh-CN', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } else if (diffDays === 1) {
-    return '昨天';
+    return "昨天";
   } else if (diffDays < 7) {
     return `${diffDays}天前`;
   } else {
-    return date.toLocaleDateString('zh-CN', { 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("zh-CN", {
+      month: "short",
+      day: "numeric",
     });
   }
 };
@@ -163,24 +168,29 @@ export const formatTimestamp = (timestamp: string): string => {
 /**
  * 截断文本的工具函数
  */
-export const truncateText = (text: string | AgentOutputPart[], maxLength: number): string => {
+export const truncateText = (
+  text: string | AgentOutputPart[],
+  maxLength: number,
+): string => {
   // 处理结构化对象
-  if (typeof text === 'object' && Array.isArray(text)) {
+  if (typeof text === "object" && Array.isArray(text)) {
     // 从parts数组中提取文本内容
-    const textParts = text.filter((part: AgentOutputPart) =>
-      part.type === 'text'
-    ).map((part: AgentOutputPart) => part.content).join(' ') || '';
+    const textParts =
+      text
+        .filter((part: AgentOutputPart) => part.type === "text")
+        .map((part: AgentOutputPart) => part.content)
+        .join(" ") || "";
 
     const textContent = textParts || JSON.stringify(text);
     if (textContent.length <= maxLength) {
       return textContent;
     }
-    return textContent.substring(0, maxLength) + '...';
+    return textContent.substring(0, maxLength) + "...";
   }
 
   // 处理字符串
   if (text.length <= maxLength) {
     return text;
   }
-  return text.substring(0, maxLength) + '...';
+  return text.substring(0, maxLength) + "...";
 };

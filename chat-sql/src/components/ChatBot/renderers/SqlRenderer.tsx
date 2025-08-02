@@ -3,13 +3,22 @@
  * 专注于 SQL 语法高亮渲染，使用 GitHub 风格的高亮主题
  */
 
-import React, { useMemo } from 'react';
-import { Box, Paper, IconButton, Tooltip } from '@mui/material';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { github, githubGist } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { ContentCopy as CopyIcon, Visibility as VisualizeIcon } from '@mui/icons-material';
-import { RendererProps, SqlRendererConfig } from '@/types/chatBotTypes/renderers';
-import { visualize } from '@/services/visualizationService';
+import React, { useMemo } from "react";
+import { Box, Paper, IconButton, Tooltip } from "@mui/material";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import {
+  github,
+  githubGist,
+} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {
+  ContentCopy as CopyIcon,
+  Visibility as VisualizeIcon,
+} from "@mui/icons-material";
+import {
+  RendererProps,
+  SqlRendererConfig,
+} from "@/types/chatBotTypes/renderers";
+import { visualize } from "@/services/visualizationService";
 
 /**
  * SQL 渲染器组件 - 专注于 SQL 语法高亮渲染
@@ -24,13 +33,13 @@ const SqlRenderer: React.FC<RendererProps> = ({
   // 类型安全的配置获取
   const sqlConfig = useMemo(() => {
     const defaultConfig: SqlRendererConfig = {
-      type: 'sql',
+      type: "sql",
       enableSyntaxHighlight: true,
-      theme: 'auto',
+      theme: "auto",
       showLineNumbers: true,
       copyable: true,
       formatSql: true,
-      keywordCase: 'upper',
+      keywordCase: "upper",
     };
     return { ...defaultConfig, ...config } as SqlRendererConfig;
   }, [config]);
@@ -38,9 +47,10 @@ const SqlRenderer: React.FC<RendererProps> = ({
   // 提取和处理 SQL 内容
   const processedSql = useMemo(() => {
     // 确保内容是字符串类型
-    let sql = typeof message.content === 'string'
-      ? message.content
-      : JSON.stringify(message.content);
+    let sql =
+      typeof message.content === "string"
+        ? message.content
+        : JSON.stringify(message.content);
 
     // 如果包含代码块，提取其中的 SQL
     const codeBlockRegex = /```sql\s*([\s\S]*?)\s*```/;
@@ -50,27 +60,27 @@ const SqlRenderer: React.FC<RendererProps> = ({
     }
 
     // 格式化 SQL 关键词
-    if (sqlConfig.formatSql && sqlConfig.keywordCase === 'upper') {
+    if (sqlConfig.formatSql && sqlConfig.keywordCase === "upper") {
       sql = sql
-        .replace(/\bSELECT\b/gi, 'SELECT')
-        .replace(/\bFROM\b/gi, 'FROM')
-        .replace(/\bWHERE\b/gi, 'WHERE')
-        .replace(/\bINSERT\b/gi, 'INSERT')
-        .replace(/\bINTO\b/gi, 'INTO')
-        .replace(/\bUPDATE\b/gi, 'UPDATE')
-        .replace(/\bSET\b/gi, 'SET')
-        .replace(/\bDELETE\b/gi, 'DELETE')
-        .replace(/\bCREATE\b/gi, 'CREATE')
-        .replace(/\bTABLE\b/gi, 'TABLE')
-        .replace(/\bDROP\b/gi, 'DROP')
-        .replace(/\bALTER\b/gi, 'ALTER')
-        .replace(/\bJOIN\b/gi, 'JOIN')
-        .replace(/\bINNER JOIN\b/gi, 'INNER JOIN')
-        .replace(/\bLEFT JOIN\b/gi, 'LEFT JOIN')
-        .replace(/\bRIGHT JOIN\b/gi, 'RIGHT JOIN')
-        .replace(/\bORDER BY\b/gi, 'ORDER BY')
-        .replace(/\bGROUP BY\b/gi, 'GROUP BY')
-        .replace(/\bHAVING\b/gi, 'HAVING');
+        .replace(/\bSELECT\b/gi, "SELECT")
+        .replace(/\bFROM\b/gi, "FROM")
+        .replace(/\bWHERE\b/gi, "WHERE")
+        .replace(/\bINSERT\b/gi, "INSERT")
+        .replace(/\bINTO\b/gi, "INTO")
+        .replace(/\bUPDATE\b/gi, "UPDATE")
+        .replace(/\bSET\b/gi, "SET")
+        .replace(/\bDELETE\b/gi, "DELETE")
+        .replace(/\bCREATE\b/gi, "CREATE")
+        .replace(/\bTABLE\b/gi, "TABLE")
+        .replace(/\bDROP\b/gi, "DROP")
+        .replace(/\bALTER\b/gi, "ALTER")
+        .replace(/\bJOIN\b/gi, "JOIN")
+        .replace(/\bINNER JOIN\b/gi, "INNER JOIN")
+        .replace(/\bLEFT JOIN\b/gi, "LEFT JOIN")
+        .replace(/\bRIGHT JOIN\b/gi, "RIGHT JOIN")
+        .replace(/\bORDER BY\b/gi, "ORDER BY")
+        .replace(/\bGROUP BY\b/gi, "GROUP BY")
+        .replace(/\bHAVING\b/gi, "HAVING");
     }
 
     return sql;
@@ -78,8 +88,8 @@ const SqlRenderer: React.FC<RendererProps> = ({
 
   // 获取主题 - 使用 GitHub 风格
   const getTheme = () => {
-    if (sqlConfig.theme === 'dark') return githubGist;
-    if (sqlConfig.theme === 'light') return github;
+    if (sqlConfig.theme === "dark") return githubGist;
+    if (sqlConfig.theme === "light") return github;
     // auto: 根据用户消息类型选择
     return isUser ? githubGist : github;
   };
@@ -95,7 +105,7 @@ const SqlRenderer: React.FC<RendererProps> = ({
 
   // 处理可视化 - 使用全局服务
   const handleVisualize = () => {
-    visualize(processedSql, 'sql');
+    visualize(processedSql, "sql");
   };
 
   return (
@@ -103,24 +113,24 @@ const SqlRenderer: React.FC<RendererProps> = ({
       <Paper
         elevation={1}
         sx={{
-          position: 'relative',
-          border: 'none',
+          position: "relative",
+          border: "none",
           borderRadius: 2,
-          overflow: 'hidden',
+          overflow: "hidden",
         }}
       >
         {/* 操作按钮 */}
         <Box
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 8,
             right: 8,
             zIndex: 1,
             opacity: 0,
-            transition: 'opacity 0.2s',
-            '&:hover': { opacity: 1 },
-            '.message-bubble:hover &': { opacity: 1 },
-            display: 'flex',
+            transition: "opacity 0.2s",
+            "&:hover": { opacity: 1 },
+            ".message-bubble:hover &": { opacity: 1 },
+            display: "flex",
             gap: 1,
           }}
         >
@@ -130,10 +140,10 @@ const SqlRenderer: React.FC<RendererProps> = ({
               size="small"
               onClick={handleVisualize}
               sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: 'var(--secondary-text)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                color: "var(--secondary-text)",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
                 },
               }}
             >
@@ -147,10 +157,10 @@ const SqlRenderer: React.FC<RendererProps> = ({
               size="small"
               onClick={handleCopy}
               sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: 'var(--secondary-text)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                color: "var(--secondary-text)",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
                 },
               }}
             >
@@ -167,10 +177,10 @@ const SqlRenderer: React.FC<RendererProps> = ({
           wrapLines={true}
           customStyle={{
             margin: 0,
-            padding: '16px',
-            paddingTop: '16px', // 为复制按钮留出空间
-            backgroundColor: 'transparent',
-            fontSize: '14px',
+            padding: "16px",
+            paddingTop: "16px", // 为复制按钮留出空间
+            backgroundColor: "transparent",
+            fontSize: "14px",
             fontFamily: ' Maple Mono, Monaco, Menlo, "Ubuntu Mono", monospace',
           }}
         >

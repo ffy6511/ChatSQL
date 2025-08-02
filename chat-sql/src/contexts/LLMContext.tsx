@@ -1,8 +1,8 @@
 // LLMContext.tsx
-'use client'
+"use client";
 
-import React, { createContext, useContext, useState } from 'react';
-import { DifyResponse } from '@/types/CodingTypes/dify';
+import React, { createContext, useContext, useState } from "react";
+import { DifyResponse } from "@/types/CodingTypes/dify";
 
 interface LLMContextType {
   showLLMWindow: boolean;
@@ -18,11 +18,13 @@ const LLMContext = createContext<LLMContextType | null>(null);
 
 export const useLLMContext = () => {
   const ctx = useContext(LLMContext);
-  if (!ctx) throw new Error('useLLMContext must be used within LLMProvider');
+  if (!ctx) throw new Error("useLLMContext must be used within LLMProvider");
   return ctx;
 };
 
-export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [showLLMWindow, setShowLLMWindow] = useState(true);
   const [llmResult, setLLMResult] = useState<DifyResponse | null>(null);
   const [currentProblemId, setCurrentProblemId] = useState<number | null>(null);
@@ -30,15 +32,17 @@ export const LLMProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshRecords = () => {};
 
   return (
-    <LLMContext.Provider value={{
-      showLLMWindow,
-      setShowLLMWindow,
-      llmResult,
-      setLLMResult,
-      currentProblemId,
-      setCurrentProblemId,
-      refreshRecords
-    }}>
+    <LLMContext.Provider
+      value={{
+        showLLMWindow,
+        setShowLLMWindow,
+        llmResult,
+        setLLMResult,
+        currentProblemId,
+        setCurrentProblemId,
+        refreshRecords,
+      }}
+    >
       {children}
     </LLMContext.Provider>
   );

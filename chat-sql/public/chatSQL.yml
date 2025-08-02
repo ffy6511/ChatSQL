@@ -1,15 +1,15 @@
 app:
   description: 根据用户请求生成对应的SQL的schema,tuple等信息.
   icon: male-student
-  icon_background: '#FEF7C3'
+  icon_background: "#FEF7C3"
   mode: workflow
   name: chatSQL
   use_icon_as_answer_icon: false
 dependencies:
-- current_identifier: null
-  type: marketplace
-  value:
-    marketplace_plugin_unique_identifier: langgenius/gemini:0.0.8@420e755f870062b3da528617d2c0439a599ce1cbbb00645492c3bdb2b360afb6
+  - current_identifier: null
+    type: marketplace
+    value:
+      marketplace_plugin_unique_identifier: langgenius/gemini:0.0.8@420e755f870062b3da528617d2c0439a599ce1cbbb00645492c3bdb2b360afb6
 kind: app
 version: 0.2.0
 workflow:
@@ -18,17 +18,17 @@ workflow:
   features:
     file_upload:
       allowed_file_extensions:
-      - .JPG
-      - .JPEG
-      - .PNG
-      - .GIF
-      - .WEBP
-      - .SVG
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+        - .SVG
       allowed_file_types:
-      - image
+        - image
       allowed_file_upload_methods:
-      - local_file
-      - remote_url
+        - local_file
+        - remote_url
       enabled: false
       fileUploadConfig:
         audio_file_size_limit: 50
@@ -41,10 +41,10 @@ workflow:
         enabled: false
         number_limits: 3
         transfer_methods:
-        - local_file
-        - remote_url
+          - local_file
+          - remote_url
       number_limits: 3
-    opening_statement: ''
+    opening_statement: ""
     retriever_resource:
       enabled: true
     sensitive_word_avoidance:
@@ -56,890 +56,897 @@ workflow:
       enabled: false
     text_to_speech:
       enabled: false
-      language: ''
-      voice: ''
+      language: ""
+      voice: ""
   graph:
     edges:
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: start
-        targetType: question-classifier
-      id: 1744815115517-source-1744815241112-target
-      selected: false
-      source: '1744815115517'
-      sourceHandle: source
-      target: '1744815241112'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: question-classifier
-        targetType: llm
-      id: 1744815241112-1-1744815267059-target
-      selected: false
-      source: '1744815241112'
-      sourceHandle: '1'
-      target: '1744815267059'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: parameter-extractor
-      id: 1744815267059-source-1744815382427-target
-      selected: false
-      source: '1744815267059'
-      sourceHandle: source
-      target: '1744815382427'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: question-classifier
-        targetType: llm
-      id: 1744815241112-2-17448590465580-target
-      source: '1744815241112'
-      sourceHandle: '2'
-      target: '17448590465580'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: question-classifier
-        targetType: llm
-      id: 1744815241112-1744815260512-17448590802940-target
-      source: '1744815241112'
-      sourceHandle: '1744815260512'
-      target: '17448590802940'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: llm
-        targetType: parameter-extractor
-      id: 17448590465580-source-17448592682460-target
-      source: '17448590465580'
-      sourceHandle: source
-      target: '17448592682460'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: llm
-        targetType: parameter-extractor
-      id: 17448590802940-source-17448593136590-target
-      source: '17448590802940'
-      sourceHandle: source
-      target: '17448593136590'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: parameter-extractor
-        targetType: end
-      id: 1744815382427-source-1744815524347-target
-      source: '1744815382427'
-      sourceHandle: source
-      target: '1744815524347'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: parameter-extractor
-        targetType: end
-      id: 17448593136590-source-1744859624591-target
-      source: '17448593136590'
-      sourceHandle: source
-      target: '1744859624591'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: parameter-extractor
-        targetType: end
-      id: 17448592682460-source-1744859649555-target
-      source: '17448592682460'
-      sourceHandle: source
-      target: '1744859649555'
-      targetHandle: target
-      type: custom
-      zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: start
+          targetType: question-classifier
+        id: 1744815115517-source-1744815241112-target
+        selected: false
+        source: "1744815115517"
+        sourceHandle: source
+        target: "1744815241112"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: question-classifier
+          targetType: llm
+        id: 1744815241112-1-1744815267059-target
+        selected: false
+        source: "1744815241112"
+        sourceHandle: "1"
+        target: "1744815267059"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: parameter-extractor
+        id: 1744815267059-source-1744815382427-target
+        selected: false
+        source: "1744815267059"
+        sourceHandle: source
+        target: "1744815382427"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: question-classifier
+          targetType: llm
+        id: 1744815241112-2-17448590465580-target
+        source: "1744815241112"
+        sourceHandle: "2"
+        target: "17448590465580"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: question-classifier
+          targetType: llm
+        id: 1744815241112-1744815260512-17448590802940-target
+        source: "1744815241112"
+        sourceHandle: "1744815260512"
+        target: "17448590802940"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: llm
+          targetType: parameter-extractor
+        id: 17448590465580-source-17448592682460-target
+        source: "17448590465580"
+        sourceHandle: source
+        target: "17448592682460"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: llm
+          targetType: parameter-extractor
+        id: 17448590802940-source-17448593136590-target
+        source: "17448590802940"
+        sourceHandle: source
+        target: "17448593136590"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: parameter-extractor
+          targetType: end
+        id: 1744815382427-source-1744815524347-target
+        source: "1744815382427"
+        sourceHandle: source
+        target: "1744815524347"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: parameter-extractor
+          targetType: end
+        id: 17448593136590-source-1744859624591-target
+        source: "17448593136590"
+        sourceHandle: source
+        target: "1744859624591"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: parameter-extractor
+          targetType: end
+        id: 17448592682460-source-1744859649555-target
+        source: "17448592682460"
+        sourceHandle: source
+        target: "1744859649555"
+        targetHandle: target
+        type: custom
+        zIndex: 0
     nodes:
-    - data:
-        desc: ''
+      - data:
+          desc: ""
+          selected: false
+          title: 开始
+          type: start
+          variables:
+            - label: difficulty
+              max_length: 48
+              options: []
+              required: true
+              type: text-input
+              variable: difficulty
+            - label: tags
+              max_length: 100
+              options: []
+              required: true
+              type: text-input
+              variable: tags
+            - label: declare
+              max_length: 200
+              options: []
+              required: true
+              type: text-input
+              variable: declare
+            - label: count
+              max_length: 48
+              options: []
+              required: true
+              type: number
+              variable: count
+        height: 168
+        id: "1744815115517"
+        position:
+          x: 80
+          y: 283
+        positionAbsolute:
+          x: 80
+          y: 283
         selected: false
-        title: 开始
-        type: start
-        variables:
-        - label: difficulty
-          max_length: 48
-          options: []
-          required: true
-          type: text-input
-          variable: difficulty
-        - label: tags
-          max_length: 100
-          options: []
-          required: true
-          type: text-input
-          variable: tags
-        - label: declare
-          max_length: 200
-          options: []
-          required: true
-          type: text-input
-          variable: declare
-        - label: count
-          max_length: 48
-          options: []
-          required: true
-          type: number
-          variable: count
-      height: 168
-      id: '1744815115517'
-      position:
-        x: 80
-        y: 283
-      positionAbsolute:
-        x: 80
-        y: 283
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        author: 待抉
-        desc: ''
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          author: 待抉
+          desc: ""
+          height: 131
+          selected: false
+          showAuthor: true
+          text:
+            '{"root":{"children":[{"children":[{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"tags","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":":
+            用户勾选的标签(可以自定义并添加)","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":1},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"declare","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":";
+            可以自定义","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":2},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"difficulty
+            ","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":":
+            难度的标签, 是固定的数组之一","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":3},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"count:
+            ","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"
+            题目的数量","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":4}],"direction":"ltr","format":"","indent":0,"type":"list","version":1,"listType":"bullet","start":1,"tag":"ul"}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+          theme: blue
+          title: ""
+          type: ""
+          width: 325
         height: 131
+        id: "1744815215224"
+        position:
+          x: 39.088846848
+          y: 475.71005491200003
+        positionAbsolute:
+          x: 39.088846848
+          y: 475.71005491200003
         selected: false
-        showAuthor: true
-        text: '{"root":{"children":[{"children":[{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"tags","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":":
-          用户勾选的标签(可以自定义并添加)","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":1},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"declare","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":";
-          可以自定义","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":2},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"difficulty
-          ","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":":
-          难度的标签, 是固定的数组之一","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":3},{"children":[{"detail":0,"format":16,"mode":"normal","style":"","text":"count:
-          ","type":"text","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"
-          题目的数量","type":"text","version":1}],"direction":"ltr","format":"start","indent":0,"type":"listitem","version":1,"value":4}],"direction":"ltr","format":"","indent":0,"type":"list","version":1,"listType":"bullet","start":1,"tag":"ul"}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
-        theme: blue
-        title: ''
-        type: ''
+        sourcePosition: right
+        targetPosition: left
+        type: custom-note
         width: 325
-      height: 131
-      id: '1744815215224'
-      position:
-        x: 39.088846848
-        y: 475.71005491200003
-      positionAbsolute:
-        x: 39.088846848
-        y: 475.71005491200003
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom-note
-      width: 325
-    - data:
-        classes:
-        - id: '1'
-          name: simple
-        - id: '2'
-          name: medium
-        - id: '1744815260512'
-          name: hard
-        desc: ''
-        instructions: ''
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        query_variable_selector:
-        - '1744815115517'
-        - difficulty
-        selected: false
-        title: 问题分类器
-        topics: []
-        type: question-classifier
-        vision:
-          enabled: false
-      height: 210
-      id: '1744815241112'
-      position:
-        x: 384
-        y: 283
-      positionAbsolute:
-        x: 384
-        y: 283
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
-        desc: ''
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        prompt_template:
-        - edition_type: basic
-          id: aa382083-99b9-4ed4-8e86-7c014d7430c1
-          jinja2_text: /
-          role: system
-          text: " 你是一个经验丰富的SQL题目生成专家:\n\n请根据以下要求生成一道SQL练习题，难度为【简单】：\n- 题目应聚焦于基础查询、简单筛选、排序、单表操作等基础SQL语法\n\
-            - 表结构和数据要简洁明了，适合初学者理解\n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现, 直接给出字段, 不同的字段单独给出\n\
-            请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
-            \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
-            \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
-            ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
-            ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
-            \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
-            \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
-            \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
-            \               {\n                    \"name\": \"emp_id\",\n       \
-            \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
-            \                },\n                {\n                    \"name\":\
-            \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
-            \                \"isPrimary\": false\n                },\n          \
-            \      {\n                    \"name\": \"department\",\n            \
-            \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
-            : false\n                }\n            ],\n            \"foreignKeys\"\
-            : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
-            tableName\": \"Employees\",\n            \"tupleData\": [\n          \
-            \      {\n                    \"emp_id\": 101,\n                    \"\
-            emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
-            \               },\n                {\n                    \"emp_id\"\
-            : 102,\n                    \"emp_name\": \"李丽\",\n                  \
-            \  \"department\": \"市场部\"\n                },\n                {\n  \
-            \                  \"emp_id\": 103,\n                    \"emp_name\"\
-            : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
-            \     },\n                {\n                    \"emp_id\": 104,\n  \
-            \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
-            : \"技术部\"\n                },\n                {\n                   \
-            \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
-            \              \"department\": \"人力资源部\"\n                }\n        \
-            \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
-            \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
-            \                {\n                    \"emp_id\": 101,\n           \
-            \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
-            人力资源部\"\n                },\n                {\n                    \"\
-            emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
-            \          \"department\": \"人力资源部\"\n                },\n           \
-            \     {\n                    \"emp_id\": 105,\n                    \"\
-            emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
-            \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
-            {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
-            \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
-            ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
-            ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
-            , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
-            student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
-            name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
-            \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
-            : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
-            : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
-            \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
-            : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
-            : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
-            : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
-            : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
-            math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
-            \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
-            : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
-            \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
-            \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
-            \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
-            student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
-            : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
-            math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
-        - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
-          role: user
-          text: '根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
+      - data:
+          classes:
+            - id: "1"
+              name: simple
+            - id: "2"
+              name: medium
+            - id: "1744815260512"
+              name: hard
+          desc: ""
+          instructions: ""
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          query_variable_selector:
+            - "1744815115517"
+            - difficulty
+          selected: false
+          title: 问题分类器
+          topics: []
+          type: question-classifier
+          vision:
+            enabled: false
+        height: 210
+        id: "1744815241112"
+        position:
+          x: 384
+          y: 283
+        positionAbsolute:
+          x: 384
+          y: 283
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: ""
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          prompt_template:
+            - edition_type: basic
+              id: aa382083-99b9-4ed4-8e86-7c014d7430c1
+              jinja2_text: /
+              role: system
+              text:
+                " 你是一个经验丰富的SQL题目生成专家:\n\n请根据以下要求生成一道SQL练习题，难度为【简单】：\n- 题目应聚焦于基础查询、简单筛选、排序、单表操作等基础SQL语法\n\
+                - 表结构和数据要简洁明了，适合初学者理解\n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现, 直接给出字段, 不同的字段单独给出\n\
+                请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
+                \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
+                \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
+                ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
+                ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
+                \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
+                \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
+                \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
+                \               {\n                    \"name\": \"emp_id\",\n       \
+                \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
+                \                },\n                {\n                    \"name\":\
+                \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
+                \                \"isPrimary\": false\n                },\n          \
+                \      {\n                    \"name\": \"department\",\n            \
+                \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
+                : false\n                }\n            ],\n            \"foreignKeys\"\
+                : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
+                tableName\": \"Employees\",\n            \"tupleData\": [\n          \
+                \      {\n                    \"emp_id\": 101,\n                    \"\
+                emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
+                \               },\n                {\n                    \"emp_id\"\
+                : 102,\n                    \"emp_name\": \"李丽\",\n                  \
+                \  \"department\": \"市场部\"\n                },\n                {\n  \
+                \                  \"emp_id\": 103,\n                    \"emp_name\"\
+                : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
+                \     },\n                {\n                    \"emp_id\": 104,\n  \
+                \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
+                : \"技术部\"\n                },\n                {\n                   \
+                \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
+                \              \"department\": \"人力资源部\"\n                }\n        \
+                \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
+                \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
+                \                {\n                    \"emp_id\": 101,\n           \
+                \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
+                人力资源部\"\n                },\n                {\n                    \"\
+                emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
+                \          \"department\": \"人力资源部\"\n                },\n           \
+                \     {\n                    \"emp_id\": 105,\n                    \"\
+                emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
+                \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
+                {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
+                \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
+                ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
+                ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
+                , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
+                student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
+                name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
+                \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
+                : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
+                : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
+                \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
+                : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
+                : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
+                : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
+                : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
+                math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
+                \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
+                : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
+                \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
+                \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
+                \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
+                student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
+                : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
+                math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
+            - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
+              role: user
+              text:
+                "根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
 
-            注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!'
+                注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!"
+          selected: true
+          title: Simple-generator
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 90
+        id: "1744815267059"
+        position:
+          x: 688
+          y: 283
+        positionAbsolute:
+          x: 688
+          y: 283
         selected: true
-        title: Simple-generator
-        type: llm
-        variables: []
-        vision:
-          enabled: false
-      height: 90
-      id: '1744815267059'
-      position:
-        x: 688
-        y: 283
-      positionAbsolute:
-        x: 688
-        y: 283
-      selected: true
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: Simple-output
-        instruction: '{{#1744815267059.text#}}中存在对应的字段,提取.'
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        parameters:
-        - description: 模型的问题提示与介绍
-          name: hint
-          required: false
-          type: string
-        - description: 场景的描述
-          name: description
-          required: false
-          type: string
-        - description: 题目的标签
-          name: tags
-          required: false
-          type: array[string]
-        - description: schema
-          name: tableStructure
-          required: true
-          type: array[object]
-        - description: 元组数据
-          name: tuples
-          required: true
-          type: array[object]
-        - description: 预期的结果
-          name: expected_result
-          required: false
-          type: array[object]
-        - description: 问题描述
-          name: problem
-          required: false
-          type: array[string]
-        query:
-        - '1744815267059'
-        - text
-        reasoning_mode: prompt
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: Simple-output
+          instruction: "{{#1744815267059.text#}}中存在对应的字段,提取."
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          parameters:
+            - description: 模型的问题提示与介绍
+              name: hint
+              required: false
+              type: string
+            - description: 场景的描述
+              name: description
+              required: false
+              type: string
+            - description: 题目的标签
+              name: tags
+              required: false
+              type: array[string]
+            - description: schema
+              name: tableStructure
+              required: true
+              type: array[object]
+            - description: 元组数据
+              name: tuples
+              required: true
+              type: array[object]
+            - description: 预期的结果
+              name: expected_result
+              required: false
+              type: array[object]
+            - description: 问题描述
+              name: problem
+              required: false
+              type: array[string]
+          query:
+            - "1744815267059"
+            - text
+          reasoning_mode: prompt
+          selected: false
+          title: Simple-extractor
+          type: parameter-extractor
+          variables: []
+          vision:
+            enabled: false
+        height: 118
+        id: "1744815382427"
+        position:
+          x: 1089.4592000000002
+          y: 298.552
+        positionAbsolute:
+          x: 1089.4592000000002
+          y: 298.552
         selected: false
-        title: Simple-extractor
-        type: parameter-extractor
-        variables: []
-        vision:
-          enabled: false
-      height: 118
-      id: '1744815382427'
-      position:
-        x: 1089.4592000000002
-        y: 298.552
-      positionAbsolute:
-        x: 1089.4592000000002
-        y: 298.552
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: ''
-        outputs:
-        - value_selector:
-          - '1744815382427'
-          - hint
-          variable: hint
-        - value_selector:
-          - '1744815382427'
-          - description
-          variable: description
-        - value_selector:
-          - '1744815382427'
-          - tags
-          variable: tags
-        - value_selector:
-          - '1744815382427'
-          - tableStructure
-          variable: tableStructure
-        - value_selector:
-          - '1744815382427'
-          - tuples
-          variable: tuples
-        - value_selector:
-          - '1744815382427'
-          - expected_result
-          variable: expected_result
-        - value_selector:
-          - '1744815382427'
-          - problem
-          variable: problem
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: ""
+          outputs:
+            - value_selector:
+                - "1744815382427"
+                - hint
+              variable: hint
+            - value_selector:
+                - "1744815382427"
+                - description
+              variable: description
+            - value_selector:
+                - "1744815382427"
+                - tags
+              variable: tags
+            - value_selector:
+                - "1744815382427"
+                - tableStructure
+              variable: tableStructure
+            - value_selector:
+                - "1744815382427"
+                - tuples
+              variable: tuples
+            - value_selector:
+                - "1744815382427"
+                - expected_result
+              variable: expected_result
+            - value_selector:
+                - "1744815382427"
+                - problem
+              variable: problem
+          selected: false
+          title: simple-version
+          type: end
+        height: 246
+        id: "1744815524347"
+        position:
+          x: 1579.0464
+          y: 271.5951999999999
+        positionAbsolute:
+          x: 1579.0464
+          y: 271.5951999999999
         selected: false
-        title: simple-version
-        type: end
-      height: 246
-      id: '1744815524347'
-      position:
-        x: 1579.0464
-        y: 271.5951999999999
-      positionAbsolute:
-        x: 1579.0464
-        y: 271.5951999999999
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
-        desc: ''
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        prompt_template:
-        - edition_type: basic
-          id: aa382083-99b9-4ed4-8e86-7c014d7430c1
-          jinja2_text: /
-          role: system
-          text: " 你是一个经验丰富的SQL题目生成专家\n\n生成一道SQL练习题，难度为中等。题目可涉及多条件筛选、分组（GROUP BY）、聚合函数（如COUNT、SUM、AVG）、简单的子查询或多表连接（JOIN），表结构适度复杂，适合有一定基础的学习者练习。\n\
-            \n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现, 直接给出字段, 不同的字段单独给出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\
-            \n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关, 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的).\
-            \ 输出的tags至少包括{{#1744815115517.tags#}}输入的部分, 并且体现在问题中.\n\n{\n    \"hint\"\
-            : \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\",\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
-            ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
-            \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
-            \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
-            \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
-            \               {\n                    \"name\": \"emp_id\",\n       \
-            \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
-            \                },\n                {\n                    \"name\":\
-            \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
-            \                \"isPrimary\": false\n                },\n          \
-            \      {\n                    \"name\": \"department\",\n            \
-            \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
-            : false\n                }\n            ],\n            \"foreignKeys\"\
-            : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
-            tableName\": \"Employees\",\n            \"tupleData\": [\n          \
-            \      {\n                    \"emp_id\": 101,\n                    \"\
-            emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
-            \               },\n                {\n                    \"emp_id\"\
-            : 102,\n                    \"emp_name\": \"李丽\",\n                  \
-            \  \"department\": \"市场部\"\n                },\n                {\n  \
-            \                  \"emp_id\": 103,\n                    \"emp_name\"\
-            : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
-            \     },\n                {\n                    \"emp_id\": 104,\n  \
-            \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
-            : \"技术部\"\n                },\n                {\n                   \
-            \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
-            \              \"department\": \"人力资源部\"\n                }\n        \
-            \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
-            \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
-            \                {\n                    \"emp_id\": 101,\n           \
-            \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
-            人力资源部\"\n                },\n                {\n                    \"\
-            emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
-            \          \"department\": \"人力资源部\"\n                },\n           \
-            \     {\n                    \"emp_id\": 105,\n                    \"\
-            emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
-            \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
-            {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
-            \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
-            ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
-            ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
-            , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
-            student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
-            name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
-            \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
-            : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
-            : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
-            \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
-            : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
-            : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
-            : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
-            : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
-            math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
-            \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
-            : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
-            \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
-            \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
-            \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
-            student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
-            : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
-            math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
-        - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
-          role: user
-          text: '根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: ""
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          prompt_template:
+            - edition_type: basic
+              id: aa382083-99b9-4ed4-8e86-7c014d7430c1
+              jinja2_text: /
+              role: system
+              text:
+                " 你是一个经验丰富的SQL题目生成专家\n\n生成一道SQL练习题，难度为中等。题目可涉及多条件筛选、分组（GROUP BY）、聚合函数（如COUNT、SUM、AVG）、简单的子查询或多表连接（JOIN），表结构适度复杂，适合有一定基础的学习者练习。\n\
+                \n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现, 直接给出字段, 不同的字段单独给出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\
+                \n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关, 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的).\
+                \ 输出的tags至少包括{{#1744815115517.tags#}}输入的部分, 并且体现在问题中.\n\n{\n    \"hint\"\
+                : \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\",\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
+                ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
+                \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
+                \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
+                \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
+                \               {\n                    \"name\": \"emp_id\",\n       \
+                \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
+                \                },\n                {\n                    \"name\":\
+                \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
+                \                \"isPrimary\": false\n                },\n          \
+                \      {\n                    \"name\": \"department\",\n            \
+                \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
+                : false\n                }\n            ],\n            \"foreignKeys\"\
+                : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
+                tableName\": \"Employees\",\n            \"tupleData\": [\n          \
+                \      {\n                    \"emp_id\": 101,\n                    \"\
+                emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
+                \               },\n                {\n                    \"emp_id\"\
+                : 102,\n                    \"emp_name\": \"李丽\",\n                  \
+                \  \"department\": \"市场部\"\n                },\n                {\n  \
+                \                  \"emp_id\": 103,\n                    \"emp_name\"\
+                : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
+                \     },\n                {\n                    \"emp_id\": 104,\n  \
+                \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
+                : \"技术部\"\n                },\n                {\n                   \
+                \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
+                \              \"department\": \"人力资源部\"\n                }\n        \
+                \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
+                \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
+                \                {\n                    \"emp_id\": 101,\n           \
+                \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
+                人力资源部\"\n                },\n                {\n                    \"\
+                emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
+                \          \"department\": \"人力资源部\"\n                },\n           \
+                \     {\n                    \"emp_id\": 105,\n                    \"\
+                emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
+                \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
+                {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
+                \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
+                ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
+                ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
+                , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
+                student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
+                name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
+                \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
+                : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
+                : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
+                \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
+                : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
+                : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
+                : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
+                : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
+                math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
+                \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
+                : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
+                \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
+                \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
+                \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
+                student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
+                : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
+                math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
+            - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
+              role: user
+              text:
+                "根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
 
-            注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!'
+                注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!"
+          selected: false
+          title: Medium-generator
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 90
+        id: "17448590465580"
+        position:
+          x: 717.1232000000003
+          y: 454.2112
+        positionAbsolute:
+          x: 717.1232000000003
+          y: 454.2112
         selected: false
-        title: Medium-generator
-        type: llm
-        variables: []
-        vision:
-          enabled: false
-      height: 90
-      id: '17448590465580'
-      position:
-        x: 717.1232000000003
-        y: 454.2112
-      positionAbsolute:
-        x: 717.1232000000003
-        y: 454.2112
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
-        desc: ''
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        prompt_template:
-        - edition_type: basic
-          id: aa382083-99b9-4ed4-8e86-7c014d7430c1
-          jinja2_text: /
-          role: system
-          text: " 你是一个经验丰富的SQL题目生成专家\n\n生成一道SQL练习题，难度为高。题目可包含多表连接（JOIN）、嵌套子查询、窗口函数、复杂的条件筛选（如EXISTS、IN、NOT\
-            \ IN）、分组与排序的结合，表结构可以更复杂，适合进阶学习者挑战\n\n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现,\
-            \ 直接给出字段, 不同的字段单独给出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
-            \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
-            \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
-            ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
-            ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
-            \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
-            \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
-            \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
-            \               {\n                    \"name\": \"emp_id\",\n       \
-            \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
-            \                },\n                {\n                    \"name\":\
-            \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
-            \                \"isPrimary\": false\n                },\n          \
-            \      {\n                    \"name\": \"department\",\n            \
-            \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
-            : false\n                }\n            ],\n            \"foreignKeys\"\
-            : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
-            tableName\": \"Employees\",\n            \"tupleData\": [\n          \
-            \      {\n                    \"emp_id\": 101,\n                    \"\
-            emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
-            \               },\n                {\n                    \"emp_id\"\
-            : 102,\n                    \"emp_name\": \"李丽\",\n                  \
-            \  \"department\": \"市场部\"\n                },\n                {\n  \
-            \                  \"emp_id\": 103,\n                    \"emp_name\"\
-            : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
-            \     },\n                {\n                    \"emp_id\": 104,\n  \
-            \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
-            : \"技术部\"\n                },\n                {\n                   \
-            \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
-            \              \"department\": \"人力资源部\"\n                }\n        \
-            \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
-            \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
-            \                {\n                    \"emp_id\": 101,\n           \
-            \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
-            人力资源部\"\n                },\n                {\n                    \"\
-            emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
-            \          \"department\": \"人力资源部\"\n                },\n           \
-            \     {\n                    \"emp_id\": 105,\n                    \"\
-            emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
-            \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
-            {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
-            \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
-            ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
-            ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
-            , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
-            student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
-            name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
-            \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
-            : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
-            : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
-            \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
-            : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
-            : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
-            : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
-            tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
-            : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
-            math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
-            : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
-            \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
-            : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
-            \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
-            \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
-            \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
-            student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
-            : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
-            math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
-        - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
-          role: user
-          text: '根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: ""
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          prompt_template:
+            - edition_type: basic
+              id: aa382083-99b9-4ed4-8e86-7c014d7430c1
+              jinja2_text: /
+              role: system
+              text:
+                " 你是一个经验丰富的SQL题目生成专家\n\n生成一道SQL练习题，难度为高。题目可包含多表连接（JOIN）、嵌套子查询、窗口函数、复杂的条件筛选（如EXISTS、IN、NOT\
+                \ IN）、分组与排序的结合，表结构可以更复杂，适合进阶学习者挑战\n\n- 输出需严格按照用户指定的JSON格式, 注意不要有```json出现,\
+                \ 直接给出字段, 不同的字段单独给出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
+                \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
+                \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
+                ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
+                ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
+                \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
+                \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
+                \        \"tableName\": \"Employees\",\n            \"columns\": [\n \
+                \               {\n                    \"name\": \"emp_id\",\n       \
+                \             \"type\": \"INT\",\n                    \"isPrimary\": true\n\
+                \                },\n                {\n                    \"name\":\
+                \ \"emp_name\",\n                    \"type\": \"VARCHAR(50)\",\n    \
+                \                \"isPrimary\": false\n                },\n          \
+                \      {\n                    \"name\": \"department\",\n            \
+                \        \"type\": \"VARCHAR(50)\",\n                    \"isPrimary\"\
+                : false\n                }\n            ],\n            \"foreignKeys\"\
+                : []\n        }\n    ],\n    \"tuples\": [\n        {\n            \"\
+                tableName\": \"Employees\",\n            \"tupleData\": [\n          \
+                \      {\n                    \"emp_id\": 101,\n                    \"\
+                emp_name\": \"张伟\",\n                    \"department\": \"人力资源部\"\n \
+                \               },\n                {\n                    \"emp_id\"\
+                : 102,\n                    \"emp_name\": \"李丽\",\n                  \
+                \  \"department\": \"市场部\"\n                },\n                {\n  \
+                \                  \"emp_id\": 103,\n                    \"emp_name\"\
+                : \"王强\",\n                    \"department\": \"人力资源部\"\n           \
+                \     },\n                {\n                    \"emp_id\": 104,\n  \
+                \                  \"emp_name\": \"赵敏\",\n                    \"department\"\
+                : \"技术部\"\n                },\n                {\n                   \
+                \ \"emp_id\": 105,\n                    \"emp_name\": \"钱坤\",\n      \
+                \              \"department\": \"人力资源部\"\n                }\n        \
+                \    ]\n        }\n    ],\n    \"expected_result\": [\n        {\n   \
+                \         \"tableName\": \"Employees\",\n            \"tupleData\": [\n\
+                \                {\n                    \"emp_id\": 101,\n           \
+                \         \"emp_name\": \"张伟\",\n                    \"department\": \"\
+                人力资源部\"\n                },\n                {\n                    \"\
+                emp_id\": 103,\n                    \"emp_name\": \"王强\",\n          \
+                \          \"department\": \"人力资源部\"\n                },\n           \
+                \     {\n                    \"emp_id\": 105,\n                    \"\
+                emp_name\": \"钱坤\",\n                    \"department\": \"人力资源部\"\n \
+                \               }\n            ]\n        }\n    ]\n}\n\n\n示例2(多个问题):\n\
+                {{#1744815115517.count#}}= 3的情况\n{\n  \"hint\": \"本题考察SELECT、WHERE、ORDER\
+                \ BY等基础SQL语法，注意不同查询需求的写法。\",\n  \"description\": \"有一张学生成绩表，记录了学生的学号、姓名和数学成绩。请根据下列要求完成查询。场景：班级成绩管理。\"\
+                ,\n  \"problem\": [\n    \"1. 查询所有学生的姓名和数学成绩。\",\n    \"2. 查询数学成绩大于等于90分的学生姓名和成绩。\"\
+                ,\n    \"3. 查询所有学生的姓名和成绩，并按成绩从高到低排序。\"\n  ],\n  \"tags\": [\"select\"\
+                , \"where\", \"order by\"],\n  \"tableStructure\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"columns\": [\n        { \"name\": \"\
+                student_id\", \"type\": \"INT\", \"isPrimary\": true },\n        { \"\
+                name\": \"student_name\", \"type\": \"VARCHAR(50)\", \"isPrimary\": false\
+                \ },\n        { \"name\": \"math_score\", \"type\": \"INT\", \"isPrimary\"\
+                : false }\n      ],\n      \"foreignKeys\": []\n    }\n  ],\n  \"tuples\"\
+                : [\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n\
+                \        { \"student_id\": 1, \"student_name\": \"张三\", \"math_score\"\
+                : 95 },\n        { \"student_id\": 2, \"student_name\": \"李四\", \"math_score\"\
+                : 88 },\n        { \"student_id\": 3, \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_id\": 4, \"student_name\": \"赵六\", \"math_score\"\
+                : 92 }\n      ]\n    }\n  ],\n  \"expected_result\": [\n    {\n      \"\
+                tableName\": \"Scores\",\n      \"tupleData\": [\n        { \"student_name\"\
+                : \"张三\", \"math_score\": 95 },\n        { \"student_name\": \"李四\", \"\
+                math_score\": 88 },\n        { \"student_name\": \"王五\", \"math_score\"\
+                : 76 },\n        { \"student_name\": \"赵六\", \"math_score\": 92 }\n  \
+                \    ]\n    },\n    {\n      \"tableName\": \"Scores\",\n      \"tupleData\"\
+                : [\n        { \"student_name\": \"张三\", \"math_score\": 95 },\n     \
+                \   { \"student_name\": \"赵六\", \"math_score\": 92 }\n      ]\n    },\n\
+                \    {\n      \"tableName\": \"Scores\",\n      \"tupleData\": [\n   \
+                \     { \"student_name\": \"张三\", \"math_score\": 95 },\n        { \"\
+                student_name\": \"赵六\", \"math_score\": 92 },\n        { \"student_name\"\
+                : \"李四\", \"math_score\": 88 },\n        { \"student_name\": \"王五\", \"\
+                math_score\": 76 }\n      ]\n    }\n  ]\n}\n\n\n"
+            - id: 9d9923a5-86cd-4d18-83b2-36227681d1f5
+              role: user
+              text:
+                "根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
 
-            注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!'
+                注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!"
+          selected: false
+          title: Hard-generator
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 90
+        id: "17448590802940"
+        position:
+          x: 671.5040000000004
+          y: 644.9824
+        positionAbsolute:
+          x: 671.5040000000004
+          y: 644.9824
         selected: false
-        title: Hard-generator
-        type: llm
-        variables: []
-        vision:
-          enabled: false
-      height: 90
-      id: '17448590802940'
-      position:
-        x: 671.5040000000004
-        y: 644.9824
-      positionAbsolute:
-        x: 671.5040000000004
-        y: 644.9824
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: Simple-output
-        instruction: '{{#17448590465580.text#}}中存在对应的字段,提取.'
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        parameters:
-        - description: 模型的问题提示与介绍
-          name: hint
-          required: false
-          type: string
-        - description: 场景的描述
-          name: description
-          required: false
-          type: string
-        - description: 题目的标签
-          name: tags
-          required: false
-          type: array[string]
-        - description: schema
-          name: tableStructure
-          required: true
-          type: array[object]
-        - description: 元组数据
-          name: tuples
-          required: true
-          type: array[object]
-        - description: 预期的结果
-          name: expected_result
-          required: false
-          type: array[object]
-        - description: 问题描述
-          name: problem
-          required: false
-          type: array[string]
-        query:
-        - '17448590465580'
-        - text
-        reasoning_mode: prompt
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: Simple-output
+          instruction: "{{#17448590465580.text#}}中存在对应的字段,提取."
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          parameters:
+            - description: 模型的问题提示与介绍
+              name: hint
+              required: false
+              type: string
+            - description: 场景的描述
+              name: description
+              required: false
+              type: string
+            - description: 题目的标签
+              name: tags
+              required: false
+              type: array[string]
+            - description: schema
+              name: tableStructure
+              required: true
+              type: array[object]
+            - description: 元组数据
+              name: tuples
+              required: true
+              type: array[object]
+            - description: 预期的结果
+              name: expected_result
+              required: false
+              type: array[object]
+            - description: 问题描述
+              name: problem
+              required: false
+              type: array[string]
+          query:
+            - "17448590465580"
+            - text
+          reasoning_mode: prompt
+          selected: false
+          title: Medium-extractor
+          type: parameter-extractor
+          variables: []
+          vision:
+            enabled: false
+        height: 118
+        id: "17448592682460"
+        position:
+          x: 1140.1376000000002
+          y: 462.50559999999984
+        positionAbsolute:
+          x: 1140.1376000000002
+          y: 462.50559999999984
         selected: false
-        title: Medium-extractor
-        type: parameter-extractor
-        variables: []
-        vision:
-          enabled: false
-      height: 118
-      id: '17448592682460'
-      position:
-        x: 1140.1376000000002
-        y: 462.50559999999984
-      positionAbsolute:
-        x: 1140.1376000000002
-        y: 462.50559999999984
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: Simple-output
-        instruction: '{{#17448590802940.text#}}中存在对应的字段,提取.'
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gemini-2.0-flash-lite
-          provider: langgenius/gemini/google
-        parameters:
-        - description: 模型的问题提示与介绍
-          name: hint
-          required: false
-          type: string
-        - description: 场景的描述
-          name: description
-          required: false
-          type: string
-        - description: 题目的标签
-          name: tags
-          required: false
-          type: array[string]
-        - description: schema
-          name: tableStructure
-          required: true
-          type: array[object]
-        - description: 元组数据
-          name: tuples
-          required: true
-          type: array[object]
-        - description: 预期的结果
-          name: expected_result
-          required: false
-          type: array[object]
-        - description: 问题描述
-          name: problem
-          required: false
-          type: array[string]
-        query:
-        - '17448590802940'
-        - text
-        reasoning_mode: prompt
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: Simple-output
+          instruction: "{{#17448590802940.text#}}中存在对应的字段,提取."
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-lite
+            provider: langgenius/gemini/google
+          parameters:
+            - description: 模型的问题提示与介绍
+              name: hint
+              required: false
+              type: string
+            - description: 场景的描述
+              name: description
+              required: false
+              type: string
+            - description: 题目的标签
+              name: tags
+              required: false
+              type: array[string]
+            - description: schema
+              name: tableStructure
+              required: true
+              type: array[object]
+            - description: 元组数据
+              name: tuples
+              required: true
+              type: array[object]
+            - description: 预期的结果
+              name: expected_result
+              required: false
+              type: array[object]
+            - description: 问题描述
+              name: problem
+              required: false
+              type: array[string]
+          query:
+            - "17448590802940"
+            - text
+          reasoning_mode: prompt
+          selected: false
+          title: Hard-extractor
+          type: parameter-extractor
+          variables: []
+          vision:
+            enabled: false
+        height: 118
+        id: "17448593136590"
+        position:
+          x: 1036.4576000000004
+          y: 644.9824
+        positionAbsolute:
+          x: 1036.4576000000004
+          y: 644.9824
         selected: false
-        title: Hard-extractor
-        type: parameter-extractor
-        variables: []
-        vision:
-          enabled: false
-      height: 118
-      id: '17448593136590'
-      position:
-        x: 1036.4576000000004
-        y: 644.9824
-      positionAbsolute:
-        x: 1036.4576000000004
-        y: 644.9824
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: ''
-        outputs:
-        - value_selector:
-          - '17448593136590'
-          - hint
-          variable: hint
-        - value_selector:
-          - '17448593136590'
-          - description
-          variable: description
-        - value_selector:
-          - '17448593136590'
-          - tags
-          variable: tags
-        - value_selector:
-          - '17448593136590'
-          - tableStructure
-          variable: tableStructure
-        - value_selector:
-          - '17448593136590'
-          - tuples
-          variable: tuples
-        - value_selector:
-          - '17448593136590'
-          - expected_result
-          variable: expected_result
-        - value_selector:
-          - '17448593136590'
-          - problem
-          variable: problem
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: ""
+          outputs:
+            - value_selector:
+                - "17448593136590"
+                - hint
+              variable: hint
+            - value_selector:
+                - "17448593136590"
+                - description
+              variable: description
+            - value_selector:
+                - "17448593136590"
+                - tags
+              variable: tags
+            - value_selector:
+                - "17448593136590"
+                - tableStructure
+              variable: tableStructure
+            - value_selector:
+                - "17448593136590"
+                - tuples
+              variable: tuples
+            - value_selector:
+                - "17448593136590"
+                - expected_result
+              variable: expected_result
+            - value_selector:
+                - "17448593136590"
+                - problem
+              variable: problem
+          selected: false
+          title: hard-version
+          type: end
+        height: 246
+        id: "1744859624591"
+        position:
+          x: 1488.5023999999999
+          y: 892.5391999999998
+        positionAbsolute:
+          x: 1488.5023999999999
+          y: 892.5391999999998
         selected: false
-        title: hard-version
-        type: end
-      height: 246
-      id: '1744859624591'
-      position:
-        x: 1488.5023999999999
-        y: 892.5391999999998
-      positionAbsolute:
-        x: 1488.5023999999999
-        y: 892.5391999999998
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: ''
-        outputs:
-        - value_selector:
-          - '17448592682460'
-          - hint
-          variable: hint
-        - value_selector:
-          - '17448592682460'
-          - description
-          variable: description
-        - value_selector:
-          - '17448592682460'
-          - tags
-          variable: tags
-        - value_selector:
-          - '17448592682460'
-          - tableStructure
-          variable: tableStructure
-        - value_selector:
-          - '17448592682460'
-          - tuples
-          variable: tuples
-        - value_selector:
-          - '17448592682460'
-          - expected_result
-          variable: expected_result
-        - value_selector:
-          - '17448592682460'
-          - problem
-          variable: problem
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: ""
+          outputs:
+            - value_selector:
+                - "17448592682460"
+                - hint
+              variable: hint
+            - value_selector:
+                - "17448592682460"
+                - description
+              variable: description
+            - value_selector:
+                - "17448592682460"
+                - tags
+              variable: tags
+            - value_selector:
+                - "17448592682460"
+                - tableStructure
+              variable: tableStructure
+            - value_selector:
+                - "17448592682460"
+                - tuples
+              variable: tuples
+            - value_selector:
+                - "17448592682460"
+                - expected_result
+              variable: expected_result
+            - value_selector:
+                - "17448592682460"
+                - problem
+              variable: problem
+          selected: false
+          title: medium-version
+          type: end
+        height: 246
+        id: "1744859649555"
+        position:
+          x: 1597.3664
+          y: 549.3583999999998
+        positionAbsolute:
+          x: 1597.3664
+          y: 549.3583999999998
         selected: false
-        title: medium-version
-        type: end
-      height: 246
-      id: '1744859649555'
-      position:
-        x: 1597.3664
-        y: 549.3583999999998
-      positionAbsolute:
-        x: 1597.3664
-        y: 549.3583999999998
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
     viewport:
       x: -210.69675370243385
       y: -68.40077335136925

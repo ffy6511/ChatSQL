@@ -1,4 +1,8 @@
-import { EREntity, ERRelationship, ERAttribute } from '@/types/ERDiagramTypes/erDiagram';
+import {
+  EREntity,
+  ERRelationship,
+  ERAttribute,
+} from "@/types/ERDiagramTypes/erDiagram";
 
 // 生成唯一ID的工具函数
 export function generateUniqueId(prefix: string): string {
@@ -8,71 +12,80 @@ export function generateUniqueId(prefix: string): string {
 }
 
 // 创建默认实体
-export function createDefaultEntity(position: { x: number; y: number }): EREntity {
-  const id = generateUniqueId('ent');
-  
+export function createDefaultEntity(position: {
+  x: number;
+  y: number;
+}): EREntity {
+  const id = generateUniqueId("ent");
+
   return {
     id,
-    name: '实体',
-    description: '新创建的实体',
+    name: "实体",
+    description: "新创建的实体",
     position,
     attributes: [
       {
-        id: generateUniqueId('attr'),
-        name: 'id',
+        id: generateUniqueId("attr"),
+        name: "id",
         isPrimaryKey: true,
-        dataType: 'VARCHAR(20)',
+        dataType: "VARCHAR(20)",
         isRequired: true,
-        description: '主键'
-      }
-    ]
+        description: "主键",
+      },
+    ],
   };
 }
 
 // 创建默认关系
-export function createDefaultRelationship(position: { x: number; y: number }): ERRelationship {
-  const id = generateUniqueId('rel');
-  
+export function createDefaultRelationship(position: {
+  x: number;
+  y: number;
+}): ERRelationship {
+  const id = generateUniqueId("rel");
+
   return {
     id,
-    name: '新关系',
-    description: '新创建的关系',
+    name: "新关系",
+    description: "新创建的关系",
     position,
     connections: [], // 初始时没有连接
-    attributes: []
+    attributes: [],
   };
 }
 
 // 创建默认属性
 export function createDefaultAttribute(): ERAttribute {
   return {
-    id: generateUniqueId('attr'),
-    name: '新属性',
-    dataType: 'VARCHAR(50)',
+    id: generateUniqueId("attr"),
+    name: "新属性",
+    dataType: "VARCHAR(50)",
     isRequired: false,
-    description: '新创建的属性'
+    description: "新创建的属性",
   };
 }
 
 // 创建默认弱实体
-export function createDefaultWeakEntity(position: { x: number; y: number }): EREntity {
-  const id = generateUniqueId('ent');
+export function createDefaultWeakEntity(position: {
+  x: number;
+  y: number;
+}): EREntity {
+  const id = generateUniqueId("ent");
   return {
     id,
-    name: '弱实体',
-    description: '新创建的弱实体',
+    name: "弱实体",
+    description: "新创建的弱实体",
     position,
     isWeakEntity: true,
     attributes: [
       {
-        id: generateUniqueId('attr'),
-        name: 'id',
+        id: generateUniqueId("attr"),
+        name: "id",
         isPrimaryKey: true,
-        dataType: 'VARCHAR(20)',
+        dataType: "VARCHAR(20)",
         isRequired: true,
-        description: '标识符'
-      }
-    ]
+        description: "标识符",
+      },
+    ],
   };
 }
 
@@ -80,7 +93,7 @@ export function createDefaultWeakEntity(position: { x: number; y: number }): ERE
 export function calculateDropPosition(
   event: DragEvent,
   canvasRect: DOMRect,
-  viewport?: { x: number; y: number; zoom: number }
+  viewport?: { x: number; y: number; zoom: number },
 ): { x: number; y: number } {
   // 计算相对于画布的位置
   const x = event.clientX - canvasRect.left;
@@ -99,8 +112,8 @@ export function calculateDropPosition(
 
 // 验证拖拽数据
 export function validateDragData(dataTransfer: DataTransfer): string | null {
-  const nodeType = dataTransfer.getData('application/reactflow');
-  if (['strong-entity', 'weak-entity', 'diamond'].includes(nodeType)) {
+  const nodeType = dataTransfer.getData("application/reactflow");
+  if (["strong-entity", "weak-entity", "diamond"].includes(nodeType)) {
     return nodeType;
   }
   return null;

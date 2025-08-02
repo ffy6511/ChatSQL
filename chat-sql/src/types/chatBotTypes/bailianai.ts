@@ -1,4 +1,4 @@
-import { AgentOutputPart } from '@/types/chatBotTypes/agents';
+import { AgentOutputPart } from "@/types/chatBotTypes/agents";
 
 /**
  * 百炼平台API请求参数
@@ -144,7 +144,7 @@ export interface ChatResponse {
  * 流式聊天响应数据
  */
 export interface StreamChatResponse {
-  type: 'chunk' | 'done' | 'error';
+  type: "chunk" | "done" | "error";
   data?: {
     text: string;
     sessionId?: string;
@@ -180,7 +180,7 @@ export interface RetryConfig {
  * 默认配置常量
  */
 export const DEFAULT_BAILIAN_CONFIG: Partial<BailianAIConfig> = {
-  baseUrl: 'https://dashscope.aliyuncs.com/api/v1/apps',
+  baseUrl: "https://dashscope.aliyuncs.com/api/v1/apps",
   timeout: 300000,
   maxRetries: 3,
   retryDelay: 1000,
@@ -213,14 +213,14 @@ export enum HTTPStatus {
  * 错误类型枚举
  */
 export enum ErrorType {
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  API_ERROR = 'API_ERROR',
-  TIMEOUT_ERROR = 'TIMEOUT_ERROR',
-  RATE_LIMIT_ERROR = 'RATE_LIMIT_ERROR',
-  AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-  PARAMETER_ERROR = 'PARAMETER_ERROR',
+  NETWORK_ERROR = "NETWORK_ERROR",
+  API_ERROR = "API_ERROR",
+  TIMEOUT_ERROR = "TIMEOUT_ERROR",
+  RATE_LIMIT_ERROR = "RATE_LIMIT_ERROR",
+  AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR",
+  VALIDATION_ERROR = "VALIDATION_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  PARAMETER_ERROR = "PARAMETER_ERROR",
 }
 
 /**
@@ -237,10 +237,10 @@ export class BailianAIAPIError extends Error {
     type: ErrorType = ErrorType.UNKNOWN_ERROR,
     code?: string,
     requestId?: string,
-    statusCode?: number
+    statusCode?: number,
   ) {
     super(message);
-    this.name = 'BailianAIAPIError';
+    this.name = "BailianAIAPIError";
     this.type = type;
     this.code = code;
     this.requestId = requestId;

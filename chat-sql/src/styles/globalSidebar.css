@@ -8,7 +8,8 @@
   padding: 8px;
 }
 
-.global-sidebar-top-buttons, .global-sidebar-bottom-buttons {
+.global-sidebar-top-buttons,
+.global-sidebar-bottom-buttons {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -25,7 +26,7 @@
 
 .global-sidebar-action-button {
   width: 2em !important;
-  height: 2em!important;
+  height: 2em !important;
   padding: 0;
   display: flex;
   align-items: center;
@@ -52,7 +53,7 @@
 .global-sidebar-menu-container {
   flex: 1;
   overflow-y: auto;
-  margin-top:2em;
+  margin-top: 2em;
 }
 
 .global-sidebar-menu-items {
@@ -72,4 +73,4 @@
 .global-sidebar-action-button.selected {
   background: var(--button-hover) !important;
   color: var(--icon-color-hover) !important;
-} 
+}

@@ -223,19 +223,19 @@
     width: 120px;
     height: 80px;
   }
-  
+
   .label {
     font-size: 12px;
   }
-  
+
   .description {
     font-size: 9px;
   }
-  
+
   .attributesContainer {
     min-width: 100px;
   }
-  
+
   .attribute {
     font-size: 10px;
   }

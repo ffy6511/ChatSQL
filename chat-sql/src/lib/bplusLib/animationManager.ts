@@ -3,7 +3,7 @@
  * 负责管理指令序列的执行、步骤导航和动画控制
  */
 
-import { BPlusCommand } from './commands';
+import { BPlusCommand } from "./commands";
 
 export interface AnimationState {
   currentStep: number;
@@ -30,7 +30,7 @@ export class AnimationManager {
   private animationTimer: NodeJS.Timeout | null = null;
 
   // 用于跟踪最后执行的操作
-  public lastOperation: 'insert' | 'delete' | 'reset' | 'initial' = 'initial';
+  public lastOperation: "insert" | "delete" | "reset" | "initial" = "initial";
   public lastKey?: number;
 
   constructor(callbacks?: AnimationCallbacks) {
@@ -67,14 +67,18 @@ export class AnimationManager {
     this.notifyStateChange();
 
     try {
-      while (this.currentStep < this.commands.length && this.isPlaying && !this.isPaused) {
+      while (
+        this.currentStep < this.commands.length &&
+        this.isPlaying &&
+        !this.isPaused
+      ) {
         await this.executeCurrentStep();
         this.currentStep++;
         this.notifyStepChange();
-        
+
         // 如果不是Step指令，等待动画时间
         const currentCommand = this.commands[this.currentStep - 1];
-        if (currentCommand.type !== 'Step') {
+        if (currentCommand.type !== "Step") {
           await this.wait(this.speed);
         }
       }
@@ -145,7 +149,7 @@ export class AnimationManager {
 
     this.currentStep--;
     this.notifyStepChange();
-    
+
     // 重新执行到当前步骤
     await this.jumpToStep(this.currentStep);
   }
@@ -188,7 +192,7 @@ export class AnimationManager {
       totalSteps: this.commands.length,
       isPlaying: this.isPlaying,
       isPaused: this.isPaused,
-      speed: this.speed
+      speed: this.speed,
     };
   }
 
@@ -218,7 +222,7 @@ export class AnimationManager {
   public getStepBreakpoints(): number[] {
     const breakpoints: number[] = [];
     this.commands.forEach((command, index) => {
-      if (command.type === 'Step') {
+      if (command.type === "Step") {
         breakpoints.push(index);
       }
     });
@@ -230,8 +234,8 @@ export class AnimationManager {
    */
   public async jumpToNextBreakpoint(): Promise<void> {
     const breakpoints = this.getStepBreakpoints();
-    const nextBreakpoint = breakpoints.find(bp => bp > this.currentStep);
-    
+    const nextBreakpoint = breakpoints.find((bp) => bp > this.currentStep);
+
     if (nextBreakpoint !== undefined) {
       await this.jumpToStep(nextBreakpoint);
     } else {
@@ -245,8 +249,10 @@ export class AnimationManager {
    */
   public async jumpToPreviousBreakpoint(): Promise<void> {
     const breakpoints = this.getStepBreakpoints();
-    const previousBreakpoint = breakpoints.reverse().find(bp => bp < this.currentStep);
-    
+    const previousBreakpoint = breakpoints
+      .reverse()
+      .find((bp) => bp < this.currentStep);
+
     if (previousBreakpoint !== undefined) {
       await this.jumpToStep(previousBreakpoint);
     } else {
@@ -274,7 +280,7 @@ export class AnimationManager {
     if (this.currentStep >= this.commands.length) return;
 
     const command = this.commands[this.currentStep];
-    
+
     // 这里不直接执行指令，而是通过回调通知外部执行
     // 这样保持了动画管理器的纯净性
     this.callbacks.onStepChange?.(this.currentStep, command);

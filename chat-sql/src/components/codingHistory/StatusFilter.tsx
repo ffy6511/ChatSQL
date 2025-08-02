@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { Select, Space, Typography } from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
-import { ProgressStatus } from '@/utils/progressUtils';
+import React from "react";
+import { Select, Space, Typography } from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import { ProgressStatus } from "@/utils/progressUtils";
 
 const { Text } = Typography;
 
 interface StatusFilterProps {
-  value: ProgressStatus | 'ALL';
-  onChange: (value: ProgressStatus | 'ALL') => void;
+  value: ProgressStatus | "ALL";
+  onChange: (value: ProgressStatus | "ALL") => void;
   tutorialCount?: number;
   className?: string;
 }
@@ -22,39 +22,39 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   value,
   onChange,
   tutorialCount = 0,
-  className
+  className,
 }) => {
   const filterOptions = [
     {
-      value: 'ALL',
-      label: 'All',
-      icon: '📚'
+      value: "ALL",
+      label: "All",
+      icon: "📚",
     },
     {
       value: ProgressStatus.NOT_STARTED,
-      label: 'Not Started',
-      icon: '⚪'
+      label: "Not Started",
+      icon: "⚪",
     },
     {
       value: ProgressStatus.IN_PROGRESS,
-      label: 'In Progress',
-      icon: '🔵'
+      label: "In Progress",
+      icon: "🔵",
     },
     {
       value: ProgressStatus.COMPLETED,
-      label: 'Completed',
-      icon: '✅'
-    }
+      label: "Completed",
+      icon: "✅",
+    },
   ];
 
   return (
     <div className={className}>
       <Space align="center" size="small">
-        <FilterOutlined 
-          style={{ 
-            color: 'var(--secondary-text)',
-            fontSize: '14px'
-          }} 
+        <FilterOutlined
+          style={{
+            color: "var(--secondary-text)",
+            fontSize: "14px",
+          }}
         />
         {/* <Text 
           style={{ 
@@ -69,21 +69,21 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           value={value}
           onChange={onChange}
           size="small"
-          style={{ 
+          style={{
             minWidth: 130,
-            fontSize: '14px'
+            fontSize: "14px",
           }}
           dropdownStyle={{
-            fontSize: '12px'
+            fontSize: "12px",
           }}
-          options={filterOptions.map(option => ({
+          options={filterOptions.map((option) => ({
             value: option.value,
             label: (
               <Space size="small">
                 <span>{option.icon}</span>
                 <span>{option.label}</span>
               </Space>
-            )
+            ),
           }))}
         />
         {/* {tutorialCount > 0 && (

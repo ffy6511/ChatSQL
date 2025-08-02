@@ -37,7 +37,11 @@
   color: #ffffff !important; /* 强制设置为白色 */
 }
 
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-highlighted-label {
+.monaco-editor
+  .suggest-widget
+  .monaco-list
+  .monaco-list-row
+  .monaco-highlighted-label {
   color: #ffffff !important; /* 高亮文字也设置为白色 */
 }
 

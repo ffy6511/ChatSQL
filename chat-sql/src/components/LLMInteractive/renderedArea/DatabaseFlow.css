@@ -109,7 +109,9 @@
   height: 8px !important;
   background: #ff9900 !important;
   border: 2px solid white !important;
-  transition: transform 0.2s ease, background-color 0.2s ease !important;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease !important;
 }
 
 .foreign-key-handle:hover {
@@ -174,7 +176,7 @@
   right: -24px;
   top: 50%;
   transform: translateY(-50%) translateX(0);
-  
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -282,7 +284,7 @@
 
 /* 暗色模式适配 */
 [data-theme="dark"] .database-flow-container {
-  background-color: rgb(83, 82, 80) ;
+  background-color: rgb(83, 82, 80);
 }
 
 [data-theme="dark"] .table-node {
@@ -351,8 +353,6 @@
   border-color: var(--card-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
-
-
 
 [data-theme="dark"] .table-navigator {
   background-color: var(--card-bg);

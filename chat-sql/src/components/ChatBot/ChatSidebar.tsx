@@ -1,11 +1,11 @@
 // 重构后的聊天侧边栏组件
 
-import React from 'react';
-import { Box } from '@mui/material';
-import { ChatSidebarProps, ChatHistory } from '@/types/chatBotTypes/chatbot';
-import { AgentType } from '@/types/chatBotTypes/agents';
-import IconSidebar from './IconSidebar';
-import HistoryPanel from './HistoryPanel';
+import React from "react";
+import { Box } from "@mui/material";
+import { ChatSidebarProps, ChatHistory } from "@/types/chatBotTypes/chatbot";
+import { AgentType } from "@/types/chatBotTypes/agents";
+import IconSidebar from "./IconSidebar";
+import HistoryPanel from "./HistoryPanel";
 
 // 扩展的ChatSidebar属性接口
 interface ExtendedChatSidebarProps extends ChatSidebarProps {
@@ -38,12 +38,12 @@ const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
   onAgentChange,
 }) => {
   // 调试信息
-  console.log('ChatSidebar props:', {
+  console.log("ChatSidebar props:", {
     historyCount,
     chatHistoryLength: chatHistory.length,
     isHistoryOpen,
     currentHistoryId,
-    chatHistory: chatHistory.slice(0, 3) // 只显示前3条用于调试
+    chatHistory: chatHistory.slice(0, 3), // 只显示前3条用于调试
   });
 
   const handleToggleHistory = () => {
@@ -73,11 +73,11 @@ const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
   return (
     <Box
       sx={{
-        position: 'relative',
-        height: '100%',
-        backgroundColor: 'var(--sidebar-bg)',
+        position: "relative",
+        height: "100%",
+        backgroundColor: "var(--sidebar-bg)",
         width: isHistoryOpen ? 328 : 48, // 48px (IconSidebar) + 280px (HistoryPanel)
-        transition: 'width 0.3s ease-in-out',
+        transition: "width 0.3s ease-in-out",
       }}
     >
       {/* 图标侧边栏 */}

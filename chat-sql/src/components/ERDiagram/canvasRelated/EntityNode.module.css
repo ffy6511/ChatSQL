@@ -17,7 +17,7 @@
 }
 
 .entityNode.weakEntity::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 5px;
   left: 5px;
@@ -225,7 +225,7 @@
   right: -24px;
   top: 50%;
   transform: translateY(-50%) translateX(0);
-  
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -258,19 +258,19 @@
     min-width: 160px;
     max-width: 240px;
   }
-  
+
   .title {
     font-size: 14px;
   }
-  
+
   .attributeName {
     font-size: 13px;
   }
-  
+
   .dataType {
     font-size: 11px;
   }
-  
+
   .attribute {
     padding: 6px 12px;
   }

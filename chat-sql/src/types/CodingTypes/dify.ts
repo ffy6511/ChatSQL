@@ -16,11 +16,11 @@ export interface DifyResponse {
         tupleData: any[];
       }[];
       tags: string[];
-      isBuiltIn?: boolean;  // 新增字段，用于标识内置教程
-      order?: number;       // 新增字段，用于教程排序
-      category?: string;    // 新增字段，用于教程分类
-    }
-  }
+      isBuiltIn?: boolean; // 新增字段，用于标识内置教程
+      order?: number; // 新增字段，用于教程排序
+      category?: string; // 新增字段，用于教程分类
+    };
+  };
 }
 
 // dify返回的问题输出(显示在前端等待确认的部分)

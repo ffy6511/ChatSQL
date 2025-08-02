@@ -1,9 +1,9 @@
 // 聊天设置管理Hook
 
-import { useState, useCallback, useEffect } from 'react';
-import { ChatSettings, DEFAULT_SETTINGS } from '@/types/chatBotTypes/chatbot';
-import { ChatStorage } from '@/utils/chatbot/storage';
-import { ChatAPI } from '@/utils/chatbot/chatAPI';
+import { useState, useCallback, useEffect } from "react";
+import { ChatSettings, DEFAULT_SETTINGS } from "@/types/chatBotTypes/chatbot";
+import { ChatStorage } from "@/utils/chatbot/storage";
+import { ChatAPI } from "@/utils/chatbot/chatAPI";
 
 export const useChatSettings = () => {
   const [settings, setSettings] = useState<ChatSettings>(DEFAULT_SETTINGS);
@@ -21,8 +21,8 @@ export const useChatSettings = () => {
       setSettings(savedSettings);
       setError(null);
     } catch (err) {
-      console.error('Failed to load chat settings:', err);
-      setError('加载设置失败');
+      console.error("Failed to load chat settings:", err);
+      setError("加载设置失败");
     } finally {
       setIsLoading(false);
     }
@@ -37,8 +37,8 @@ export const useChatSettings = () => {
       setSettings(newSettings);
       setError(null);
     } catch (err) {
-      console.error('Failed to save chat settings:', err);
-      setError('保存设置失败');
+      console.error("Failed to save chat settings:", err);
+      setError("保存设置失败");
       throw err;
     }
   }, []);
@@ -46,10 +46,13 @@ export const useChatSettings = () => {
   /**
    * 更新部分设置
    */
-  const updateSettings = useCallback((partialSettings: Partial<ChatSettings>) => {
-    const newSettings = { ...settings, ...partialSettings };
-    saveSettings(newSettings);
-  }, [settings, saveSettings]);
+  const updateSettings = useCallback(
+    (partialSettings: Partial<ChatSettings>) => {
+      const newSettings = { ...settings, ...partialSettings };
+      saveSettings(newSettings);
+    },
+    [settings, saveSettings],
+  );
 
   /**
    * 重置设置为默认值
@@ -61,33 +64,36 @@ export const useChatSettings = () => {
   /**
    * 测试API连接
    */
-  const testConnection = useCallback(async (testSettings?: ChatSettings): Promise<boolean> => {
-    const settingsToTest = testSettings || settings;
-    
-    if (!settingsToTest.apiKey.trim()) {
-      setError('请先配置API Key');
-      return false;
-    }
+  const testConnection = useCallback(
+    async (testSettings?: ChatSettings): Promise<boolean> => {
+      const settingsToTest = testSettings || settings;
 
-    try {
-      setIsTestingConnection(true);
-      setError(null);
-      
-      const isConnected = await ChatAPI.testConnection(settingsToTest);
-      
-      if (!isConnected) {
-        setError('API连接测试失败，请检查配置');
+      if (!settingsToTest.apiKey.trim()) {
+        setError("请先配置API Key");
+        return false;
       }
-      
-      return isConnected;
-    } catch (err) {
-      console.error('Connection test failed:', err);
-      setError('连接测试失败');
-      return false;
-    } finally {
-      setIsTestingConnection(false);
-    }
-  }, [settings]);
+
+      try {
+        setIsTestingConnection(true);
+        setError(null);
+
+        const isConnected = await ChatAPI.testConnection(settingsToTest);
+
+        if (!isConnected) {
+          setError("API连接测试失败，请检查配置");
+        }
+
+        return isConnected;
+      } catch (err) {
+        console.error("Connection test failed:", err);
+        setError("连接测试失败");
+        return false;
+      } finally {
+        setIsTestingConnection(false);
+      }
+    },
+    [settings],
+  );
 
   /**
    * 获取可用模型列表
@@ -96,7 +102,7 @@ export const useChatSettings = () => {
     try {
       return await ChatAPI.getAvailableModels(settings);
     } catch (err) {
-      console.error('Failed to get available models:', err);
+      console.error("Failed to get available models:", err);
       return [];
     }
   }, [settings]);
@@ -104,28 +110,31 @@ export const useChatSettings = () => {
   /**
    * 验证设置
    */
-  const validateSettings = useCallback((settingsToValidate: ChatSettings): string[] => {
-    const errors: string[] = [];
+  const validateSettings = useCallback(
+    (settingsToValidate: ChatSettings): string[] => {
+      const errors: string[] = [];
 
-    // 验证系统提示词
-    if (!settingsToValidate.systemPrompt.trim()) {
-      errors.push('系统提示词不能为空');
-    }
-
-    // 验证API Key
-    if (!settingsToValidate.apiKey.trim()) {
-      errors.push('API Key不能为空');
-    }
-
-    // 验证API平台特定配置
-    if (settingsToValidate.apiPlatform === 'dify') {
-      if (!settingsToValidate.apiEndpoint?.trim()) {
-        errors.push('Dify平台需要配置API端点');
+      // 验证系统提示词
+      if (!settingsToValidate.systemPrompt.trim()) {
+        errors.push("系统提示词不能为空");
       }
-    }
 
-    return errors;
-  }, []);
+      // 验证API Key
+      if (!settingsToValidate.apiKey.trim()) {
+        errors.push("API Key不能为空");
+      }
+
+      // 验证API平台特定配置
+      if (settingsToValidate.apiPlatform === "dify") {
+        if (!settingsToValidate.apiEndpoint?.trim()) {
+          errors.push("Dify平台需要配置API端点");
+        }
+      }
+
+      return errors;
+    },
+    [],
+  );
 
   /**
    * 导出设置
@@ -137,35 +146,38 @@ export const useChatSettings = () => {
   /**
    * 导入设置
    */
-  const importSettings = useCallback((jsonData: string): boolean => {
-    try {
-      const importedSettings = JSON.parse(jsonData);
-      
-      // 验证导入的设置
-      const validationErrors = validateSettings(importedSettings);
-      if (validationErrors.length > 0) {
-        setError(`导入的设置无效: ${validationErrors.join(', ')}`);
+  const importSettings = useCallback(
+    (jsonData: string): boolean => {
+      try {
+        const importedSettings = JSON.parse(jsonData);
+
+        // 验证导入的设置
+        const validationErrors = validateSettings(importedSettings);
+        if (validationErrors.length > 0) {
+          setError(`导入的设置无效: ${validationErrors.join(", ")}`);
+          return false;
+        }
+
+        saveSettings(importedSettings);
+        return true;
+      } catch (err) {
+        console.error("Failed to import settings:", err);
+        setError("导入设置失败，请检查JSON格式");
         return false;
       }
-
-      saveSettings(importedSettings);
-      return true;
-    } catch (err) {
-      console.error('Failed to import settings:', err);
-      setError('导入设置失败，请检查JSON格式');
-      return false;
-    }
-  }, [validateSettings, saveSettings]);
+    },
+    [validateSettings, saveSettings],
+  );
 
   /**
    * 获取API平台显示名称
    */
   const getApiPlatformDisplayName = useCallback((platform: string): string => {
     switch (platform) {
-      case 'bailianai':
-        return '百炼AI';
-      case 'dify':
-        return 'Dify';
+      case "bailianai":
+        return "百炼AI";
+      case "dify":
+        return "Dify";
       default:
         return platform;
     }
@@ -184,30 +196,30 @@ export const useChatSettings = () => {
   const getSettingsStatus = useCallback((): {
     isComplete: boolean;
     message: string;
-    type: 'success' | 'warning' | 'error';
+    type: "success" | "warning" | "error";
   } => {
     const errors = validateSettings(settings);
-    
+
     if (errors.length === 0) {
       return {
         isComplete: true,
-        message: '设置配置完整',
-        type: 'success',
+        message: "设置配置完整",
+        type: "success",
       };
     }
 
     if (!settings.apiKey.trim()) {
       return {
         isComplete: false,
-        message: '请配置API Key以启用AI功能',
-        type: 'warning',
+        message: "请配置API Key以启用AI功能",
+        type: "warning",
       };
     }
 
     return {
       isComplete: false,
-      message: `配置不完整: ${errors.join(', ')}`,
-      type: 'error',
+      message: `配置不完整: ${errors.join(", ")}`,
+      type: "error",
     };
   }, [settings, validateSettings]);
 
@@ -229,24 +241,24 @@ export const useChatSettings = () => {
     isLoading,
     error,
     isTestingConnection,
-    
+
     // 操作
     loadSettings,
     saveSettings,
     updateSettings,
     resetSettings,
     clearError,
-    
+
     // API相关
     testConnection,
     getAvailableModels,
-    
+
     // 验证和状态
     validateSettings,
     isSettingsComplete,
     getSettingsStatus,
     getApiPlatformDisplayName,
-    
+
     // 导入导出
     exportSettings,
     importSettings,

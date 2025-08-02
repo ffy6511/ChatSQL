@@ -7,7 +7,7 @@
   position: relative;
   background: var(--background);
   color: var(--primary-text);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
 }
@@ -471,7 +471,9 @@
 }
 
 .react-flow__edge {
-  transition: stroke 0.3s ease-in-out, stroke-width 0.3s ease-in-out;
+  transition:
+    stroke 0.3s ease-in-out,
+    stroke-width 0.3s ease-in-out;
 }
 
 /* 自定义横向排列的操作按钮容器 */
@@ -499,7 +501,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.6);
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -507,7 +509,7 @@
 .bplus-zoom-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .bplus-zoom-button:active {
@@ -534,13 +536,13 @@
 
 @keyframes bplus-highlight-pulse {
   33% {
-    scale: 0.98
+    scale: 0.98;
   }
   66% {
-     scale: 1.02
+    scale: 1.02;
   }
-  100%{
-     scale: 1.0
+  100% {
+    scale: 1;
   }
 }
 
@@ -553,13 +555,13 @@
 
 @keyframes bplus-highlight-pulse-dark {
   33% {
-    scale: 0.98
+    scale: 0.98;
   }
   66% {
-     scale: 1.02
+    scale: 1.02;
   }
-  100%{
-     scale: 1.0
+  100% {
+    scale: 1;
   }
 }
 
@@ -568,9 +570,9 @@
   background-color: transparent !important;
 }
 [data-theme="dark"] .bplus-zoom-button {
-  background: rgba(40,40,40,0.7);
+  background: rgba(40, 40, 40, 0.7);
   color: var(--primary-text);
 }
 [data-theme="dark"] .bplus-zoom-button:hover {
-  background: rgba(40,40,40,0.95);
+  background: rgba(40, 40, 40, 0.95);
 }

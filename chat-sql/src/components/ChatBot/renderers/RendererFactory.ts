@@ -3,8 +3,12 @@
  * 实现渲染器选择逻辑，根据 metadata.module 字段选择合适的渲染器组件
  */
 
-import { Message } from '@/types/chatBotTypes/chatbot';
-import { MessageRenderer, RendererFactory, RendererType } from '@/types/chatBotTypes/renderers';
+import { Message } from "@/types/chatBotTypes/chatbot";
+import {
+  MessageRenderer,
+  RendererFactory,
+  RendererType,
+} from "@/types/chatBotTypes/renderers";
 
 /**
  * 渲染器工厂实现类
@@ -25,7 +29,7 @@ class RendererFactoryImpl implements RendererFactory {
   getRenderer(message: Message): MessageRenderer | null {
     // 获取所有可用的渲染器，按优先级排序
     const availableRenderers = Array.from(this.renderers.values())
-      .filter(renderer => renderer.canRender(message))
+      .filter((renderer) => renderer.canRender(message))
       .sort((a, b) => b.priority - a.priority);
 
     // 返回优先级最高的渲染器
@@ -52,28 +56,41 @@ class RendererFactoryImpl implements RendererFactory {
  */
 export const detectSqlContent = (message: Message): boolean => {
   // 只处理字符串内容
-  if (typeof message.content !== 'string') {
+  if (typeof message.content !== "string") {
     return false;
   }
 
   const content = message.content.toLowerCase();
-  
+
   // 检查是否有 SQL 代码块
-  if (content.includes('```sql')) {
+  if (content.includes("```sql")) {
     return true;
   }
-  
+
   // 检查是否包含 SQL 关键字
   const sqlKeywords = [
-    'select', 'insert', 'update', 'delete', 'create', 'drop', 'alter',
-    'from', 'where', 'join', 'inner join', 'left join', 'right join',
-    'order by', 'group by', 'having', 'limit'
+    "select",
+    "insert",
+    "update",
+    "delete",
+    "create",
+    "drop",
+    "alter",
+    "from",
+    "where",
+    "join",
+    "inner join",
+    "left join",
+    "right join",
+    "order by",
+    "group by",
+    "having",
+    "limit",
   ];
-  
-  const hasMultipleSqlKeywords = sqlKeywords.filter(keyword => 
-    content.includes(keyword)
-  ).length >= 2;
-  
+
+  const hasMultipleSqlKeywords =
+    sqlKeywords.filter((keyword) => content.includes(keyword)).length >= 2;
+
   return hasMultipleSqlKeywords;
 };
 
@@ -82,20 +99,22 @@ export const detectSqlContent = (message: Message): boolean => {
  */
 export const detectJsonContent = (message: Message): boolean => {
   // 只处理字符串内容
-  if (typeof message.content !== 'string') {
+  if (typeof message.content !== "string") {
     return false;
   }
 
   const content = message.content.trim();
-  
+
   // 检查是否有 JSON 代码块
-  if (content.includes('```json')) {
+  if (content.includes("```json")) {
     return true;
   }
-  
+
   // 检查是否以 { 或 [ 开头，} 或 ] 结尾
-  if ((content.startsWith('{') && content.endsWith('}')) ||
-      (content.startsWith('[') && content.endsWith(']'))) {
+  if (
+    (content.startsWith("{") && content.endsWith("}")) ||
+    (content.startsWith("[") && content.endsWith("]"))
+  ) {
     try {
       JSON.parse(content);
       return true;
@@ -103,7 +122,7 @@ export const detectJsonContent = (message: Message): boolean => {
       return false;
     }
   }
-  
+
   return false;
 };
 
@@ -113,14 +132,14 @@ export const detectJsonContent = (message: Message): boolean => {
 export const getRendererByModule = (message: Message): RendererType => {
   // 简化：直接进行内容检测
   if (detectSqlContent(message)) {
-    return 'sql';
+    return "sql";
   }
-  
+
   if (detectJsonContent(message)) {
-    return 'json';
+    return "json";
   }
-  
-  return 'default';
+
+  return "default";
 };
 
 /**
@@ -128,18 +147,18 @@ export const getRendererByModule = (message: Message): RendererType => {
  */
 export const createRendererFactory = (): RendererFactory => {
   const factory = new RendererFactoryImpl();
-  
+
   // 注册默认文本渲染器
   factory.register({
-    type: 'default',
+    type: "default",
     component: null as any, // 将在组件中动态导入
     canRender: () => true, // 默认渲染器可以渲染任何消息
     priority: 0, // 最低优先级
   });
-  
+
   // 注册 SQL 渲染器
   factory.register({
-    type: 'sql',
+    type: "sql",
     component: null as any, // 将在组件中动态导入
     canRender: (message: Message) => {
       // 优先检查模块类型
@@ -147,10 +166,10 @@ export const createRendererFactory = (): RendererFactory => {
     },
     priority: 10, // 高优先级
   });
-  
+
   // 注册 JSON 渲染器
   factory.register({
-    type: 'json',
+    type: "json",
     component: null as any, // 将在组件中动态导入
     canRender: (message: Message) => {
       // 优先检查模块类型
@@ -158,7 +177,7 @@ export const createRendererFactory = (): RendererFactory => {
     },
     priority: 10, // 高优先级
   });
-  
+
   return factory;
 };
 

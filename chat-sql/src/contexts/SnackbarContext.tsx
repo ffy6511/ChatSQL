@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 
-type Severity = 'success' | 'info' | 'warning' | 'error';
+type Severity = "success" | "info" | "warning" | "error";
 
 interface SnackbarState {
   open: boolean;
@@ -15,24 +15,28 @@ interface SnackbarContextType {
 }
 
 const SnackbarContext = createContext<SnackbarContextType>({
-  snackbar: { open: false, message: '', severity: 'info' },
+  snackbar: { open: false, message: "", severity: "info" },
   showSnackbar: () => {},
   hideSnackbar: () => {},
 });
 
-export const SnackbarProvider = ({ children }: { children: React.ReactNode }) => {
+export const SnackbarProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     open: false,
-    message: '',
-    severity: 'info',
+    message: "",
+    severity: "info",
   });
 
-  const showSnackbar = (message: string, severity: Severity = 'info') => {
+  const showSnackbar = (message: string, severity: Severity = "info") => {
     setSnackbar({ open: true, message, severity });
   };
 
   const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (

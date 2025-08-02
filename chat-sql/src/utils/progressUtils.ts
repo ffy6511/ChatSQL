@@ -1,12 +1,12 @@
-import { LLMProblem } from '@/services/codingStorage';
+import { LLMProblem } from "@/services/codingStorage";
 
 /**
  * 进度状态枚举
  */
 export enum ProgressStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED'
+  NOT_STARTED = "NOT_STARTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
 }
 
 /**
@@ -15,7 +15,7 @@ export enum ProgressStatus {
 export interface ProgressStatusInfo {
   status: ProgressStatus;
   label: string;
-  color: 'default' | 'processing' | 'success' | 'error' | 'warning';
+  color: "default" | "processing" | "success" | "error" | "warning";
   description?: string;
 }
 
@@ -24,7 +24,9 @@ export interface ProgressStatusInfo {
  * @param record LLM问题记录
  * @returns 进度状态信息
  */
-export function calculateProgressStatus(record: LLMProblem): ProgressStatusInfo {
+export function calculateProgressStatus(
+  record: LLMProblem,
+): ProgressStatusInfo {
   const progress = record.progress ?? 0;
   const totalProblems = record.totalProblems ?? 1;
 
@@ -34,23 +36,23 @@ export function calculateProgressStatus(record: LLMProblem): ProgressStatusInfo 
   if (validProgress === 0) {
     return {
       status: ProgressStatus.NOT_STARTED,
-      label: 'Not Started',
-      color: 'default',
-      description: '尚未开始'
+      label: "Not Started",
+      color: "default",
+      description: "尚未开始",
     };
   } else if (validProgress < totalProblems) {
     return {
       status: ProgressStatus.IN_PROGRESS,
       label: `Progress: ${validProgress}/${totalProblems}`,
-      color: 'processing',
-      description: `已完成 ${validProgress} 个问题，共 ${totalProblems} 个`
+      color: "processing",
+      description: `已完成 ${validProgress} 个问题，共 ${totalProblems} 个`,
     };
   } else {
     return {
       status: ProgressStatus.COMPLETED,
-      label: 'Completed',
-      color: 'success',
-      description: '已完成所有问题'
+      label: "Completed",
+      color: "success",
+      description: "已完成所有问题",
     };
   }
 }
@@ -63,9 +65,9 @@ export function calculateProgressStatus(record: LLMProblem): ProgressStatusInfo 
 export function getProgressPercentage(record: LLMProblem): number {
   const progress = record.progress ?? 0;
   const totalProblems = record.totalProblems ?? 1;
-  
+
   if (totalProblems === 0) return 0;
-  
+
   return Math.round((progress / totalProblems) * 100);
 }
 
@@ -85,14 +87,14 @@ export function isTutorialRecord(record: LLMProblem): boolean {
  * @returns 过滤后的记录列表
  */
 export function filterRecordsByStatus(
-  records: LLMProblem[], 
-  status: ProgressStatus | 'ALL'
+  records: LLMProblem[],
+  status: ProgressStatus | "ALL",
 ): LLMProblem[] {
-  if (status === 'ALL') {
+  if (status === "ALL") {
     return records;
   }
 
-  return records.filter(record => {
+  return records.filter((record) => {
     const statusInfo = calculateProgressStatus(record);
     return statusInfo.status === status;
   });
@@ -113,10 +115,10 @@ export function getStatusStatistics(records: LLMProblem[]): {
     notStarted: 0,
     inProgress: 0,
     completed: 0,
-    total: records.length
+    total: records.length,
   };
 
-  records.forEach(record => {
+  records.forEach((record) => {
     const statusInfo = calculateProgressStatus(record);
     switch (statusInfo.status) {
       case ProgressStatus.NOT_STARTED:

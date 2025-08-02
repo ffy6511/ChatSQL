@@ -3,7 +3,7 @@
  * 用于创建新的B+树操作会话，允许用户设置阶数和名称
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,12 +18,9 @@ import {
   Select,
   MenuItem,
   Alert,
-  Chip
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Close as CloseIcon
-} from '@mui/icons-material';
+  Chip,
+} from "@mui/material";
+import { Add as AddIcon, Close as CloseIcon } from "@mui/icons-material";
 
 // 新建会话的表单数据接口
 export interface NewSessionFormData {
@@ -45,28 +42,20 @@ interface NewSessionModalProps {
 }
 
 // 预设的标签选项
-const PRESET_TAGS = [
-  '学习',
-  '练习',
-  '测试',
-  '演示',
-  '实验',
-  '作业',
-  '项目'
-];
+const PRESET_TAGS = ["学习", "练习", "测试", "演示", "实验", "作业", "项目"];
 
 const NewSessionModal: React.FC<NewSessionModalProps> = ({
   open,
   onClose,
   onConfirm,
-  loading = false
+  loading = false,
 }) => {
   // 表单状态
   const [formData, setFormData] = useState<NewSessionFormData>({
-    name: '',
+    name: "",
     order: 3,
-    description: '',
-    tags: []
+    description: "",
+    tags: [],
   });
 
   // 表单验证错误
@@ -76,18 +65,18 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
   }>({});
 
   // 标签输入状态
-  const [tagInput, setTagInput] = useState<string>('');
+  const [tagInput, setTagInput] = useState<string>("");
 
   // 重置表单
   const resetForm = useCallback(() => {
     setFormData({
-      name: '',
+      name: "",
       order: 3,
-      description: '',
-      tags: []
+      description: "",
+      tags: [],
     });
     setErrors({});
-    setTagInput('');
+    setTagInput("");
   }, []);
 
   // 表单验证
@@ -96,12 +85,12 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
 
     // 验证名称长度
     if (formData.name.trim().length > 50) {
-      newErrors.name = '会话名称不能超过50个字符';
+      newErrors.name = "会话名称不能超过50个字符";
     }
 
     // 验证阶数
     if (formData.order < 3 || formData.order > 10) {
-      newErrors.order = '阶数必须在3-10之间';
+      newErrors.order = "阶数必须在3-10之间";
     }
 
     setErrors(newErrors);
@@ -109,38 +98,47 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
   }, [formData]);
 
   // 处理表单字段变更
-  const handleFieldChange = useCallback((field: keyof NewSessionFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    
-    // 清除对应字段的错误
-    if (errors[field as keyof typeof errors]) {
-      setErrors(prev => ({
+  const handleFieldChange = useCallback(
+    (field: keyof NewSessionFormData, value: any) => {
+      setFormData((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: value,
       }));
-    }
-  }, [errors]);
+
+      // 清除对应字段的错误
+      if (errors[field as keyof typeof errors]) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: undefined,
+        }));
+      }
+    },
+    [errors],
+  );
 
   // 添加标签
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim();
     if (tag && !formData.tags?.includes(tag) && formData.tags!.length < 5) {
-      handleFieldChange('tags', [...(formData.tags || []), tag]);
-      setTagInput('');
+      handleFieldChange("tags", [...(formData.tags || []), tag]);
+      setTagInput("");
     }
   }, [tagInput, formData.tags, handleFieldChange]);
 
   // 删除标签
-  const handleRemoveTag = useCallback((tagToRemove: string) => {
-    handleFieldChange('tags', formData.tags?.filter(tag => tag !== tagToRemove) || []);
-  }, [formData.tags, handleFieldChange]);
+  const handleRemoveTag = useCallback(
+    (tagToRemove: string) => {
+      handleFieldChange(
+        "tags",
+        formData.tags?.filter((tag) => tag !== tagToRemove) || [],
+      );
+    },
+    [formData.tags, handleFieldChange],
+  );
 
   // 在文本输入框上绑定回车的创建
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
       event.preventDefault();
       if (!loading) {
         handleConfirm();
@@ -154,11 +152,13 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
       // 生成默认名称（如果为空）
       const finalFormData = {
         ...formData,
-        name: formData.name.trim() || `默认会话 ${new Date().toLocaleString('zh-CN')}`,
+        name:
+          formData.name.trim() ||
+          `默认会话 ${new Date().toLocaleString("zh-CN")}`,
         description: formData.description?.trim() || undefined,
-        tags: formData.tags?.length ? formData.tags : ['新建']
+        tags: formData.tags?.length ? formData.tags : ["新建"],
       };
-      
+
       onConfirm(finalFormData);
     }
   }, [formData, validateForm, onConfirm]);
@@ -172,12 +172,15 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
   }, [loading, resetForm, onClose]);
 
   // 处理标签输入键盘事件
-  const handleTagInputKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleAddTag();
-    }
-  }, [handleAddTag]);
+  const handleTagInputKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleAddTag();
+      }
+    },
+    [handleAddTag],
+  );
 
   return (
     <Dialog
@@ -187,18 +190,20 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: 'var(--card-bg)',
-          border: '1px solid var(--card-border)',
-          borderRadius: 2
-        }
+          bgcolor: "var(--card-bg)",
+          border: "1px solid var(--card-border)",
+          borderRadius: 2,
+        },
       }}
     >
-      <DialogTitle sx={{ 
-        color: 'var(--primary-text)',
-        borderBottom: '1px solid var(--card-border)',
-        pb: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle
+        sx={{
+          color: "var(--primary-text)",
+          borderBottom: "1px solid var(--card-border)",
+          pb: 2,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <AddIcon color="primary" />
           <Typography variant="h6" component="span">
             新建B+树会话
@@ -207,58 +212,66 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* 会话名称 */}
           <TextField
             label="会话名称（可选）"
             value={formData.name}
-            onChange={(e) => handleFieldChange('name', e.target.value)}
+            onChange={(e) => handleFieldChange("name", e.target.value)}
             error={!!errors.name}
-            helperText={errors.name || '为您的B+树操作会话起一个名称'}
+            helperText={errors.name || "为您的B+树操作会话起一个名称"}
             fullWidth
-            placeholder={`默认会话 ${new Date().toLocaleString('zh-CN')}`}
+            placeholder={`默认会话 ${new Date().toLocaleString("zh-CN")}`}
             disabled={loading}
             onKeyDown={handleKeyDown}
             sx={{
-              '& .MuiInputLabel-root': {
-                color: 'var(--secondary-text)'
+              "& .MuiInputLabel-root": {
+                color: "var(--secondary-text)",
               },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'var(--input-border)'
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "var(--input-border)",
                 },
-                '&:hover fieldset': {
-                  borderColor: 'var(--link-color)'
-                }
-              }
+                "&:hover fieldset": {
+                  borderColor: "var(--link-color)",
+                },
+              },
             }}
           />
 
           {/* 阶数选择 */}
           <FormControl fullWidth error={!!errors.order}>
-            <InputLabel sx={{ color: 'var(--secondary-text)' }}>B+树阶数</InputLabel>
+            <InputLabel sx={{ color: "var(--secondary-text)" }}>
+              B+树阶数
+            </InputLabel>
             <Select
               value={formData.order}
-              onChange={(e) => handleFieldChange('order', e.target.value as number)}
+              onChange={(e) =>
+                handleFieldChange("order", e.target.value as number)
+              }
               label="B+树阶数"
               disabled={loading}
               sx={{
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'var(--input-border)'
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--input-border)",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'var(--link-color)'
-                }
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--link-color)",
+                },
               }}
             >
-              {[3, 4, 5, 6, 7, 8, 9, 10].map(order => (
+              {[3, 4, 5, 6, 7, 8, 9, 10].map((order) => (
                 <MenuItem key={order} value={order}>
                   {order}阶
                 </MenuItem>
               ))}
             </Select>
             {errors.order && (
-              <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{ mt: 0.5, ml: 1.5 }}
+              >
                 {errors.order}
               </Typography>
             )}
@@ -268,36 +281,39 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
           <TextField
             label="会话描述（可选）"
             value={formData.description}
-            onChange={(e) => handleFieldChange('description', e.target.value)}
+            onChange={(e) => handleFieldChange("description", e.target.value)}
             multiline
             rows={2}
             fullWidth
             placeholder="描述这个会话的用途或目标..."
             disabled={loading}
             sx={{
-              '& .MuiInputLabel-root': {
-                color: 'var(--secondary-text)'
+              "& .MuiInputLabel-root": {
+                color: "var(--secondary-text)",
               },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'var(--input-border)'
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "var(--input-border)",
                 },
-                '&:hover fieldset': {
-                  borderColor: 'var(--link-color)'
-                }
-              }
+                "&:hover fieldset": {
+                  borderColor: "var(--link-color)",
+                },
+              },
             }}
           />
 
           {/* 标签管理 */}
           <Box>
-            <Typography variant="body2" sx={{ color: 'var(--secondary-text)', mb: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "var(--secondary-text)", mb: 1 }}
+            >
               标签（最多5个）
             </Typography>
-            
+
             {/* 已添加的标签 */}
             {formData.tags && formData.tags.length > 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
                 {formData.tags.map((tag, index) => (
                   <Chip
                     key={index}
@@ -313,7 +329,7 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
             )}
 
             {/* 标签输入 */}
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
               <TextField
                 label="添加标签"
                 value={tagInput}
@@ -322,24 +338,28 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
                 size="small"
                 sx={{
                   flex: 1,
-                  '& .MuiInputLabel-root': {
-                    color: 'var(--secondary-text)'
+                  "& .MuiInputLabel-root": {
+                    color: "var(--secondary-text)",
                   },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: 'var(--input-border)'
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--input-border)",
                     },
-                    '&:hover fieldset': {
-                      borderColor: 'var(--link-color)'
-                    }
-                  }
+                    "&:hover fieldset": {
+                      borderColor: "var(--link-color)",
+                    },
+                  },
                 }}
                 disabled={loading || (formData.tags?.length || 0) >= 5}
                 placeholder="输入标签名称后按回车"
               />
               <Button
                 onClick={handleAddTag}
-                disabled={!tagInput.trim() || (formData.tags?.length || 0) >= 5 || loading}
+                disabled={
+                  !tagInput.trim() ||
+                  (formData.tags?.length || 0) >= 5 ||
+                  loading
+                }
                 size="small"
                 variant="outlined"
               >
@@ -349,28 +369,38 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
 
             {/* 预设标签 */}
             <Box sx={{ mt: 1 }}>
-              <Typography variant="caption" sx={{ color: 'var(--tertiary-text)' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "var(--tertiary-text)" }}
+              >
                 快速添加：
               </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                {PRESET_TAGS.filter(tag => !formData.tags?.includes(tag)).map(tag => (
-                  <Chip
-                    key={tag}
-                    label={tag}
-                    onClick={() => {
-                      if ((formData.tags?.length || 0) < 5) {
-                        handleFieldChange('tags', [...(formData.tags || []), tag]);
-                      }
-                    }}
-                    size="small"
-                    variant="outlined"
-                    sx={{ 
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: 'var(--hover-bg)' }
-                    }}
-                    disabled={loading || (formData.tags?.length || 0) >= 5}
-                  />
-                ))}
+              <Box
+                sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}
+              >
+                {PRESET_TAGS.filter((tag) => !formData.tags?.includes(tag)).map(
+                  (tag) => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      onClick={() => {
+                        if ((formData.tags?.length || 0) < 5) {
+                          handleFieldChange("tags", [
+                            ...(formData.tags || []),
+                            tag,
+                          ]);
+                        }
+                      }}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "var(--hover-bg)" },
+                      }}
+                      disabled={loading || (formData.tags?.length || 0) >= 5}
+                    />
+                  ),
+                )}
               </Box>
             </Box>
           </Box>
@@ -382,16 +412,14 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ 
-        borderTop: '1px solid var(--card-border)',
-        pt: 2,
-        gap: 1
-      }}>
-        <Button
-          onClick={handleClose}
-          disabled={loading}
-          color="inherit"
-        >
+      <DialogActions
+        sx={{
+          borderTop: "1px solid var(--card-border)",
+          pt: 2,
+          gap: 1,
+        }}
+      >
+        <Button onClick={handleClose} disabled={loading} color="inherit">
           取消
         </Button>
         <Button
@@ -400,7 +428,7 @@ const NewSessionModal: React.FC<NewSessionModalProps> = ({
           variant="contained"
           startIcon={loading ? undefined : <AddIcon />}
         >
-          {loading ? '创建中...' : '创建会话'}
+          {loading ? "创建中..." : "创建会话"}
         </Button>
       </DialogActions>
     </Dialog>

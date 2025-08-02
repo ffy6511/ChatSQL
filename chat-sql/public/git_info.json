@@ -741,9 +741,7 @@
   },
   "stats": {
     "totalCommits": 50,
-    "contributors": [
-      "ffy6511"
-    ],
+    "contributors": ["ffy6511"],
     "lastUpdate": "2025-07-19T23:37:42+08:00",
     "activeBranches": 6
   }

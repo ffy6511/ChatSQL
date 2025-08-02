@@ -1,15 +1,23 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Button, Tooltip, Fade, Zoom } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import { KeyboardCommandKey } from '@mui/icons-material';
-import { message as antdMessage } from 'antd';
-import styles from './QueryResultTable.module.css';
-import { useCompletionContext } from '@/contexts/CompletionContext';
-import { DataGrid } from '@mui/x-data-grid';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  Tooltip,
+  Fade,
+  Zoom,
+} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import { KeyboardCommandKey } from "@mui/icons-material";
+import { message as antdMessage } from "antd";
+import styles from "./QueryResultTable.module.css";
+import { useCompletionContext } from "@/contexts/CompletionContext";
+import { DataGrid } from "@mui/x-data-grid";
 
 interface QueryResultTableProps {
   data: any[];
@@ -26,76 +34,76 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
       const isMatch = checkQueryResult();
       if (isMatch) {
         setShowSuccess(true);
-        messageApi.success('查询结果正确！');
+        messageApi.success("查询结果正确！");
         // 2秒后隐藏成功动画
         setTimeout(() => setShowSuccess(false), 2000);
       } else {
-        messageApi.info('未找到匹配的查询结果，请检查你的SQL语句');
+        messageApi.info("未找到匹配的查询结果，请检查你的SQL语句");
       }
     } catch (error) {
-      console.error('Check result error:', error);
-      messageApi.error('比较过程中发生错误，请重试');
+      console.error("Check result error:", error);
+      messageApi.error("比较过程中发生错误，请重试");
     }
   };
 
   // 添加键盘快捷键处理
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "j") {
         e.preventDefault();
         handleCheckResult();
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleCheckResult]);
 
   return (
-    <Box sx={{ height: '100%', borderRadius: 1, position: 'relative' }}>
+    <Box sx={{ height: "100%", borderRadius: 1, position: "relative" }}>
       {contextHolder}
-      
+
       {/* 成功动画效果 */}
       <Fade in={showSuccess}>
         <Box
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             zIndex: 1000,
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         >
           <Zoom in={showSuccess}>
             <Box
               sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 gap: 2,
               }}
             >
               <CheckCircleIcon
                 sx={{
                   fontSize: 50,
-                  color: 'success.main',
-                  animation: 'pulse 1s infinite',
-                  '@keyframes pulse': {
-                    '0%': {
-                      transform: 'scale(1)',
+                  color: "success.main",
+                  animation: "pulse 1s infinite",
+                  "@keyframes pulse": {
+                    "0%": {
+                      transform: "scale(1)",
                       opacity: 1,
                     },
-                    '50%': {
-                      transform: 'scale(1.1)',
+                    "50%": {
+                      transform: "scale(1.1)",
                       opacity: 0.8,
                     },
-                    '100%': {
-                      transform: 'scale(1)',
+                    "100%": {
+                      transform: "scale(1)",
                       opacity: 1,
                     },
                   },
@@ -104,9 +112,9 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
               <Typography
                 variant="h5"
                 sx={{
-                  color: 'success.main',
-                  fontWeight: 'bold',
-                  textShadow: '0 0 10px rgba(76, 175, 80, 0.3)',
+                  color: "success.main",
+                  fontWeight: "bold",
+                  textShadow: "0 0 10px rgba(76, 175, 80, 0.3)",
                 }}
               >
                 Matched!
@@ -117,40 +125,42 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
       </Fade>
 
       {/* 如果没有数据，显示提示信息 */}
-      {(!data || data.length === 0) ? (
-        <Paper 
-          sx={{ 
-            height: '100%', 
-            width: '100%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            flexDirection: 'column',
+      {!data || data.length === 0 ? (
+        <Paper
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
             gap: 2,
-            backgroundColor: 'var(--card-bg)',
-            borderColor: 'var(--card-border)',
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--card-border)",
           }}
         >
-          <AssessmentIcon sx={{ fontSize: 48, color: 'var(--tertiary-text)' }} />
-          <Typography variant="h6" sx={{ color: 'var(--secondary-text)' }}>
+          <AssessmentIcon
+            sx={{ fontSize: 48, color: "var(--tertiary-text)" }}
+          />
+          <Typography variant="h6" sx={{ color: "var(--secondary-text)" }}>
             暂无查询结果
           </Typography>
-          <Typography variant="body2" sx={{ color: 'var(--tertiary-text)' }}>
+          <Typography variant="body2" sx={{ color: "var(--tertiary-text)" }}>
             请执行查询语句获取数据
           </Typography>
         </Paper>
       ) : (
-        <Paper sx={{ 
-          height: '100%', 
-          width: '100%',
-          backgroundColor: 'var(--card-bg)',
-          borderColor: 'var(--card-border)',
-        }}>
+        <Paper
+          sx={{
+            height: "100%",
+            width: "100%",
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--card-border)",
+          }}
+        >
           <div className={styles.resultHeader}>
             <AssessmentIcon className={styles.resultIcon} />
-            <Typography className={styles.resultTitle}>
-              查询结果
-            </Typography>
+            <Typography className={styles.resultTitle}>查询结果</Typography>
             <Tooltip
               title={
                 <div className="shortcut-tooltip">
@@ -177,7 +187,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
               共 {data.length} 条记录
             </Typography>
           </div>
-          
+
           {/* 表格区域 */}
           <div className={styles.tableContainer}>
             <DataGrid
@@ -187,12 +197,14 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
                 headerName: key,
                 flex: 1,
                 minWidth: 130,
-                align: 'center',
-                headerAlign: 'center',
+                align: "center",
+                headerAlign: "center",
                 renderCell: (params) => {
                   // 直接在单元格渲染时处理 null 值
-                  return params.value === null || params.value === undefined ? "null" : params.value;
-                }
+                  return params.value === null || params.value === undefined
+                    ? "null"
+                    : params.value;
+                },
               }))}
               pagination
               pageSizeOptions={[5, 10, 20]}
@@ -203,54 +215,55 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
               }}
               sx={{
                 border: 0,
-                height: '100%',
-                backgroundColor: 'var(--card-bg)',
-                color: 'var(--primary-text)',
-                '& .MuiDataGrid-cell': {
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--secondary-text)',
-                  borderColor: 'var(--divider-color)',
+                height: "100%",
+                backgroundColor: "var(--card-bg)",
+                color: "var(--primary-text)",
+                "& .MuiDataGrid-cell": {
+                  backgroundColor: "var(--card-bg)",
+                  color: "var(--secondary-text)",
+                  borderColor: "var(--divider-color)",
                 },
-                '& .MuiDataGrid-columnHeader': {
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--primary-text)',
-                  borderColor: 'var(--divider-color)',
+                "& .MuiDataGrid-columnHeader": {
+                  backgroundColor: "var(--card-bg)",
+                  color: "var(--primary-text)",
+                  borderColor: "var(--divider-color)",
                 },
-                '& .MuiDataGrid-columnHeaderTitle': {
-                  color: 'var(--primary-text)',
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  color: "var(--primary-text)",
                   fontWeight: 600,
                 },
-                '& .MuiDataGrid-row': {
-                  backgroundColor: 'var(--card-bg)',
-                  '&:hover': {
-                    backgroundColor: 'var(--button-hover)',
+                "& .MuiDataGrid-row": {
+                  backgroundColor: "var(--card-bg)",
+                  "&:hover": {
+                    backgroundColor: "var(--button-hover)",
                   },
-                  '&.Mui-selected': {
-                    backgroundColor: 'var(--button-hover)',
-                  },
-                },
-                '& .MuiDataGrid-footerContainer': {
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--divider-color)',
-                  color: 'var(--secondary-text)',
-                },
-                '& .MuiTablePagination-root': {
-                  color: 'var(--secondary-text)',
-                },
-                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
-                  color: 'var(--secondary-text)',
-                },
-                '& .MuiSelect-select': {
-                  color: 'var(--secondary-text)',
-                },
-                '& .MuiIconButton-root': {
-                  color: 'var(--icon-color)',
-                  '&:hover': {
-                    color: 'var(--icon-color-hover)',
+                  "&.Mui-selected": {
+                    backgroundColor: "var(--button-hover)",
                   },
                 },
-                '& .MuiDataGrid-virtualScroller': {
-                  overflow: 'auto',
+                "& .MuiDataGrid-footerContainer": {
+                  backgroundColor: "var(--card-bg)",
+                  borderColor: "var(--divider-color)",
+                  color: "var(--secondary-text)",
+                },
+                "& .MuiTablePagination-root": {
+                  color: "var(--secondary-text)",
+                },
+                "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                  {
+                    color: "var(--secondary-text)",
+                  },
+                "& .MuiSelect-select": {
+                  color: "var(--secondary-text)",
+                },
+                "& .MuiIconButton-root": {
+                  color: "var(--icon-color)",
+                  "&:hover": {
+                    color: "var(--icon-color-hover)",
+                  },
+                },
+                "& .MuiDataGrid-virtualScroller": {
+                  overflow: "auto",
                 },
               }}
             />

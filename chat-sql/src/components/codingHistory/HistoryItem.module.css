@@ -3,21 +3,20 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  border: none !important; 
+  border: none !important;
   background-color: transparent !important; /* 默认状态：透明背景 */
-  border-radius: 10px!important;
+  border-radius: 10px !important;
   margin-left: 6px;
   margin-right: 6px;
 }
 
-.historyItem:hover{
+.historyItem:hover {
   background-color: var(--button-hover) !important; /* 悬停状态：浅灰色 */
 }
 
 .active {
   background-color: var(--button-hover) !important; /* 选中状态：灰色背景 */
 }
-
 
 .titleContainer {
   display: flex;
@@ -135,14 +134,14 @@
   background-color: rgba(24, 144, 255, 0.2);
 }
 
-.moreButton{
+.moreButton {
   opacity: 0;
   transition: all 0.3s ease;
   font-size: 1.3em;
   margin-right: 6px;
 }
 
-.historyItem:hover .moreButton{
+.historyItem:hover .moreButton {
   opacity: 1;
 }
 
@@ -165,12 +164,16 @@
 }
 
 /* 菜单项悬停样式 */
-.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item:hover) {
+.globalStylesContainer
+  [data-theme="dark"]
+  :global(.ant-dropdown-menu-item:hover) {
   background-color: #333 !important;
 }
 
 /* 危险操作菜单项 */
-.globalStylesContainer [data-theme="dark"] :global(.ant-dropdown-menu-item-danger) {
+.globalStylesContainer
+  [data-theme="dark"]
+  :global(.ant-dropdown-menu-item-danger) {
   color: #ff7875 !important;
 }
 

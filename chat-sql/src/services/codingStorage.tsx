@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 export type LLMProblem = {
   id?: number; // IndexedDB自动生成的键
@@ -12,9 +12,9 @@ export type LLMProblem = {
   completedProblems?: boolean[]; // 每个问题的完成状态数组
 };
 
-const DB_NAME = 'llm_problems_db';
+const DB_NAME = "llm_problems_db";
 const DB_VERSION = 1;
-const STORE_NAME = 'problems';
+const STORE_NAME = "problems";
 
 // 初始化数据库
 export const initDB = (): Promise<IDBDatabase> => {
@@ -22,7 +22,7 @@ export const initDB = (): Promise<IDBDatabase> => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => {
-      reject('IndexedDB 打开失败');
+      reject("IndexedDB 打开失败");
     };
 
     request.onsuccess = () => {
@@ -33,8 +33,8 @@ export const initDB = (): Promise<IDBDatabase> => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, {
-          keyPath: 'id',
-          autoIncrement: true
+          keyPath: "id",
+          autoIncrement: true,
         });
       }
     };
@@ -49,20 +49,24 @@ export const saveLLMProblem = async (data: any): Promise<number> => {
       let problemData;
 
       // 检查传入的数据是否已经是完整的 LLMProblem 格式
-      if (data.hasOwnProperty('data') && data.hasOwnProperty('createdAt')) {
+      if (data.hasOwnProperty("data") && data.hasOwnProperty("createdAt")) {
         // 如果是完整的记录格式，直接使用
         problemData = {
           isFavorite: false, // 设置默认值
-          ...data // 使用传入的所有字段
+          ...data, // 使用传入的所有字段
         };
-        console.log('saveLLMProblem: 使用完整记录格式', problemData);
+        console.log("saveLLMProblem: 使用完整记录格式", problemData);
       } else {
         // 如果是原始数据格式，使用旧的逻辑
-        const defaultTitle = data.description ?
-          (data.description.length > 15 ? data.description.substring(0, 15) + '...' : data.description) :
-          '无标题问题';
+        const defaultTitle = data.description
+          ? data.description.length > 15
+            ? data.description.substring(0, 15) + "..."
+            : data.description
+          : "无标题问题";
 
-        const problemCount = Array.isArray(data.problem) ? data.problem.length : 1;
+        const problemCount = Array.isArray(data.problem)
+          ? data.problem.length
+          : 1;
         problemData = {
           data,
           createdAt: new Date(),
@@ -70,12 +74,12 @@ export const saveLLMProblem = async (data: any): Promise<number> => {
           isFavorite: false,
           progress: 0, // 默认进度为0
           totalProblems: problemCount, // 根据问题数量设置总数
-          completedProblems: new Array(problemCount).fill(false) // 初始化所有问题为未完成
+          completedProblems: new Array(problemCount).fill(false), // 初始化所有问题为未完成
         };
-        console.log('saveLLMProblem: 使用原始数据格式', problemData);
+        console.log("saveLLMProblem: 使用原始数据格式", problemData);
       }
 
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.add(problemData);
 
@@ -84,11 +88,11 @@ export const saveLLMProblem = async (data: any): Promise<number> => {
       };
 
       request.onerror = () => {
-        reject('保存问题失败');
+        reject("保存问题失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
@@ -98,7 +102,7 @@ export const getAllProblems = async (): Promise<LLMProblem[]> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const transaction = db.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.getAll();
 
@@ -107,21 +111,23 @@ export const getAllProblems = async (): Promise<LLMProblem[]> => {
       };
 
       request.onerror = () => {
-        reject('获取问题列表失败');
+        reject("获取问题列表失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
 
 // 根据ID获取问题
-export const getProblemById = async (id: number): Promise<LLMProblem | null> => {
+export const getProblemById = async (
+  id: number,
+): Promise<LLMProblem | null> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const transaction = db.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.get(id);
 
@@ -130,11 +136,11 @@ export const getProblemById = async (id: number): Promise<LLMProblem | null> => 
       };
 
       request.onerror = () => {
-        reject('获取问题失败');
+        reject("获取问题失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
@@ -144,7 +150,7 @@ export const updateProblem = async (problem: LLMProblem): Promise<void> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.put(problem);
 
@@ -153,11 +159,11 @@ export const updateProblem = async (problem: LLMProblem): Promise<void> => {
       };
 
       request.onerror = () => {
-        reject('更新问题失败');
+        reject("更新问题失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
@@ -167,7 +173,7 @@ export const deleteProblem = async (id: number): Promise<void> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.delete(id);
 
@@ -176,11 +182,11 @@ export const deleteProblem = async (id: number): Promise<void> => {
       };
 
       request.onerror = () => {
-        reject('删除问题失败');
+        reject("删除问题失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
@@ -190,21 +196,21 @@ export const clearAllProblems = async (): Promise<void> => {
   try {
     const db = await initDB();
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.clear();
 
       request.onsuccess = () => {
-        console.log('所有数据已清空');
+        console.log("所有数据已清空");
         resolve();
       };
 
       request.onerror = () => {
-        reject('清空数据失败');
+        reject("清空数据失败");
       };
     });
   } catch (error) {
-    console.error('IndexedDB操作失败:', error);
+    console.error("IndexedDB操作失败:", error);
     throw error;
   }
 };
@@ -214,29 +220,32 @@ export const toggleFavorite = async (id: number): Promise<void> => {
   try {
     const problem = await getProblemById(id);
     if (!problem) {
-      throw new Error('问题不存在');
+      throw new Error("问题不存在");
     }
 
     problem.isFavorite = !problem.isFavorite;
     await updateProblem(problem);
   } catch (error) {
-    console.error('切换收藏状态失败:', error);
+    console.error("切换收藏状态失败:", error);
     throw error;
   }
 };
 
 // 重命名问题
-export const renameProblem = async (id: number, newTitle: string): Promise<void> => {
+export const renameProblem = async (
+  id: number,
+  newTitle: string,
+): Promise<void> => {
   try {
     const problem = await getProblemById(id);
     if (!problem) {
-      throw new Error('问题不存在');
+      throw new Error("问题不存在");
     }
 
     problem.title = newTitle;
     await updateProblem(problem);
   } catch (error) {
-    console.error('重命名问题失败:', error);
+    console.error("重命名问题失败:", error);
     throw error;
   }
 };

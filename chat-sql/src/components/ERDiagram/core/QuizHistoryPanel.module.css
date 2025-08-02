@@ -20,7 +20,6 @@
   color: var(--icon-color-hover) !important;
 }
 
-
 .deleteAllButton {
   min-width: 50px !important;
   height: 30px !important;
@@ -65,7 +64,6 @@
   opacity: 0.6;
   cursor: not-allowed !important;
 }
-
 
 /* 展开动画容器 */
 .expandContainer {

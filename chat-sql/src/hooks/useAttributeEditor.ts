@@ -1,29 +1,36 @@
-import { useState } from 'react';
-import { ERAttribute } from '@/types/ERDiagramTypes/erDiagram';
+import { useState } from "react";
+import { ERAttribute } from "@/types/ERDiagramTypes/erDiagram";
 import {
   dataTypeParamConfig,
   getDefaultParams,
   parseDataType,
-  buildDataType
-} from '@/types/ERDiagramTypes/dataTypes';
+  buildDataType,
+} from "@/types/ERDiagramTypes/dataTypes";
 
 interface UseAttributeEditorProps {
   updateAttribute: (
     id: string,
     attributeId: string,
-    updates: Partial<ERAttribute>
+    updates: Partial<ERAttribute>,
   ) => Promise<void>;
   deleteAttribute: (id: string, attributeId: string) => Promise<void>;
 }
 
-export const useAttributeEditor = ({ updateAttribute, deleteAttribute }: UseAttributeEditorProps) => {
+export const useAttributeEditor = ({
+  updateAttribute,
+  deleteAttribute,
+}: UseAttributeEditorProps) => {
   const [editingNames, setEditingNames] = useState<Record<string, string>>({});
   const [isComposing, setIsComposing] = useState<Record<string, boolean>>({});
-  const [menuAnchor, setMenuAnchor] = useState<Record<string, HTMLElement | null>>({});
-  const [attributeParams, setAttributeParams] = useState<Record<string, string[]>>({});
+  const [menuAnchor, setMenuAnchor] = useState<
+    Record<string, HTMLElement | null>
+  >({});
+  const [attributeParams, setAttributeParams] = useState<
+    Record<string, string[]>
+  >({});
 
   const handleNameChange = (attributeId: string, newName: string) => {
-    setEditingNames(prev => ({ ...prev, [attributeId]: newName }));
+    setEditingNames((prev) => ({ ...prev, [attributeId]: newName }));
   };
 
   const handleNameSave = async (entityId: string, attributeId: string) => {
@@ -31,10 +38,10 @@ export const useAttributeEditor = ({ updateAttribute, deleteAttribute }: UseAttr
 
     const newName = editingNames[attributeId];
     if (newName !== undefined) {
-      const finalName = newName.trim() || '未命名属性';
+      const finalName = newName.trim() || "未命名属性";
       await updateAttribute(entityId, attributeId, { name: finalName });
-      
-      setEditingNames(prev => {
+
+      setEditingNames((prev) => {
         const newState = { ...prev };
         delete newState[attributeId];
         return newState;
@@ -43,35 +50,45 @@ export const useAttributeEditor = ({ updateAttribute, deleteAttribute }: UseAttr
   };
 
   const handleCompositionStart = (attributeId: string) => {
-    setIsComposing(prev => ({ ...prev, [attributeId]: true }));
+    setIsComposing((prev) => ({ ...prev, [attributeId]: true }));
   };
 
   const handleCompositionEnd = (attributeId: string) => {
-    setIsComposing(prev => ({ ...prev, [attributeId]: false }));
+    setIsComposing((prev) => ({ ...prev, [attributeId]: false }));
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, attributeId: string) => {
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    attributeId: string,
+  ) => {
     event.stopPropagation();
-    setMenuAnchor(prev => ({ ...prev, [attributeId]: event.currentTarget }));
+    setMenuAnchor((prev) => ({ ...prev, [attributeId]: event.currentTarget }));
   };
 
   const handleMenuClose = () => {
     setMenuAnchor({});
   };
 
-  const handleDeleteAttribute = async (entityId: string, attributeId: string) => {
+  const handleDeleteAttribute = async (
+    entityId: string,
+    attributeId: string,
+  ) => {
     handleMenuClose();
     await deleteAttribute(entityId, attributeId);
   };
 
-  const handleTypeChange = async (entityId: string, attributeId: string, dataType: string) => {
+  const handleTypeChange = async (
+    entityId: string,
+    attributeId: string,
+    dataType: string,
+  ) => {
     if (dataTypeParamConfig[dataType]) {
-      setAttributeParams(prev => ({
+      setAttributeParams((prev) => ({
         ...prev,
-        [attributeId]: getDefaultParams(dataType)
+        [attributeId]: getDefaultParams(dataType),
       }));
     } else {
-      setAttributeParams(prev => ({ ...prev, [attributeId]: [] }));
+      setAttributeParams((prev) => ({ ...prev, [attributeId]: [] }));
     }
     await updateAttribute(entityId, attributeId, { dataType });
   };
@@ -81,7 +98,7 @@ export const useAttributeEditor = ({ updateAttribute, deleteAttribute }: UseAttr
     attributeId: string,
     paramIndex: number,
     value: string,
-    typeName: string
+    typeName: string,
   ) => {
     const { params: currentParams } = parseDataType(typeName);
     const newParams = [...currentParams];
@@ -104,6 +121,6 @@ export const useAttributeEditor = ({ updateAttribute, deleteAttribute }: UseAttr
     handleMenuClose,
     handleDeleteAttribute,
     handleTypeChange,
-    handleParamChange
+    handleParamChange,
   };
 };

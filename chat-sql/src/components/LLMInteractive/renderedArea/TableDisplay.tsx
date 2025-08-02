@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
-import { Box, Paper } from '@mui/material';
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
-import { TableTuple } from '@/types/CodingTypes/dify';
+import React, { useState } from "react";
+import { Box, Paper } from "@mui/material";
+import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
+import { TableTuple } from "@/types/CodingTypes/dify";
 
 interface TableDisplayProps {
   tableInfo: TableTuple;
@@ -12,30 +12,36 @@ interface TableDisplayProps {
 const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
   // 添加防御性检查，确保 tableInfo 和 tableInfo.tupleData 存在
   const tupleData = tableInfo?.tupleData || [];
-  
-  const columns: GridColDef[] = tupleData.length > 0
-    ? Object.keys(tupleData[0]).map((key) => ({
-        field: key,
-        headerName: key,
-        flex: 1,
-        minWidth: 80,
-        align: 'center',
-        headerAlign: 'center',
-      }))
-    : [];
+
+  const columns: GridColDef[] =
+    tupleData.length > 0
+      ? Object.keys(tupleData[0]).map((key) => ({
+          field: key,
+          headerName: key,
+          flex: 1,
+          minWidth: 80,
+          align: "center",
+          headerAlign: "center",
+        }))
+      : [];
 
   const rows: GridRowsProp = tupleData.map((row, idx) => ({ id: idx, ...row }));
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
 
   return (
-    <Box sx={{
-      width: '100%',
-      height: 'auto', // 改为自适应高度
-      overflow: 'hidden',
-      borderRadius: '0 0 8px 8px', // 添加底部圆角
-      border: '0.5px solid var(--card-bg)', // 添加边框
-      borderTop: 'none', // 移除顶部边框，与表名区域连接
-    }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "auto", // 改为自适应高度
+        overflow: "hidden",
+        borderRadius: "0 0 8px 8px", // 添加底部圆角
+        border: "0.5px solid var(--card-bg)", // 添加边框
+        borderTop: "none", // 移除顶部边框，与表名区域连接
+      }}
+    >
       <DataGrid
         rows={rows}
         columns={columns}
@@ -50,30 +56,30 @@ const TableDisplay: React.FC<TableDisplayProps> = ({ tableInfo }) => {
           },
         }}
         sx={{
-          border: 'none',
-          '.MuiDataGrid-cell': {
-            borderColor: 'var(--inverted-text)',
-            borderBottom: 'none',
+          border: "none",
+          ".MuiDataGrid-cell": {
+            borderColor: "var(--inverted-text)",
+            borderBottom: "none",
           },
-          height: '350px', // 设置固定高度
-          '& .MuiDataGrid-main': {
+          height: "350px", // 设置固定高度
+          "& .MuiDataGrid-main": {
             // 确保表格内容区域正确显示
-            overflow: 'auto',
+            overflow: "auto",
           },
-          '& .MuiDataGrid-virtualScroller': {
+          "& .MuiDataGrid-virtualScroller": {
             // 确保虚拟滚动区域正确显示
-            overflow: 'auto',
+            overflow: "auto",
           },
-          '& .MuiDataGrid-footerContainer': {
+          "& .MuiDataGrid-footerContainer": {
             // 确保页脚区域正确显示
             // borderTop: '1px solid #e0e0e0',
           },
-          '& .MuiDataGrid-columnHeader': {
-            backgroundColor: 'var(--card-bg) !important',
-            border: 'none',
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "var(--card-bg) !important",
+            border: "none",
           },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            color: 'var(--primary-text)',
+          "& .MuiDataGrid-columnHeaderTitle": {
+            color: "var(--primary-text)",
           },
         }}
         disableRowSelectionOnClick

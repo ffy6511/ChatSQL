@@ -1,10 +1,15 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react';
-import { Button, Tooltip, message, Dropdown, Menu, Upload } from 'antd';
-import { ShareAltOutlined, CopyOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import styles from './NavBar.module.css';
+import React, { useState, useRef } from "react";
+import { Button, Tooltip, message, Dropdown, Menu, Upload } from "antd";
+import {
+  ShareAltOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import styles from "./NavBar.module.css";
 
 const ShareButton: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -12,32 +17,36 @@ const ShareButton: React.FC = () => {
 
   // 辅助函数：UTF-8 编码为 URL 安全的 Base64
   const utf8_to_b64url = (str: string) => {
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-      function (match, p1) {
-        return String.fromCharCode(parseInt(p1, 16))
-      }))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
+    return btoa(
+      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+        return String.fromCharCode(parseInt(p1, 16));
+      }),
+    )
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
   };
 
   // 辅助函数：URL 安全的 Base64 解码为 UTF-8
   const b64url_to_utf8 = (str: string) => {
     // 还原标准 Base64
-    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
     // 添加补位
     while (str.length % 4) {
-      str += '=';
+      str += "=";
     }
-    
+
     try {
       return decodeURIComponent(
-        atob(str).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join('')
+        atob(str)
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join(""),
       );
     } catch (e) {
-      throw new Error('解码失败：无效的数据');
+      throw new Error("解码失败：无效的数据");
     }
   };
 
@@ -45,16 +54,16 @@ const ShareButton: React.FC = () => {
   const getDatabaseData = () => {
     return new Promise<any[]>((resolve, reject) => {
       try {
-        const request = indexedDB.open('llm_problems_db');
-        
+        const request = indexedDB.open("llm_problems_db");
+
         request.onerror = () => {
-          reject(new Error('无法访问数据库'));
+          reject(new Error("无法访问数据库"));
         };
 
         request.onsuccess = (event) => {
           const db = (event.target as IDBOpenDBRequest).result;
-          const transaction = db.transaction(['problems'], 'readonly');
-          const store = transaction.objectStore('problems');
+          const transaction = db.transaction(["problems"], "readonly");
+          const store = transaction.objectStore("problems");
           const request = store.getAll();
 
           request.onsuccess = () => {
@@ -62,7 +71,7 @@ const ShareButton: React.FC = () => {
           };
 
           request.onerror = () => {
-            reject(new Error('获取数据失败'));
+            reject(new Error("获取数据失败"));
           };
         };
       } catch (error) {
@@ -79,10 +88,10 @@ const ShareButton: React.FC = () => {
       const shareData = utf8_to_b64url(JSON.stringify(data));
       const shareUrl = `${window.location.origin}/share?data=${shareData}`;
       await navigator.clipboard.writeText(shareUrl);
-      messageApi.success('分享链接已复制到剪贴板');
+      messageApi.success("分享链接已复制到剪贴板");
     } catch (error) {
-      console.error('复制链接失败:', error);
-      messageApi.error('复制链接失败');
+      console.error("复制链接失败:", error);
+      messageApi.error("复制链接失败");
     }
   };
 
@@ -91,21 +100,21 @@ const ShareButton: React.FC = () => {
     try {
       const data = await getDatabaseData();
       const jsonString = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
+
+      const a = document.createElement("a");
       a.href = url;
       a.download = `chatSQL-data-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      messageApi.success('数据已导出到文件');
+
+      messageApi.success("数据已导出到文件");
     } catch (error) {
-      console.error('导出文件失败:', error);
-      messageApi.error('导出文件失败');
+      console.error("导出文件失败:", error);
+      messageApi.error("导出文件失败");
     }
   };
 
@@ -119,18 +128,18 @@ const ShareButton: React.FC = () => {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content);
-        
+
         // 打开数据库
-        const request = indexedDB.open('llm_problems_db');
-        
+        const request = indexedDB.open("llm_problems_db");
+
         request.onerror = () => {
-          messageApi.error('无法访问数据库');
+          messageApi.error("无法访问数据库");
         };
 
         request.onsuccess = (event) => {
           const db = (event.target as IDBOpenDBRequest).result;
-          const transaction = db.transaction(['problems'], 'readwrite');
-          const store = transaction.objectStore('problems');
+          const transaction = db.transaction(["problems"], "readwrite");
+          const store = transaction.objectStore("problems");
 
           // 清除现有数据
           store.clear().onsuccess = () => {
@@ -139,32 +148,36 @@ const ShareButton: React.FC = () => {
               // 处理日期字段
               const processedItem = {
                 ...item,
-                createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
-                updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date()
+                createdAt: item.createdAt
+                  ? new Date(item.createdAt)
+                  : new Date(),
+                updatedAt: item.updatedAt
+                  ? new Date(item.updatedAt)
+                  : new Date(),
               };
               store.add(processedItem);
             });
           };
 
           transaction.oncomplete = () => {
-            messageApi.success('数据导入成功');
+            messageApi.success("数据导入成功");
             // 重定向到主页
             setTimeout(() => {
-              window.location.href = '/';
+              window.location.href = "/";
             }, 1500);
           };
         };
       } catch (error) {
-        console.error('导入失败:', error);
-        messageApi.error('导入失败：文件格式不正确');
+        console.error("导入失败:", error);
+        messageApi.error("导入失败：文件格式不正确");
       }
-      
+
       // 重置文件输入，以便可以再次选择同一文件
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     };
-    
+
     reader.readAsText(file);
   };
 
@@ -175,23 +188,23 @@ const ShareButton: React.FC = () => {
     }
   };
 
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
-      key: '1',
+      key: "1",
       icon: <CopyOutlined />,
-      label: '复制分享链接',
+      label: "复制分享链接",
       onClick: handleCopyLink,
     },
     {
-      key: '2',
+      key: "2",
       icon: <DownloadOutlined />,
-      label: '导出到文件',
+      label: "导出到文件",
       onClick: handleExportFile,
     },
     {
-      key: '3',
+      key: "3",
       icon: <UploadOutlined />,
-      label: '从文件导入',
+      label: "从文件导入",
       onClick: handleImportFile,
     },
   ];
@@ -200,16 +213,16 @@ const ShareButton: React.FC = () => {
     <>
       {contextHolder}
       <Dropdown menu={{ items }} placement="bottomRight">
-          <Button 
-            type="text" 
-            icon={<ShareAltOutlined />}
-            className={styles.navButton}
-          />
+        <Button
+          type="text"
+          icon={<ShareAltOutlined />}
+          className={styles.navButton}
+        />
       </Dropdown>
       <input
         type="file"
         ref={fileInputRef}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         accept=".json"
         onChange={handleFileSelect}
       />

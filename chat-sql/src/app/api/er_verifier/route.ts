@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import {
   BailianAIRequest,
   BailianAIResponse,
   BailianAIAPIError,
   ErrorType,
   HTTPStatus,
-} from '@/types/chatBotTypes/bailianai';
+} from "@/types/chatBotTypes/bailianai";
 import {
   AGENT_CONFIG,
   ERVerifierRequest,
   ERVerifierResponse,
-} from '@/types/chatBotTypes/agents';
-import * as agentsHandlers from '@/services/agentsHandlers';
+} from "@/types/chatBotTypes/agents";
+import * as agentsHandlers from "@/services/agentsHandlers";
 
 /**
  * 解析ERVerifier响应中的评价数据
@@ -21,7 +21,7 @@ function parseERVerifierResponse(text: string): {
   evaluation?: string;
   score?: number;
   suggestions?: string[];
-  metadata?: any
+  metadata?: any;
 } {
   try {
     // 尝试从响应文本中提取结构化数据
@@ -44,22 +44,22 @@ function parseERVerifierResponse(text: string): {
     // 解析评价内容
     if (evalMatch) {
       evaluation = evalMatch[1].trim();
-      cleanText = cleanText.replace(evaluationRegex, '').trim();
+      cleanText = cleanText.replace(evaluationRegex, "").trim();
     }
 
     // 解析分数
     if (scoreMatch) {
       score = parseFloat(scoreMatch[1]);
-      cleanText = cleanText.replace(scoreRegex, '').trim();
+      cleanText = cleanText.replace(scoreRegex, "").trim();
     }
 
     // 解析建议
     if (suggestionsMatch) {
       try {
         suggestions = JSON.parse(suggestionsMatch[1]);
-        cleanText = cleanText.replace(suggestionsRegex, '').trim();
+        cleanText = cleanText.replace(suggestionsRegex, "").trim();
       } catch (parseError) {
-        console.warn('Failed to parse suggestions:', parseError);
+        console.warn("Failed to parse suggestions:", parseError);
       }
     }
 
@@ -67,9 +67,9 @@ function parseERVerifierResponse(text: string): {
     if (metadataMatch) {
       try {
         metadata = JSON.parse(metadataMatch[1]);
-        cleanText = cleanText.replace(metadataRegex, '').trim();
+        cleanText = cleanText.replace(metadataRegex, "").trim();
       } catch (parseError) {
-        console.warn('Failed to parse metadata:', parseError);
+        console.warn("Failed to parse metadata:", parseError);
       }
     }
 
@@ -91,7 +91,7 @@ function parseERVerifierResponse(text: string): {
 
     return { cleanText, evaluation, score, suggestions, metadata };
   } catch (error) {
-    console.warn('Failed to parse ER verifier response:', error);
+    console.warn("Failed to parse ER verifier response:", error);
     return { cleanText: text, evaluation: text };
   }
 }
@@ -104,7 +104,7 @@ function createERVerifierRequest(
   erDiagramDone: string,
   erDiagramAns: string,
   sessionId?: string,
-  parameters?: any
+  parameters?: any,
 ): BailianAIRequest {
   // 将三个参数合并为一个json字段, 因为在智能体中直接使用query参数
   const mergedParams = {
@@ -134,7 +134,7 @@ function createERVerifierRequest(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log('接收到的请求体:', JSON.stringify(body, null, 2));
+    console.log("接收到的请求体:", JSON.stringify(body, null, 2));
 
     let description: string;
     let erDiagramDone: string;
@@ -149,68 +149,78 @@ export async function POST(req: NextRequest) {
       sessionId = body.input.session_id;
       parameters = body.parameters;
     } else {
-      throw new BailianAIAPIError(
-        '请求参数错误',
-        ErrorType.VALIDATION_ERROR,
-      );
+      throw new BailianAIAPIError("请求参数错误", ErrorType.VALIDATION_ERROR);
     }
 
     // 验证必需参数
-    if (!description || typeof description !== 'string') {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INVALID_DESCRIPTION',
-          message: '缺少题目描述',
-        },
-      } as ERVerifierResponse,
-      { status: HTTPStatus.BAD_REQUEST });
+    if (!description || typeof description !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_DESCRIPTION",
+            message: "缺少题目描述",
+          },
+        } as ERVerifierResponse,
+        { status: HTTPStatus.BAD_REQUEST },
+      );
     }
 
-    if (!erDiagramDone || typeof erDiagramDone !== 'string') {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INVALID_USER_DIAGRAM',
-          message: '缺少用户提交的ER图数据',
-        },
-      } as ERVerifierResponse,
-      { status: HTTPStatus.BAD_REQUEST });
+    if (!erDiagramDone || typeof erDiagramDone !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_USER_DIAGRAM",
+            message: "缺少用户提交的ER图数据",
+          },
+        } as ERVerifierResponse,
+        { status: HTTPStatus.BAD_REQUEST },
+      );
     }
 
-    if (!erDiagramAns || typeof erDiagramAns !== 'string') {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'INVALID_ANSWER_DIAGRAM',
-          message: '缺少标准答案ER图数据',
-        },
-      } as ERVerifierResponse,
-      { status: HTTPStatus.BAD_REQUEST });
+    if (!erDiagramAns || typeof erDiagramAns !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_ANSWER_DIAGRAM",
+            message: "缺少标准答案ER图数据",
+          },
+        } as ERVerifierResponse,
+        { status: HTTPStatus.BAD_REQUEST },
+      );
     }
 
-    console.log('创建ER-verifier请求参数:', { description, erDiagramDone, erDiagramAns, sessionId });
+    console.log("创建ER-verifier请求参数:", {
+      description,
+      erDiagramDone,
+      erDiagramAns,
+      sessionId,
+    });
 
     const request = createERVerifierRequest(
       description,
       erDiagramDone,
       erDiagramAns,
       sessionId,
-      parameters
+      parameters,
     );
 
-    const response = await agentsHandlers.callBailianAPI(
+    const response = (await agentsHandlers.callBailianAPI(
       request,
-      AGENT_CONFIG.ER_VERIFIER.APP_ID
-    ) as BailianAIResponse;
+      AGENT_CONFIG.ER_VERIFIER.APP_ID,
+    )) as BailianAIResponse;
 
-    const { cleanText, evaluation, score, suggestions } = parseERVerifierResponse(response.output.text);
+    const { cleanText, evaluation, score, suggestions } =
+      parseERVerifierResponse(response.output.text);
 
     // 构建基于类型数组的输出格式
-    const outputParts: import('@/types/chatBotTypes/agents').AgentOutputPart[] = [];
+    const outputParts: import("@/types/chatBotTypes/agents").AgentOutputPart[] =
+      [];
 
     // 构建完整的评估文本
-    let fullEvaluationText = '';
+    let fullEvaluationText = "";
 
     if (evaluation || cleanText) {
       fullEvaluationText += `评估结果：\n${evaluation || cleanText}\n\n`;
@@ -234,8 +244,8 @@ export async function POST(req: NextRequest) {
     // 添加完整的评估结果作为单个文本部分
     if (fullEvaluationText.trim()) {
       outputParts.push({
-        type: 'text',
-        content: fullEvaluationText.trim()
+        type: "text",
+        content: fullEvaluationText.trim(),
       });
     }
 
@@ -245,16 +255,18 @@ export async function POST(req: NextRequest) {
         output: outputParts,
         sessionId: response.output.session_id,
       },
-      usage: response.usage ? {
-        inputTokens: response.usage.input_tokens,
-        outputTokens: response.usage.output_tokens,
-        totalTokens: response.usage.total_tokens,
-      } : undefined,
+      usage: response.usage
+        ? {
+            inputTokens: response.usage.input_tokens,
+            outputTokens: response.usage.output_tokens,
+            totalTokens: response.usage.total_tokens,
+          }
+        : undefined,
     };
 
     return NextResponse.json(erVerifierResponse);
   } catch (error) {
-    console.error('ER-verifier API error:', error);
+    console.error("ER-verifier API error:", error);
 
     const apiError = agentsHandlers.handleAPIError(error);
     const errorResponse: ERVerifierResponse = {

@@ -1,6 +1,12 @@
-'use client'
+"use client";
 
-import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -22,17 +28,16 @@ import {
   Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import './DatabaseFlow.css';
-import { styled } from '@mui/material/styles';
-import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import { TableNavigator } from './TableNavigator';
-import { useThemeContext } from '@/contexts/ThemeContext';
+import "./DatabaseFlow.css";
+import { styled } from "@mui/material/styles";
+import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import { TableNavigator } from "./TableNavigator";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 // 删除原有的类型定义，改为导入
-import { Column, Table, Edge } from '@/types/CodingTypes/database';
-
+import { Column, Table, Edge } from "@/types/CodingTypes/database";
 
 type TableNodeData = {
   tableName: string;
@@ -44,7 +49,7 @@ type CustomNode = FlowNode<TableNodeData>;
 type CustomEdge = FlowEdge;
 
 // 添加边样式类型定义
-type EdgeStyle = 'bezier' | 'step';
+type EdgeStyle = "bezier" | "step";
 
 // 生成随机颜色
 const getRandomColor = () => {
@@ -78,11 +83,11 @@ const CustomEdge = ({
 }) => {
   // 在组件内部使用 hook
   const { theme } = useThemeContext();
-  
+
   // 根据样式类型选择路径生成函数
-  let edgePath = '';
-  
-  if (data?.edgeStyle === 'bezier') {
+  let edgePath = "";
+
+  if (data?.edgeStyle === "bezier") {
     const [path] = getBezierPath({
       sourceX,
       sourceY,
@@ -111,7 +116,7 @@ const CustomEdge = ({
       style={{
         ...style,
         strokeWidth: 1,
-        stroke: theme === 'dark' ? '#f0a050' : '#e8b05c',
+        stroke: theme === "dark" ? "#f0a050" : "#e8b05c",
       }}
       className="react-flow__edge-path"
       d={edgePath}
@@ -123,65 +128,77 @@ const CustomEdge = ({
 const ConstraintTooltip = styled(({ className, ...props }: TooltipProps) => {
   // 在组件内部使用 hook
   const { theme } = useThemeContext();
-  
-  return (
-    <Tooltip {...props} classes={{ popper: className }} />
-  );
+
+  return <Tooltip {...props} classes={{ popper: className }} />;
 })(({ theme: muiTheme }) => {
   // 使用组件内部的 useThemeContext 获取的 theme
   const { theme: appTheme } = useThemeContext();
-  
+
   return {
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: 'var(--card-bg)',
-      color: 'var(--primary-text)',
-      maxWidth: 'none',
-      minWidth: '80px',
-      width: 'fit-content',
+      backgroundColor: "var(--card-bg)",
+      color: "var(--primary-text)",
+      maxWidth: "none",
+      minWidth: "80px",
+      width: "fit-content",
       fontSize: muiTheme.typography.pxToRem(12),
-      padding: '12px',
+      padding: "12px",
     },
   };
 });
 
 // 修改 ConstraintContent 组件
-const ConstraintContent = ({ columns, tableName, tables }: {
-  columns: Column[],
-  tableName: string,
-  tables: Table[]
+const ConstraintContent = ({
+  columns,
+  tableName,
+  tables,
+}: {
+  columns: Column[];
+  tableName: string;
+  tables: Table[];
 }) => {
   // 在组件内部正确使用 hook
   const { theme } = useThemeContext();
-  
-  const primaryKeys = columns.filter(col => col.isPrimary);
-  const foreignKeys = columns.filter(col => col.foreignKeyRefs && col.foreignKeyRefs.length > 0);
+
+  const primaryKeys = columns.filter((col) => col.isPrimary);
+  const foreignKeys = columns.filter(
+    (col) => col.foreignKeyRefs && col.foreignKeyRefs.length > 0,
+  );
 
   return (
-    <Box sx={{
-      width: 'fit-content',
-      minWidth: '80px',
-    }}>
+    <Box
+      sx={{
+        width: "fit-content",
+        minWidth: "80px",
+      }}
+    >
       {/* 主键约束 */}
       <Box sx={{ mb: 1 }}>
         <Typography
           component="span"
           sx={{
             // 使用组件内部获取的 theme
-            color: '#d32f2f',
-            fontWeight: 'bold',
-            fontSize: '1em',
-            display: 'block',
+            color: "#d32f2f",
+            fontWeight: "bold",
+            fontSize: "1em",
+            display: "block",
             mb: 0.5,
           }}
         >
           Primary Key
         </Typography>
         {primaryKeys.length >= 1 ? (
-          <Typography component="span" sx={{ fontSize: '0.9em', color: 'var(--secondary-text)' }}>
-            {primaryKeys.map(col => col.name).join(', ')}
+          <Typography
+            component="span"
+            sx={{ fontSize: "0.9em", color: "var(--secondary-text)" }}
+          >
+            {primaryKeys.map((col) => col.name).join(", ")}
           </Typography>
         ) : (
-          <Typography component="span" sx={{ fontSize: '0.9em', fontStyle: 'italic' }}>
+          <Typography
+            component="span"
+            sx={{ fontSize: "0.9em", fontStyle: "italic" }}
+          >
             No primary key
           </Typography>
         )}
@@ -194,38 +211,47 @@ const ConstraintContent = ({ columns, tableName, tables }: {
             component="span"
             sx={{
               // 使用组件内部获取的 theme
-              color:  '#ed6c02',
-              fontWeight: 'bold',
-              fontSize: '1em',
-              display: 'block',
+              color: "#ed6c02",
+              fontWeight: "bold",
+              fontSize: "1em",
+              display: "block",
               mt: 1,
               mb: 0.5,
             }}
           >
             Foreign Key
           </Typography>
-          {foreignKeys.map((col, index) => (
+          {foreignKeys.map((col, index) =>
             col.foreignKeyRefs?.map((ref, refIndex) => {
-              const targetTable = tables.find(t => t.id === ref.tableId);
+              const targetTable = tables.find((t) => t.id === ref.tableId);
               return (
-                <Typography 
+                <Typography
                   key={`fk-${index}-${refIndex}`}
                   component="div"
-                  sx={{ 
-                    fontSize: '0.9em',
-                    color: 'var(--secondary-text)',
+                  sx={{
+                    fontSize: "0.9em",
+                    color: "var(--secondary-text)",
                     mb: 0.5,
-                    '&:last-child': { mb: 0 },
-                    whiteSpace: 'nowrap',
+                    "&:last-child": { mb: 0 },
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  {col.name} → <Box component="span" sx={{ textDecoration: 'underline', fontWeight: 'bold', color: 'var(--secondary-text)' }}>
+                  {col.name} →{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      textDecoration: "underline",
+                      fontWeight: "bold",
+                      color: "var(--secondary-text)",
+                    }}
+                  >
                     {targetTable?.tableName || ref.tableId}
-                  </Box>.{ref.columnName}
+                  </Box>
+                  .{ref.columnName}
                 </Typography>
               );
-            })
-          ))}
+            }),
+          )}
         </Box>
       )}
     </Box>
@@ -244,7 +270,7 @@ const TableNode = ({
   // 正确处理类型转换
   const tables = useMemo(() => {
     const nodes = getNodes();
-    return nodes.map(node => ({
+    return nodes.map((node) => ({
       id: node.id,
       tableName: node.data.tableName as string,
       columns: node.data.columns as Column[],
@@ -259,18 +285,24 @@ const TableNode = ({
 
   return (
     <div className="table-node">
-      <div 
-        className="table-header" 
-        style={{ 
+      <div
+        className="table-header"
+        style={{
           background: headerColorRef.current,
-          position: 'relative',
-          fontSize: '1.1em',
-          fontWeight: 'bold',
+          position: "relative",
+          fontSize: "1.1em",
+          fontWeight: "bold",
         }}
       >
         <div className="table-name">{data.tableName}</div>
         <ConstraintTooltip
-          title={<ConstraintContent columns={data.columns} tableName={data.tableName} tables={tables} />}
+          title={
+            <ConstraintContent
+              columns={data.columns}
+              tableName={data.tableName}
+              tables={tables}
+            />
+          }
           placement="right"
           arrow
         >
@@ -293,7 +325,9 @@ const TableNode = ({
             <div className="column-info">
               <span className="column-type">{col.type}</span>
               {col.isPrimary && <span className="primary-key-badge">PK</span>}
-              {col.foreignKeyRefs && <span className="foreign-key-badge">FK</span>}
+              {col.foreignKeyRefs && (
+                <span className="foreign-key-badge">FK</span>
+              )}
             </div>
             {/* 主键列添加隐藏的连接点 */}
             {col.isPrimary && (
@@ -302,7 +336,7 @@ const TableNode = ({
                 position={Position.Right}
                 id={`${col.name}`}
                 className="hidden-primary-key-handle"
-                style={{ opacity: 0, pointerEvents: 'none' }}
+                style={{ opacity: 0, pointerEvents: "none" }}
               />
             )}
           </div>
@@ -319,17 +353,17 @@ const edgeTypes = { custom: CustomEdge };
 // 修改生成边的函数
 const generateEdges = (tables: Table[]): Edge[] => {
   const edges: Edge[] = [];
-  const tableMap = new Map(tables.map(table => [table.id, table])); // 创建表ID到表对象的映射
+  const tableMap = new Map(tables.map((table) => [table.id, table])); // 创建表ID到表对象的映射
 
   tables.forEach((sourceTable) => {
     sourceTable.columns.forEach((col) => {
       if (col.foreignKeyRefs) {
         // 更新外键引用信息，添加表名
-        col.foreignKeyRefs = col.foreignKeyRefs.map(ref => {
+        col.foreignKeyRefs = col.foreignKeyRefs.map((ref) => {
           const targetTable = tableMap.get(ref.tableId);
           return {
             ...ref,
-            tableName: targetTable?.tableName || ref.tableId // 如果找不到表名，使用表ID作为后备
+            tableName: targetTable?.tableName || ref.tableId, // 如果找不到表名，使用表ID作为后备
           };
         });
 
@@ -341,7 +375,7 @@ const generateEdges = (tables: Table[]): Edge[] => {
             target: ref.tableId,
             sourceHandle: col.name,
             targetHandle: ref.columnName,
-            type: 'custom',
+            type: "custom",
           });
         });
       }
@@ -351,20 +385,20 @@ const generateEdges = (tables: Table[]): Edge[] => {
 };
 
 // 添加自定义按钮组件
-const ZoomControls = ({ 
-  edgeStyle, 
-  onEdgeStyleChange 
+const ZoomControls = ({
+  edgeStyle,
+  onEdgeStyleChange,
 }: {
   edgeStyle: EdgeStyle;
   onEdgeStyleChange: (style: EdgeStyle) => void;
 }) => {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
-  
+
   return (
     <Panel position="bottom-right" className="custom-zoom-controls">
       <Tooltip title="放大" placement="bottom">
-        <button 
-          onClick={() => zoomIn({ duration: 800 })} 
+        <button
+          onClick={() => zoomIn({ duration: 800 })}
           className="zoom-button"
           aria-label="放大"
         >
@@ -372,8 +406,8 @@ const ZoomControls = ({
         </button>
       </Tooltip>
       <Tooltip title="缩小" placement="bottom">
-        <button 
-          onClick={() => zoomOut({ duration: 800 })} 
+        <button
+          onClick={() => zoomOut({ duration: 800 })}
           className="zoom-button"
           aria-label="缩小"
         >
@@ -381,24 +415,49 @@ const ZoomControls = ({
         </button>
       </Tooltip>
       <Tooltip title="适应视图" placement="bottom">
-        <button 
-          onClick={() => fitView({ duration: 800, padding: 0.2 })} 
+        <button
+          onClick={() => fitView({ duration: 800, padding: 0.2 })}
           className="zoom-button fit-button"
           aria-label="适应视图"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
           </svg>
         </button>
       </Tooltip>
-      <Tooltip title={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"} placement="bottom">
-        <button 
-          onClick={() => onEdgeStyleChange(edgeStyle === 'bezier' ? 'step' : 'bezier')} 
+      <Tooltip
+        title={edgeStyle === "bezier" ? "切换为折线" : "切换为曲线"}
+        placement="bottom"
+      >
+        <button
+          onClick={() =>
+            onEdgeStyleChange(edgeStyle === "bezier" ? "step" : "bezier")
+          }
           className="zoom-button style-button"
-          aria-label={edgeStyle === 'bezier' ? "切换为折线" : "切换为曲线"}
+          aria-label={edgeStyle === "bezier" ? "切换为折线" : "切换为曲线"}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {edgeStyle === 'bezier' ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {edgeStyle === "bezier" ? (
               // 折线图标
               <path d="M3 3v18h18 M3 12h18 M12 3v18" />
             ) : (
@@ -420,17 +479,17 @@ interface DatabaseFlowProps {
 
 export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   // 添加边样式状态
-  const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>('step');
+  const [edgeStyle, setEdgeStyle] = useState<EdgeStyle>("step");
 
   // 监听主题的变化
-  const {theme: themeContext} = useThemeContext();
-  
+  const { theme: themeContext } = useThemeContext();
+
   const initialNodes = tables.map((table, index) => ({
     id: table.id,
     type: "table",
     position: {
       x: (index % 3) * 350 + 50,
-      y: Math.floor(index / 3) * 350 + 50
+      y: Math.floor(index / 3) * 350 + 50,
     },
     data: {
       tableName: table.tableName,
@@ -441,51 +500,60 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   }));
 
   const initialEdges = useMemo(() => {
-    return generateEdges(tables).map(edge => ({
+    return generateEdges(tables).map((edge) => ({
       ...edge,
       data: { edgeStyle },
     }));
   }, [tables, edgeStyle]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(initialEdges);
-  
+  const [nodes, setNodes, onNodesChange] =
+    useNodesState<CustomNode>(initialNodes);
+  const [edges, setEdges, onEdgesChange] =
+    useEdgesState<CustomEdge>(initialEdges);
+
   // 处理节点变化，为拖拽中的节点添加特殊类名
-  const handleNodesChange = useCallback((changes: NodeChange<CustomNode>[]) => {
-    // 应用节点变化
-    onNodesChange(changes);
-    
-    // 检查是否有节点正在拖拽，并更新节点的类名
-    const draggedNodeIds = changes
-      .filter((change): change is NodePositionChange => 
-        change.type === 'position' && 'dragging' in change && !!change.dragging)
-      .map(change => change.id);
-      
-    if (draggedNodeIds.length > 0) {
-      setNodes(nds => 
-        nds.map(node => ({
-          ...node,
-          className: draggedNodeIds.includes(node.id) ? 'dragging-node' : '',
-        }))
-      );
-    } else if (changes.some(change => change.type === 'position')) {
-      // 拖拽结束时，清除类名
-      setNodes(nds => 
-        nds.map(node => ({
-          ...node,
-          className: '',
-        }))
-      );
-    }
-  }, [onNodesChange, setNodes]);
+  const handleNodesChange = useCallback(
+    (changes: NodeChange<CustomNode>[]) => {
+      // 应用节点变化
+      onNodesChange(changes);
+
+      // 检查是否有节点正在拖拽，并更新节点的类名
+      const draggedNodeIds = changes
+        .filter(
+          (change): change is NodePositionChange =>
+            change.type === "position" &&
+            "dragging" in change &&
+            !!change.dragging,
+        )
+        .map((change) => change.id);
+
+      if (draggedNodeIds.length > 0) {
+        setNodes((nds) =>
+          nds.map((node) => ({
+            ...node,
+            className: draggedNodeIds.includes(node.id) ? "dragging-node" : "",
+          })),
+        );
+      } else if (changes.some((change) => change.type === "position")) {
+        // 拖拽结束时，清除类名
+        setNodes((nds) =>
+          nds.map((node) => ({
+            ...node,
+            className: "",
+          })),
+        );
+      }
+    },
+    [onNodesChange, setNodes],
+  );
 
   // 处理边样式变化
   useEffect(() => {
-    setEdges(eds => 
-      eds.map(edge => ({
+    setEdges((eds) =>
+      eds.map((edge) => ({
         ...edge,
         data: { ...edge.data, edgeStyle },
-      }))
+      })),
     );
   }, [edgeStyle, setEdges]);
 
@@ -498,13 +566,13 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
   }, [tables, initialEdges]);
 
   return (
-    <div 
-      className="database-flow-container" 
-      style={{ 
-        width: '100%', 
-        height: '100%', 
-        position: 'relative',
-        ...styles 
+    <div
+      className="database-flow-container"
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        ...styles,
       }}
     >
       <ReactFlow
@@ -518,20 +586,20 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         minZoom={0.2}
         maxZoom={2}
-        fitViewOptions={{ 
+        fitViewOptions={{
           padding: 0.2,
-          duration: 400
+          duration: 400,
         }}
         nodesDraggable={true}
         elementsSelectable={true}
         defaultEdgeOptions={{
-          type: 'custom',
+          type: "custom",
           animated: false,
           data: { edgeStyle },
-          style: { 
-            stroke: themeContext === 'dark' ? '#ffb74d' : '#ff9900', 
-            strokeWidth: 2
-          }
+          style: {
+            stroke: themeContext === "dark" ? "#ffb74d" : "#ff9900",
+            strokeWidth: 2,
+          },
         }}
         proOptions={{
           hideAttribution: true,
@@ -542,11 +610,15 @@ export const DatabaseFlow = ({ tables, styles = {} }: DatabaseFlowProps) => {
         panOnDrag={true}
         className="flow-with-transitions"
       >
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={16} 
-          size={1} 
-          color={themeContext === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'} 
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={16}
+          size={1}
+          color={
+            themeContext === "dark"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0, 0, 0, 0.1)"
+          }
         />
         <ZoomControls edgeStyle={edgeStyle} onEdgeStyleChange={setEdgeStyle} />
         <TableNavigator tables={tables} />

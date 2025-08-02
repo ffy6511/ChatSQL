@@ -1,12 +1,12 @@
 // 消息渲染器相关类型定义
 
-import { ReactNode } from 'react';
-import { Message } from '@/types/chatBotTypes/chatbot';
+import { ReactNode } from "react";
+import { Message } from "@/types/chatBotTypes/chatbot";
 
 /**
  * 渲染器类型枚举
  */
-export type RendererType = 'default' | 'sql' | 'json' | 'mermaid';
+export type RendererType = "default" | "sql" | "json" | "mermaid";
 
 /**
  * 渲染器配置接口
@@ -17,7 +17,7 @@ export interface RendererConfig {
   /** 是否启用语法高亮 */
   enableSyntaxHighlight?: boolean;
   /** 主题配置 */
-  theme?: 'light' | 'dark' | 'auto';
+  theme?: "light" | "dark" | "auto";
   /** 自定义样式 */
   customStyles?: Record<string, any>;
   /** 是否显示行号 */
@@ -89,20 +89,20 @@ export interface JsonRendererConfig extends RendererConfig {
  */
 export interface SqlRendererConfig extends RendererConfig {
   /** SQL 方言 */
-  dialect?: 'mysql' | 'postgresql' | 'sqlite' | 'mssql' | 'oracle';
+  dialect?: "mysql" | "postgresql" | "sqlite" | "mssql" | "oracle";
   /** 是否格式化 SQL */
   formatSql?: boolean;
   /** 关键字大小写 */
-  keywordCase?: 'upper' | 'lower' | 'preserve';
+  keywordCase?: "upper" | "lower" | "preserve";
 }
 
 /**
  * 默认渲染器配置
  */
 export const DEFAULT_RENDERER_CONFIG: RendererConfig = {
-  type: 'default',
+  type: "default",
   enableSyntaxHighlight: false,
-  theme: 'auto',
+  theme: "auto",
   showLineNumbers: false,
   copyable: true,
 };
@@ -112,12 +112,12 @@ export const DEFAULT_RENDERER_CONFIG: RendererConfig = {
  */
 export const DEFAULT_SQL_RENDERER_CONFIG: SqlRendererConfig = {
   ...DEFAULT_RENDERER_CONFIG,
-  type: 'sql',
+  type: "sql",
   enableSyntaxHighlight: true,
   showLineNumbers: true,
-  dialect: 'mysql',
+  dialect: "mysql",
   formatSql: true,
-  keywordCase: 'upper',
+  keywordCase: "upper",
 };
 
 /**
@@ -125,7 +125,7 @@ export const DEFAULT_SQL_RENDERER_CONFIG: SqlRendererConfig = {
  */
 export const DEFAULT_JSON_RENDERER_CONFIG: JsonRendererConfig = {
   ...DEFAULT_RENDERER_CONFIG,
-  type: 'json',
+  type: "json",
   enableSyntaxHighlight: true,
   showLineNumbers: true,
   indent: 2,

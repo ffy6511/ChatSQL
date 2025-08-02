@@ -4,16 +4,16 @@
  * 支持结构化对象（AgentOutputPart[]）的多部分渲染
  */
 
-import React from 'react';
-import { Message } from '@/types/chatBotTypes/chatbot';
-import { AgentOutputPart } from '@/types/chatBotTypes/agents';
+import React from "react";
+import { Message } from "@/types/chatBotTypes/chatbot";
+import { AgentOutputPart } from "@/types/chatBotTypes/agents";
 
 // 导入渲染器组件
-import MarkdownRenderer from './MarkdownRenderer';
-import MessagePartsRenderer from './MessagePartsRenderer';
-import SqlRenderer from './SqlRenderer';
-import JsonRenderer from './JsonRenderer';
-import { getRendererByModule } from './RendererFactory';
+import MarkdownRenderer from "./MarkdownRenderer";
+import MessagePartsRenderer from "./MessagePartsRenderer";
+import SqlRenderer from "./SqlRenderer";
+import JsonRenderer from "./JsonRenderer";
+import { getRendererByModule } from "./RendererFactory";
 
 interface MessageContentRendererProps {
   message: Message;
@@ -37,12 +37,7 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
 }) => {
   // 检查是否为parts数组格式（新格式）
   if (Array.isArray(message.content)) {
-    return (
-      <MessagePartsRenderer
-        parts={message.content}
-        isUser={isUser}
-      />
-    );
+    return <MessagePartsRenderer parts={message.content} isUser={isUser} />;
   }
 
   // 对于字符串内容，根据内容类型选择合适的渲染器
@@ -59,9 +54,9 @@ const MessageContentRenderer: React.FC<MessageContentRendererProps> = ({
 
   // 根据内容类型选择渲染器
   switch (rendererType) {
-    case 'sql':
+    case "sql":
       return <SqlRenderer {...rendererProps} />;
-    case 'json':
+    case "json":
       return <JsonRenderer {...rendererProps} />;
     default:
       return <MarkdownRenderer {...rendererProps} />;

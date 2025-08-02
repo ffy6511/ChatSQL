@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  getAllProblems, 
-  deleteProblem, 
-  toggleFavorite, 
-  renameProblem, 
-  LLMProblem 
-} from '@/services/codingStorage';
-import { message } from 'antd';
+import { useState, useEffect, useCallback } from "react";
+import {
+  getAllProblems,
+  deleteProblem,
+  toggleFavorite,
+  renameProblem,
+  LLMProblem,
+} from "@/services/codingStorage";
+import { message } from "antd";
 
 export const useCodingRecords = () => {
   const [records, setRecords] = useState<LLMProblem[]>([]);
@@ -29,9 +29,9 @@ export const useCodingRecords = () => {
       });
       setRecords(problems);
     } catch (err) {
-      setError('加载历史记录失败');
-      message.error('加载历史记录失败');
-      console.error('加载历史记录失败:', err);
+      setError("加载历史记录失败");
+      message.error("加载历史记录失败");
+      console.error("加载历史记录失败:", err);
     } finally {
       setLoading(false);
     }
@@ -41,12 +41,12 @@ export const useCodingRecords = () => {
   const handleDelete = useCallback(async (id: number) => {
     try {
       await deleteProblem(id);
-      message.success('删除成功');
+      message.success("删除成功");
       // 更新本地状态
-      setRecords(prev => prev.filter(record => record.id !== id));
+      setRecords((prev) => prev.filter((record) => record.id !== id));
     } catch (err) {
-      message.error('删除失败');
-      console.error('删除失败:', err);
+      message.error("删除失败");
+      console.error("删除失败:", err);
     }
   }, []);
 
@@ -55,15 +55,17 @@ export const useCodingRecords = () => {
     try {
       await toggleFavorite(id);
       // 更新本地状态
-      setRecords(prev => prev.map(record => {
-        if (record.id === id) {
-          return { ...record, isFavorite: !record.isFavorite };
-        }
-        return record;
-      }));
+      setRecords((prev) =>
+        prev.map((record) => {
+          if (record.id === id) {
+            return { ...record, isFavorite: !record.isFavorite };
+          }
+          return record;
+        }),
+      );
     } catch (err) {
-      message.error('更新收藏状态失败');
-      console.error('更新收藏状态失败:', err);
+      message.error("更新收藏状态失败");
+      console.error("更新收藏状态失败:", err);
     }
   }, []);
 
@@ -71,17 +73,19 @@ export const useCodingRecords = () => {
   const handleRename = useCallback(async (id: number, newTitle: string) => {
     try {
       await renameProblem(id, newTitle);
-      message.success('重命名成功');
+      message.success("重命名成功");
       // 更新本地状态
-      setRecords(prev => prev.map(record => {
-        if (record.id === id) {
-          return { ...record, title: newTitle };
-        }
-        return record;
-      }));
+      setRecords((prev) =>
+        prev.map((record) => {
+          if (record.id === id) {
+            return { ...record, title: newTitle };
+          }
+          return record;
+        }),
+      );
     } catch (err) {
-      message.error('重命名失败');
-      console.error('重命名失败:', err);
+      message.error("重命名失败");
+      console.error("重命名失败:", err);
     }
   }, []);
 
@@ -94,11 +98,11 @@ export const useCodingRecords = () => {
     records,
     loading,
     error,
-    recentRecords: records.filter(r => !r.isFavorite),
-    favoriteRecords: records.filter(r => r.isFavorite),
+    recentRecords: records.filter((r) => !r.isFavorite),
+    favoriteRecords: records.filter((r) => r.isFavorite),
     handleDelete,
     handleToggleFavorite,
     handleRename,
-    refreshRecords: loadRecords
+    refreshRecords: loadRecords,
   };
 };

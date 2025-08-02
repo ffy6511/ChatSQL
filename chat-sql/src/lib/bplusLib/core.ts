@@ -3,7 +3,7 @@
  * 纯数据操作，不包含任何可视化逻辑
  */
 
-import { BPlusNode, createBPlusNode } from './commands';
+import { BPlusNode, createBPlusNode } from "./commands";
 
 export class BPlusTreeCore {
   public root: BPlusNode | null = null;
@@ -63,13 +63,13 @@ export class BPlusTreeCore {
    */
   public insertKeyIntoNode(node: BPlusNode, key: number): void {
     let insertIndex = node.numKeys;
-    
+
     // 找到插入位置
     while (insertIndex > 0 && node.keys[insertIndex - 1] > key) {
       node.keys[insertIndex] = node.keys[insertIndex - 1];
       insertIndex--;
     }
-    
+
     node.keys[insertIndex] = key;
     node.numKeys++;
   }
@@ -77,14 +77,18 @@ export class BPlusTreeCore {
   /**
    * 分裂节点
    */
-  public splitNode(node: BPlusNode): { leftNode: BPlusNode; rightNode: BPlusNode; promotedKey: number } {
+  public splitNode(node: BPlusNode): {
+    leftNode: BPlusNode;
+    rightNode: BPlusNode;
+    promotedKey: number;
+  } {
     const rightNode = createBPlusNode(
       `node-${this.nodeCounter++}`,
       `graphic-${this.nodeCounter}`,
       node.x + 100,
       node.y,
       node.isLeaf,
-      node.level
+      node.level,
     );
 
     rightNode.parent = node.parent;
@@ -140,7 +144,11 @@ export class BPlusTreeCore {
   /**
    * 合并两个节点
    */
-  public mergeNodes(leftNode: BPlusNode, rightNode: BPlusNode, separatorKey?: number): BPlusNode {
+  public mergeNodes(
+    leftNode: BPlusNode,
+    rightNode: BPlusNode,
+    separatorKey?: number,
+  ): BPlusNode {
     if (leftNode.isLeaf) {
       // 叶子节点合并
       for (let i = 0; i < rightNode.numKeys; i++) {
@@ -211,7 +219,11 @@ export class BPlusTreeCore {
   /**
    * 获取节点的兄弟节点
    */
-  public getSiblings(node: BPlusNode): { leftSibling: BPlusNode | null; rightSibling: BPlusNode | null; parentIndex: number } {
+  public getSiblings(node: BPlusNode): {
+    leftSibling: BPlusNode | null;
+    rightSibling: BPlusNode | null;
+    parentIndex: number;
+  } {
     if (!node.parent) {
       return { leftSibling: null, rightSibling: null, parentIndex: -1 };
     }
@@ -227,8 +239,10 @@ export class BPlusTreeCore {
       }
     }
 
-    const leftSibling = parentIndex > 0 ? parent.children[parentIndex - 1] : null;
-    const rightSibling = parentIndex < parent.numKeys ? parent.children[parentIndex + 1] : null;
+    const leftSibling =
+      parentIndex > 0 ? parent.children[parentIndex - 1] : null;
+    const rightSibling =
+      parentIndex < parent.numKeys ? parent.children[parentIndex + 1] : null;
 
     return { leftSibling, rightSibling, parentIndex };
   }
@@ -236,7 +250,11 @@ export class BPlusTreeCore {
   /**
    * 从左兄弟借键
    */
-  public borrowFromLeftSibling(node: BPlusNode, leftSibling: BPlusNode, parentIndex: number): void {
+  public borrowFromLeftSibling(
+    node: BPlusNode,
+    leftSibling: BPlusNode,
+    parentIndex: number,
+  ): void {
     const parent = node.parent!;
 
     if (node.isLeaf) {
@@ -258,7 +276,7 @@ export class BPlusTreeCore {
       // 内部节点借键
       const borrowedKey = leftSibling.keys[leftSibling.numKeys - 1];
       const borrowedChild = leftSibling.children[leftSibling.numKeys];
-      
+
       leftSibling.numKeys--;
       leftSibling.keys.length = leftSibling.numKeys;
       leftSibling.children.length = leftSibling.numKeys + 1;
@@ -287,13 +305,17 @@ export class BPlusTreeCore {
   /**
    * 从右兄弟借键
    */
-  public borrowFromRightSibling(node: BPlusNode, rightSibling: BPlusNode, parentIndex: number): void {
+  public borrowFromRightSibling(
+    node: BPlusNode,
+    rightSibling: BPlusNode,
+    parentIndex: number,
+  ): void {
     const parent = node.parent!;
 
     if (node.isLeaf) {
       // 叶子节点借键
       const borrowedKey = rightSibling.keys[0];
-      
+
       // 从右兄弟移除第一个键
       for (let i = 0; i < rightSibling.numKeys - 1; i++) {
         rightSibling.keys[i] = rightSibling.keys[i + 1];

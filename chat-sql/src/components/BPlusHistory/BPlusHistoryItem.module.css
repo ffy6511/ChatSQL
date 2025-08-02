@@ -5,7 +5,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  border: none !important; 
+  border: none !important;
   background-color: transparent !important; /* 默认状态：透明背景 */
   border-radius: 10px !important;
   margin: 4px 6px;
@@ -59,7 +59,7 @@
 .tagsContainer {
   display: flex;
   gap: 2px;
-  margin-left: auto; 
+  margin-left: auto;
   margin-right: 3em;
 }
 
@@ -150,14 +150,14 @@
   opacity: 1;
 }
 
-.moreButton{
+.moreButton {
   opacity: 0;
   transition: all 0.3s ease;
   font-size: 1.3em;
   margin-right: 6px;
 }
 
-.historyItem:hover .moreButton{
+.historyItem:hover .moreButton {
   opacity: 1;
 }
 

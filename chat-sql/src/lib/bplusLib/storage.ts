@@ -14,10 +14,10 @@ export interface BPlusTreeStorageData {
 }
 
 // 存储配置
-const DB_NAME = 'BPlusTreeStorage';
+const DB_NAME = "BPlusTreeStorage";
 const DB_VERSION = 1;
-const STORE_NAME = 'trees';
-const AUTO_SAVE_KEY = 'auto-save';
+const STORE_NAME = "trees";
+const AUTO_SAVE_KEY = "auto-save";
 
 export class BPlusTreeStorage {
   private db: IDBDatabase | null = null;
@@ -39,7 +39,7 @@ export class BPlusTreeStorage {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => {
-        reject(new Error('Failed to open IndexedDB'));
+        reject(new Error("Failed to open IndexedDB"));
       };
 
       request.onsuccess = () => {
@@ -49,12 +49,12 @@ export class BPlusTreeStorage {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // 创建对象存储
         if (!db.objectStoreNames.contains(STORE_NAME)) {
-          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-          store.createIndex('name', 'name', { unique: false });
-          store.createIndex('updatedAt', 'updatedAt', { unique: false });
+          const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          store.createIndex("name", "name", { unique: false });
+          store.createIndex("updatedAt", "updatedAt", { unique: false });
         }
       };
     });
@@ -63,39 +63,42 @@ export class BPlusTreeStorage {
   /**
    * 保存B+树状态
    */
-  public async saveTree(data: Omit<BPlusTreeStorageData, 'createdAt' | 'updatedAt'>): Promise<void> {
+  public async saveTree(
+    data: Omit<BPlusTreeStorageData, "createdAt" | "updatedAt">,
+  ): Promise<void> {
     await this.ensureInitialized();
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new Error("Database not initialized");
     }
 
     const now = new Date();
     const treeData: BPlusTreeStorageData = {
       ...data,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     };
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readwrite');
+      const transaction = this.db!.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
-      
+
       // 检查是否已存在，如果存在则更新updatedAt
       const getRequest = store.get(data.id);
-      
+
       getRequest.onsuccess = () => {
         const existingData = getRequest.result;
         if (existingData) {
           treeData.createdAt = existingData.createdAt;
         }
-        
+
         const putRequest = store.put(treeData);
-        
+
         putRequest.onsuccess = () => resolve();
-        putRequest.onerror = () => reject(new Error('Failed to save tree'));
+        putRequest.onerror = () => reject(new Error("Failed to save tree"));
       };
-      
-      getRequest.onerror = () => reject(new Error('Failed to check existing tree'));
+
+      getRequest.onerror = () =>
+        reject(new Error("Failed to check existing tree"));
     });
   }
 
@@ -105,11 +108,11 @@ export class BPlusTreeStorage {
   public async loadTree(id: string): Promise<BPlusTreeStorageData | null> {
     await this.ensureInitialized();
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new Error("Database not initialized");
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readonly');
+      const transaction = this.db!.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.get(id);
 
@@ -118,7 +121,7 @@ export class BPlusTreeStorage {
       };
 
       request.onerror = () => {
-        reject(new Error('Failed to load tree'));
+        reject(new Error("Failed to load tree"));
       };
     });
   }
@@ -129,25 +132,26 @@ export class BPlusTreeStorage {
   public async getAllTrees(): Promise<BPlusTreeStorageData[]> {
     await this.ensureInitialized();
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new Error("Database not initialized");
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readonly');
+      const transaction = this.db!.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
-      const index = store.index('updatedAt');
+      const index = store.index("updatedAt");
       const request = index.getAll();
 
       request.onsuccess = () => {
         // 按更新时间倒序排列
-        const trees = request.result.sort((a, b) => 
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        const trees = request.result.sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         );
         resolve(trees);
       };
 
       request.onerror = () => {
-        reject(new Error('Failed to load trees'));
+        reject(new Error("Failed to load trees"));
       };
     });
   }
@@ -158,16 +162,16 @@ export class BPlusTreeStorage {
   public async deleteTree(id: string): Promise<void> {
     await this.ensureInitialized();
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new Error("Database not initialized");
     }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORE_NAME], 'readwrite');
+      const transaction = this.db!.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.delete(id);
 
       request.onsuccess = () => resolve();
-      request.onerror = () => reject(new Error('Failed to delete tree'));
+      request.onerror = () => reject(new Error("Failed to delete tree"));
     });
   }
 
@@ -177,9 +181,9 @@ export class BPlusTreeStorage {
   public async autoSave(order: number, keys: number[]): Promise<void> {
     await this.saveTree({
       id: AUTO_SAVE_KEY,
-      name: '自动保存',
+      name: "自动保存",
       order,
-      keys
+      keys,
     });
   }
 

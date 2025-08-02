@@ -4,7 +4,7 @@
  * 该文件定义了SQL执行器使用的类型。
  */
 
-import { TableStructure as DifyTableStructure } from './dify';
+import { TableStructure as DifyTableStructure } from "./dify";
 
 /**
  * 扩展列定义，添加外键引用
@@ -19,7 +19,7 @@ export interface ColumnDefinition {
 /**
  * 扩展表结构定义
  */
-export interface TableStructure extends Omit<DifyTableStructure, 'columns'> {
+export interface TableStructure extends Omit<DifyTableStructure, "columns"> {
   columns: ColumnDefinition[];
 }
 

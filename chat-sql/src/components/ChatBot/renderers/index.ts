@@ -3,10 +3,10 @@
  */
 
 // 渲染器组件
-export { default as MarkdownRenderer } from './MarkdownRenderer';
-export { default as SqlRenderer } from './SqlRenderer';
-export { default as JsonRenderer } from './JsonRenderer';
-export { default as MessageContentRenderer } from './MessageContentRenderer';
+export { default as MarkdownRenderer } from "./MarkdownRenderer";
+export { default as SqlRenderer } from "./SqlRenderer";
+export { default as JsonRenderer } from "./JsonRenderer";
+export { default as MessageContentRenderer } from "./MessageContentRenderer";
 
 // 渲染器工厂和工具函数
 export {
@@ -15,7 +15,7 @@ export {
   detectSqlContent,
   detectJsonContent,
   getRendererByModule,
-} from './RendererFactory';
+} from "./RendererFactory";
 
 // 类型定义
 export type {
@@ -28,11 +28,11 @@ export type {
   JsonRendererConfig,
   SqlRendererConfig,
   RendererContextType,
-} from '@/types/chatBotTypes/renderers';
+} from "@/types/chatBotTypes/renderers";
 
 // 默认配置
 export {
   DEFAULT_RENDERER_CONFIG,
   DEFAULT_SQL_RENDERER_CONFIG,
   DEFAULT_JSON_RENDERER_CONFIG,
-} from '@/types/chatBotTypes/renderers';
+} from "@/types/chatBotTypes/renderers";

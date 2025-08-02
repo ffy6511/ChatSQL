@@ -1,13 +1,13 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { v4 as uuidv4 } from 'uuid';
-import { 
-  Quiz, 
-  CreateQuizInput, 
-  UpdateQuizInput, 
+import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { v4 as uuidv4 } from "uuid";
+import {
+  Quiz,
+  CreateQuizInput,
+  UpdateQuizInput,
   QuizStorageService,
   QuizSearchOptions,
-  QuizStats
-} from '@/types/ERDiagramTypes/quiz';
+  QuizStats,
+} from "@/types/ERDiagramTypes/quiz";
 
 /**
  * IndexedDB数据库结构定义
@@ -17,9 +17,9 @@ interface QuizDB extends DBSchema {
     key: string;
     value: Quiz;
     indexes: {
-      'by-created-at': number;
-      'by-updated-at': number;
-      'by-name': string;
+      "by-created-at": number;
+      "by-updated-at": number;
+      "by-name": string;
     };
   };
 }
@@ -28,7 +28,7 @@ interface QuizDB extends DBSchema {
  * Quiz存储服务实现类
  */
 class QuizStorageServiceImpl implements QuizStorageService {
-  private dbName = 'quiz-storage';
+  private dbName = "quiz-storage";
   private version = 1;
   private db: IDBPDatabase<QuizDB> | null = null;
 
@@ -44,21 +44,21 @@ class QuizStorageServiceImpl implements QuizStorageService {
       this.db = await openDB<QuizDB>(this.dbName, this.version, {
         upgrade(db) {
           // 创建quizzes对象存储
-          const quizStore = db.createObjectStore('quizzes', {
-            keyPath: 'id',
+          const quizStore = db.createObjectStore("quizzes", {
+            keyPath: "id",
           });
 
           // 创建索引
-          quizStore.createIndex('by-created-at', 'createdAt');
-          quizStore.createIndex('by-updated-at', 'updatedAt');
-          quizStore.createIndex('by-name', 'name');
+          quizStore.createIndex("by-created-at", "createdAt");
+          quizStore.createIndex("by-updated-at", "updatedAt");
+          quizStore.createIndex("by-name", "name");
         },
       });
 
       return this.db;
     } catch (error) {
-      console.error('初始化Quiz数据库失败:', error);
-      throw new Error('无法初始化Quiz存储服务');
+      console.error("初始化Quiz数据库失败:", error);
+      throw new Error("无法初始化Quiz存储服务");
     }
   }
 
@@ -78,12 +78,12 @@ class QuizStorageServiceImpl implements QuizStorageService {
         updatedAt: quizData.updatedAt || now,
       };
 
-      await db.add('quizzes', quiz);
-      console.log('题目保存成功:', id);
+      await db.add("quizzes", quiz);
+      console.log("题目保存成功:", id);
       return id;
     } catch (error) {
-      console.error('保存题目失败:', error);
-      throw new Error('保存题目失败，请重试');
+      console.error("保存题目失败:", error);
+      throw new Error("保存题目失败，请重试");
     }
   }
 
@@ -93,11 +93,11 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async getQuiz(id: string): Promise<Quiz | undefined> {
     try {
       const db = await this.initDB();
-      const quiz = await db.get('quizzes', id);
+      const quiz = await db.get("quizzes", id);
       return quiz;
     } catch (error) {
-      console.error('获取题目失败:', error);
-      throw new Error('获取题目失败');
+      console.error("获取题目失败:", error);
+      throw new Error("获取题目失败");
     }
   }
 
@@ -107,12 +107,12 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async getAllQuizzes(): Promise<Quiz[]> {
     try {
       const db = await this.initDB();
-      const quizzes = await db.getAllFromIndex('quizzes', 'by-created-at');
+      const quizzes = await db.getAllFromIndex("quizzes", "by-created-at");
       // 按创建时间倒序排列（最新的在前）
       return quizzes.reverse();
     } catch (error) {
-      console.error('获取题目列表失败:', error);
-      throw new Error('获取题目列表失败');
+      console.error("获取题目列表失败:", error);
+      throw new Error("获取题目列表失败");
     }
   }
 
@@ -122,10 +122,10 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async updateQuiz(id: string, updates: UpdateQuizInput): Promise<void> {
     try {
       const db = await this.initDB();
-      const existingQuiz = await db.get('quizzes', id);
-      
+      const existingQuiz = await db.get("quizzes", id);
+
       if (!existingQuiz) {
-        throw new Error('题目不存在');
+        throw new Error("题目不存在");
       }
 
       const updatedQuiz: Quiz = {
@@ -134,11 +134,11 @@ class QuizStorageServiceImpl implements QuizStorageService {
         updatedAt: Date.now(),
       };
 
-      await db.put('quizzes', updatedQuiz);
-      console.log('题目更新成功:', id);
+      await db.put("quizzes", updatedQuiz);
+      console.log("题目更新成功:", id);
     } catch (error) {
-      console.error('更新题目失败:', error);
-      throw new Error('更新题目失败');
+      console.error("更新题目失败:", error);
+      throw new Error("更新题目失败");
     }
   }
 
@@ -148,26 +148,25 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async deleteQuiz(id: string): Promise<void> {
     try {
       const db = await this.initDB();
-      await db.delete('quizzes', id);
-      console.log('题目删除成功:', id);
+      await db.delete("quizzes", id);
+      console.log("题目删除成功:", id);
     } catch (error) {
-      console.error('删除题目失败:', error);
-      throw new Error('删除题目失败');
+      console.error("删除题目失败:", error);
+      throw new Error("删除题目失败");
     }
   }
 
   // 删除全部题目
   async deleteAllQuizzes(): Promise<void> {
-    try{
+    try {
       const db = await this.initDB();
-      await db.clear('quizzes');
-      console.log('所有题目已删除');
-    }catch (error){
-      console.error('删除所有题目失败:', error);
-      throw new Error('删除所有题目失败');
+      await db.clear("quizzes");
+      console.log("所有题目已删除");
+    } catch (error) {
+      console.error("删除所有题目失败:", error);
+      throw new Error("删除所有题目失败");
     }
   }
-  
 
   /**
    * 搜索题目
@@ -176,36 +175,40 @@ class QuizStorageServiceImpl implements QuizStorageService {
     try {
       const db = await this.initDB();
       const allQuizzes = await this.getAllQuizzes();
-      
+
       if (!keyword.trim()) {
         return allQuizzes;
       }
 
       const lowerKeyword = keyword.toLowerCase();
-      return allQuizzes.filter(quiz => 
-        quiz.name.toLowerCase().includes(lowerKeyword) ||
-        quiz.description.toLowerCase().includes(lowerKeyword)
+      return allQuizzes.filter(
+        (quiz) =>
+          quiz.name.toLowerCase().includes(lowerKeyword) ||
+          quiz.description.toLowerCase().includes(lowerKeyword),
       );
     } catch (error) {
-      console.error('搜索题目失败:', error);
-      throw new Error('搜索题目失败');
+      console.error("搜索题目失败:", error);
+      throw new Error("搜索题目失败");
     }
   }
 
   /**
    * 根据日期范围获取题目
    */
-  async getQuizzesByDateRange(startDate: number, endDate: number): Promise<Quiz[]> {
+  async getQuizzesByDateRange(
+    startDate: number,
+    endDate: number,
+  ): Promise<Quiz[]> {
     try {
       const db = await this.initDB();
       const allQuizzes = await this.getAllQuizzes();
-      
-      return allQuizzes.filter(quiz => 
-        quiz.createdAt >= startDate && quiz.createdAt <= endDate
+
+      return allQuizzes.filter(
+        (quiz) => quiz.createdAt >= startDate && quiz.createdAt <= endDate,
       );
     } catch (error) {
-      console.error('按日期范围获取题目失败:', error);
-      throw new Error('按日期范围获取题目失败');
+      console.error("按日期范围获取题目失败:", error);
+      throw new Error("按日期范围获取题目失败");
     }
   }
 
@@ -216,21 +219,35 @@ class QuizStorageServiceImpl implements QuizStorageService {
     try {
       const allQuizzes = await this.getAllQuizzes();
       const now = Date.now();
-      const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-      const recentQuizzes = allQuizzes.filter(quiz => quiz.createdAt >= sevenDaysAgo);
-      const totalDescriptionLength = allQuizzes.reduce((sum, quiz) => sum + quiz.description.length, 0);
+      const recentQuizzes = allQuizzes.filter(
+        (quiz) => quiz.createdAt >= sevenDaysAgo,
+      );
+      const totalDescriptionLength = allQuizzes.reduce(
+        (sum, quiz) => sum + quiz.description.length,
+        0,
+      );
 
       return {
         totalCount: allQuizzes.length,
         recentCount: recentQuizzes.length,
-        averageDescriptionLength: allQuizzes.length > 0 ? Math.round(totalDescriptionLength / allQuizzes.length) : 0,
-        oldestQuizDate: allQuizzes.length > 0 ? Math.min(...allQuizzes.map(q => q.createdAt)) : undefined,
-        newestQuizDate: allQuizzes.length > 0 ? Math.max(...allQuizzes.map(q => q.createdAt)) : undefined,
+        averageDescriptionLength:
+          allQuizzes.length > 0
+            ? Math.round(totalDescriptionLength / allQuizzes.length)
+            : 0,
+        oldestQuizDate:
+          allQuizzes.length > 0
+            ? Math.min(...allQuizzes.map((q) => q.createdAt))
+            : undefined,
+        newestQuizDate:
+          allQuizzes.length > 0
+            ? Math.max(...allQuizzes.map((q) => q.createdAt))
+            : undefined,
       };
     } catch (error) {
-      console.error('获取题目统计失败:', error);
-      throw new Error('获取题目统计失败');
+      console.error("获取题目统计失败:", error);
+      throw new Error("获取题目统计失败");
     }
   }
 
@@ -240,11 +257,11 @@ class QuizStorageServiceImpl implements QuizStorageService {
   async clearAllQuizzes(): Promise<void> {
     try {
       const db = await this.initDB();
-      await db.clear('quizzes');
-      console.log('所有题目已清空');
+      await db.clear("quizzes");
+      console.log("所有题目已清空");
     } catch (error) {
-      console.error('清空题目失败:', error);
-      throw new Error('清空题目失败');
+      console.error("清空题目失败:", error);
+      throw new Error("清空题目失败");
     }
   }
 }

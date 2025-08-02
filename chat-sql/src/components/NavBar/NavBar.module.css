@@ -58,7 +58,6 @@
   box-shadow: 0 2px 4px var(--button-border) !important;
 }
 
-
 .rightSection {
   flex: 0 0 auto;
   display: flex;
@@ -83,11 +82,11 @@
   font-weight: 600;
   color: #4285f4;
   margin: 0;
-  font-family: 'Maple Mono', monospace;
+  font-family: "Maple Mono", monospace;
 }
 
-.navButton{
-  border-radius: 50%; 
+.navButton {
+  border-radius: 50%;
   border: 1px solid var(--button-border);
   box-shadow: 0 0 10px rgba(136, 134, 134, 0.1);
   height: 30px;

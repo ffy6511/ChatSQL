@@ -41,7 +41,7 @@
 .headerArea {
   display: flex;
   align-items: center !important;
-  justify-content: center!important;
+  justify-content: center !important;
   margin-bottom: 24px;
   padding-bottom: 12px;
   text-align: center;

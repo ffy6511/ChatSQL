@@ -7,19 +7,19 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_POSITION,
   DEFAULT_SIZE,
-  Message
-} from '@/types/chatBotTypes/chatbot';
+  Message,
+} from "@/types/chatBotTypes/chatbot";
 
 /**
  * IndexedDB存储管理类
  */
 export class ChatIndexedDB {
-  private static readonly DB_NAME = 'ChatBotDB';
+  private static readonly DB_NAME = "ChatBotDB";
   private static readonly DB_VERSION = 1;
   private static readonly STORE_NAMES = {
-    CHAT_HISTORY: 'chatHistory',
-    MESSAGES: 'messages',
-    SETTINGS: 'settings',
+    CHAT_HISTORY: "chatHistory",
+    MESSAGES: "messages",
+    SETTINGS: "settings",
   };
 
   /**
@@ -37,26 +37,29 @@ export class ChatIndexedDB {
 
         // 创建聊天历史存储
         if (!db.objectStoreNames.contains(this.STORE_NAMES.CHAT_HISTORY)) {
-          const historyStore = db.createObjectStore(this.STORE_NAMES.CHAT_HISTORY, {
-            keyPath: 'id',
-          });
-          historyStore.createIndex('timestamp', 'timestamp', { unique: false });
-          historyStore.createIndex('module', 'module', { unique: false });
+          const historyStore = db.createObjectStore(
+            this.STORE_NAMES.CHAT_HISTORY,
+            {
+              keyPath: "id",
+            },
+          );
+          historyStore.createIndex("timestamp", "timestamp", { unique: false });
+          historyStore.createIndex("module", "module", { unique: false });
         }
 
         // 创建消息存储
         if (!db.objectStoreNames.contains(this.STORE_NAMES.MESSAGES)) {
           const messageStore = db.createObjectStore(this.STORE_NAMES.MESSAGES, {
-            keyPath: 'id',
+            keyPath: "id",
           });
-          messageStore.createIndex('chatId', 'chatId', { unique: false });
-          messageStore.createIndex('timestamp', 'timestamp', { unique: false });
+          messageStore.createIndex("chatId", "chatId", { unique: false });
+          messageStore.createIndex("timestamp", "timestamp", { unique: false });
         }
 
         // 创建设置存储
         if (!db.objectStoreNames.contains(this.STORE_NAMES.SETTINGS)) {
           db.createObjectStore(this.STORE_NAMES.SETTINGS, {
-            keyPath: 'key',
+            keyPath: "key",
           });
         }
       };
@@ -69,7 +72,10 @@ export class ChatIndexedDB {
   static async saveChatHistory(history: ChatHistory): Promise<void> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readwrite');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.CHAT_HISTORY],
+        "readwrite",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
 
       await new Promise<void>((resolve, reject) => {
@@ -80,7 +86,7 @@ export class ChatIndexedDB {
 
       db.close();
     } catch (error) {
-      console.error('Failed to save chat history to IndexedDB:', error);
+      console.error("Failed to save chat history to IndexedDB:", error);
       throw error;
     }
   }
@@ -91,7 +97,10 @@ export class ChatIndexedDB {
   static async getChatHistory(): Promise<ChatHistory[]> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readonly');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.CHAT_HISTORY],
+        "readonly",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
 
       const histories = await new Promise<ChatHistory[]>((resolve, reject) => {
@@ -103,9 +112,12 @@ export class ChatIndexedDB {
       db.close();
 
       // 按时间戳降序排序
-      return histories.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      return histories.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
     } catch (error) {
-      console.error('Failed to get chat history from IndexedDB:', error);
+      console.error("Failed to get chat history from IndexedDB:", error);
       return [];
     }
   }
@@ -113,22 +125,29 @@ export class ChatIndexedDB {
   /**
    * 根据ID从IndexedDB获取特定的聊天历史记录
    */
-  static async getChatHistoryById(historyId: string): Promise<ChatHistory | null> {
+  static async getChatHistoryById(
+    historyId: string,
+  ): Promise<ChatHistory | null> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readonly');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.CHAT_HISTORY],
+        "readonly",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
 
-      const result = await new Promise<ChatHistory | undefined>((resolve, reject) => {
-        const request = store.get(historyId);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
+      const result = await new Promise<ChatHistory | undefined>(
+        (resolve, reject) => {
+          const request = store.get(historyId);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        },
+      );
 
       db.close();
       return result || null;
     } catch (error) {
-      console.error('Failed to get chat history by ID from IndexedDB:', error);
+      console.error("Failed to get chat history by ID from IndexedDB:", error);
       throw error;
     }
   }
@@ -139,7 +158,10 @@ export class ChatIndexedDB {
   static async deleteChatHistory(historyId: string): Promise<void> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readwrite');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.CHAT_HISTORY],
+        "readwrite",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
 
       await new Promise<void>((resolve, reject) => {
@@ -150,7 +172,7 @@ export class ChatIndexedDB {
 
       db.close();
     } catch (error) {
-      console.error('Failed to delete chat history from IndexedDB:', error);
+      console.error("Failed to delete chat history from IndexedDB:", error);
       throw error;
     }
   }
@@ -161,7 +183,10 @@ export class ChatIndexedDB {
   static async clearAllHistory(): Promise<void> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.CHAT_HISTORY], 'readwrite');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.CHAT_HISTORY],
+        "readwrite",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.CHAT_HISTORY);
 
       await new Promise<void>((resolve, reject) => {
@@ -172,7 +197,7 @@ export class ChatIndexedDB {
 
       db.close();
     } catch (error) {
-      console.error('Failed to clear all chat history from IndexedDB:', error);
+      console.error("Failed to clear all chat history from IndexedDB:", error);
       throw error;
     }
   }
@@ -180,10 +205,15 @@ export class ChatIndexedDB {
   /**
    * 保存消息到IndexedDB
    */
-  static async saveMessage(message: Message & { chatId: string }): Promise<void> {
+  static async saveMessage(
+    message: Message & { chatId: string },
+  ): Promise<void> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.MESSAGES], 'readwrite');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.MESSAGES],
+        "readwrite",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.MESSAGES);
 
       await new Promise<void>((resolve, reject) => {
@@ -194,7 +224,7 @@ export class ChatIndexedDB {
 
       db.close();
     } catch (error) {
-      console.error('Failed to save message to IndexedDB:', error);
+      console.error("Failed to save message to IndexedDB:", error);
       throw error;
     }
   }
@@ -205,24 +235,32 @@ export class ChatIndexedDB {
   static async getMessages(chatId: string): Promise<Message[]> {
     try {
       const db = await this.openDB();
-      const transaction = db.transaction([this.STORE_NAMES.MESSAGES], 'readonly');
+      const transaction = db.transaction(
+        [this.STORE_NAMES.MESSAGES],
+        "readonly",
+      );
       const store = transaction.objectStore(this.STORE_NAMES.MESSAGES);
-      const index = store.index('chatId');
+      const index = store.index("chatId");
 
-      const messages = await new Promise<(Message & { chatId: string })[]>((resolve, reject) => {
-        const request = index.getAll(chatId);
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-      });
+      const messages = await new Promise<(Message & { chatId: string })[]>(
+        (resolve, reject) => {
+          const request = index.getAll(chatId);
+          request.onsuccess = () => resolve(request.result || []);
+          request.onerror = () => reject(request.error);
+        },
+      );
 
       db.close();
 
       // 移除chatId字段并按时间戳排序
       return messages
         .map(({ chatId, ...message }) => message)
-        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        .sort(
+          (a, b) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+        );
     } catch (error) {
-      console.error('Failed to get messages from IndexedDB:', error);
+      console.error("Failed to get messages from IndexedDB:", error);
       return [];
     }
   }
@@ -252,7 +290,10 @@ export class ChatStorage {
           try {
             await ChatIndexedDB.saveChatHistory(item);
           } catch (migrateError) {
-            console.warn('Failed to migrate history item to IndexedDB:', migrateError);
+            console.warn(
+              "Failed to migrate history item to IndexedDB:",
+              migrateError,
+            );
           }
         }
         // 迁移完成后清除localStorage
@@ -262,13 +303,16 @@ export class ChatStorage {
 
       return [];
     } catch (error) {
-      console.error('Failed to get chat history:', error);
+      console.error("Failed to get chat history:", error);
       // 降级到localStorage
       try {
         const stored = localStorage.getItem(STORAGE_KEYS.CHAT_HISTORY);
         return stored ? JSON.parse(stored) : [];
       } catch (localError) {
-        console.error('Failed to get chat history from localStorage:', localError);
+        console.error(
+          "Failed to get chat history from localStorage:",
+          localError,
+        );
         return [];
       }
     }
@@ -279,11 +323,11 @@ export class ChatStorage {
    * @deprecated 使用addChatHistory代替
    */
   static saveChatHistory(history: ChatHistory[]): void {
-    console.warn('saveChatHistory is deprecated, use addChatHistory instead');
+    console.warn("saveChatHistory is deprecated, use addChatHistory instead");
     try {
       localStorage.setItem(STORAGE_KEYS.CHAT_HISTORY, JSON.stringify(history));
     } catch (error) {
-      console.error('Failed to save chat history:', error);
+      console.error("Failed to save chat history:", error);
     }
   }
 
@@ -295,7 +339,7 @@ export class ChatStorage {
       // 保存到IndexedDB
       await ChatIndexedDB.saveChatHistory(newHistory);
     } catch (error) {
-      console.error('Failed to add chat history to IndexedDB:', error);
+      console.error("Failed to add chat history to IndexedDB:", error);
       throw error; // 抛出错误，让调用方处理
     }
   }
@@ -308,7 +352,7 @@ export class ChatStorage {
       // 从IndexedDB删除
       await ChatIndexedDB.deleteChatHistory(historyId);
     } catch (error) {
-      console.error('Failed to delete chat history from IndexedDB:', error);
+      console.error("Failed to delete chat history from IndexedDB:", error);
       throw error; // 抛出错误，让调用方处理
     }
   }
@@ -321,7 +365,7 @@ export class ChatStorage {
       // 从IndexedDB清空
       await ChatIndexedDB.clearAllHistory();
     } catch (error) {
-      console.error('Failed to clear all chat history from IndexedDB:', error);
+      console.error("Failed to clear all chat history from IndexedDB:", error);
       throw error; // 抛出错误，让调用方处理
     }
   }
@@ -333,7 +377,7 @@ export class ChatStorage {
     try {
       await ChatIndexedDB.saveMessage({ ...message, chatId });
     } catch (error) {
-      console.error('Failed to save message to IndexedDB:', error);
+      console.error("Failed to save message to IndexedDB:", error);
     }
   }
 
@@ -344,7 +388,7 @@ export class ChatStorage {
     try {
       return await ChatIndexedDB.getMessages(chatId);
     } catch (error) {
-      console.error('Failed to get messages from IndexedDB:', error);
+      console.error("Failed to get messages from IndexedDB:", error);
       return [];
     }
   }
@@ -356,15 +400,15 @@ export class ChatStorage {
    * @param initialMessages 可选的初始消息数组
    * @returns 返回新创建的会话ID
    */
-  static async createSession(
-    initialMessages: Message[] = []
-  ): Promise<string> {
+  static async createSession(initialMessages: Message[] = []): Promise<string> {
     try {
       // 生成会话标题
-      const firstUserMessage = initialMessages.find(msg => msg.sender === 'user');
-      const title = firstUserMessage ?
-        truncateText(firstUserMessage.content, 30) :
-        '新对话';
+      const firstUserMessage = initialMessages.find(
+        (msg) => msg.sender === "user",
+      );
+      const title = firstUserMessage
+        ? truncateText(firstUserMessage.content, 30)
+        : "新对话";
 
       const newSession: ChatHistory = {
         id: generateId(),
@@ -376,10 +420,10 @@ export class ChatStorage {
       // 保存到IndexedDB
       await ChatIndexedDB.saveChatHistory(newSession);
 
-      console.log('新会话已创建:', newSession.id, newSession.title);
+      console.log("新会话已创建:", newSession.id, newSession.title);
       return newSession.id;
     } catch (error) {
-      console.error('Failed to create session:', error);
+      console.error("Failed to create session:", error);
       throw error;
     }
   }
@@ -389,7 +433,10 @@ export class ChatStorage {
    * @param sessionId 会话ID
    * @param messages 完整的消息列表
    */
-  static async updateSession(sessionId: string, messages: Message[]): Promise<void> {
+  static async updateSession(
+    sessionId: string,
+    messages: Message[],
+  ): Promise<void> {
     try {
       // 获取现有会话
       const existingSession = await ChatIndexedDB.getChatHistoryById(sessionId);
@@ -398,10 +445,10 @@ export class ChatStorage {
       }
 
       // 更新标题（基于第一条用户消息）
-      const firstUserMessage = messages.find(msg => msg.sender === 'user');
-      const newTitle = firstUserMessage ?
-        truncateText(firstUserMessage.content, 30) :
-        existingSession.title;
+      const firstUserMessage = messages.find((msg) => msg.sender === "user");
+      const newTitle = firstUserMessage
+        ? truncateText(firstUserMessage.content, 30)
+        : existingSession.title;
 
       // 创建更新后的会话对象
       const updatedSession: ChatHistory = {
@@ -414,9 +461,9 @@ export class ChatStorage {
       // 保存到IndexedDB
       await ChatIndexedDB.saveChatHistory(updatedSession);
 
-      console.log('会话已更新:', sessionId, `消息数量: ${messages.length}`);
+      console.log("会话已更新:", sessionId, `消息数量: ${messages.length}`);
     } catch (error) {
-      console.error('Failed to update session:', error);
+      console.error("Failed to update session:", error);
       throw error;
     }
   }
@@ -431,7 +478,7 @@ export class ChatStorage {
       const session = await ChatIndexedDB.getChatHistoryById(sessionId);
       return session;
     } catch (error) {
-      console.error('Failed to get session:', error);
+      console.error("Failed to get session:", error);
       return null;
     }
   }
@@ -439,21 +486,26 @@ export class ChatStorage {
   /**
    * 根据ID获取特定的聊天记录 - 从IndexedDB获取
    */
-  static async getChatHistoryById(historyId: string): Promise<ChatHistory | null> {
+  static async getChatHistoryById(
+    historyId: string,
+  ): Promise<ChatHistory | null> {
     try {
       const allHistory = await ChatIndexedDB.getChatHistory();
-      return allHistory.find(item => item.id === historyId) || null;
+      return allHistory.find((item) => item.id === historyId) || null;
     } catch (error) {
-      console.error('Failed to get chat history by ID from IndexedDB:', error);
+      console.error("Failed to get chat history by ID from IndexedDB:", error);
       // 降级到localStorage
       try {
         const stored = localStorage.getItem(STORAGE_KEYS.CHAT_HISTORY);
         if (stored) {
           const history: ChatHistory[] = JSON.parse(stored);
-          return history.find(item => item.id === historyId) || null;
+          return history.find((item) => item.id === historyId) || null;
         }
       } catch (localError) {
-        console.error('Failed to get chat history by ID from localStorage:', localError);
+        console.error(
+          "Failed to get chat history by ID from localStorage:",
+          localError,
+        );
       }
       return null;
     }
@@ -465,9 +517,11 @@ export class ChatStorage {
   static getChatSettings(): ChatSettings {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_SETTINGS);
-      return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
+      return stored
+        ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) }
+        : DEFAULT_SETTINGS;
     } catch (error) {
-      console.error('Failed to get chat settings:', error);
+      console.error("Failed to get chat settings:", error);
       return DEFAULT_SETTINGS;
     }
   }
@@ -477,9 +531,12 @@ export class ChatStorage {
    */
   static saveChatSettings(settings: ChatSettings): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.CHAT_SETTINGS, JSON.stringify(settings));
+      localStorage.setItem(
+        STORAGE_KEYS.CHAT_SETTINGS,
+        JSON.stringify(settings),
+      );
     } catch (error) {
-      console.error('Failed to save chat settings:', error);
+      console.error("Failed to save chat settings:", error);
     }
   }
 
@@ -491,7 +548,7 @@ export class ChatStorage {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_POSITION);
       return stored ? JSON.parse(stored) : DEFAULT_POSITION;
     } catch (error) {
-      console.error('Failed to get chat position:', error);
+      console.error("Failed to get chat position:", error);
       return DEFAULT_POSITION;
     }
   }
@@ -501,9 +558,12 @@ export class ChatStorage {
    */
   static saveChatPosition(position: { x: number; y: number }): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.CHAT_POSITION, JSON.stringify(position));
+      localStorage.setItem(
+        STORAGE_KEYS.CHAT_POSITION,
+        JSON.stringify(position),
+      );
     } catch (error) {
-      console.error('Failed to save chat position:', error);
+      console.error("Failed to save chat position:", error);
     }
   }
 
@@ -515,7 +575,7 @@ export class ChatStorage {
       const stored = localStorage.getItem(STORAGE_KEYS.CHAT_SIZE);
       return stored ? JSON.parse(stored) : DEFAULT_SIZE;
     } catch (error) {
-      console.error('Failed to get chat size:', error);
+      console.error("Failed to get chat size:", error);
       return DEFAULT_SIZE;
     }
   }
@@ -527,7 +587,7 @@ export class ChatStorage {
     try {
       localStorage.setItem(STORAGE_KEYS.CHAT_SIZE, JSON.stringify(size));
     } catch (error) {
-      console.error('Failed to save chat size:', error);
+      console.error("Failed to save chat size:", error);
     }
   }
 
@@ -536,11 +596,11 @@ export class ChatStorage {
    */
   static clearAll(): void {
     try {
-      Object.values(STORAGE_KEYS).forEach(key => {
+      Object.values(STORAGE_KEYS).forEach((key) => {
         localStorage.removeItem(key);
       });
     } catch (error) {
-      console.error('Failed to clear chat storage:', error);
+      console.error("Failed to clear chat storage:", error);
     }
   }
 
@@ -571,7 +631,7 @@ export class ChatStorage {
           try {
             await this.addChatHistory(historyItem);
           } catch (historyError) {
-            console.warn('Failed to import history item:', historyError);
+            console.warn("Failed to import history item:", historyError);
           }
         }
       }
@@ -587,7 +647,7 @@ export class ChatStorage {
 
       return true;
     } catch (error) {
-      console.error('Failed to import chat data:', error);
+      console.error("Failed to import chat data:", error);
       return false;
     }
   }
@@ -612,7 +672,7 @@ export const formatTimestamp = (timestamp: string): string => {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffMins < 1) {
-    return '刚刚';
+    return "刚刚";
   } else if (diffMins < 60) {
     return `${diffMins}分钟前`;
   } else if (diffHours < 24) {
@@ -620,10 +680,10 @@ export const formatTimestamp = (timestamp: string): string => {
   } else if (diffDays < 7) {
     return `${diffDays}天前`;
   } else {
-    return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   }
 };
@@ -631,27 +691,38 @@ export const formatTimestamp = (timestamp: string): string => {
 /**
  * 截取文本用于显示标题
  */
-export const truncateText = (text: string | import('@/types/chatBotTypes/agents').AgentOutputPart[], maxLength: number = 30): string => {
+export const truncateText = (
+  text: string | import("@/types/chatBotTypes/agents").AgentOutputPart[],
+  maxLength: number = 30,
+): string => {
   // 处理结构化对象（parts数组）
-  if (typeof text === 'object' && Array.isArray(text)) {
+  if (typeof text === "object" && Array.isArray(text)) {
     // 从parts数组中提取文本内容
-    const textParts = text.filter((part: import('@/types/chatBotTypes/agents').AgentOutputPart) =>
-      part.type === 'text'
-    ).map((part: import('@/types/chatBotTypes/agents').AgentOutputPart) => part.content).join(' ') || '';
+    const textParts =
+      text
+        .filter(
+          (part: import("@/types/chatBotTypes/agents").AgentOutputPart) =>
+            part.type === "text",
+        )
+        .map(
+          (part: import("@/types/chatBotTypes/agents").AgentOutputPart) =>
+            part.content,
+        )
+        .join(" ") || "";
 
     const textContent = textParts || JSON.stringify(text);
     if (textContent.length <= maxLength) {
       return textContent;
     }
-    return textContent.substring(0, maxLength) + '...';
+    return textContent.substring(0, maxLength) + "...";
   }
 
   // 处理字符串
-  if (typeof text === 'string') {
+  if (typeof text === "string") {
     if (text.length <= maxLength) {
       return text;
     }
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   }
 
   // 处理其他类型
@@ -659,5 +730,5 @@ export const truncateText = (text: string | import('@/types/chatBotTypes/agents'
   if (stringText.length <= maxLength) {
     return stringText;
   }
-  return stringText.substring(0, maxLength - 3) + '...';
+  return stringText.substring(0, maxLength - 3) + "...";
 };

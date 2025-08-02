@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import React, { useState, type ReactElement } from 'react';
-import { Modal, Button, Steps } from 'antd';
-import { LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
-import styles from './GuidingModal.module.css';
+import React, { useState, type ReactElement } from "react";
+import { Modal, Button, Steps } from "antd";
+import { LeftOutlined, RightOutlined, CheckOutlined } from "@ant-design/icons";
+import styles from "./GuidingModal.module.css";
 
 interface GuidingModalProps {
   isOpen: boolean;
@@ -17,20 +17,24 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
 
   const steps = [
     {
-      title: '欢迎使用',
+      title: "欢迎使用",
       content: (
         <div className={styles.stepContent}>
           <h3>👋 欢迎使用 ChatSQL</h3>
           <p>这是一个帮助您学习和使用SQL的交互式工具。</p>
           <p>通过以下步骤，您将了解如何使用本应用的主要功能。</p>
           <div className={styles.gifContainer}>
-           <img src="/assets/initialization.png" alt="Initialization Interface" width="80%" />
+            <img
+              src="/assets/initialization.png"
+              alt="Initialization Interface"
+              width="80%"
+            />
           </div>
         </div>
       ),
     },
     {
-      title: '创建问题',
+      title: "创建问题",
       content: (
         <div className={styles.stepContent}>
           <h3>如何创建SQL问题</h3>
@@ -39,10 +43,10 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
           <p>3. 选择难度级别和标签</p>
           <p>4. 点击提交按钮生成问题</p>
           <div className={styles.gifContainer}>
-            <video 
-              autoPlay 
-              loop 
-              muted 
+            <video
+              autoPlay
+              loop
+              muted
               playsInline
               className={styles.videoPlayer}
             >
@@ -54,20 +58,24 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
       ),
     },
     {
-      title: '查看结果',
+      title: "查看结果",
       content: (
         <div className={styles.stepContent}>
           <h3>查看和保存结果</h3>
           <p>1. 系统会生成SQL问题和相应的数据库结构</p>
           <p>2. 您可以查看表结构和关系</p>
           <div className={styles.gifContainer}>
-            <img src="/assets/rendering.png" alt="Initialization Interface" width="100%" />
+            <img
+              src="/assets/rendering.png"
+              alt="Initialization Interface"
+              width="100%"
+            />
           </div>
         </div>
       ),
     },
     {
-      title: '查询与测试',
+      title: "查询与测试",
       content: (
         <div className={styles.stepContent}>
           <h3>编辑和测试SQL</h3>
@@ -107,25 +115,19 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
       centered
     >
       <Steps current={currentStep} className={styles.steps}>
-        {steps.map(item => (
+        {steps.map((item) => (
           <Step key={item.title} title={item.title} />
         ))}
       </Steps>
-      
-      <div className={styles.stepsContent}>
-        {steps[currentStep].content}
-      </div>
-      
+
+      <div className={styles.stepsContent}>{steps[currentStep].content}</div>
+
       <div className={styles.stepsAction}>
         {currentStep > 0 && (
-          <Button 
-            icon={<LeftOutlined />}
-            shape="circle"
-            onClick={prev}
-          />
+          <Button icon={<LeftOutlined />} shape="circle" onClick={prev} />
         )}
         {currentStep < steps.length - 1 && (
-          <Button 
+          <Button
             type="primary"
             icon={<RightOutlined />}
             shape="circle"
@@ -133,7 +135,7 @@ const GuidingModal: React.FC<GuidingModalProps> = ({ isOpen, onClose }) => {
           />
         )}
         {currentStep === steps.length - 1 && (
-          <Button 
+          <Button
             type="primary"
             icon={<CheckOutlined />}
             shape="circle"

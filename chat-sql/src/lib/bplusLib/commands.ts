@@ -13,36 +13,70 @@ export interface EdgeStyle {
 // B+树操作指令类型定义
 export type BPlusCommand =
   // 文本和消息指令
-  | { type: 'SetText'; target: string; text: string; index?: number }
-  | { type: 'SetMessage'; text: string }
+  | { type: "SetText"; target: string; text: string; index?: number }
+  | { type: "SetMessage"; text: string }
 
   // 节点高亮指令
-  | { type: 'SetHighlight'; nodeId: string; highlight: boolean }
-  | { type: 'SetEdgeHighlight'; fromId: string; toId: string; highlight: boolean }
-  | { type: 'SetKeyHighlight'; nodeId: string; keyIndex: number; highlight: boolean }
+  | { type: "SetHighlight"; nodeId: string; highlight: boolean }
+  | {
+      type: "SetEdgeHighlight";
+      fromId: string;
+      toId: string;
+      highlight: boolean;
+    }
+  | {
+      type: "SetKeyHighlight";
+      nodeId: string;
+      keyIndex: number;
+      highlight: boolean;
+    }
 
   // 节点状态指令 - 使用联合类型精确控制不同状态的参数
-  | { type: 'SetNodeState'; nodeId: string; state: 'overflowing'; keys: (number | null)[]; }
-  | { type: 'SetNodeState'; nodeId: string; state: 'normal'; keys?: never; }
-  
+  | {
+      type: "SetNodeState";
+      nodeId: string;
+      state: "overflowing";
+      keys: (number | null)[];
+    }
+  | { type: "SetNodeState"; nodeId: string; state: "normal"; keys?: never }
+
   // 节点创建和删除指令
-  | { type: 'CreateBTreeNode'; nodeId: string; width: number; height: number; numElements: number; x: number; y: number; backgroundColor?: string; foregroundColor?: string }
-  | { type: 'DeleteNode'; nodeId: string }
-  
+  | {
+      type: "CreateBTreeNode";
+      nodeId: string;
+      width: number;
+      height: number;
+      numElements: number;
+      x: number;
+      y: number;
+      backgroundColor?: string;
+      foregroundColor?: string;
+    }
+  | { type: "DeleteNode"; nodeId: string }
+
   // 节点属性更新指令
-  | { type: 'SetNumElements'; nodeId: string; count: number }
-  | { type: 'SetNodePosition'; nodeId: string; x: number; y: number }
-  
+  | { type: "SetNumElements"; nodeId: string; count: number }
+  | { type: "SetNodePosition"; nodeId: string; x: number; y: number }
+
   // 连接指令
-  | { type: 'Connect'; fromId: string; toId: string; color?: string; curve?: number; directed?: boolean; label?: string; connectionPoint?: number }
-  | { type: 'Disconnect'; fromId: string; toId: string }
-  
+  | {
+      type: "Connect";
+      fromId: string;
+      toId: string;
+      color?: string;
+      curve?: number;
+      directed?: boolean;
+      label?: string;
+      connectionPoint?: number;
+    }
+  | { type: "Disconnect"; fromId: string; toId: string }
+
   // 动画控制指令
-  | { type: 'Step' } // 动画断点
-  | { type: 'Move'; nodeId: string; toX: number; toY: number }
-  
+  | { type: "Step" } // 动画断点
+  | { type: "Move"; nodeId: string; toX: number; toY: number }
+
   // 树结构调整指令
-  | { type: 'ResizeTree' };
+  | { type: "ResizeTree" };
 
 // 指令生成器基类
 export abstract class AlgorithmBase {
@@ -59,42 +93,42 @@ export abstract class AlgorithmBase {
     let command: BPlusCommand;
 
     switch (commandType) {
-      case 'SetText':
+      case "SetText":
         command = {
-          type: 'SetText',
+          type: "SetText",
           target: args[0],
           text: args[1],
-          index: args[2]
+          index: args[2],
         };
         break;
 
-      case 'SetMessage':
+      case "SetMessage":
         command = {
-          type: 'SetMessage',
-          text: args[0]
+          type: "SetMessage",
+          text: args[0],
         };
         break;
 
-      case 'SetHighlight':
+      case "SetHighlight":
         command = {
-          type: 'SetHighlight',
+          type: "SetHighlight",
           nodeId: args[0],
-          highlight: args[1] === 1
+          highlight: args[1] === 1,
         };
         break;
 
-      case 'SetEdgeHighlight':
+      case "SetEdgeHighlight":
         command = {
-          type: 'SetEdgeHighlight',
+          type: "SetEdgeHighlight",
           fromId: args[0],
           toId: args[1],
-          highlight: args[2] === 1
+          highlight: args[2] === 1,
         };
         break;
 
-      case 'CreateBTreeNode':
+      case "CreateBTreeNode":
         command = {
-          type: 'CreateBTreeNode',
+          type: "CreateBTreeNode",
           nodeId: args[0],
           width: args[1],
           height: args[2],
@@ -102,61 +136,61 @@ export abstract class AlgorithmBase {
           x: args[4],
           y: args[5],
           backgroundColor: args[6],
-          foregroundColor: args[7]
+          foregroundColor: args[7],
         };
         break;
 
-      case 'DeleteNode':
+      case "DeleteNode":
         command = {
-          type: 'DeleteNode',
-          nodeId: args[0]
-        };
-        break;
-
-      case 'SetNumElements':
-        command = {
-          type: 'SetNumElements',
+          type: "DeleteNode",
           nodeId: args[0],
-          count: args[1]
         };
         break;
 
-      case 'Connect':
+      case "SetNumElements":
         command = {
-          type: 'Connect',
+          type: "SetNumElements",
+          nodeId: args[0],
+          count: args[1],
+        };
+        break;
+
+      case "Connect":
+        command = {
+          type: "Connect",
           fromId: args[0],
           toId: args[1],
           color: args[2],
           curve: args[3],
           directed: args[4] === 1,
           label: args[5],
-          connectionPoint: args[6]
+          connectionPoint: args[6],
         };
         break;
 
-      case 'Disconnect':
+      case "Disconnect":
         command = {
-          type: 'Disconnect',
+          type: "Disconnect",
           fromId: args[0],
-          toId: args[1]
+          toId: args[1],
         };
         break;
 
-      case 'Step':
-        command = { type: 'Step' };
+      case "Step":
+        command = { type: "Step" };
         break;
 
-      case 'Move':
+      case "Move":
         command = {
-          type: 'Move',
+          type: "Move",
           nodeId: args[0],
           toX: args[1],
-          toY: args[2]
+          toY: args[2],
         };
         break;
 
-      case 'ResizeTree':
-        command = { type: 'ResizeTree' };
+      case "ResizeTree":
+        command = { type: "ResizeTree" };
         break;
 
       default:
@@ -202,10 +236,10 @@ export const BTREE_CONSTANTS = {
   NODE_HEIGHT: 30,
   STARTING_Y: 50,
   HEIGHT_DELTA: 80, // 层级间距
-  BACKGROUND_COLOR: '#FFFFFF',
-  FOREGROUND_COLOR: '#000000',
-  HIGHLIGHT_COLOR: '#1976d2', // 深蓝色高亮
-  EDGE_COLOR: '#000000'
+  BACKGROUND_COLOR: "#FFFFFF",
+  FOREGROUND_COLOR: "#000000",
+  HIGHLIGHT_COLOR: "#1976d2", // 深蓝色高亮
+  EDGE_COLOR: "#000000",
 };
 
 // 节点数据结构
@@ -231,7 +265,7 @@ export function createBPlusNode(
   x: number,
   y: number,
   isLeaf: boolean = true,
-  level: number = 0
+  level: number = 0,
 ): BPlusNode {
   return {
     id,
@@ -244,6 +278,6 @@ export function createBPlusNode(
     level,
     graphicID,
     x,
-    y
+    y,
   };
 }

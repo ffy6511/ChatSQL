@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   List,
   Typography,
@@ -11,19 +11,22 @@ import {
   Tag,
   Dropdown,
   Space,
-  MenuProps
-} from 'antd';
+  MenuProps,
+} from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
   StarOutlined,
   StarFilled,
   MoreOutlined,
-  ClockCircleOutlined
-} from '@ant-design/icons';
-import { LLMProblem } from '@/services/codingStorage';
-import { calculateProgressStatus, isTutorialRecord } from '@/utils/progressUtils';
-import styles from './HistoryItem.module.css';
+  ClockCircleOutlined,
+} from "@ant-design/icons";
+import { LLMProblem } from "@/services/codingStorage";
+import {
+  calculateProgressStatus,
+  isTutorialRecord,
+} from "@/utils/progressUtils";
+import styles from "./HistoryItem.module.css";
 
 const { Text } = Typography;
 
@@ -42,16 +45,18 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   onSelect,
   onDelete,
   onToggleFavorite,
-  onRename
+  onRename,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(record.title || '');
+  const [newTitle, setNewTitle] = useState(record.title || "");
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
 
   // 标题处理函数
   const truncateTitle = (title: string, maxLength: number = 17) => {
-    if (!title) return '';
-    return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title;
+    if (!title) return "";
+    return title.length > maxLength
+      ? `${title.substring(0, maxLength)}...`
+      : title;
   };
 
   const handleRenameSubmit = () => {
@@ -64,7 +69,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   };
 
   const handleRenameCancel = () => {
-    setNewTitle(record.title || '');
+    setNewTitle(record.title || "");
     setIsEditing(false);
   };
 
@@ -77,67 +82,70 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
     setIsDeleteConfirmVisible(false);
   };
 
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
-      key: 'rename',
+      key: "rename",
       icon: <EditOutlined />,
-      label: '重命名',
+      label: "重命名",
       onClick: () => {
         setIsEditing(true);
-      }
+      },
     },
     {
-      key: 'favorite',
+      key: "favorite",
       icon: record.isFavorite ? <StarFilled /> : <StarOutlined />,
-      label: record.isFavorite ? '取消收藏' : '收藏',
+      label: record.isFavorite ? "取消收藏" : "收藏",
       onClick: () => {
         onToggleFavorite(record.id!);
-      }
+      },
     },
     {
-      key: 'delete',
+      key: "delete",
       icon: <DeleteOutlined />,
-      label: '删除',
+      label: "删除",
       danger: true,
       onClick: () => {
         handleDelete();
-      }
-    }
+      },
+    },
   ];
 
   // 格式化时间的函数
   const formatDate = (dateInput: Date | string) => {
     try {
       const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
-      
+
       if (isNaN(date.getTime())) {
-        return '未知时间';
+        return "未知时间";
       }
 
       const year = date.getFullYear().toString().slice(2); // 只取年份后两位
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+
       return `${year}/${month}/${day} ${hours}:${minutes}`;
     } catch (error) {
-      console.error('日期格式化错误:', error);
-      return '未知时间';
+      console.error("日期格式化错误:", error);
+      return "未知时间";
     }
   };
 
   return (
     <div className={`${styles.globalStylesContainer}`}>
       <List.Item
-        className={`${styles.historyItem} ${isActive ? styles.active : ''} ${record.isTutorial ? styles.tutorial : ''}`}
+        className={`${styles.historyItem} ${isActive ? styles.active : ""} ${record.isTutorial ? styles.tutorial : ""}`}
         onClick={() => onSelect(record.id!)}
       >
         {isEditing ? (
-          <div className={styles.editingContainer} onClick={e => e.stopPropagation()}>
+          <div
+            className={styles.editingContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Input
               value={newTitle}
-              onChange={e => setNewTitle(e.target.value)}
+              onChange={(e) => setNewTitle(e.target.value)}
               onPressEnter={handleRenameSubmit}
               maxLength={50} // 添加输入长度限制
               showCount // 显示字数统计
@@ -155,15 +163,17 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
         ) : (
           <>
             <div className={styles.titleContainer}>
-             {/* 移除悬浮的标题显示 */}
-                <Text ellipsis className={styles.title}>
-                  {truncateTitle(record.title!)} {/* 显示截断的标题 */}
-                </Text>
+              {/* 移除悬浮的标题显示 */}
+              <Text ellipsis className={styles.title}>
+                {truncateTitle(record.title!)} {/* 显示截断的标题 */}
+              </Text>
               <div className={styles.infoContainer}>
                 <div className={styles.dateInfo}>
                   {/* <ClockCircleOutlined /> */}
                   <span>
-                    {record.createdAt ? formatDate(record.createdAt) : '未知时间'}
+                    {record.createdAt
+                      ? formatDate(record.createdAt)
+                      : "未知时间"}
                   </span>
                 </div>
                 <div className={styles.tagsContainer}>
@@ -173,29 +183,29 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                       const statusInfo = calculateProgressStatus(record);
                       const getTagStyles = () => {
                         switch (statusInfo.status) {
-                          case 'NOT_STARTED':
+                          case "NOT_STARTED":
                             return {
-                              color: 'var(--secondary-text)',
-                              backgroundColor: 'transparent',
-                              borderColor: 'var(--secondary-text)'
+                              color: "var(--secondary-text)",
+                              backgroundColor: "transparent",
+                              borderColor: "var(--secondary-text)",
                             };
-                          case 'IN_PROGRESS':
+                          case "IN_PROGRESS":
                             return {
-                              color: '#1976d2',
-                              backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                              borderColor: '#1976d2'
+                              color: "#1976d2",
+                              backgroundColor: "rgba(25, 118, 210, 0.08)",
+                              borderColor: "#1976d2",
                             };
-                          case 'COMPLETED':
+                          case "COMPLETED":
                             return {
-                              color: '#2e7d32',
-                              backgroundColor: 'rgba(46, 125, 50, 0.08)',
-                              borderColor: '#2e7d32'
+                              color: "#2e7d32",
+                              backgroundColor: "rgba(46, 125, 50, 0.08)",
+                              borderColor: "#2e7d32",
                             };
                           default:
                             return {
-                              color: 'var(--secondary-text)',
-                              backgroundColor: 'transparent',
-                              borderColor: 'var(--secondary-text)'
+                              color: "var(--secondary-text)",
+                              backgroundColor: "transparent",
+                              borderColor: "var(--secondary-text)",
                             };
                         }
                       };
@@ -213,10 +223,14 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     // 非教程记录显示传统标签
                     <>
                       {record.data?.isBuiltIn && (
-                        <Tag color="blue" className={styles.tag}>#{record.data.order}</Tag>
+                        <Tag color="blue" className={styles.tag}>
+                          #{record.data.order}
+                        </Tag>
                       )}
                       {record.data?.category && (
-                        <Tag color="cyan" className={styles.tag}>{record.data.category}</Tag>
+                        <Tag color="cyan" className={styles.tag}>
+                          {record.data.category}
+                        </Tag>
                       )}
                     </>
                   )}
@@ -224,10 +238,13 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               </div>
             </div>
 
-            <div className={styles.actionButton} onClick={e => e.stopPropagation()}>
+            <div
+              className={styles.actionButton}
+              onClick={(e) => e.stopPropagation()}
+            >
               <Dropdown
                 menu={{ items }}
-                trigger={['click']}
+                trigger={["click"]}
                 placement="bottomRight"
               >
                 <Button

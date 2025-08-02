@@ -1,20 +1,25 @@
 // ChatBot组件导出文件
 
 // 主要组件
-export { default as ChatWindow } from './ChatWindow';
-export { default as MessageList } from './MessageList';
-export { default as AgentSelector } from './AgentSelector';
-export { default as DynamicMessageInput } from './DynamicMessageInput';
-export { default as ChatSidebar } from './ChatSidebar';
-export { default as SettingsModal } from './SettingsModal';
+export { default as ChatWindow } from "./ChatWindow";
+export { default as MessageList } from "./MessageList";
+export { default as AgentSelector } from "./AgentSelector";
+export { default as DynamicMessageInput } from "./DynamicMessageInput";
+export { default as ChatSidebar } from "./ChatSidebar";
+export { default as SettingsModal } from "./SettingsModal";
 
 // Hooks
-export { useChatContext } from '@/contexts/ChatContext';
-export { useChatSettings } from '@/contexts/ChatSettingsContext';
+export { useChatContext } from "@/contexts/ChatContext";
+export { useChatSettings } from "@/contexts/ChatSettingsContext";
 
 // 工具函数
-export { ChatAPI, mockAIResponse } from '@/utils/chatbot/chatAPI';
-export { ChatStorage, generateId, formatTimestamp, truncateText } from '@/utils/chatbot/storage';
+export { ChatAPI, mockAIResponse } from "@/utils/chatbot/chatAPI";
+export {
+  ChatStorage,
+  generateId,
+  formatTimestamp,
+  truncateText,
+} from "@/utils/chatbot/storage";
 
 // 类型定义
 export type {
@@ -31,7 +36,7 @@ export type {
   ChatAPIRequest,
   ChatAPIResponse,
   StorageKeys,
-} from '@/types/chatBotTypes/chatbot';
+} from "@/types/chatBotTypes/chatbot";
 
 // 常量
 export {
@@ -41,4 +46,4 @@ export {
   DEFAULT_POSITION,
   DEFAULT_SIZE,
   KEYBOARD_SHORTCUTS,
-} from '@/types/chatBotTypes/chatbot';
+} from "@/types/chatBotTypes/chatbot";

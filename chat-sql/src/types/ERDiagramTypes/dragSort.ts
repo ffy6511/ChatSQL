@@ -1,11 +1,11 @@
 // 拖拽排序相关类型定义
 
-import { ERAttribute } from './erDiagram';
+import { ERAttribute } from "./erDiagram";
 
 // 拖拽项目接口
 export interface DragItem {
   id: string;
-  type: 'attribute';
+  type: "attribute";
   data: ERAttribute;
 }
 
@@ -77,8 +77,10 @@ export const defaultDragConfig: DragConfig = {
   accessibility: {
     announcements: {
       onDragStart: (id: string) => `开始拖拽属性 ${id}`,
-      onDragOver: (id: string, overId: string) => `将属性 ${id} 移动到 ${overId} 位置`,
-      onDragEnd: (id: string, overId: string) => `属性 ${id} 已移动到 ${overId} 位置`,
+      onDragOver: (id: string, overId: string) =>
+        `将属性 ${id} 移动到 ${overId} 位置`,
+      onDragEnd: (id: string, overId: string) =>
+        `属性 ${id} 已移动到 ${overId} 位置`,
       onDragCancel: (id: string) => `取消拖拽属性 ${id}`,
     },
   },
@@ -86,6 +88,12 @@ export const defaultDragConfig: DragConfig = {
 
 // 拖拽事件处理器类型
 export type DragStartHandler = (event: { active: { id: string } }) => void;
-export type DragOverHandler = (event: { active: { id: string }; over: { id: string } | null }) => void;
-export type DragEndHandler = (event: { active: { id: string }; over: { id: string } | null }) => void;
+export type DragOverHandler = (event: {
+  active: { id: string };
+  over: { id: string } | null;
+}) => void;
+export type DragEndHandler = (event: {
+  active: { id: string };
+  over: { id: string } | null;
+}) => void;
 export type DragCancelHandler = () => void;

@@ -1,5 +1,10 @@
-import { BPlusTreeCore } from './core';
-import { BPlusCommand, BPlusNode, createBPlusNode, BTREE_CONSTANTS } from './commands';
+import { BPlusTreeCore } from "./core";
+import {
+  BPlusCommand,
+  BPlusNode,
+  createBPlusNode,
+  BTREE_CONSTANTS,
+} from "./commands";
 
 /**
  * B+树算法类 - 完全重构版本
@@ -9,7 +14,7 @@ export class BPlusTreeAlgorithm {
   private tree: BPlusTreeCore;
   private commands: BPlusCommand[] = [];
   private nextIndex: number = 1;
-  private messageID: string = 'message';
+  private messageID: string = "message";
   private startingX: number = 400;
   private startingY: number = BTREE_CONSTANTS.STARTING_Y;
 
@@ -22,33 +27,61 @@ export class BPlusTreeAlgorithm {
    */
   private cmd(command: string, ...args: any[]): void {
     switch (command) {
-      case 'SetMessage':
-        this.commands.push({ type: 'SetMessage', text: args[0] });
+      case "SetMessage":
+        this.commands.push({ type: "SetMessage", text: args[0] });
         break;
-      case 'SetNodeState':
-        if (args[1] === 'overflowing') {
+      case "SetNodeState":
+        if (args[1] === "overflowing") {
           // 溢出状态需要传递keys数组
-          this.commands.push({ type: 'SetNodeState', nodeId: args[0], state: 'overflowing', keys: args[2] });
+          this.commands.push({
+            type: "SetNodeState",
+            nodeId: args[0],
+            state: "overflowing",
+            keys: args[2],
+          });
         } else {
           // 正常状态不需要keys参数
-          this.commands.push({ type: 'SetNodeState', nodeId: args[0], state: 'normal' });
+          this.commands.push({
+            type: "SetNodeState",
+            nodeId: args[0],
+            state: "normal",
+          });
         }
         break;
-      case 'SetText':
-        this.commands.push({ type: 'SetText', target: args[0], text: args[1], index: args[2] });
-        break;
-      case 'SetHighlight':
-        this.commands.push({ type: 'SetHighlight', nodeId: args[0], highlight: args[1] });
-        break;
-      case 'SetEdgeHighlight':
-        this.commands.push({ type: 'SetEdgeHighlight', fromId: args[0], toId: args[1], highlight: args[2] });
-        break;
-      case 'SetKeyHighlight':
-        this.commands.push({ type: 'SetKeyHighlight', nodeId: args[0], keyIndex: args[1], highlight: args[2] });
-        break;
-      case 'CreateBTreeNode':
+      case "SetText":
         this.commands.push({
-          type: 'CreateBTreeNode',
+          type: "SetText",
+          target: args[0],
+          text: args[1],
+          index: args[2],
+        });
+        break;
+      case "SetHighlight":
+        this.commands.push({
+          type: "SetHighlight",
+          nodeId: args[0],
+          highlight: args[1],
+        });
+        break;
+      case "SetEdgeHighlight":
+        this.commands.push({
+          type: "SetEdgeHighlight",
+          fromId: args[0],
+          toId: args[1],
+          highlight: args[2],
+        });
+        break;
+      case "SetKeyHighlight":
+        this.commands.push({
+          type: "SetKeyHighlight",
+          nodeId: args[0],
+          keyIndex: args[1],
+          highlight: args[2],
+        });
+        break;
+      case "CreateBTreeNode":
+        this.commands.push({
+          type: "CreateBTreeNode",
           nodeId: args[0],
           width: args[1],
           height: args[2],
@@ -56,35 +89,43 @@ export class BPlusTreeAlgorithm {
           x: args[4],
           y: args[5],
           backgroundColor: args[6],
-          foregroundColor: args[7]
+          foregroundColor: args[7],
         });
         break;
-      case 'SetNumElements':
-        this.commands.push({ type: 'SetNumElements', nodeId: args[0], count: args[1] });
-        break;
-      case 'Connect':
+      case "SetNumElements":
         this.commands.push({
-          type: 'Connect',
+          type: "SetNumElements",
+          nodeId: args[0],
+          count: args[1],
+        });
+        break;
+      case "Connect":
+        this.commands.push({
+          type: "Connect",
           fromId: args[0],
           toId: args[1],
           color: args[2],
           curve: args[3],
           directed: args[4],
           label: args[5],
-          connectionPoint: args[6]
+          connectionPoint: args[6],
         });
         break;
-      case 'Disconnect':
-        this.commands.push({ type: 'Disconnect', fromId: args[0], toId: args[1] });
+      case "Disconnect":
+        this.commands.push({
+          type: "Disconnect",
+          fromId: args[0],
+          toId: args[1],
+        });
         break;
-      case 'Delete':
-        this.commands.push({ type: 'DeleteNode', nodeId: args[0] });
+      case "Delete":
+        this.commands.push({ type: "DeleteNode", nodeId: args[0] });
         break;
-      case 'Step':
-        this.commands.push({ type: 'Step' });
+      case "Step":
+        this.commands.push({ type: "Step" });
         break;
-      case 'ResizeTree':
-        this.commands.push({ type: 'ResizeTree' });
+      case "ResizeTree":
+        this.commands.push({ type: "ResizeTree" });
         break;
       default:
         console.warn(`Unknown command: ${command}`);
@@ -111,8 +152,8 @@ export class BPlusTreeAlgorithm {
   public insertElement(insertedValue: number): BPlusCommand[] {
     this.commands = [];
 
-    this.cmd('SetMessage', `Inserting ${insertedValue}`);
-    this.cmd('Step');
+    this.cmd("SetMessage", `Inserting ${insertedValue}`);
+    this.cmd("Step");
 
     if (this.tree.root === null) {
       // 创建根节点
@@ -122,10 +163,11 @@ export class BPlusTreeAlgorithm {
         this.startingX,
         this.startingY,
         true,
-        0
+        0,
       );
 
-      this.cmd('CreateBTreeNode',
+      this.cmd(
+        "CreateBTreeNode",
         this.tree.root.graphicID,
         BTREE_CONSTANTS.WIDTH_PER_ELEM,
         BTREE_CONSTANTS.NODE_HEIGHT,
@@ -133,7 +175,7 @@ export class BPlusTreeAlgorithm {
         this.startingX,
         this.startingY,
         BTREE_CONSTANTS.BACKGROUND_COLOR,
-        BTREE_CONSTANTS.FOREGROUND_COLOR
+        BTREE_CONSTANTS.FOREGROUND_COLOR,
       );
 
       this.tree.root.keys[0] = insertedValue;
@@ -142,7 +184,7 @@ export class BPlusTreeAlgorithm {
       this.insert(this.tree.root, insertedValue);
     }
 
-    this.cmd('SetMessage', '');
+    this.cmd("SetMessage", "");
     return this.commands;
   }
 
@@ -150,27 +192,27 @@ export class BPlusTreeAlgorithm {
    * 递归插入函数
    */
   private insert(node: BPlusNode, insertValue: number): void {
-    this.cmd('SetHighlight', node.graphicID, true);
-    this.cmd('Step');
+    this.cmd("SetHighlight", node.graphicID, true);
+    this.cmd("Step");
 
     if (node.isLeaf) {
       // 叶子节点插入
-      this.cmd('SetMessage', `Inserting ${insertValue}. Inserting into a leaf`);
-      
+      this.cmd("SetMessage", `Inserting ${insertValue}. Inserting into a leaf`);
+
       // 插入键值到正确位置
       this.tree.insertKeyIntoNode(node, insertValue);
 
-      console.log('node.keys:', node.keys, 'node.numKeys:', node.numKeys);
-      
-      this.cmd('SetHighlight', node.graphicID, false);
-      
+      console.log("node.keys:", node.keys, "node.numKeys:", node.numKeys);
+
+      this.cmd("SetHighlight", node.graphicID, false);
+
       // 更新叶子节点链表连接
       // if (node.next !== null) {
       //   this.cmd('Disconnect', node.graphicID, node.next.graphicID);
       //   this.cmd('Connect', node.graphicID, node.next.graphicID,
       //     BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', node.numKeys);
       // }
-      
+
       this.insertRepair(node);
     } else {
       // 内部节点：找到子节点
@@ -178,12 +220,22 @@ export class BPlusTreeAlgorithm {
       while (findIndex < node.numKeys && node.keys[findIndex] < insertValue) {
         findIndex++;
       }
-      
-      this.cmd('SetEdgeHighlight', node.graphicID, node.children[findIndex].graphicID, true);
-      this.cmd('Step');
-      this.cmd('SetEdgeHighlight', node.graphicID, node.children[findIndex].graphicID, false);
-      this.cmd('SetHighlight', node.graphicID, false);
-      
+
+      this.cmd(
+        "SetEdgeHighlight",
+        node.graphicID,
+        node.children[findIndex].graphicID,
+        true,
+      );
+      this.cmd("Step");
+      this.cmd(
+        "SetEdgeHighlight",
+        node.graphicID,
+        node.children[findIndex].graphicID,
+        false,
+      );
+      this.cmd("SetHighlight", node.graphicID, false);
+
       this.insert(node.children[findIndex], insertValue);
     }
   }
@@ -199,13 +251,16 @@ export class BPlusTreeAlgorithm {
     }
 
     // 新的动画序列：设置溢出状态 → Step暂停 → 执行分裂 → 恢复状态
-    this.cmd('SetMessage', `The Node contains ${node.numKeys} keys，more than ${maxKeys}，needs to split`);
+    this.cmd(
+      "SetMessage",
+      `The Node contains ${node.numKeys} keys，more than ${maxKeys}，needs to split`,
+    );
 
     // 创建包含所有键的数组（包括导致溢出的键）
     const overflowKeys = [...node.keys.slice(0, node.numKeys)];
-    this.cmd('SetNodeState', node.graphicID, 'overflowing', overflowKeys);
+    this.cmd("SetNodeState", node.graphicID, "overflowing", overflowKeys);
 
-    this.cmd('Step'); // 暂停显示溢出状态
+    this.cmd("Step"); // 暂停显示溢出状态
 
     // 执行分裂并恢复正常状态
     if (node.parent === null) {
@@ -218,14 +273,14 @@ export class BPlusTreeAlgorithm {
     }
 
     // 恢复正常状态
-    this.cmd('SetNodeState', node.graphicID, 'normal');
+    this.cmd("SetNodeState", node.graphicID, "normal");
   }
 
   /**
    * 分裂节点 - 简化分裂流程，直接执行分裂逻辑
    */
   private split(node: BPlusNode): BPlusNode {
-    this.cmd('SetMessage', 'Spliting the node...');
+    this.cmd("SetMessage", "Spliting the node...");
 
     const order = this.tree.getOrder();
     const splitIndex = Math.floor(order / 2);
@@ -237,7 +292,7 @@ export class BPlusTreeAlgorithm {
       node.x + 100,
       node.y,
       node.isLeaf,
-      node.level
+      node.level,
     );
 
     let risingKey: number;
@@ -295,7 +350,7 @@ export class BPlusTreeAlgorithm {
         node.x,
         node.y - BTREE_CONSTANTS.HEIGHT_DELTA,
         false,
-        node.level + 1
+        node.level + 1,
       );
 
       newRoot.keys[0] = risingKey;
@@ -332,7 +387,7 @@ export class BPlusTreeAlgorithm {
    * 重新计算树的布局
    */
   private resizeTree(): void {
-    this.cmd('ResizeTree');
+    this.cmd("ResizeTree");
   }
 
   /**
@@ -394,24 +449,24 @@ export class BPlusTreeAlgorithm {
   public deleteElement(deleteValue: number): BPlusCommand[] {
     this.commands = [];
 
-    this.cmd('SetMessage', `Deleting ${deleteValue}`);
-    this.cmd('Step');
+    this.cmd("SetMessage", `Deleting ${deleteValue}`);
+    this.cmd("Step");
 
     if (this.tree.root === null) {
-      this.cmd('SetMessage', 'Tree is empty');
-      this.cmd('Step');
+      this.cmd("SetMessage", "Tree is empty");
+      this.cmd("Step");
       return this.commands;
     }
 
     const leafNode = this.tree.findLeafNode(deleteValue);
     if (!leafNode || this.tree.findKeyInNode(leafNode, deleteValue) === -1) {
-      this.cmd('SetMessage', `Key ${deleteValue} not found`);
-      this.cmd('Step');
+      this.cmd("SetMessage", `Key ${deleteValue} not found`);
+      this.cmd("Step");
       return this.commands;
     }
 
     this.delete(leafNode, deleteValue);
-    this.cmd('SetMessage', '');
+    this.cmd("SetMessage", "");
     return this.commands;
   }
 
@@ -419,14 +474,14 @@ export class BPlusTreeAlgorithm {
    * 删除操作的递归函数
    */
   private delete(node: BPlusNode, deleteValue: number): void {
-    this.cmd('SetHighlight', node.graphicID, true);
-    this.cmd('Step');
+    this.cmd("SetHighlight", node.graphicID, true);
+    this.cmd("Step");
 
     // 从节点中删除键值
     const keyIndex = this.tree.findKeyInNode(node, deleteValue);
     this.tree.removeKeyFromNode(node, deleteValue);
 
-    this.cmd('SetHighlight', node.graphicID, false);
+    this.cmd("SetHighlight", node.graphicID, false);
 
     // 处理删除第一个键值的情况
     if (keyIndex === 0 && node.parent !== null) {
@@ -443,7 +498,10 @@ export class BPlusTreeAlgorithm {
   private updateParentKeys(node: BPlusNode, deletedValue: number): void {
     if (!node.parent) return;
 
-    this.cmd("SetMessage", "Deleted the first key of the leaf node, need to update the parent node");
+    this.cmd(
+      "SetMessage",
+      "Deleted the first key of the leaf node, need to update the parent node",
+    );
     this.cmd("Step"); // 给用户时间理解消息
 
     let currentNode = node;
@@ -457,8 +515,7 @@ export class BPlusTreeAlgorithm {
     // 如果当前节点在删除之后没有key
     if (currentNode.numKeys == 0) {
       // 如果当前节点没有右兄弟
-      if (parentIndex == parentNode.numKeys)
-        nextSmallest = null;
+      if (parentIndex == parentNode.numKeys) nextSmallest = null;
       else {
         // 取右兄弟的第一个key
         nextSmallest = parentNode.children[parentIndex + 1].keys[0];
@@ -470,7 +527,10 @@ export class BPlusTreeAlgorithm {
 
     if (nextSmallest == null) return;
 
-    this.cmd("SetMessage", `Check the corresponding key ${deletedValue} in the parent node, ready to update to ${nextSmallest}`);
+    this.cmd(
+      "SetMessage",
+      `Check the corresponding key ${deletedValue} in the parent node, ready to update to ${nextSmallest}`,
+    );
     this.cmd("Step"); // 给用户时间理解更新逻辑
 
     while (parentNode != null) {
@@ -481,8 +541,16 @@ export class BPlusTreeAlgorithm {
 
       if (parentIndex > 0 && parentNode.keys[parentIndex - 1] == deletedValue) {
         // 高亮要更新的键
-        this.cmd("SetKeyHighlight", parentNode.graphicID, parentIndex - 1, true);
-        this.cmd("SetMessage", `Found the key ${deletedValue} to update, change to ${nextSmallest}`);
+        this.cmd(
+          "SetKeyHighlight",
+          parentNode.graphicID,
+          parentIndex - 1,
+          true,
+        );
+        this.cmd(
+          "SetMessage",
+          `Found the key ${deletedValue} to update, change to ${nextSmallest}`,
+        );
         this.cmd("Step");
 
         parentNode.keys[parentIndex - 1] = nextSmallest;
@@ -492,7 +560,12 @@ export class BPlusTreeAlgorithm {
         this.cmd("Step");
 
         // 清除高亮
-        this.cmd("SetKeyHighlight", parentNode.graphicID, parentIndex - 1, false);
+        this.cmd(
+          "SetKeyHighlight",
+          parentNode.graphicID,
+          parentIndex - 1,
+          false,
+        );
         this.cmd("SetHighlight", parentNode.graphicID, false);
         this.cmd("SetMessage", "Parent node key update completed");
         return;
@@ -546,7 +619,10 @@ export class BPlusTreeAlgorithm {
       this.stealFromLeft(node, nodeIndex);
     }
     // 尝试从右兄弟借键
-    else if (nodeIndex < parent.numKeys && parent.children[nodeIndex + 1].numKeys > minKeys) {
+    else if (
+      nodeIndex < parent.numKeys &&
+      parent.children[nodeIndex + 1].numKeys > minKeys
+    ) {
       this.stealFromRight(node, nodeIndex);
     }
     // 与左兄弟合并
@@ -568,12 +644,17 @@ export class BPlusTreeAlgorithm {
     const parent = node.parent!;
     const leftSibling = parent.children[nodeIndex - 1];
 
-    this.cmd('SetMessage', 'Borrow a key from the left sibling node');
-    this.cmd('SetHighlight', leftSibling.graphicID, true);
+    this.cmd("SetMessage", "Borrow a key from the left sibling node");
+    this.cmd("SetHighlight", leftSibling.graphicID, true);
 
     // 高亮显示被借取的键
-    this.cmd('SetKeyHighlight', leftSibling.graphicID, leftSibling.numKeys - 1, true);
-    this.cmd('Step');
+    this.cmd(
+      "SetKeyHighlight",
+      leftSibling.graphicID,
+      leftSibling.numKeys - 1,
+      true,
+    );
+    this.cmd("Step");
 
     // 右移当前节点的键
     for (let i = node.numKeys; i > 0; i--) {
@@ -603,13 +684,18 @@ export class BPlusTreeAlgorithm {
     leftSibling.numKeys--;
 
     // 更新节点状态以反映键的变化
-    this.cmd('SetNodeState', node.graphicID, 'normal');
-    this.cmd('SetNodeState', leftSibling.graphicID, 'normal');
-    this.cmd('Step');
+    this.cmd("SetNodeState", node.graphicID, "normal");
+    this.cmd("SetNodeState", leftSibling.graphicID, "normal");
+    this.cmd("Step");
 
     // 清除高亮
-    this.cmd('SetKeyHighlight', leftSibling.graphicID, leftSibling.numKeys, false);
-    this.cmd('SetHighlight', leftSibling.graphicID, false);
+    this.cmd(
+      "SetKeyHighlight",
+      leftSibling.graphicID,
+      leftSibling.numKeys,
+      false,
+    );
+    this.cmd("SetHighlight", leftSibling.graphicID, false);
   }
 
   /**
@@ -619,12 +705,12 @@ export class BPlusTreeAlgorithm {
     const parent = node.parent!;
     const rightSibling = parent.children[nodeIndex + 1];
 
-    this.cmd('SetMessage', 'Borrow a key from the right sibling node');
-    this.cmd('SetHighlight', rightSibling.graphicID, true);
+    this.cmd("SetMessage", "Borrow a key from the right sibling node");
+    this.cmd("SetHighlight", rightSibling.graphicID, true);
 
     // 高亮显示被借取的键
-    this.cmd('SetKeyHighlight', rightSibling.graphicID, 0, true);
-    this.cmd('Step');
+    this.cmd("SetKeyHighlight", rightSibling.graphicID, 0, true);
+    this.cmd("Step");
 
     if (node.isLeaf) {
       // 叶子节点：直接移动键
@@ -656,13 +742,13 @@ export class BPlusTreeAlgorithm {
     rightSibling.numKeys--;
 
     // 更新节点状态以反映键的变化
-    this.cmd('SetNodeState', node.graphicID, 'normal');
-    this.cmd('SetNodeState', rightSibling.graphicID, 'normal');
-    this.cmd('Step');
+    this.cmd("SetNodeState", node.graphicID, "normal");
+    this.cmd("SetNodeState", rightSibling.graphicID, "normal");
+    this.cmd("Step");
 
     // 清除高亮
-    this.cmd('SetKeyHighlight', rightSibling.graphicID, 0, false);
-    this.cmd('SetHighlight', rightSibling.graphicID, false);
+    this.cmd("SetKeyHighlight", rightSibling.graphicID, 0, false);
+    this.cmd("SetHighlight", rightSibling.graphicID, false);
   }
 
   /**
@@ -672,10 +758,10 @@ export class BPlusTreeAlgorithm {
     const parent = node.parent!;
     const leftSibling = parent.children[nodeIndex - 1];
 
-    this.cmd('SetMessage', 'Merge with the left sibling node');
-    this.cmd('SetHighlight', leftSibling.graphicID, true);
-    this.cmd('SetHighlight', node.graphicID, true);
-    this.cmd('Step');
+    this.cmd("SetMessage", "Merge with the left sibling node");
+    this.cmd("SetHighlight", leftSibling.graphicID, true);
+    this.cmd("SetHighlight", node.graphicID, true);
+    this.cmd("Step");
 
     if (!node.isLeaf) {
       // 内部节点：下移父节点的键
@@ -695,7 +781,8 @@ export class BPlusTreeAlgorithm {
     // 移动子节点（如果是内部节点）
     if (!node.isLeaf) {
       for (let i = 0; i <= node.numKeys; i++) {
-        leftSibling.children[leftSibling.numKeys - node.numKeys + i] = node.children[i];
+        leftSibling.children[leftSibling.numKeys - node.numKeys + i] =
+          node.children[i];
         if (node.children[i]) {
           node.children[i].parent = leftSibling;
         }
@@ -704,9 +791,17 @@ export class BPlusTreeAlgorithm {
       // 更新叶子节点链表
       leftSibling.next = node.next;
       if (node.next) {
-        this.cmd('Disconnect', node.graphicID, node.next.graphicID);
-        this.cmd('Connect', leftSibling.graphicID, node.next.graphicID,
-          BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', leftSibling.numKeys);
+        this.cmd("Disconnect", node.graphicID, node.next.graphicID);
+        this.cmd(
+          "Connect",
+          leftSibling.graphicID,
+          node.next.graphicID,
+          BTREE_CONSTANTS.FOREGROUND_COLOR,
+          0,
+          1,
+          "",
+          leftSibling.numKeys,
+        );
       }
     }
 
@@ -718,13 +813,13 @@ export class BPlusTreeAlgorithm {
     parent.numKeys--;
 
     // 删除当前节点的可视化
-    this.cmd('DeleteNode', node.graphicID);
+    this.cmd("DeleteNode", node.graphicID);
 
     // 更新节点状态以反映合并后的键
-    this.cmd('SetNodeState', leftSibling.graphicID, 'normal');
-    this.cmd('Step');
+    this.cmd("SetNodeState", leftSibling.graphicID, "normal");
+    this.cmd("Step");
 
-    this.cmd('SetHighlight', leftSibling.graphicID, false);
+    this.cmd("SetHighlight", leftSibling.graphicID, false);
 
     return leftSibling;
   }
@@ -736,10 +831,10 @@ export class BPlusTreeAlgorithm {
     const parent = node.parent!;
     const rightSibling = parent.children[nodeIndex + 1];
 
-    this.cmd('SetMessage', 'Merge with the right sibling node');
-    this.cmd('SetHighlight', node.graphicID, true);
-    this.cmd('SetHighlight', rightSibling.graphicID, true);
-    this.cmd('Step');
+    this.cmd("SetMessage", "Merge with the right sibling node");
+    this.cmd("SetHighlight", node.graphicID, true);
+    this.cmd("SetHighlight", rightSibling.graphicID, true);
+    this.cmd("Step");
 
     if (!node.isLeaf) {
       // 内部节点：下移父节点的键
@@ -756,7 +851,8 @@ export class BPlusTreeAlgorithm {
     // 移动子节点（如果是内部节点）
     if (!node.isLeaf) {
       for (let i = 0; i <= rightSibling.numKeys; i++) {
-        node.children[node.numKeys - rightSibling.numKeys + i] = rightSibling.children[i];
+        node.children[node.numKeys - rightSibling.numKeys + i] =
+          rightSibling.children[i];
         if (rightSibling.children[i]) {
           rightSibling.children[i].parent = node;
         }
@@ -765,9 +861,21 @@ export class BPlusTreeAlgorithm {
       // 更新叶子节点链表
       node.next = rightSibling.next;
       if (rightSibling.next) {
-        this.cmd('Disconnect', rightSibling.graphicID, rightSibling.next.graphicID);
-        this.cmd('Connect', node.graphicID, rightSibling.next.graphicID,
-          BTREE_CONSTANTS.FOREGROUND_COLOR, 0, 1, '', node.numKeys);
+        this.cmd(
+          "Disconnect",
+          rightSibling.graphicID,
+          rightSibling.next.graphicID,
+        );
+        this.cmd(
+          "Connect",
+          node.graphicID,
+          rightSibling.next.graphicID,
+          BTREE_CONSTANTS.FOREGROUND_COLOR,
+          0,
+          1,
+          "",
+          node.numKeys,
+        );
       }
     }
 
@@ -779,13 +887,13 @@ export class BPlusTreeAlgorithm {
     parent.numKeys--;
 
     // 删除右兄弟的可视化
-    this.cmd('DeleteNode', rightSibling.graphicID);
+    this.cmd("DeleteNode", rightSibling.graphicID);
 
     // 更新节点状态以反映合并后的键
-    this.cmd('SetNodeState', node.graphicID, 'normal');
-    this.cmd('Step');
+    this.cmd("SetNodeState", node.graphicID, "normal");
+    this.cmd("Step");
 
-    this.cmd('SetHighlight', node.graphicID, false);
+    this.cmd("SetHighlight", node.graphicID, false);
 
     return node;
   }

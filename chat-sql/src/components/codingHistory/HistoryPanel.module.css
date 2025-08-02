@@ -27,7 +27,7 @@
 .tabsContainer :global(.ant-tabs-nav) {
   margin: 0 !important;
   padding: 0 16px;
-  margin-bottom: 8px!important;
+  margin-bottom: 8px !important;
 }
 
 .tabsContainer :global(.ant-tabs-nav-list) {
@@ -102,12 +102,11 @@
   color: var(--tertiary-text) !important;
 }
 
-
-.ant-tabs-nav{
+.ant-tabs-nav {
   margin-bottom: 16px !important;
 }
 
-.ant-tabs-tab{
+.ant-tabs-tab {
   padding: 8px 16px !important;
   transition: all 0.3s ease;
 }
@@ -123,11 +122,10 @@
   border-radius: 3px !important;
 }
 
-
 .actionButton {
   width: 30px !important;
   height: 30px !important;
-  font-size: 1.2em!important;
+  font-size: 1.2em !important;
   padding: 0;
   display: flex;
   align-items: center;

@@ -143,7 +143,7 @@ const initialState: ERDiagramState = {
 
 function erDiagramReducer(
   state: ERDiagramState,
-  action: ERDiagramAction
+  action: ERDiagramAction,
 ): ERDiagramState {
   switch (action.type) {
     case "SET_DIAGRAM_DATA":
@@ -218,21 +218,21 @@ function erDiagramReducer(
       const updatedEntities = state.diagramData.entities.map((entity) =>
         entity.id === action.payload.id
           ? { ...entity, ...action.payload.entity }
-          : entity
+          : entity,
       );
 
       // 如果更新了实体的 isWeakEntity 属性，需要重新检查所有相关关系的弱关系状态
       const updatedRelationshipsForEntity = state.diagramData.relationships.map(
         (relationship) => {
           const hasUpdatedEntity = relationship.connections.some(
-            (conn) => conn.entityId === action.payload.id
+            (conn) => conn.entityId === action.payload.id,
           );
 
           if (hasUpdatedEntity) {
             // 重新检查是否为弱关系
             const isWeakRelation = relationship.connections.some((conn) => {
               const entity = updatedEntities.find(
-                (e) => e.id === conn.entityId
+                (e) => e.id === conn.entityId,
               );
               return entity?.isWeakEntity === true;
             });
@@ -244,7 +244,7 @@ function erDiagramReducer(
           }
 
           return relationship;
-        }
+        },
       );
 
       return {
@@ -268,7 +268,7 @@ function erDiagramReducer(
           relationships: state.diagramData.relationships.map((relationship) =>
             relationship.id === action.payload.id
               ? { ...relationship, ...action.payload.relationship }
-              : relationship
+              : relationship,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -283,7 +283,7 @@ function erDiagramReducer(
         diagramData: {
           ...state.diagramData,
           entities: state.diagramData.entities.filter(
-            (entity) => entity.id !== action.payload.id
+            (entity) => entity.id !== action.payload.id,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -298,7 +298,7 @@ function erDiagramReducer(
         diagramData: {
           ...state.diagramData,
           relationships: state.diagramData.relationships.filter(
-            (relationship) => relationship.id !== action.payload.id
+            (relationship) => relationship.id !== action.payload.id,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -335,14 +335,14 @@ function erDiagramReducer(
       const renamedEntities = state.diagramData.entities.map((entity) =>
         entity.id === action.payload.nodeId
           ? { ...entity, name: action.payload.newName }
-          : entity
+          : entity,
       );
 
       const renamedRelationships = state.diagramData.relationships.map(
         (relationship) =>
           relationship.id === action.payload.nodeId
             ? { ...relationship, name: action.payload.newName }
-            : relationship
+            : relationship,
       );
 
       return {
@@ -377,7 +377,7 @@ function erDiagramReducer(
                     action.payload.attribute,
                   ],
                 }
-              : relationship
+              : relationship,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -397,10 +397,10 @@ function erDiagramReducer(
               ? {
                   ...relationship,
                   attributes: (relationship.attributes || []).filter(
-                    (attr) => attr.id !== action.payload.attributeId
+                    (attr) => attr.id !== action.payload.attributeId,
                   ),
                 }
-              : relationship
+              : relationship,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -422,10 +422,10 @@ function erDiagramReducer(
                   attributes: (relationship.attributes || []).map((attr) =>
                     attr.id === action.payload.attributeId
                       ? { ...attr, ...action.payload.updates }
-                      : attr
+                      : attr,
                   ),
                 }
-              : relationship
+              : relationship,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -446,7 +446,7 @@ function erDiagramReducer(
                   ...entity,
                   attributes: [...entity.attributes, action.payload.attribute],
                 }
-              : entity
+              : entity,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -465,10 +465,10 @@ function erDiagramReducer(
               ? {
                   ...entity,
                   attributes: entity.attributes.filter(
-                    (attr) => attr.id !== action.payload.attributeId
+                    (attr) => attr.id !== action.payload.attributeId,
                   ),
                 }
-              : entity
+              : entity,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -489,10 +489,10 @@ function erDiagramReducer(
                   attributes: entity.attributes.map((attr) =>
                     attr.id === action.payload.attributeId
                       ? { ...attr, ...action.payload.updates }
-                      : attr
+                      : attr,
                   ),
                 }
-              : entity
+              : entity,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -513,10 +513,10 @@ function erDiagramReducer(
                   connections: relationship.connections.map((conn) =>
                     conn.entityId === action.payload.entityId
                       ? { ...conn, ...action.payload.updates }
-                      : conn
+                      : conn,
                   ),
                 }
-              : relationship
+              : relationship,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -539,7 +539,7 @@ function erDiagramReducer(
             // 检查是否为弱关系（连接了弱实体）
             const isWeakRelation = newConnections.some((conn) => {
               const entity = state.diagramData!.entities.find(
-                (e) => e.id === conn.entityId
+                (e) => e.id === conn.entityId,
               );
               return entity?.isWeakEntity === true;
             });
@@ -572,13 +572,13 @@ function erDiagramReducer(
         state.diagramData.relationships.map((relationship) => {
           if (relationship.id === action.payload.relationshipId) {
             const newConnections = relationship.connections.filter(
-              (conn) => conn.entityId !== action.payload.entityId
+              (conn) => conn.entityId !== action.payload.entityId,
             );
 
             // 重新检查是否为弱关系
             const isWeakRelation = newConnections.some((conn) => {
               const entity = state.diagramData!.entities.find(
-                (e) => e.id === conn.entityId
+                (e) => e.id === conn.entityId,
               );
               return entity?.isWeakEntity === true;
             });
@@ -620,15 +620,15 @@ function erDiagramReducer(
             if (entity.id === action.payload.entityId) {
               // 根据新的顺序重新排列属性
               const attributeMap = new Map(
-                entity.attributes.map((attr) => [attr.id, attr])
+                entity.attributes.map((attr) => [attr.id, attr]),
               );
               const reorderedAttributes = action.payload.attributeIds
                 .map((id) => attributeMap.get(id))
                 .filter(
                   (
-                    attr
+                    attr,
                   ): attr is import("@/types/ERDiagramTypes/erDiagram").ERAttribute =>
-                    attr !== undefined
+                    attr !== undefined,
                 );
 
               return {
@@ -663,7 +663,7 @@ interface ERDiagramContextType {
   updateEntity: (id: string, entity: Partial<EREntity>) => Promise<void>;
   updateRelationship: (
     id: string,
-    relationship: Partial<ERRelationship>
+    relationship: Partial<ERRelationship>,
   ) => Promise<void>;
   deleteEntity: (id: string) => Promise<void>;
   deleteRelationship: (id: string) => Promise<void>;
@@ -675,56 +675,56 @@ interface ERDiagramContextType {
   // 属性编辑相关方法
   addAttribute: (
     entityId: string,
-    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute
+    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute,
   ) => Promise<void>;
   deleteAttribute: (entityId: string, attributeId: string) => Promise<void>;
   updateAttribute: (
     entityId: string,
     attributeId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>,
   ) => Promise<void>;
   updateAttributeOrder: (
     entityId: string,
-    attributeIds: string[]
+    attributeIds: string[],
   ) => Promise<void>;
   updateConnection: (
     relationshipId: string,
     entityId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERConnection>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERConnection>,
   ) => Promise<void>;
 
   // 关系属性的编辑方法
   addRelationshipAttribute: (
     relationshipId: string,
-    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute
+    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute,
   ) => Promise<void>;
   deleteRelationshipAttribute: (
     relationshipId: string,
-    attributeId: string
+    attributeId: string,
   ) => Promise<void>;
   updateRelationshipAttribute: (
     relationshipId: string,
     attributeId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>,
   ) => Promise<void>;
 
   // 连接管理相关方法
   createConnection: (
     relationshipId: string,
-    connection: import("@/types/ERDiagramTypes/erDiagram").ERConnection
+    connection: import("@/types/ERDiagramTypes/erDiagram").ERConnection,
   ) => Promise<void>;
   deleteConnection: (relationshipId: string, entityId: string) => Promise<void>;
   // 存储相关方法
   saveDiagram: (
     diagramData: ERDiagramData,
-    existingId?: string
+    existingId?: string,
   ) => Promise<string>;
   loadDiagram: (id: string) => Promise<void>;
   newDiagram: () => void;
   createNewDiagram: (
     name: string,
     description: string,
-    templateId: string
+    templateId: string,
   ) => Promise<string>;
   listDiagrams: () => Promise<ERDiagramMetadata[]>;
   deleteDiagram: (id: string) => Promise<void>;
@@ -734,19 +734,19 @@ interface ERDiagramContextType {
   // 显示通知的函数
   showSnackbar: (
     message: string,
-    severity: "info" | "success" | "warning" | "error"
+    severity: "info" | "success" | "warning" | "error",
   ) => void;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useERDiagramContext = () => {
   const context = useContext(ERDiagramContext);
   if (context === undefined) {
     throw new Error(
-      "useERDiagramContext must be used within an ERDiagramProvider"
+      "useERDiagramContext must be used within an ERDiagramProvider",
     );
   }
   return context;
@@ -831,7 +831,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     try {
       // 计算更新后的数据
       const updatedEntities = state.diagramData.entities.map((e) =>
-        e.id === id ? { ...e, ...entity } : e
+        e.id === id ? { ...e, ...entity } : e,
       );
 
       const updatedData = {
@@ -856,7 +856,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
 
   const updateRelationship = async (
     id: string,
-    relationship: Partial<ERRelationship>
+    relationship: Partial<ERRelationship>,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法更新关系：未找到当前图表", "error");
@@ -866,7 +866,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     try {
       // 计算更新后的数据
       const updatedRelationships = state.diagramData.relationships.map((r) =>
-        r.id === id ? { ...r, ...relationship } : r
+        r.id === id ? { ...r, ...relationship } : r,
       );
 
       const updatedData = {
@@ -901,7 +901,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       const updatedData = {
         ...state.diagramData,
         entities: state.diagramData.entities.filter(
-          (entity) => entity.id !== id
+          (entity) => entity.id !== id,
         ),
         // 此处保留了与实体相关的关系
         metadata: {
@@ -932,7 +932,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       const updatedData = {
         ...state.diagramData,
         relationships: state.diagramData.relationships.filter(
-          (relationship) => relationship.id !== id
+          (relationship) => relationship.id !== id,
         ),
         metadata: {
           ...state.diagramData.metadata,
@@ -973,14 +973,14 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     try {
       // 计算更新后的数据
       const updatedEntities = state.diagramData.entities.map((entity) =>
-        entity.id === nodeId ? { ...entity, name: newName } : entity
+        entity.id === nodeId ? { ...entity, name: newName } : entity,
       );
 
       const updatedRelationships = state.diagramData.relationships.map(
         (relationship) =>
           relationship.id === nodeId
             ? { ...relationship, name: newName }
-            : relationship
+            : relationship,
       );
 
       const updatedData = {
@@ -1007,7 +1007,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   // 属性编辑相关方法实现
   const addAttribute = async (
     entityId: string,
-    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute
+    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法添加属性：未找到当前图表", "error");
@@ -1022,7 +1022,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       const updatedEntities = state.diagramData.entities.map((entity) =>
         entity.id === entityId
           ? { ...entity, attributes: [...entity.attributes, attribute] }
-          : entity
+          : entity,
       );
 
       const updatedData = {
@@ -1050,7 +1050,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     }
 
     const entityToUpdate = state.diagramData.entities.find(
-      (e) => e.id === entityId
+      (e) => e.id === entityId,
     );
     if (!entityToUpdate) {
       showSnackbar("未找到指定实体", "error");
@@ -1059,11 +1059,11 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
 
     // 检查主键逻辑：防止删除最后一个主键属性
     const attributeToDelete = entityToUpdate.attributes.find(
-      (attr) => attr.id === attributeId
+      (attr) => attr.id === attributeId,
     );
     if (attributeToDelete?.isPrimaryKey) {
       const primaryKeyCount = entityToUpdate.attributes.filter(
-        (attr) => attr.isPrimaryKey
+        (attr) => attr.isPrimaryKey,
       ).length;
       if (primaryKeyCount <= 1) {
         showSnackbar("无法删除：实体至少需要一个主键/标识符属性", "warning");
@@ -1084,10 +1084,10 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
           ? {
               ...entity,
               attributes: entity.attributes.filter(
-                (attr) => attr.id !== attributeId
+                (attr) => attr.id !== attributeId,
               ),
             }
-          : entity
+          : entity,
       );
 
       const updatedData = {
@@ -1111,19 +1111,19 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   const updateAttribute = async (
     entityId: string,
     attributeId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) return;
 
     const entityToUpdate = state.diagramData.entities.find(
-      (e) => e.id === entityId
+      (e) => e.id === entityId,
     );
     if (!entityToUpdate) return;
 
     // 检查主键逻辑（至少存在一个属性）
     if (updates.isPrimaryKey === false) {
       const primaryKeyCount = entityToUpdate.attributes.filter(
-        (attr) => attr.isPrimaryKey
+        (attr) => attr.isPrimaryKey,
       ).length;
 
       if (primaryKeyCount <= 1) {
@@ -1143,7 +1143,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         return {
           ...entity,
           attributes: entity.attributes.map((attr) =>
-            attr.id === attributeId ? { ...attr, ...updates } : attr
+            attr.id === attributeId ? { ...attr, ...updates } : attr,
           ),
         };
       }
@@ -1171,7 +1171,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   // 更新属性排序的方法
   const updateAttributeOrder = async (
     entityId: string,
-    attributeIds: string[]
+    attributeIds: string[],
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法更新属性排序：未找到当前图表", "error");
@@ -1189,15 +1189,15 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       const updatedEntities = state.diagramData.entities.map((entity) => {
         if (entity.id === entityId) {
           const attributeMap = new Map(
-            entity.attributes.map((attr) => [attr.id, attr])
+            entity.attributes.map((attr) => [attr.id, attr]),
           );
           const reorderedAttributes = attributeIds
             .map((id) => attributeMap.get(id))
             .filter(
               (
-                attr
+                attr,
               ): attr is import("@/types/ERDiagramTypes/erDiagram").ERAttribute =>
-                attr !== undefined
+                attr !== undefined,
             );
 
           return {
@@ -1234,7 +1234,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   const updateConnection = async (
     relationshipId: string,
     entityId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERConnection>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERConnection>,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法更新连接：未找到当前图表", "error");
@@ -1250,12 +1250,12 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
               (connection) =>
                 connection.entityId === entityId
                   ? { ...connection, ...updates }
-                  : connection
+                  : connection,
             );
             return { ...relationship, connections: updatedConnections };
           }
           return relationship;
-        }
+        },
       );
 
       const updatedData = {
@@ -1284,7 +1284,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   // 关系属性编辑相关实现
   const addRelationshipAttribute = async (
     relationshipId: string,
-    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute
+    attribute: import("@/types/ERDiagramTypes/erDiagram").ERAttribute,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法添加关系属性，未找到当前图表", "error");
@@ -1307,7 +1307,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
                 attributes: [...(relationship.attributes || []), attribute],
               }
             : relationship;
-        }
+        },
       );
 
       const updatedData = {
@@ -1329,7 +1329,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
 
   const deleteRelationshipAttribute = async (
     relationshipId: string,
-    attributeId: string
+    attributeId: string,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法删除关系属性，未找到当前图表", "error");
@@ -1350,12 +1350,12 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
             return {
               ...relationship,
               attributes: (relationship.attributes || []).filter(
-                (attr) => attr.id !== attributeId
+                (attr) => attr.id !== attributeId,
               ),
             };
           }
           return relationship;
-        }
+        },
       );
 
       const updatedData = {
@@ -1378,7 +1378,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   const updateRelationshipAttribute = async (
     relationshipId: string,
     attributeId: string,
-    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>
+    updates: Partial<import("@/types/ERDiagramTypes/erDiagram").ERAttribute>,
   ) => {
     if (!state.diagramData || !state.currentDiagramId) {
       showSnackbar("无法更新关系属性，未找到当前图表", "error");
@@ -1403,12 +1403,12 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
             return {
               ...relationship,
               attributes: (relationship.attributes || []).map((attr) =>
-                attr.id === attributeId ? { ...attr, ...updates } : attr
+                attr.id === attributeId ? { ...attr, ...updates } : attr,
               ),
             };
           }
           return relationship;
-        }
+        },
       );
 
       const updatedData = {
@@ -1431,7 +1431,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   // 连接管理相关方法实现
   const createConnection = async (
     relationshipId: string,
-    connection: import("@/types/ERDiagramTypes/erDiagram").ERConnection
+    connection: import("@/types/ERDiagramTypes/erDiagram").ERConnection,
   ) => {
     dispatch({
       type: "CREATE_CONNECTION",
@@ -1443,7 +1443,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       try {
         // 找到要更新的关系
         const relationship = state.diagramData.relationships.find(
-          (r) => r.id === relationshipId
+          (r) => r.id === relationshipId,
         );
         if (!relationship) return;
 
@@ -1457,7 +1457,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         const updatedData = {
           ...state.diagramData,
           relationships: state.diagramData.relationships.map((r) =>
-            r.id === relationshipId ? updatedRelationship : r
+            r.id === relationshipId ? updatedRelationship : r,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -1484,7 +1484,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
       try {
         // 找到要更新的关系
         const relationship = state.diagramData.relationships.find(
-          (r) => r.id === relationshipId
+          (r) => r.id === relationshipId,
         );
         if (!relationship) return;
 
@@ -1492,7 +1492,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         const updatedRelationship = {
           ...relationship,
           connections: relationship.connections.filter(
-            (conn) => conn.entityId !== entityId
+            (conn) => conn.entityId !== entityId,
           ),
         };
 
@@ -1500,7 +1500,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         const updatedData = {
           ...state.diagramData,
           relationships: state.diagramData.relationships.map((r) =>
-            r.id === relationshipId ? updatedRelationship : r
+            r.id === relationshipId ? updatedRelationship : r,
           ),
           metadata: {
             ...state.diagramData.metadata,
@@ -1520,12 +1520,12 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
   const saveDiagram = useCallback(
     async (
       diagramData: ERDiagramData,
-      existingId?: string
+      existingId?: string,
     ): Promise<string> => {
       try {
         const savedId = await erDiagramStorage.saveDiagram(
           diagramData,
-          existingId
+          existingId,
         );
         // 保存成功后自动刷新图表列表
         const list = await erDiagramStorage.listDiagrams();
@@ -1538,7 +1538,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         throw error;
       }
     },
-    []
+    [],
   );
 
   // 重构后的 loadDiagram 方法 - 使用useCallback避免无限重渲染
@@ -1580,7 +1580,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         throw error;
       }
     },
-    [state.currentDiagramId]
+    [state.currentDiagramId],
   );
 
   const fetchDiagramList = useCallback(async () => {
@@ -1599,7 +1599,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     async (
       name: string,
       description: string,
-      templateId: string
+      templateId: string,
     ): Promise<string> => {
       try {
         // 根据模板ID构建图表数据
@@ -1670,7 +1670,7 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
         throw error;
       }
     },
-    [saveDiagram]
+    [saveDiagram],
   );
 
   // 4. useEffect 首次加载时调用 fetchDiagramList

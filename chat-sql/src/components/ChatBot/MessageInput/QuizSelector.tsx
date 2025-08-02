@@ -1,5 +1,5 @@
 // Quiz选择器组件
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -19,15 +19,15 @@ import {
   Alert,
   CircularProgress,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   Clear as ClearIcon,
   Quiz as QuizIcon,
   CalendarToday as DateIcon,
-} from '@mui/icons-material';
-import { Quiz, QuizSelectorProps } from '@/types/ERDiagramTypes/quiz';
-import { quizStorage } from '@/services/quizStorage';
+} from "@mui/icons-material";
+import { Quiz, QuizSelectorProps } from "@/types/ERDiagramTypes/quiz";
+import { quizStorage } from "@/services/quizStorage";
 
 /**
  * Quiz选择器组件
@@ -37,14 +37,14 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
   value,
   onChange,
   error,
-  placeholder = '请选择一个题目进行检验',
+  placeholder = "请选择一个题目进行检验",
   disabled = false,
 }) => {
   const [open, setOpen] = useState(false);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -57,30 +57,33 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
       setQuizzes(allQuizzes);
       setFilteredQuizzes(allQuizzes);
     } catch (error) {
-      console.error('加载题目失败:', error);
-      setLoadError('加载题目失败，请重试');
+      console.error("加载题目失败:", error);
+      setLoadError("加载题目失败，请重试");
     } finally {
       setLoading(false);
     }
   }, []);
 
   // 搜索题目
-  const handleSearch = useCallback(async (keyword: string) => {
-    setSearchKeyword(keyword);
-    
-    if (!keyword.trim()) {
-      setFilteredQuizzes(quizzes);
-      return;
-    }
+  const handleSearch = useCallback(
+    async (keyword: string) => {
+      setSearchKeyword(keyword);
 
-    try {
-      const searchResults = await quizStorage.searchQuizzes(keyword);
-      setFilteredQuizzes(searchResults);
-    } catch (error) {
-      console.error('搜索题目失败:', error);
-      setFilteredQuizzes([]);
-    }
-  }, [quizzes]);
+      if (!keyword.trim()) {
+        setFilteredQuizzes(quizzes);
+        return;
+      }
+
+      try {
+        const searchResults = await quizStorage.searchQuizzes(keyword);
+        setFilteredQuizzes(searchResults);
+      } catch (error) {
+        console.error("搜索题目失败:", error);
+        setFilteredQuizzes([]);
+      }
+    },
+    [quizzes],
+  );
 
   // 打开选择对话框
   const handleOpenDialog = useCallback(() => {
@@ -92,7 +95,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
   // 关闭对话框
   const handleCloseDialog = useCallback(() => {
     setOpen(false);
-    setSearchKeyword('');
+    setSearchKeyword("");
     setSelectedQuiz(null);
     setLoadError(null);
   }, []);
@@ -113,7 +116,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
   // 根据value获取当前选中的题目信息
   useEffect(() => {
     if (value && quizzes.length > 0) {
-      const currentQuiz = quizzes.find(q => q.id === value);
+      const currentQuiz = quizzes.find((q) => q.id === value);
       if (currentQuiz) {
         setSelectedQuiz(currentQuiz);
       }
@@ -122,19 +125,21 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
 
   // 格式化日期
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('zh-CN');
+    return new Date(timestamp).toLocaleString("zh-CN");
   };
 
   // 截取描述文本
   const truncateDescription = (text: string, maxLength: number = 100) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   // 获取当前选中题目的显示信息
   const getCurrentQuizDisplay = () => {
     if (!value) return null;
-    
-    const currentQuiz = quizzes.find(q => q.id === value);
+
+    const currentQuiz = quizzes.find((q) => q.id === value);
     if (!currentQuiz) return null;
 
     return {
@@ -155,17 +160,17 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         disabled={disabled}
         startIcon={<QuizIcon />}
         sx={{
-          width: '100%',
-          justifyContent: 'flex-start',
-          textAlign: 'left',
+          width: "100%",
+          justifyContent: "flex-start",
+          textAlign: "left",
           py: 1.5,
           px: 2,
-          borderColor: error ? 'error.main' : 'divider',
-          color: currentDisplay ? 'text.primary' : 'text.secondary',
+          borderColor: error ? "error.main" : "divider",
+          color: currentDisplay ? "text.primary" : "text.secondary",
         }}
       >
         {currentDisplay ? (
-          <Box sx={{ width: '100%' }}>
+          <Box sx={{ width: "100%" }}>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
               {currentDisplay.name}
             </Typography>
@@ -182,7 +187,11 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
 
       {/* 错误提示 */}
       {error && (
-        <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+        <Typography
+          variant="caption"
+          color="error"
+          sx={{ mt: 0.5, display: "block" }}
+        >
           {error}
         </Typography>
       )}
@@ -194,11 +203,11 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { height: '70vh', backgroundColor: 'var(--card-bg)' }
+          sx: { height: "70vh", backgroundColor: "var(--card-bg)" },
         }}
       >
         <DialogTitle>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <QuizIcon />
             <Typography variant="h6">选择题目</Typography>
           </Box>
@@ -219,21 +228,18 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
               ),
               endAdornment: searchKeyword && (
                 <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleSearch('')}
-                  >
+                  <IconButton size="small" onClick={() => handleSearch("")}>
                     <ClearIcon />
                   </IconButton>
                 </InputAdornment>
               ),
             }}
-            sx={{ mb: 2, color: 'var(--secondary-text)' }}
+            sx={{ mb: 2, color: "var(--secondary-text)" }}
           />
 
           {/* 加载状态 */}
           {loading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
               <CircularProgress />
             </Box>
           )}
@@ -249,18 +255,22 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
           {!loading && !loadError && (
             <>
               {filteredQuizzes.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Box sx={{ textAlign: "center", py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {searchKeyword ? '未找到匹配的题目' : '暂无可用题目'}
+                    {searchKeyword ? "未找到匹配的题目" : "暂无可用题目"}
                   </Typography>
                   {!searchKeyword && (
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 1, display: "block" }}
+                    >
                       请先在"出题模式"中生成一些题目
                     </Typography>
                   )}
                 </Box>
               ) : (
-                <List sx={{ width: '100%' }}>
+                <List sx={{ width: "100%" }}>
                   {filteredQuizzes.map((quiz, index) => (
                     <React.Fragment key={quiz.id}>
                       <ListItem disablePadding>
@@ -268,14 +278,25 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                           selected={selectedQuiz?.id === quiz.id}
                           onClick={() => handleSelectQuiz(quiz)}
                           sx={{
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
+                            flexDirection: "column",
+                            alignItems: "flex-start",
                             py: 2,
                           }}
                         >
-                          <Box sx={{ width: '100%', mb: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                              <Typography variant="subtitle2" color="var(--secondary-text)"  sx={{ fontWeight: 600 }}>
+                          <Box sx={{ width: "100%", mb: 1 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                mb: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="subtitle2"
+                                color="var(--secondary-text)"
+                                sx={{ fontWeight: 600 }}
+                              >
                                 {quiz.name}
                               </Typography>
                               <Chip
@@ -289,10 +310,10 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                               variant="body2"
                               color="var(--secondary-text)"
                               sx={{
-                                display: '-webkit-box',
+                                display: "-webkit-box",
                                 WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
                                 lineHeight: 1.4,
                               }}
                             >
@@ -311,9 +332,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCloseDialog}>
-            取消
-          </Button>
+          <Button onClick={handleCloseDialog}>取消</Button>
           <Button
             onClick={handleConfirmSelection}
             variant="contained"

@@ -233,21 +233,21 @@
     padding: 6px;
     gap: 2px;
   }
-  
+
   .infoContent {
     min-width: 200px;
     max-width: 250px;
     padding: 12px;
   }
-  
+
   .infoTitle {
     font-size: 1rem;
   }
-  
+
   .infoDescription {
     font-size: 0.875rem;
   }
-  
+
   .statsContainer {
     gap: 6px;
   }
@@ -259,11 +259,11 @@
     max-width: 220px;
     padding: 10px;
   }
-  
+
   .customControls {
     padding: 4px;
   }
-  
+
   .controlButton,
   .infoButton {
     min-width: 32px !important;

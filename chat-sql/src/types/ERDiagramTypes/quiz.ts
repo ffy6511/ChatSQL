@@ -1,4 +1,4 @@
-import { ERDiagramData } from '@/types/ERDiagramTypes/erDiagram';
+import { ERDiagramData } from "@/types/ERDiagramTypes/erDiagram";
 
 /**
  * Quiz题目接口定义
@@ -16,14 +16,14 @@ export interface Quiz {
 /**
  * 创建Quiz时的输入数据类型(使用 tutorialID 来检查教程的是否重复)
  */
-export type CreateQuizInput = Omit<Quiz, 'id' | 'createdAt'> & {
+export type CreateQuizInput = Omit<Quiz, "id" | "createdAt"> & {
   tutorialID?: string;
 };
 
 /**
  * 更新Quiz时的输入数据类型
  */
-export type UpdateQuizInput = Partial<Omit<Quiz, 'id'>>;
+export type UpdateQuizInput = Partial<Omit<Quiz, "id">>;
 
 /**
  * Quiz存储服务接口
@@ -82,8 +82,8 @@ export interface QuizVerificationData {
  */
 export interface QuizSearchOptions {
   keyword?: string;
-  sortBy?: 'createdAt' | 'updatedAt' | 'name';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "createdAt" | "updatedAt" | "name";
+  sortOrder?: "asc" | "desc";
   limit?: number;
   offset?: number;
 }

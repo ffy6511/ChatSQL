@@ -28,8 +28,8 @@ const eslintConfig = [
 
       // 如果将来需要启用某些规则，可以设置为 "warn" 或 "error"
       // "@typescript-eslint/no-explicit-any": "warn",
-    }
-  }
+    },
+  },
 ];
 
 export default eslintConfig;

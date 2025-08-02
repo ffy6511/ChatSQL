@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -11,14 +11,14 @@ import {
   DialogActions,
   Button,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   Add as AddIcon,
   DeleteSweep as DeleteSweepIcon,
-} from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatBotTypes/chatbot';
-import HistoryList from './HistoryList';
+} from "@mui/icons-material";
+import { ChatHistory } from "@/types/chatBotTypes/chatbot";
+import HistoryList from "./HistoryList";
 
 interface HistoryPanelProps {
   isOpen: boolean;
@@ -41,7 +41,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   onEditHistoryTitle,
   onClearAllHistory,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [clearAllConfirmOpen, setClearAllConfirmOpen] = useState(false);
 
   const handleClearAllClick = () => {
@@ -64,31 +64,32 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
       <Box
         sx={{
           width: 280,
-          height: '100%',
-          backgroundColor: 'var(--card-bg)',
-          borderRight: '1px solid var(--card-border)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'absolute',
+          height: "100%",
+          backgroundColor: "var(--card-bg)",
+          borderRight: "1px solid var(--card-border)",
+          display: "flex",
+          flexDirection: "column",
+          position: "absolute",
           left: 48, // 紧贴IconSidebar右侧
           top: 0,
           zIndex: 10,
           opacity: isOpen ? 1 : 0,
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
-          pointerEvents: isOpen ? 'auto' : 'none',
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+          pointerEvents: isOpen ? "auto" : "none",
         }}
       >
-
-        <Box sx = {{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          p: 2,
-          pb: 1,
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            p: 2,
+            pb: 1,
+          }}
+        >
           {/* 搜索框 */}
-          <Box sx={{ flexGrow: 1}}>
+          <Box sx={{ flexGrow: 1 }}>
             <TextField
               placeholder="搜索历史记录..."
               size="small"
@@ -99,30 +100,32 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon sx={{ color: 'var(--icon-color)', fontSize: 18 }} />
+                      <SearchIcon
+                        sx={{ color: "var(--icon-color)", fontSize: 18 }}
+                      />
                     </InputAdornment>
                   ),
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'var(--input-bg)',
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "var(--input-bg)",
                   borderRadius: 1,
-                  '& fieldset': {
-                    borderColor: 'var(--input-border)',
+                  "& fieldset": {
+                    borderColor: "var(--input-border)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'var(--input-hover-border)',
+                  "&:hover fieldset": {
+                    borderColor: "var(--input-hover-border)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'var(--primary-color)',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "var(--primary-color)",
                   },
                 },
-                '& .MuiInputBase-input': {
-                  color: 'var(--primary-text)',
-                  fontSize: '0.875rem',
-                  '&::placeholder': {
-                    color: 'var(--secondary-text)',
+                "& .MuiInputBase-input": {
+                  color: "var(--primary-text)",
+                  fontSize: "0.875rem",
+                  "&::placeholder": {
+                    color: "var(--secondary-text)",
                     opacity: 1,
                   },
                 },
@@ -131,18 +134,18 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           </Box>
 
           {/* 操作按钮 */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Tooltip title="新建对话">
               <IconButton
                 onClick={onNewChat}
                 size="small"
                 sx={{
-                  color: 'var(--icon-color)',
-                  backgroundColor: 'var(--button-bg)',
+                  color: "var(--icon-color)",
+                  backgroundColor: "var(--button-bg)",
                   borderRadius: 4,
-                  '&:hover': {
-                    backgroundColor: 'var(--hover-bg)',
-                    borderColor: 'var(--hover-bg)',
+                  "&:hover": {
+                    backgroundColor: "var(--hover-bg)",
+                    borderColor: "var(--hover-bg)",
                   },
                 }}
               >
@@ -157,15 +160,24 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 disabled={chatHistory.length === 0}
                 sx={{
                   borderRadius: 4,
-                  color: chatHistory.length === 0 ? 'var(--disabled-text)' : '#f44336',
-                  backgroundColor: 'var(--button-bg)',
-                  '&:hover': {
-                    backgroundColor: chatHistory.length === 0 ? 'var(--button-bg)' : 'rgba(244, 67, 54, 0.1)',
-                    borderColor: chatHistory.length === 0 ? 'var(--button-border)' : '#f44336',
+                  color:
+                    chatHistory.length === 0
+                      ? "var(--disabled-text)"
+                      : "#f44336",
+                  backgroundColor: "var(--button-bg)",
+                  "&:hover": {
+                    backgroundColor:
+                      chatHistory.length === 0
+                        ? "var(--button-bg)"
+                        : "rgba(244, 67, 54, 0.1)",
+                    borderColor:
+                      chatHistory.length === 0
+                        ? "var(--button-border)"
+                        : "#f44336",
                   },
-                  '&:disabled': {
-                    backgroundColor: 'var(--button-bg)',
-                    borderColor: 'var(--button-border)',
+                  "&:disabled": {
+                    backgroundColor: "var(--button-bg)",
+                    borderColor: "var(--button-border)",
                   },
                 }}
               >
@@ -176,7 +188,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         </Box>
 
         {/* 历史记录列表 */}
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, overflow: "auto" }}>
           <HistoryList
             chatHistory={chatHistory}
             searchQuery={searchQuery}
@@ -185,7 +197,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             onDeleteHistory={onDeleteHistory}
             onEditHistoryTitle={onEditHistoryTitle}
           />
-
         </Box>
       </Box>
 
@@ -196,28 +207,23 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         slotProps={{
           paper: {
             sx: {
-              backgroundColor: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
+              backgroundColor: "var(--card-bg)",
+              border: "1px solid var(--card-border)",
             },
           },
         }}
       >
-        <DialogTitle sx={{ color: 'var(--primary-text)' }}>
+        <DialogTitle sx={{ color: "var(--primary-text)" }}>
           确认清空所有历史记录
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ color: 'var(--secondary-text)' }}>
+          <Typography sx={{ color: "var(--secondary-text)" }}>
             确定要清空所有历史记录吗？此操作无法撤销，将删除所有对话历史。
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelClearAll}>
-            取消
-          </Button>
-          <Button
-            onClick={handleConfirmClearAll}
-            sx={{ color: '#f44336' }}
-          >
+          <Button onClick={handleCancelClearAll}>取消</Button>
+          <Button onClick={handleConfirmClearAll} sx={{ color: "#f44336" }}>
             清空
           </Button>
         </DialogActions>

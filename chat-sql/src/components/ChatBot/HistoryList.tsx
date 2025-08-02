@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   Box,
   List,
@@ -8,12 +8,10 @@ import {
   DialogContent,
   DialogActions,
   Button,
-} from '@mui/material';
-import {
-  HistoryOutlined as HistoryIcon,
-} from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatBotTypes/chatbot';
-import HistoryItem from './HistoryItem';
+} from "@mui/material";
+import { HistoryOutlined as HistoryIcon } from "@mui/icons-material";
+import { ChatHistory } from "@/types/chatBotTypes/chatbot";
+import HistoryItem from "./HistoryItem";
 
 interface HistoryListProps {
   chatHistory: ChatHistory[];
@@ -33,7 +31,9 @@ const HistoryList: React.FC<HistoryListProps> = ({
   onEditHistoryTitle,
 }) => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
-  const [deletingHistoryId, setDeletingHistoryId] = React.useState<string | null>(null);
+  const [deletingHistoryId, setDeletingHistoryId] = React.useState<
+    string | null
+  >(null);
 
   // 筛选历史记录
   const filteredHistory = useMemo(() => {
@@ -41,24 +41,28 @@ const HistoryList: React.FC<HistoryListProps> = ({
       return chatHistory;
     }
 
-    return chatHistory.filter(history =>
-      (history.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      history.messages.some(msg => {
-        // 处理不同类型的消息内容
-        const contentStr = typeof msg.content === 'string'
-          ? msg.content
-          : JSON.stringify(msg.content);
-        return contentStr.toLowerCase().includes(searchQuery.toLowerCase());
-      })
+    return chatHistory.filter(
+      (history) =>
+        (history.title || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        history.messages.some((msg) => {
+          // 处理不同类型的消息内容
+          const contentStr =
+            typeof msg.content === "string"
+              ? msg.content
+              : JSON.stringify(msg.content);
+          return contentStr.toLowerCase().includes(searchQuery.toLowerCase());
+        }),
     );
   }, [chatHistory, searchQuery]);
 
   // 调试过滤后的历史记录
-  console.log('HistoryList - Filtered history:', {
+  console.log("HistoryList - Filtered history:", {
     searchQuery,
     originalCount: chatHistory.length,
     filteredCount: filteredHistory.length,
-    filteredItems: filteredHistory.slice(0, 2)
+    filteredItems: filteredHistory.slice(0, 2),
   });
 
   const handleDeleteClick = (historyId: string) => {
@@ -85,19 +89,19 @@ const HistoryList: React.FC<HistoryListProps> = ({
       <>
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
             py: 4,
             px: 2,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           <HistoryIcon
             sx={{
               fontSize: 48,
-              color: 'var(--icon-color)',
+              color: "var(--icon-color)",
               opacity: 0.5,
               mb: 2,
             }}
@@ -105,18 +109,18 @@ const HistoryList: React.FC<HistoryListProps> = ({
           <Typography
             variant="body2"
             sx={{
-              color: 'var(--secondary-text)',
-              fontSize: '0.875rem',
+              color: "var(--secondary-text)",
+              fontSize: "0.875rem",
             }}
           >
-            {searchQuery ? '未找到匹配的历史记录' : '暂无历史记录'}
+            {searchQuery ? "未找到匹配的历史记录" : "暂无历史记录"}
           </Typography>
           {searchQuery && (
             <Typography
               variant="caption"
               sx={{
-                color: 'var(--secondary-text)',
-                fontSize: '0.75rem',
+                color: "var(--secondary-text)",
+                fontSize: "0.75rem",
                 mt: 1,
               }}
             >
@@ -132,28 +136,23 @@ const HistoryList: React.FC<HistoryListProps> = ({
           slotProps={{
             paper: {
               sx: {
-                backgroundColor: 'var(--card-bg)',
-                border: '1px solid var(--card-border)',
+                backgroundColor: "var(--card-bg)",
+                border: "1px solid var(--card-border)",
               },
             },
           }}
         >
-          <DialogTitle sx={{ color: 'var(--primary-text)' }}>
+          <DialogTitle sx={{ color: "var(--primary-text)" }}>
             确认删除
           </DialogTitle>
           <DialogContent>
-            <Typography sx={{ color: 'var(--secondary-text)' }}>
+            <Typography sx={{ color: "var(--secondary-text)" }}>
               确定要删除这条历史记录吗？此操作无法撤销。
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCancelDelete}>
-              取消
-            </Button>
-            <Button
-              onClick={handleConfirmDelete}
-              sx={{ color: '#f44336' }}
-            >
+            <Button onClick={handleCancelDelete}>取消</Button>
+            <Button onClick={handleConfirmDelete} sx={{ color: "#f44336" }}>
               删除
             </Button>
           </DialogActions>
@@ -185,28 +184,23 @@ const HistoryList: React.FC<HistoryListProps> = ({
         slotProps={{
           paper: {
             sx: {
-              backgroundColor: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
+              backgroundColor: "var(--card-bg)",
+              border: "1px solid var(--card-border)",
             },
           },
         }}
       >
-        <DialogTitle sx={{ color: 'var(--primary-text)' }}>
+        <DialogTitle sx={{ color: "var(--primary-text)" }}>
           确认删除
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ color: 'var(--secondary-text)' }}>
+          <Typography sx={{ color: "var(--secondary-text)" }}>
             确定要删除这条历史记录吗？此操作无法撤销。
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDelete}>
-            取消
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            sx={{ color: '#f44336' }}
-          >
+          <Button onClick={handleCancelDelete}>取消</Button>
+          <Button onClick={handleConfirmDelete} sx={{ color: "#f44336" }}>
             删除
           </Button>
         </DialogActions>

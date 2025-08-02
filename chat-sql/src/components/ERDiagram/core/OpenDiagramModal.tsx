@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogTitle,
@@ -19,21 +19,24 @@ import {
   Box,
   IconButton,
   Chip,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   FolderOpen as OpenIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
-import { useERDiagramContext } from '@/contexts/ERDiagramContext';
-import { useSelection } from '@/contexts/SelectionContext';
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
+import { useERDiagramContext } from "@/contexts/ERDiagramContext";
+import { useSelection } from "@/contexts/SelectionContext";
 
 interface OpenDiagramModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) => {
+const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
+  open,
+  onClose,
+}) => {
   const router = useRouter();
   const { diagramList, loadDiagram, deleteDiagram } = useERDiagramContext();
   const { setSelectedERId } = useSelection();
@@ -59,8 +62,8 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
       // 4. 关闭模态框
       onClose();
     } catch (err) {
-      setError('打开图表失败');
-      console.error('Failed to open diagram:', err);
+      setError("打开图表失败");
+      console.error("Failed to open diagram:", err);
     } finally {
       setIsLoading(false);
     }
@@ -77,20 +80,20 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
         setSelectedDiagram(null);
       }
     } catch (err) {
-      setError('删除图表失败');
-      console.error('Failed to delete diagram:', err);
+      setError("删除图表失败");
+      console.error("Failed to delete diagram:", err);
     }
   };
 
   // 格式化日期
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -103,18 +106,22 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
       maxWidth="md"
       fullWidth
       sx={{
-        '& .MuiDialog-paper': {
+        "& .MuiDialog-paper": {
           borderRadius: 2,
-          minHeight: '60vh'
-        }
+          minHeight: "60vh",
+        },
       }}
     >
       <DialogTitle>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Box>
-            <Typography>
-              打开ER图
-            </Typography>
+            <Typography>打开ER图</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
               选择一个已保存的图表继续编辑
             </Typography>
@@ -122,7 +129,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
           {/* 移除手动刷新按钮，Context 会自动管理列表刷新 */}
         </Box>
       </DialogTitle>
-      
+
       <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -131,7 +138,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
         )}
 
         {diagramList.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
+          <Box sx={{ textAlign: "center", py: 4 }}>
             <Typography variant="h6" color="textSecondary">
               暂无保存的图表
             </Typography>
@@ -160,16 +167,19 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
                     hover
                     selected={selectedDiagram === diagram.id}
                     onClick={() => setSelectedDiagram(diagram.id)}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{ cursor: "pointer" }}
                   >
                     <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold" }}
+                      >
                         {diagram.name}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="textSecondary">
-                        {diagram.description || '无描述'}
+                        {diagram.description || "无描述"}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
@@ -199,7 +209,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
-                      <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Box sx={{ display: "flex", gap: 1 }}>
                         <IconButton
                           size="small"
                           color="primary"
@@ -230,18 +240,16 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({ open, onClose }) =>
           </TableContainer>
         )}
       </DialogContent>
-      
+
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={onClose}>
-          取消
-        </Button>
+        <Button onClick={onClose}>取消</Button>
         <Button
           onClick={() => selectedDiagram && handleOpenDiagram(selectedDiagram)}
           variant="contained"
           disabled={!selectedDiagram || isLoading}
           startIcon={<OpenIcon />}
         >
-          {isLoading ? '打开中...' : '打开图表'}
+          {isLoading ? "打开中..." : "打开图表"}
         </Button>
       </DialogActions>
     </Dialog>

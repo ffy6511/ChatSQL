@@ -3,7 +3,7 @@
  * 用于确认删除所有B+树历史记录的操作
  */
 
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,12 +12,12 @@ import {
   Button,
   Typography,
   Box,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   Warning as WarningIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 
 interface ClearAllConfirmDialogProps {
   /** 对话框是否打开 */
@@ -37,7 +37,7 @@ const ClearAllConfirmDialog: React.FC<ClearAllConfirmDialogProps> = ({
   onClose,
   onConfirm,
   loading = false,
-  sessionCount = 0
+  sessionCount = 0,
 }) => {
   const handleConfirm = () => {
     onConfirm();
@@ -57,18 +57,20 @@ const ClearAllConfirmDialog: React.FC<ClearAllConfirmDialogProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: 'var(--card-bg)',
-          border: '1px solid var(--card-border)',
-          borderRadius: 2
-        }
+          bgcolor: "var(--card-bg)",
+          border: "1px solid var(--card-border)",
+          borderRadius: 2,
+        },
       }}
     >
-      <DialogTitle sx={{ 
-        color: 'var(--primary-text)',
-        borderBottom: '1px solid var(--card-border)',
-        pb: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle
+        sx={{
+          color: "var(--primary-text)",
+          borderBottom: "1px solid var(--card-border)",
+          pb: 2,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <WarningIcon color="warning" />
           <Typography variant="h6" component="span">
             确认清理所有记录
@@ -77,13 +79,13 @@ const ClearAllConfirmDialog: React.FC<ClearAllConfirmDialogProps> = ({
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant="body1" sx={{ color: 'var(--primary-text)' }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="body1" sx={{ color: "var(--primary-text)" }}>
             您即将删除所有B+树历史记录，此操作不可撤销。
           </Typography>
 
           {sessionCount > 0 && (
-            <Typography variant="body2" sx={{ color: 'var(--secondary-text)' }}>
+            <Typography variant="body2" sx={{ color: "var(--secondary-text)" }}>
               当前共有 <strong>{sessionCount}</strong> 个会话记录将被删除。
             </Typography>
           )}
@@ -100,22 +102,23 @@ const ClearAllConfirmDialog: React.FC<ClearAllConfirmDialogProps> = ({
             </Box>
           </Alert>
 
-          <Typography variant="body2" sx={{ color: 'var(--tertiary-text)', fontStyle: 'italic' }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "var(--tertiary-text)", fontStyle: "italic" }}
+          >
             删除后，您可以重新开始创建新的B+树会话。
           </Typography>
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ 
-        borderTop: '1px solid var(--card-border)',
-        pt: 2,
-        gap: 1
-      }}>
-        <Button
-          onClick={handleClose}
-          disabled={loading}
-          color="inherit"
-        >
+      <DialogActions
+        sx={{
+          borderTop: "1px solid var(--card-border)",
+          pt: 2,
+          gap: 1,
+        }}
+      >
+        <Button onClick={handleClose} disabled={loading} color="inherit">
           取消
         </Button>
         <Button
@@ -125,7 +128,7 @@ const ClearAllConfirmDialog: React.FC<ClearAllConfirmDialogProps> = ({
           color="error"
           startIcon={loading ? undefined : <DeleteIcon />}
         >
-          {loading ? '清理中...' : '确认清理'}
+          {loading ? "清理中..." : "确认清理"}
         </Button>
       </DialogActions>
     </Dialog>

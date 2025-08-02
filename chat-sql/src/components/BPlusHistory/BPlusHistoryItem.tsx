@@ -2,10 +2,10 @@
  * B+树历史记录项组件
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button, Dropdown, Space, Input, MenuProps } from 'antd';
+import React, { useState } from "react";
+import { Button, Dropdown, Space, Input, MenuProps } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -14,10 +14,10 @@ import {
   PlusOutlined,
   MinusOutlined,
   ReloadOutlined,
-  DotChartOutlined
-} from '@ant-design/icons';
-import { HistorySession, HistoryStep } from '@/types/BplusTypes/bPlusHistory';
-import styles from './BPlusHistoryItem.module.css';
+  DotChartOutlined,
+} from "@ant-design/icons";
+import { HistorySession, HistoryStep } from "@/types/BplusTypes/bPlusHistory";
+import styles from "./BPlusHistoryItem.module.css";
 
 interface BPlusHistorySessionItemProps {
   session: HistorySession;
@@ -38,24 +38,24 @@ interface BPlusHistoryStepItemProps {
 // 格式化时间显示
 const formatTime = (timestamp: number): string => {
   const date = new Date(timestamp);
-  return date.toLocaleString('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return date.toLocaleString("zh-CN", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 // 获取操作图标和样式
 const getOperationIcon = (operation: string) => {
   switch (operation) {
-    case 'insert':
+    case "insert":
       return <PlusOutlined />;
-    case 'delete':
+    case "delete":
       return <MinusOutlined />;
-    case 'reset':
+    case "reset":
       return <ReloadOutlined />;
-    case 'initial':
+    case "initial":
       return <DotChartOutlined />;
     default:
       return <DotChartOutlined />;
@@ -63,13 +63,9 @@ const getOperationIcon = (operation: string) => {
 };
 
 // 会话项组件
-export const BPlusHistorySessionItem: React.FC<BPlusHistorySessionItemProps> = ({
-  session,
-  isActive,
-  onSelect,
-  onRename,
-  onDelete
-}) => {
+export const BPlusHistorySessionItem: React.FC<
+  BPlusHistorySessionItemProps
+> = ({ session, isActive, onSelect, onRename, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(session.name);
 
@@ -86,38 +82,41 @@ export const BPlusHistorySessionItem: React.FC<BPlusHistorySessionItemProps> = (
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleRename();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleCancelEdit();
     }
   };
 
   // 下拉菜单项
-  const menuItems: MenuProps['items'] = [
+  const menuItems: MenuProps["items"] = [
     {
-      key: 'rename',
+      key: "rename",
       icon: <EditOutlined />,
-      label: '重命名',
-      onClick: () => setIsEditing(true)
+      label: "重命名",
+      onClick: () => setIsEditing(true),
     },
     {
-      key: 'delete',
+      key: "delete",
       icon: <DeleteOutlined />,
-      label: '删除',
+      label: "删除",
       danger: true,
-      onClick: () => onDelete(session.id)
-    }
+      onClick: () => onDelete(session.id),
+    },
   ];
 
   return (
     <div className={`${styles.globalStylesContainer}`}>
       <div
-        className={`${styles.historyItem} ${isActive ? styles.active : ''}`}
+        className={`${styles.historyItem} ${isActive ? styles.active : ""}`}
         onClick={() => !isEditing && onSelect(session.id)}
       >
         {isEditing ? (
-          <div className={styles.editingContainer} onClick={e => e.stopPropagation()}>
+          <div
+            className={styles.editingContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
@@ -138,9 +137,7 @@ export const BPlusHistorySessionItem: React.FC<BPlusHistorySessionItemProps> = (
         ) : (
           <>
             <div className={styles.titleContainer}>
-              <div className={styles.title}>
-                {session.name}
-              </div>
+              <div className={styles.title}>{session.name}</div>
               <div className={styles.infoContainer}>
                 <div className={styles.dateInfo}>
                   <span>{formatTime(session.updatedAt)}</span>
@@ -153,10 +150,13 @@ export const BPlusHistorySessionItem: React.FC<BPlusHistorySessionItemProps> = (
               </div>
             </div>
 
-            <div className={styles.actionButton} onClick={e => e.stopPropagation()}>
+            <div
+              className={styles.actionButton}
+              onClick={(e) => e.stopPropagation()}
+            >
               <Dropdown
                 menu={{ items: menuItems }}
-                trigger={['click']}
+                trigger={["click"]}
                 placement="bottomRight"
               >
                 <Button
@@ -179,28 +179,24 @@ export const BPlusHistoryStepItem: React.FC<BPlusHistoryStepItemProps> = ({
   stepIndex,
   isActive,
   isCurrent,
-  onSelect
+  onSelect,
 }) => {
   return (
     <div className={`${styles.globalStylesContainer}`}>
       <div
-        className={`${styles.historyItem} ${isActive ? styles.active : ''}`}
+        className={`${styles.historyItem} ${isActive ? styles.active : ""}`}
         onClick={() => onSelect(stepIndex)}
       >
         <div className={styles.stepItem}>
           <div className={`${styles.stepIcon} ${styles[step.operation]}`}>
             {getOperationIcon(step.operation)}
           </div>
-          
+
           <div className={styles.stepContent}>
-            <div className={styles.stepDescription}>
-              {step.description}
-            </div>
-            <div className={styles.stepTime}>
-              {formatTime(step.timestamp)}
-            </div>
+            <div className={styles.stepDescription}>{step.description}</div>
+            <div className={styles.stepTime}>{formatTime(step.timestamp)}</div>
           </div>
-          
+
           {isCurrent && (
             <div className={styles.currentStepIndicator}>
               <CaretRightOutlined />

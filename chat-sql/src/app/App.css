@@ -1,10 +1,10 @@
 /* App.css */
 .app-container {
-    display: flex;
-    height: calc(100vh - var(--navbar-height));
-    width: 100vw;
-    overflow: hidden;
-    margin-top: var(--navbar-height);
+  display: flex;
+  height: calc(100vh - var(--navbar-height));
+  width: 100vw;
+  overflow: hidden;
+  margin-top: var(--navbar-height);
 }
 
 .sidebar-container {
@@ -76,13 +76,14 @@
   .editor-area {
     flex-direction: column;
   }
-  
-  .sql-editor, .result-area {
+
+  .sql-editor,
+  .result-area {
     flex: none;
     height: 50%;
     width: 100%;
   }
-  
+
   .sql-editor {
     border-right: none;
     border-bottom: 1px solid var(--sidebar-border);
@@ -100,7 +101,8 @@
 }
 
 /* 确保内容区域有正确的高度 */
-.upper-content, .lower-content {
+.upper-content,
+.lower-content {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -113,14 +115,13 @@
   position: relative;
 }
 
-
-.lower-left-panel{
+.lower-left-panel {
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
 
-.lower-left-content{
+.lower-left-content {
   height: 100%;
   width: 100%;
   overflow: hidden;

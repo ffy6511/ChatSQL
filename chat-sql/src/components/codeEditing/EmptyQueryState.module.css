@@ -6,11 +6,10 @@
   padding: 2rem;
   height: 100%;
   background-color: var(--card-bg) !important;
-  border-radius: 8px; 
+  border-radius: 8px;
   border: 1px dashed var(--card-border) !important;
   transition: all 0.3s ease;
 }
-
 
 .icon {
   font-size: 6rem !important;

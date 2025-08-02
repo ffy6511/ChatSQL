@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ListItem,
   ListItemButton,
@@ -9,13 +9,13 @@ import {
   Menu,
   MenuItem,
   Badge,
-} from '@mui/material';
+} from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-} from '@mui/icons-material';
-import { ChatHistory } from '@/types/chatBotTypes/chatbot';
+} from "@mui/icons-material";
+import { ChatHistory } from "@/types/chatBotTypes/chatbot";
 
 interface HistoryItemProps {
   history: ChatHistory;
@@ -33,11 +33,11 @@ const formatTimeDisplay = (timestamp: string) => {
 
   if (diffInHours < 24) {
     if (diffInHours < 1) {
-      return '刚刚';
+      return "刚刚";
     }
     return `${Math.floor(diffInHours)}小时前`;
   } else if (diffInHours < 48) {
-    return '昨天';
+    return "昨天";
   } else {
     const days = Math.floor(diffInHours / 24);
     return `${days}天前`;
@@ -46,8 +46,10 @@ const formatTimeDisplay = (timestamp: string) => {
 
 // 截断标题
 const truncateTitle = (title: string, maxLength: number = 17) => {
-  if (!title) return '未命名对话';
-  return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title;
+  if (!title) return "未命名对话";
+  return title.length > maxLength
+    ? `${title.substring(0, maxLength)}...`
+    : title;
 };
 
 const HistoryItem: React.FC<HistoryItemProps> = ({
@@ -58,7 +60,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   onEditTitle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editingTitle, setEditingTitle] = useState(history.title || '');
+  const [editingTitle, setEditingTitle] = useState(history.title || "");
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -72,7 +74,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
 
   const handleEditClick = () => {
     setIsEditing(true);
-    setEditingTitle(history.title || '');
+    setEditingTitle(history.title || "");
     handleMenuClose();
   };
 
@@ -85,7 +87,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditingTitle(history.title || '');
+    setEditingTitle(history.title || "");
   };
 
   const handleDeleteClick = () => {
@@ -108,21 +110,30 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
           sx={{
             borderRadius: 1,
             mb: 0.5,
-            backgroundColor: isSelected ? 'var(--hover-bg)' : 'transparent',
-            '&:hover': {
-              backgroundColor: isSelected ? 'var(--hover-bg)' : 'var(--hover-bg)',
+            backgroundColor: isSelected ? "var(--hover-bg)" : "transparent",
+            "&:hover": {
+              backgroundColor: isSelected
+                ? "var(--hover-bg)"
+                : "var(--hover-bg)",
             },
-            '&.Mui-selected': {
-              backgroundColor: 'var(--hover-bg)',
-              '&:hover': {
-                backgroundColor: 'var(--hover-bg)',
+            "&.Mui-selected": {
+              backgroundColor: "var(--hover-bg)",
+              "&:hover": {
+                backgroundColor: "var(--hover-bg)",
               },
             },
             px: 2,
             py: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}> 
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+              gap: 1,
+            }}
+          >
             {/* 内容区域 */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
               {isEditing ? (
@@ -131,18 +142,18 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   value={editingTitle}
                   onChange={(e) => setEditingTitle(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       handleSaveTitle();
-                    } else if (e.key === 'Escape') {
+                    } else if (e.key === "Escape") {
                       handleCancelEdit();
                     }
                   }}
                   onBlur={handleSaveTitle}
                   autoFocus
                   sx={{
-                    width: '100%',
-                    '& .MuiInputBase-input': {
-                      fontSize: '0.875rem',
+                    width: "100%",
+                    "& .MuiInputBase-input": {
+                      fontSize: "0.875rem",
                       py: 0.5,
                     },
                   }}
@@ -150,29 +161,35 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               ) : (
                 <Box>
                   {/* 标题和更多按钮 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Typography
                       variant="body2"
                       sx={{
-                        color: 'var(--primary-text)',
+                        color: "var(--primary-text)",
                         fontWeight: isSelected ? 600 : 400,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                         flex: 1,
                         mr: 1,
                       }}
                     >
-                      {truncateTitle(history.title || '')}
+                      {truncateTitle(history.title || "")}
                     </Typography>
                     <IconButton
                       size="small"
                       onClick={handleMenuOpen}
                       sx={{
                         opacity: 0,
-                        transition: 'opacity 0.2s',
-                        '.MuiListItemButton-root:hover &': { opacity: 1 },
-                        color: 'var(--icon-color)',
+                        transition: "opacity 0.2s",
+                        ".MuiListItemButton-root:hover &": { opacity: 1 },
+                        color: "var(--icon-color)",
                         p: 0.25,
                       }}
                     >
@@ -181,12 +198,19 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   </Box>
 
                   {/* 时间和消息数量 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mt: 0.5,
+                    }}
+                  >
                     <Typography
                       variant="caption"
                       sx={{
-                        color: 'var(--secondary-text)',
-                        fontSize: '0.75rem',
+                        color: "var(--secondary-text)",
+                        fontSize: "0.75rem",
                       }}
                     >
                       {formatTimeDisplay(history.timestamp)}
@@ -194,10 +218,10 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     <Badge
                       badgeContent={history.messages.length}
                       sx={{
-                        '& .MuiBadge-badge': {
-                          backgroundColor: 'var(--badge-bg)',
-                          color: 'var(--badge-text)',
-                          fontSize: '0.625rem',
+                        "& .MuiBadge-badge": {
+                          backgroundColor: "var(--badge-bg)",
+                          color: "var(--badge-text)",
+                          fontSize: "0.625rem",
                           height: 16,
                           minWidth: 16,
                         },
@@ -219,25 +243,28 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
         slotProps={{
           paper: {
             sx: {
-              backgroundColor: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
+              backgroundColor: "var(--card-bg)",
+              border: "1px solid var(--card-border)",
               minWidth: 120,
             },
           },
         }}
       >
-        <MenuItem onClick={handleEditClick} sx={{ fontSize: '0.875rem', py: 1 }}>
+        <MenuItem
+          onClick={handleEditClick}
+          sx={{ fontSize: "0.875rem", py: 1 }}
+        >
           <EditIcon sx={{ mr: 1, fontSize: 16 }} />
           编辑标题
         </MenuItem>
-        <MenuItem 
-          onClick={handleDeleteClick} 
-          sx={{ 
-            fontSize: '0.875rem', 
+        <MenuItem
+          onClick={handleDeleteClick}
+          sx={{
+            fontSize: "0.875rem",
             py: 1,
-            color: '#f44336',
-            '&:hover': {
-              backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            color: "#f44336",
+            "&:hover": {
+              backgroundColor: "rgba(244, 67, 54, 0.1)",
             },
           }}
         >
