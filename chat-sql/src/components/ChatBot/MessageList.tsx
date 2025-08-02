@@ -170,7 +170,7 @@ const MessageList: React.FC<MessageListProps> = ({
           }}
         >
           <Box>
-            <Typography variant='body2' color='var(--secondary-text)'>
+            <Typography variant='h6' color='var(--secondary-text)'>
               有什么可以帮您？
             </Typography>
           </Box>

@@ -6,25 +6,34 @@ import {
   Card,
   CardContent,
   IconButton,
-  Chip,
   Stack,
   Divider,
   Typography,
   Tooltip,
   Collapse,
   TextField,
-  MenuItem,
-  Menu,
   Button,
-  Autocomplete,
 } from "@mui/material";
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
   TableChart as TableChartIcon,
-  Edit as EditIcon,
   Delete as DeleteIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  MoreVert as MoreVertIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
 import { useERDiagramContext } from "@/contexts/ERDiagramContext";
@@ -32,21 +41,20 @@ import { ERAttribute } from "@/types/ERDiagramTypes/erDiagram";
 import { useAttributeEditor } from "@/hooks/useAttributeEditor";
 import {
   dataTypeParamConfig,
-  dataTypeOptions,
   parseDataType,
-  buildDataType,
   getDefaultParams,
 } from "@/types/ERDiagramTypes/dataTypes";
+import SortableAttributeItem from "./SortableAttributeItem";
 import styles from "./Inspector.module.css";
 
 const EntityListView: React.FC = () => {
   const {
     state,
     deleteEntity,
-    setSelectedElement,
     updateAttribute,
     addAttribute,
     deleteAttribute,
+    updateAttributeOrder,
     renameNode,
   } = useERDiagramContext();
   const entities = state.diagramData?.entities || [];
@@ -79,6 +87,54 @@ const EntityListView: React.FC = () => {
     deleteAttribute,
   });
 
+  // 拖拽传感器配置
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // 处理拖拽结束事件
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    // 解析拖拽项的 ID，格式为 "entityId-attributeId"
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const [entityId] = activeId.split("-");
+    const entity = entities.find((e) => e.id === entityId);
+
+    if (!entity) return;
+
+    const oldIndex = entity.attributes.findIndex(
+      (attr) => `${entityId}-${attr.id}` === activeId
+    );
+    const newIndex = entity.attributes.findIndex(
+      (attr) => `${entityId}-${attr.id}` === overId
+    );
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newAttributeOrder = arrayMove(
+        entity.attributes,
+        oldIndex,
+        newIndex
+      );
+      const newAttributeIds = newAttributeOrder.map((attr) => attr.id);
+
+      try {
+        await updateAttributeOrder(entityId, newAttributeIds);
+      } catch (error) {
+        console.error("拖拽排序失败:", error);
+      }
+    }
+  };
+
   // 生成新属性的辅助函数
   const generateNewAttribute = (): ERAttribute => {
     const timestamp = Date.now();
@@ -96,15 +152,6 @@ const EntityListView: React.FC = () => {
   const handleAddAttribute = async (entityId: string) => {
     const newAttribute = generateNewAttribute();
     await addAttribute(entityId, newAttribute);
-  };
-
-  // 属性菜单处理函数
-  const handleDeleteAttributeFromMenu = async (
-    entityId: string,
-    attributeId: string
-  ) => {
-    handleMenuClose();
-    await handleDeleteAttribute(entityId, attributeId);
   };
 
   // 顶层 useEffect 初始化 attributeParams(避免前后属性改变后hook调用 的数量差异)
@@ -181,232 +228,7 @@ const EntityListView: React.FC = () => {
     setIsEntityComposing((prev) => ({ ...prev, [entityId]: false }));
   };
 
-  const handleAttributeKeyChange = (
-    entityId: string,
-    attributeId: string,
-    isPrimaryKey: boolean
-  ) => {
-    updateAttribute(entityId, attributeId, { isPrimaryKey });
-  };
-
   // 数据类型选项已从 @/types/dataTypes 导入
-
-  const renderAttributeItem = (attribute: ERAttribute, entityId: string) => {
-    const isWeakEntity = entities.find((e) => e.id === entityId)?.isWeakEntity;
-    // 解析当前类型和参数
-    const { typeName } = parseDataType(attribute.dataType || "VARCHAR");
-    return (
-      <Box
-        key={attribute.id}
-        sx={{
-          p: 1,
-          borderRadius: 1,
-          mb: 1,
-          bgcolor: "background.paper",
-          border: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Stack
-          direction='row'
-          alignItems='center'
-          spacing={1}
-          sx={{ overflow: "hidden", flexWrap: "nowrap" }}
-        >
-          <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
-            <TextField
-              size='small'
-              value={
-                editingNames[attribute.id] !== undefined
-                  ? editingNames[attribute.id]
-                  : attribute.name
-              }
-              onChange={(e) => handleNameChange(attribute.id, e.target.value)}
-              onBlur={() => handleNameSave(entityId, attribute.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isComposing[attribute.id]) {
-                  e.preventDefault();
-                  handleNameSave(entityId, attribute.id);
-                  (e.target as HTMLInputElement).blur();
-                }
-              }}
-              onCompositionStart={() => handleCompositionStart(attribute.id)}
-              onCompositionEnd={() => handleCompositionEnd(attribute.id)}
-              variant='outlined'
-              placeholder='属性名称'
-              sx={{
-                maxWidth: "100px",
-                "& .MuiInputBase-input": {
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  fontSize: "0.8em",
-                },
-              }}
-            />
-
-            {/* 数据类型编辑 */}
-            <Autocomplete
-              disableClearable
-              size='small'
-              value={typeName}
-              onChange={(_, newValue) => {
-                if (newValue) {
-                  handleTypeChange(entityId, attribute.id, newValue);
-                }
-              }}
-              options={dataTypeOptions}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant='outlined'
-                  sx={{
-                    maxWidth: "180px",
-                    "& .MuiInputBase-input": {
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      fontSize: "0.8em",
-                    },
-                  }}
-                />
-              )}
-              sx={{ minWidth: "140px" }}
-            />
-          </Box>
-
-          {/* 主键标识移到右侧，优化样式 */}
-          <Chip
-            label={isWeakEntity ? "DIS" : "PK"}
-            size='small'
-            variant={attribute.isPrimaryKey ? "filled" : "outlined"}
-            clickable
-            onClick={() =>
-              handleAttributeKeyChange(
-                entityId,
-                attribute.id,
-                !attribute.isPrimaryKey
-              )
-            }
-            sx={{
-              cursor: "pointer",
-              borderRadius: "8px",
-              border: "none",
-              background: attribute.isPrimaryKey
-                ? isWeakEntity
-                  ? "#e3f2fd"
-                  : "#ffeaea"
-                : "var(--card-border)",
-              // 只改 label 字体颜色
-              "& .MuiChip-label": {
-                color: attribute.isPrimaryKey
-                  ? isWeakEntity
-                    ? "#1976d2"
-                    : "#D3302F"
-                  : "var(--secondary-text)",
-                fontWeight: "bold",
-                // fontSize: 13,
-                letterSpacing: "1px",
-              },
-              "&:hover": {
-                opacity: 0.8,
-                transition: "all 0.2s ease",
-              },
-            }}
-          />
-
-          {/* 属性操作菜单 */}
-          <Tooltip title='属性操作'>
-            <IconButton
-              size='small'
-              onClick={(e) => handleMenuOpen(e, attribute.id)}
-              sx={{
-                opacity: 0.6,
-                "&:hover": {
-                  opacity: 1,
-                  backgroundColor: "var(--hover-bg)",
-                },
-              }}
-            >
-              <MoreVertIcon fontSize='small' />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-
-        {/* 属性操作菜单 */}
-        <Menu
-          anchorEl={menuAnchor[attribute.id]}
-          open={Boolean(menuAnchor[attribute.id])}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          {/* 根据数据类型显示参数编辑选项 */}
-          {dataTypeParamConfig[typeName] && (
-            <div>
-              {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
-                // 解析当前参数值
-                const { params: currentParams } = parseDataType(
-                  attribute.dataType || ""
-                );
-                const currentValue = currentParams[idx] || "";
-
-                return (
-                  <MenuItem
-                    key={label}
-                    sx={{
-                      flexDirection: "column",
-                      alignItems: "stretch",
-                      py: 1,
-                    }}
-                  >
-                    <TextField
-                      label={label}
-                      size='small'
-                      value={currentValue}
-                      onChange={(e) =>
-                        handleParamChange(
-                          entityId,
-                          attribute.id,
-                          idx,
-                          e.target.value,
-                          typeName
-                        )
-                      }
-                      onClick={(e) => e.stopPropagation()} // 防止点击输入框时关闭菜单
-                      sx={{
-                        minWidth: "120px",
-                        "& .MuiInputBase-input": {
-                          fontSize: "0.8em",
-                        },
-                      }}
-                    />
-                  </MenuItem>
-                );
-              })}
-              <Divider />
-            </div>
-          )}
-
-          <MenuItem
-            onClick={() =>
-              handleDeleteAttributeFromMenu(entityId, attribute.id)
-            }
-            sx={{ color: "error.main" }}
-          >
-            <DeleteIcon fontSize='small' sx={{ mr: 1 }} />
-            删除
-          </MenuItem>
-        </Menu>
-      </Box>
-    );
-  };
 
   return (
     <Box>
@@ -482,11 +304,13 @@ const EntityListView: React.FC = () => {
                         handleEntityCompositionEnd(entity.id)
                       }
                       variant='standard'
-                      InputProps={{
-                        disableUnderline: true,
-                        style: {
-                          fontWeight: "500",
-                          fontSize: "inherit",
+                      slotProps={{
+                        input: {
+                          disableUnderline: true,
+                          style: {
+                            fontWeight: "500",
+                            fontSize: "inherit",
+                          },
                         },
                       }}
                       sx={{
@@ -539,9 +363,62 @@ const EntityListView: React.FC = () => {
                         暂无属性
                       </Typography>
                     ) : (
-                      entity.attributes.map((attr) =>
-                        renderAttributeItem(attr, entity.id)
-                      )
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <SortableContext
+                          items={entity.attributes.map(
+                            (attr) => `${entity.id}-${attr.id}`
+                          )}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {entity.attributes.map((attr) => (
+                            <SortableAttributeItem
+                              key={attr.id}
+                              id={`${entity.id}-${attr.id}`}
+                              attribute={attr}
+                              entityId={entity.id}
+                              editingName={editingNames[attr.id] || attr.name}
+                              isComposing={isComposing[attr.id] || false}
+                              menuAnchor={menuAnchor[attr.id] || null}
+                              onNameChange={(value) =>
+                                handleNameChange(attr.id, value)
+                              }
+                              onNameSave={() =>
+                                handleNameSave(entity.id, attr.id)
+                              }
+                              onCompositionStart={() =>
+                                handleCompositionStart(attr.id)
+                              }
+                              onCompositionEnd={() =>
+                                handleCompositionEnd(attr.id)
+                              }
+                              onMenuOpen={(e) => handleMenuOpen(e, attr.id)}
+                              onMenuClose={() => handleMenuClose()}
+                              onDeleteAttribute={() =>
+                                handleDeleteAttribute(entity.id, attr.id)
+                              }
+                              onTypeChange={(newType) =>
+                                handleTypeChange(entity.id, attr.id, newType)
+                              }
+                              onParamChange={(paramIndex, value) => {
+                                const { typeName } = parseDataType(
+                                  attr.dataType || "VARCHAR"
+                                );
+                                handleParamChange(
+                                  entity.id,
+                                  attr.id,
+                                  paramIndex,
+                                  value,
+                                  typeName
+                                );
+                              }}
+                            />
+                          ))}
+                        </SortableContext>
+                      </DndContext>
                     )}
 
                     {/* 添加属性按钮 */}
