@@ -28,19 +28,6 @@ export const dataTypeParamConfig: Record<string, DataTypeParamConfig> = {
       }
     ]
   },
-  char: { 
-    paramCount: 1, 
-    paramLabels: ['Length'],
-    defaultValues: ['1'],
-    validation: [
-      {
-        required: false,
-        pattern: /^\d+$/,
-        min: 1,
-        max: 255
-      }
-    ]
-  },
   CHAR: { 
     paramCount: 1, 
     paramLabels: ['Length'],
@@ -122,7 +109,6 @@ export const dataTypeParamConfig: Record<string, DataTypeParamConfig> = {
 export const dataTypeOptions: string[] = [
   'VARCHAR',
   'INT',
-  'char',
   'CHAR',
   'TEXT',
   'NUMERIC',
@@ -143,7 +129,7 @@ export const dataTypeOptions: string[] = [
 
 // 数据类型分类（用于UI分组显示）
 export const dataTypeCategories = {
-  '字符串类型': ['VARCHAR', 'char', 'CHAR', 'TEXT', 'ENUM'],
+  '字符串类型': ['VARCHAR', 'CHAR', 'TEXT', 'ENUM'],
   '数值类型': ['INT', 'SMALLINT', 'BIGINT', 'NUMERIC', 'DECIMAL', 'FLOAT', 'DOUBLE PRECISION'],
   '日期时间类型': ['DATE', 'TIME', 'TIMESTAMP', 'INTERVAL'],
   '其他类型': ['BOOLEAN', 'BLOB', 'JSON']

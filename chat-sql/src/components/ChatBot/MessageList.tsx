@@ -1,23 +1,18 @@
 // 消息列表组件
 
-import React, { useEffect, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  CircularProgress,
-  Tooltip,
-  IconButton,
-} from '@mui/material';
+import React, { use, useEffect, useRef, useState } from "react";
+import { Box, Typography, Paper, CircularProgress } from "@mui/material";
 import {
   SmartToy as AIIcon,
   Person as UserIcon,
   ContentCopy as CopyIcon,
-} from '@mui/icons-material';
-import { MessageListProps, Message } from '@/types/chatBotTypes/chatbot';
-import { formatTimestamp } from '@/utils/chatbot/storage';
-import MessageContentRenderer from './renderers/MessageContentRenderer';
-import styles from './MessageList.module.css';
+} from "@mui/icons-material";
+import { MessageListProps, Message } from "@/types/chatBotTypes/chatbot";
+import { formatTimestamp } from "@/utils/chatbot/storage";
+import MessageContentRenderer from "./renderers/MessageContentRenderer";
+import ShinyText from "@/components/common/ShinyText";
+import { chatLoadingTips } from "@/data/chatLoadingTips";
+import styles from "./MessageList.module.css";
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,
@@ -25,9 +20,44 @@ const MessageList: React.FC<MessageListProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 加载tips的状态
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [currentTip, setCurrentTip] = useState("");
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isLoading) {
+      setCurrentTip(
+        chatLoadingTips[Math.floor(Math.random() * chatLoadingTips.length)]
+      );
+
+      timer = setInterval(() => {
+        setElapsedTime((prev) => {
+          const next = prev + 1;
+          if (next % 5 === 0) {
+            setCurrentTip(
+              chatLoadingTips[
+                Math.floor(Math.random() * chatLoadingTips.length)
+              ]
+            );
+          }
+          return next;
+        });
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+      return;
+    }
+
+    return () => {
+      clearInterval(timer);
+      setElapsedTime(0);
+    };
+  }, [isLoading]);
+
   // 自动滚动到底部
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -39,22 +69,22 @@ const MessageList: React.FC<MessageListProps> = ({
     try {
       await navigator.clipboard.writeText(content);
     } catch (error) {
-      console.error('Failed to copy message:', error);
+      console.error("Failed to copy message:", error);
     }
   };
 
   // 渲染单条消息
   const renderMessage = (message: Message) => {
-    const isUser = message.sender === 'user';
+    const isUser = message.sender === "user";
 
     return (
       <Box
         key={message.id}
         sx={{
-          display: 'flex',
+          display: "flex",
           mb: 1,
-          alignItems: 'flex-start',
-          justifyContent: isUser ? 'flex-end' : 'flex-start',
+          alignItems: "flex-start",
+          justifyContent: isUser ? "flex-end" : "flex-start",
         }}
       >
         {/* AI头像 */}
@@ -63,16 +93,16 @@ const MessageList: React.FC<MessageListProps> = ({
             sx={{
               width: 32,
               height: 32,
-              borderRadius: '50%',
-              backgroundColor: 'var(--link-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderRadius: "50%",
+              backgroundColor: "var(--link-color)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               mr: 1,
               flexShrink: 0,
             }}
           >
-            <AIIcon sx={{ fontSize: 18, color: 'white' }} />
+            <AIIcon sx={{ fontSize: 18, color: "white" }} />
           </Box>
         )}
 
@@ -81,15 +111,15 @@ const MessageList: React.FC<MessageListProps> = ({
           elevation={1}
           className={isUser ? styles.userMessage : styles.aiMessage}
           sx={{
-            p: '4px',
-            borderRadius: '16px',
-            position: 'relative',
-            '&:hover .message-actions': {
+            p: "4px",
+            borderRadius: "16px",
+            position: "relative",
+            "&:hover .message-actions": {
               opacity: 1,
             },
-            maxWidth: '80%',
-            alignSelf: isUser ? 'flex-end' : 'flex-start',
-            wordBreak: 'break-word',
+            maxWidth: "80%",
+            alignSelf: isUser ? "flex-end" : "flex-start",
+            wordBreak: "break-word",
           }}
         >
           {/* 消息内容渲染 */}
@@ -101,12 +131,12 @@ const MessageList: React.FC<MessageListProps> = ({
 
           {/* 时间戳 */}
           <Typography
-            variant="caption"
+            variant='caption'
             sx={{
-              display: 'block',
+              display: "block",
               mt: 1,
-              color: 'var(--secondary-text)',
-              textAlign: isUser ? 'left' : 'right',
+              color: "var(--secondary-text)",
+              textAlign: isUser ? "left" : "right",
               mr: isUser ? 0 : 1,
               ml: isUser ? 1 : 0,
             }}
@@ -122,10 +152,10 @@ const MessageList: React.FC<MessageListProps> = ({
     <Box
       sx={{
         flex: 1,
-        overflowY: 'auto',
+        overflowY: "auto",
         p: 2,
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* 消息列表 */}
@@ -133,14 +163,14 @@ const MessageList: React.FC<MessageListProps> = ({
         <Box
           sx={{
             flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
           }}
         >
           <Box>
-            <Typography variant="body2" color="var(--secondary-text)">
+            <Typography variant='body2' color='var(--secondary-text)'>
               有什么可以帮您？
             </Typography>
           </Box>
@@ -148,14 +178,14 @@ const MessageList: React.FC<MessageListProps> = ({
       ) : (
         <>
           {messages.map(renderMessage)}
-          
+
           {/* 加载指示器 */}
           {isLoading && (
             <Box
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
                 mb: 2,
               }}
             >
@@ -163,33 +193,43 @@ const MessageList: React.FC<MessageListProps> = ({
                 sx={{
                   width: 32,
                   height: 32,
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--link-color)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  borderRadius: "50%",
+                  backgroundColor: "var(--link-color)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   mr: 1,
                   flexShrink: 0,
                 }}
               >
-                <AIIcon sx={{ fontSize: 18, color: 'white' }} />
+                <AIIcon sx={{ fontSize: 18, color: "white" }} />
               </Box>
-              
+
               <Paper
                 elevation={1}
                 sx={{
                   p: 2,
-                  backgroundColor: 'var(--card-bg)',
-                  borderRadius: '16px 16px 16px 0',
-                  border: '1px solid var(--card-border)',
-                  display: 'flex',
-                  alignItems: 'center',
+                  backgroundColor: "var(--card-bg)",
+                  borderRadius: "16px 16px 16px 0",
+                  border: "1px solid var(--card-border)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
                   gap: 1,
                 }}
               >
-                <CircularProgress size={16} />
-                <Typography variant="body2" color="var(--secondary-text)">
-                  正在思考...
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <ShinyText text='正在思考中...' speed={3} />
+                  <Typography variant='body2' color='var(--secondary-text)'>
+                    {elapsedTime}s
+                  </Typography>
+                </Box>
+                <Typography
+                  variant='caption'
+                  color='var(--secondary-text)'
+                  sx={{ mt: 1 }}
+                >
+                  {currentTip}
                 </Typography>
               </Paper>
             </Box>
