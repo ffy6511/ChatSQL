@@ -1,7 +1,7 @@
 // src/styles/theme.ts
 "use client";
 
-import { createTheme } from "@mui/material/styles";
+import { createTheme, StyledEngineProvider } from "@mui/material/styles";
 
 const theme = createTheme({
   components: {
@@ -35,6 +35,15 @@ const theme = createTheme({
           },
         },
       },
+    },
+
+    // Table样式覆盖
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          color: "var(--secondary-text)",
+        }
+      }
     },
 
     // Button 组件全局样式覆盖
@@ -90,6 +99,14 @@ const theme = createTheme({
           boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
         },
       },
+    },
+
+    MuiInputBase: {
+      styleOverrides: {
+        root:{
+          color: 'var(--secondary-text)',
+        }
+      }
     },
 
     // Card 组件全局样式覆盖
@@ -206,6 +223,36 @@ const theme = createTheme({
       },
     },
 
+
+    // MuiAutocomplete 补全相关
+    MuiAutocomplete: {
+      styleOverrides: {
+        // 控制输入框部分
+        root: {
+          color: 'var(--secondary-text)',
+        },
+        // 控制输入框里的文字
+        input: {
+          color: 'var(--secondary-text)',
+        },
+        // 控制下拉列表整体容器（listbox）
+        listbox: {
+          color: 'var(--primary-text)',  // 设置选项文字颜色
+          backgroundColor: 'var(--card-bg)',  // 设置下拉背景
+        },
+        // 控制每个选项项
+        option: {
+          color: 'var(--primary-text)',
+          '&[aria-selected="true"]': {
+            backgroundColor: 'var(--button-hover)',
+          },
+          '&:hover': {
+            backgroundColor: 'var(--button-hover)',
+          },
+        },
+      },
+    },
+    
     // Chip 组件全局样式覆盖
     MuiChip: {
       styleOverrides: {
@@ -277,7 +324,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "8px",
-          border: "1px solid",
+          border: "none",
         },
         standardSuccess: {
           backgroundColor: "var(--success-bg)",

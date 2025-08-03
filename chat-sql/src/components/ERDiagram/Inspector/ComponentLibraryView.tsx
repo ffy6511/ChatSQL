@@ -29,28 +29,26 @@ const ComponentLibraryView: React.FC = () => {
   const components = [
     {
       id: "strong-entity",
-      name: "Strong entity set",
+      name: "强实体集",
       icon: BorderAllIcon,
       type: "strong-entity",
-      description:
-        "an entity type that can exist independently and has its own primary key",
+      description: "可以独立存在并拥有自己主键的实体类型",
       color: "#448fd6", // 蓝色
     },
     {
       id: "weak-entity",
-      name: "Weak entity set",
+      name: "弱实体集",
       icon: BorderAllIcon,
       type: "weak-entity",
-      description: "its existence depends on another (strong) entity set",
+      description: "其存在依赖于另一个(强)实体集",
       color: "#bd62eb", // 紫色
     },
     {
       id: "relationship",
-      name: "Relationship",
+      name: "关系",
       icon: DiamondIcon,
       type: "diamond",
-      description:
-        "represents a connection or association between different entity sets",
+      description: "表示不同实体集之间的连接或关联",
       color: "#ebcd62", // 绿色
     },
   ];
@@ -58,10 +56,10 @@ const ComponentLibraryView: React.FC = () => {
   return (
     <Box>
       <Typography
-        variant="h6"
+        variant='h6'
         sx={{ display: "flex", alignItems: "center", gap: 1 }}
       >
-        <AppsIcon sx={{ color: "#1976d2", mr: 1 }} /> Component Library
+        <AppsIcon sx={{ color: "#1976d2", mr: 1 }} /> 组件库
       </Typography>
       <Divider sx={{ my: 1 }} />
       <Stack spacing={1} sx={{ mb: 2 }}>
@@ -84,10 +82,10 @@ const ComponentLibraryView: React.FC = () => {
             >
               <component.icon sx={{ color: component.color }} />
               <Box>
-                <Typography fontWeight="bold" color="var(--primary-text)">
+                <Typography fontWeight='bold' color='var(--primary-text)'>
                   {component.name}
                 </Typography>
-                <Typography variant="body2" color="var(--secondary-text)">
+                <Typography variant='body2' color='var(--secondary-text)'>
                   {component.description}
                 </Typography>
               </Box>
@@ -100,16 +98,14 @@ const ComponentLibraryView: React.FC = () => {
           mt: 2,
           p: 1.5,
           borderRadius: 1,
-          borderLeft: 3,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           bgcolor: "var(--card-border)",
         }}
       >
-        <Typography variant="body2" color="var(--secondary-text)">
-          Drag and drop the component on the canvas..{" "}
-        </Typography>
-        <Typography variant="body2" color="var(--secondary-text)">
-          Double-click the node on the canvas to edit the name.
-        </Typography>
+        <Typography variant='body2'>将组件拖放到画布上。</Typography>
+        <Typography variant='body2'>或者右键单击画布以创建新节点。</Typography>
       </Box>
     </Box>
   );

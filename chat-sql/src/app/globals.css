@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* 全局的删除按钮样式 */
+.deleteButton {
+  opacity: 0.6;
+  transition: all 0.3s ease-in-out;
+}
+
+.deleteButton:hover {
+  opacity: 1;
+  color: var(--error-color) !important;
+  background-color: var(--hover-bg);
+}
+
 :root {
   /* 基础颜色 */
   --background: #ffffff;
@@ -374,10 +386,8 @@ hr {
 [data-theme="dark"] .ant-dropdown-menu {
   background-color: #1f1f1f !important;
   border-color: #333 !important;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.48),
-    0 6px 16px 0 rgba(0, 0, 0, 0.32),
-    0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+    0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="dark"] .ant-dropdown-menu-item {

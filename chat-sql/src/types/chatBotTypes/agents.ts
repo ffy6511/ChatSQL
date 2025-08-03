@@ -363,11 +363,11 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
       },
       {
         name: "erDiagramDone",
-        label: "选择你的ER图设计",
+        label: "选择您的ER图设计",
         description: "从历史记录中选择你设计的ER图",
         type: "er-diagram-selector",
         required: true,
-        placeholder: "请选择你设计的ER图",
+        placeholder: "选中您设计的ER图,JSON字段将显示在这里",
       },
     ],
   },

@@ -117,7 +117,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         };
       });
     },
-    [],
+    []
   );
 
   // Tab切换处理
@@ -126,7 +126,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
       setActiveTabIndex(newTabIndex);
       // ER模块使用独立的消息状态，不需要会话管理
     },
-    [],
+    []
   );
 
   // 打开历史记录模态框
@@ -174,7 +174,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
       }
       setHistoryModalOpen(false);
     },
-    [selectSession],
+    [selectSession]
   );
 
   // 转换历史记录格式 - 合并聊天会话和ER图记录
@@ -183,7 +183,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
       // 合并聊天会话和ER图特定记录
       const chatSessions: HistoryRecord[] = sessions
         .filter(
-          (session) => session.module === "ER" || session.messageCount > 0,
+          (session) => session.module === "ER" || session.messageCount > 0
         ) // 只显示ER模块或有消息的会话
         .map((session) => ({
           id: session.id,
@@ -203,7 +203,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         return timeB - timeA; // 降序排列，最新的在前
       });
     },
-    [sessions],
+    [sessions]
   );
 
   // 重命名历史记录包装函数
@@ -223,7 +223,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   const handleSendMessage = useCallback(
     async (
       agentType: string,
-      inputValues: Record<string, string>,
+      inputValues: Record<string, string>
     ): Promise<AgentOutputPart[] | null> => {
       try {
         // 直接发送消息到智能体，让ChatContext处理所有逻辑
@@ -233,7 +233,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         return null;
       }
     },
-    [sendAgentMessage],
+    [sendAgentMessage]
   );
 
   // 获取当前激活的智能体类型
@@ -244,7 +244,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
   const getTabIcon = (agentType: AgentType) => {
     const agentInfo = AGENTS_INFO[agentType];
     const IconComponent = ICON_MAP[agentInfo.icon as keyof typeof ICON_MAP];
-    return IconComponent ? <IconComponent fontSize="small" /> : null;
+    return IconComponent ? <IconComponent fontSize='small' /> : null;
   };
 
   return (
@@ -271,7 +271,7 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
         <Tabs
           value={activeTabIndex}
           onChange={handleTabChange}
-          variant="fullWidth"
+          variant='fullWidth'
           sx={{
             flex: 1,
             minHeight: 48,
@@ -294,9 +294,9 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
             <Tab
               key={tab.agentType}
               label={
-                <Stack direction="row" alignItems="center" spacing={0.5}>
+                <Stack direction='row' alignItems='center' spacing={0.5}>
                   {getTabIcon(tab.agentType)}
-                  <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+                  <Typography variant='caption' sx={{ fontSize: "0.75rem" }}>
                     {tab.label}
                   </Typography>
                 </Stack>
@@ -307,73 +307,73 @@ const ERAssistantPanel: React.FC<ERAssistantPanelProps> = () => {
 
         {/* 右侧按钮组 */}
         <Box sx={{ display: "flex", alignItems: "center", pr: 1 }}>
-          <Tooltip title="历史记录">
+          <Tooltip title='历史记录'>
             <IconButton
-              size="small"
+              size='small'
               sx={{ color: "var(--secondary-text)" }}
               onClick={handleHistoryClick}
             >
-              <HistoryIcon fontSize="small" />
+              <HistoryIcon fontSize='small' />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
       {/* 内容区域 */}
-      <Collapse in={true} timeout={200}>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          minHeight: 300,
+          overflow: "auto",
+        }}
+      >
+        {/* 消息列表 */}
         <Box
           sx={{
             flex: 1,
+            overflow: "auto",
             display: "flex",
             flexDirection: "column",
-            height: "calc(100vh - 200px)", // 动态高度
             minHeight: 300,
           }}
         >
-          {/* 消息列表 */}
-          <Box
-            sx={{
-              flex: 1,
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <MessageList
-              messages={convertChatMessagesToMessages(messages)}
-              isLoading={isLoading}
-            />
-          </Box>
-
-          {/* 输入区域 */}
-          <Box
-            sx={{
-              backgroundColor: "var(--input-bg)",
-              p: 1,
-              flexShrink: 0,
-            }}
-          >
-            <DynamicMessageInput
-              selectedAgent={currentAgentType}
-              onSendMessage={handleSendMessage}
-              disabled={isLoading}
-            />
-          </Box>
+          <MessageList
+            messages={convertChatMessagesToMessages(messages)}
+            isLoading={isLoading}
+          />
         </Box>
-      </Collapse>
+
+        {/* 输入区域 */}
+        <Box
+          sx={{
+            backgroundColor: "var(--input-bg)",
+            p: 1,
+            flexShrink: 0,
+          }}
+        >
+          <DynamicMessageInput
+            selectedAgent={currentAgentType}
+            onSendMessage={handleSendMessage}
+            disabled={isLoading}
+          />
+        </Box>
+      </Box>
 
       {/* 历史记录模态框 */}
       <HistoryModal
         open={historyModalOpen}
         onClose={handleHistoryClose}
-        title="历史会话"
+        title='历史会话'
         records={convertToHistoryRecords(sessions)}
         loading={isLoading}
         onSelect={handleHistorySelect}
         onDelete={handleDeleteSession}
         onEdit={handleRenameSession}
-        searchPlaceholder="搜索历史会话..."
-        emptyMessage="暂无历史会话"
+        searchPlaceholder='搜索历史会话...'
+        emptyMessage='暂无历史会话'
       />
     </Paper>
   );

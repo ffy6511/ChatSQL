@@ -58,10 +58,10 @@ const RelationshipListView: React.FC = () => {
   const relationships = state.diagramData?.relationships || [];
   const entities = state.diagramData?.entities || [];
   const [expandedRelationships, setExpandedRelationships] = useState<string[]>(
-    [],
+    []
   );
   const [editingConnection, setEditingConnection] = useState<string | null>(
-    null,
+    null
   );
 
   // 跟踪编辑的关系属性
@@ -72,7 +72,7 @@ const RelationshipListView: React.FC = () => {
     [relId: string]: string;
   }>({});
   const [isComposing, setIsComposing] = useState<{ [attrId: string]: boolean }>(
-    {},
+    {}
   );
   const [isRelationshipComposing, setIsRelationshipComposing] = useState<{
     [relId: string]: boolean;
@@ -107,7 +107,7 @@ const RelationshipListView: React.FC = () => {
   // 关系属性菜单处理函数
   const handleAttributeMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    attributeId: string,
+    attributeId: string
   ) => {
     event.stopPropagation();
     setAttributeMenuAnchor((prev) => ({
@@ -122,7 +122,7 @@ const RelationshipListView: React.FC = () => {
 
   const handleDeleteRelationshipAttributeFromMenu = async (
     relationshipId: string,
-    attributeId: string,
+    attributeId: string
   ) => {
     handleAttributeMenuClose();
     await deleteRelationshipAttribute(relationshipId, attributeId);
@@ -135,7 +135,7 @@ const RelationshipListView: React.FC = () => {
 
   const handleAttributeNameSave = async (
     relationshipId: string,
-    attributeId: string,
+    attributeId: string
   ) => {
     if (isComposing[attributeId]) {
       return;
@@ -166,7 +166,7 @@ const RelationshipListView: React.FC = () => {
 
   const handleRelationshipNameChange = (
     relationshipId: string,
-    newName: string,
+    newName: string
   ) => {
     setEditingRelationshipNames((prev) => ({
       ...prev,
@@ -206,7 +206,7 @@ const RelationshipListView: React.FC = () => {
   const handleAttributeTypeChange = (
     relationshipId: string,
     attributeId: string,
-    dataType: string,
+    dataType: string
   ) => {
     // 切换类型时，初始化参数输入
     if (dataTypeParamConfig[dataType]) {
@@ -227,12 +227,12 @@ const RelationshipListView: React.FC = () => {
     attributeId: string,
     paramIndex: number,
     value: string,
-    typeName: string,
+    typeName: string
   ) => {
     // 获取当前属性的参数
     const relationship = relationships.find((r) => r.id === relationshipId);
     const attribute = relationship?.attributes?.find(
-      (attr) => attr.id === attributeId,
+      (attr) => attr.id === attributeId
     );
     if (!attribute) return;
 
@@ -257,7 +257,7 @@ const RelationshipListView: React.FC = () => {
     relationships.forEach((relationship) => {
       relationship.attributes?.forEach((attribute) => {
         const { typeName, params } = parseDataType(
-          attribute.dataType || "VARCHAR",
+          attribute.dataType || "VARCHAR"
         );
 
         if (dataTypeParamConfig[typeName] && !attributeParams[attribute.id]) {
@@ -277,7 +277,7 @@ const RelationshipListView: React.FC = () => {
     setExpandedRelationships((prev) =>
       prev.includes(relationshipId)
         ? prev.filter((id) => id !== relationshipId)
-        : [...prev, relationshipId],
+        : [...prev, relationshipId]
     );
   };
 
@@ -290,7 +290,7 @@ const RelationshipListView: React.FC = () => {
       setExpandedRelationships((prev) =>
         prev.includes(state.selectedElementId!)
           ? prev
-          : [...prev, state.selectedElementId!],
+          : [...prev, state.selectedElementId!]
       );
     }
   }, [state.selectedElementId, relationships]);
@@ -316,7 +316,7 @@ const RelationshipListView: React.FC = () => {
   const handleCardinalityChange = (
     relationshipId: string,
     entityId: string,
-    newCardinality: string,
+    newCardinality: string
   ) => {
     updateConnection(relationshipId, entityId, {
       cardinality: newCardinality as ERConnection["cardinality"],
@@ -326,7 +326,7 @@ const RelationshipListView: React.FC = () => {
 
   const renderConnectionItem = (
     connection: ERConnection,
-    relationshipId: string,
+    relationshipId: string
   ) => {
     const isEditing =
       editingConnection === `${relationshipId}-${connection.entityId}`;
@@ -339,28 +339,29 @@ const RelationshipListView: React.FC = () => {
           alignItems: "center",
           gap: 1,
           p: 1,
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 1,
+          border: "1px solid var(--card-border)",
+          borderRadius: 2,
           mb: 1,
         }}
       >
-        <Typography sx={{ flex: 1 }}>
+        <Typography sx={{ flex: 1, ml: 1 }}>
           {getEntityName(connection.entityId)}
         </Typography>
 
         {isEditing ? (
-          <FormControl size="small" sx={{ minWidth: 80 }}>
+          <FormControl size='small' sx={{ minWidth: 40 }}>
             <Select
               value={connection.cardinality}
               onChange={(e) =>
                 handleCardinalityChange(
                   relationshipId,
                   connection.entityId,
-                  e.target.value,
+                  e.target.value
                 )
               }
+              onBlur={() => setEditingConnection(null)}
               autoFocus
+              onClose={() => setEditingConnection(null)}
             >
               {cardinalityOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -372,7 +373,6 @@ const RelationshipListView: React.FC = () => {
         ) : (
           <Chip
             label={connection.cardinality}
-            color="info"
             clickable
             onClick={() =>
               setEditingConnection(`${relationshipId}-${connection.entityId}`)
@@ -381,9 +381,7 @@ const RelationshipListView: React.FC = () => {
         )}
 
         {connection.role && (
-          <Typography variant="body2" color="text.secondary">
-            ({connection.role})
-          </Typography>
+          <Typography variant='body2'>({connection.role})</Typography>
         )}
       </Box>
     );
@@ -392,7 +390,7 @@ const RelationshipListView: React.FC = () => {
   // 渲染关系属性项（支持内联编辑）
   const renderRelationshipAttributeItem = (
     attribute: ERAttribute,
-    relationshipId: string,
+    relationshipId: string
   ) => {
     // 解析当前类型和参数
     const { typeName } = parseDataType(attribute.dataType || "VARCHAR");
@@ -402,22 +400,21 @@ const RelationshipListView: React.FC = () => {
         key={attribute.id}
         sx={{
           p: 1,
-          borderRadius: 1,
+          borderRadius: 2,
           mb: 1,
-          bgcolor: "background.paper",
-          border: "1px solid",
-          borderColor: "divider",
+          bgcolor: "var(--card-bg)",
+          border: "1px solid var(--card-border)",
         }}
       >
         <Stack
-          direction="row"
-          alignItems="center"
+          direction='row'
+          alignItems='center'
           spacing={1}
           sx={{ overflow: "hidden", flexWrap: "nowrap" }}
         >
           <Box sx={{ display: "flex", gap: 1, flexGrow: 1 }}>
             <TextField
-              size="small"
+              size='small'
               value={
                 editingAttributeNames[attribute.id] !== undefined
                   ? editingAttributeNames[attribute.id]
@@ -438,8 +435,8 @@ const RelationshipListView: React.FC = () => {
               }}
               onCompositionStart={() => handleCompositionStart(attribute.id)}
               onCompositionEnd={() => handleCompositionEnd(attribute.id)}
-              variant="outlined"
-              placeholder="属性名称"
+              variant='outlined'
+              placeholder='属性名称'
               sx={{
                 maxWidth: "100px",
                 "& .MuiInputBase-input": {
@@ -454,14 +451,14 @@ const RelationshipListView: React.FC = () => {
             {/* 数据类型编辑 */}
             <Autocomplete
               disableClearable
-              size="small"
+              size='small'
               value={attribute.dataType || "VARCHAR"}
               onChange={(_, newValue) => {
                 if (newValue) {
                   handleAttributeTypeChange(
                     relationshipId,
                     attribute.id,
-                    newValue,
+                    newValue
                   );
                 }
               }}
@@ -469,7 +466,7 @@ const RelationshipListView: React.FC = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  variant="outlined"
+                  variant='outlined'
                   sx={{
                     maxWidth: "180px",
                     "& .MuiInputBase-input": {
@@ -486,9 +483,9 @@ const RelationshipListView: React.FC = () => {
           </Box>
 
           {/* 属性操作菜单 */}
-          <Tooltip title="属性操作">
+          <Tooltip title='属性操作'>
             <IconButton
-              size="small"
+              size='small'
               onClick={(e) => handleAttributeMenuOpen(e, attribute.id)}
               sx={{
                 opacity: 0.6,
@@ -499,7 +496,7 @@ const RelationshipListView: React.FC = () => {
                 },
               }}
             >
-              <MoreVertIcon fontSize="small" />
+              <MoreVertIcon fontSize='small' />
             </IconButton>
           </Tooltip>
         </Stack>
@@ -524,7 +521,7 @@ const RelationshipListView: React.FC = () => {
               {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
                 // 解析当前参数值
                 const { params: currentParams } = parseDataType(
-                  attribute.dataType || "",
+                  attribute.dataType || ""
                 );
                 const currentValue = currentParams[idx] || "";
 
@@ -539,7 +536,7 @@ const RelationshipListView: React.FC = () => {
                   >
                     <TextField
                       label={label}
-                      size="small"
+                      size='small'
                       value={currentValue}
                       onChange={(e) =>
                         handleRelationshipParamChange(
@@ -547,7 +544,7 @@ const RelationshipListView: React.FC = () => {
                           attribute.id,
                           idx,
                           e.target.value,
-                          typeName,
+                          typeName
                         )
                       }
                       onClick={(e) => e.stopPropagation()} // 防止点击输入框时关闭菜单
@@ -569,12 +566,12 @@ const RelationshipListView: React.FC = () => {
             onClick={() =>
               handleDeleteRelationshipAttributeFromMenu(
                 relationshipId,
-                attribute.id,
+                attribute.id
               )
             }
             sx={{ color: "error.main" }}
           >
-            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+            <DeleteIcon fontSize='small' sx={{ mr: 1 }} />
             删除
           </MenuItem>
         </Menu>
@@ -585,7 +582,7 @@ const RelationshipListView: React.FC = () => {
   return (
     <Box>
       <Typography
-        variant="h6"
+        variant='h6'
         sx={{ display: "flex", alignItems: "center", gap: 1 }}
       >
         <ShareIcon /> 关系列表
@@ -593,9 +590,7 @@ const RelationshipListView: React.FC = () => {
       <Divider sx={{ my: 1 }} />
       {relationships.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography variant="body2" color="text.secondary">
-            暂无关系
-          </Typography>
+          <Typography variant='body2'>暂无关系</Typography>
         </Box>
       ) : (
         <Stack spacing={1}>
@@ -622,14 +617,14 @@ const RelationshipListView: React.FC = () => {
                 onClick={() => handleExpand(relationship.id)}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Stack direction='row' alignItems='center' spacing={0.5}>
                     {expandedRelationships.includes(relationship.id) ? (
                       <ExpandMoreIcon />
                     ) : (
                       <ExpandLessIcon />
                     )}
                     <TextField
-                      size="small"
+                      size='small'
                       value={
                         editingRelationshipNames[relationship.id] !== undefined
                           ? editingRelationshipNames[relationship.id]
@@ -638,7 +633,7 @@ const RelationshipListView: React.FC = () => {
                       onChange={(e) =>
                         handleRelationshipNameChange(
                           relationship.id,
-                          e.target.value,
+                          e.target.value
                         )
                       }
                       onBlur={() => handleRelationshipNameSave(relationship.id)}
@@ -658,7 +653,7 @@ const RelationshipListView: React.FC = () => {
                       onCompositionEnd={() =>
                         handleRelationshipCompositionEnd(relationship.id)
                       }
-                      variant="standard"
+                      variant='standard'
                       InputProps={{
                         disableUnderline: true,
                         style: {
@@ -675,69 +670,58 @@ const RelationshipListView: React.FC = () => {
                         },
                       }}
                     />
-                    {/* {isWeakRelationship(relationship) && (
-                      <Chip label="弱关系" color="secondary" />
-                    )} */}
                   </Stack>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant='body2'>
                     {relationship.connections.length} 个连接
                   </Typography>
                 </Box>
-                <Stack direction="row" spacing={0.5}>
-                  <Tooltip title="编辑">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedElement(relationship.id);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="删除">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteRelationship(relationship.id);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
+                <Tooltip title='删除关系'>
+                  <IconButton
+                    size='small'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteRelationship(relationship.id);
+                    }}
+                    sx={{
+                      opacity: 0.6,
+                      mr: 2,
+                      "&:hover": {
+                        opacity: 1,
+                        color: "var(--error-color)",
+                        backgroundColor: "var(--hover-bg)",
+                      },
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>
 
               <Collapse
                 in={expandedRelationships.includes(relationship.id)}
-                timeout="auto"
+                timeout='auto'
                 unmountOnExit
               >
                 <CardContent>
                   <Divider style={{ margin: "8px 0" }} />
 
                   <Stack spacing={0.5}>
-                    <Typography variant="body2" color="text.secondary">
-                      连接实体：
-                    </Typography>
+                    <Typography variant='body2'>连接实体：</Typography>
                     {relationship.connections.map((connection) =>
-                      renderConnectionItem(connection, relationship.id),
+                      renderConnectionItem(connection, relationship.id)
                     )}
                   </Stack>
 
                   {/* 关系属性部分 */}
                   <Stack spacing={0.5}>
-                    <Typography variant="body2" color="text.secondary">
-                      关系属性：
-                    </Typography>
+                    <Typography variant='body2'>关系属性：</Typography>
                     {relationship.attributes &&
                     relationship.attributes.length > 0 ? (
                       relationship.attributes.map((attr) =>
-                        renderRelationshipAttributeItem(attr, relationship.id),
+                        renderRelationshipAttributeItem(attr, relationship.id)
                       )
                     ) : (
-                      <Typography variant="body2" color="var(--secondary-text)">
+                      <Typography variant='body2' color='var(--secondary-text)'>
                         暂无属性
                       </Typography>
                     )}
@@ -747,7 +731,7 @@ const RelationshipListView: React.FC = () => {
                       sx={{ mt: 1, display: "flex", justifyContent: "center" }}
                     >
                       <Button
-                        size="small"
+                        size='small'
                         startIcon={<AddIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -768,9 +752,7 @@ const RelationshipListView: React.FC = () => {
 
                   {relationship.description && (
                     <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        描述：
-                      </Typography>
+                      <Typography variant='body2'>描述：</Typography>
                       <Typography>{relationship.description}</Typography>
                     </Box>
                   )}
@@ -785,18 +767,15 @@ const RelationshipListView: React.FC = () => {
         sx={{
           mt: 2,
           p: 1.5,
-          bgcolor: "grey.100",
           borderRadius: 1,
-          borderLeft: 3,
-          borderColor: "primary.main",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          bgcolor: "var(--card-border)",
         }}
       >
-        <Typography variant="body2" color="text.secondary">
-          连接实体和关系后，将在此处显示
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          可以编辑基数约束和参与约束
-        </Typography>
+        <Typography variant='body2'>连接实体和关系后，将在此处显示</Typography>
+        <Typography variant='body2'>可以编辑基数约束和参与约束</Typography>
       </Box>
     </Box>
   );
