@@ -87,7 +87,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
   const handleAttributeKeyChange = (
     entityId: string,
     attributeId: string,
-    isPrimaryKey: boolean
+    isPrimaryKey: boolean,
   ) => {
     updateAttribute(entityId, attributeId, { isPrimaryKey });
   };
@@ -114,8 +114,8 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
       }}
     >
       <Stack
-        direction='row'
-        alignItems='center'
+        direction="row"
+        alignItems="center"
         spacing={1}
         sx={{ overflow: "hidden", flexWrap: "nowrap" }}
       >
@@ -130,13 +130,13 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
             "&:hover": { color: "var(--primary-text)" },
           }}
         >
-          <DragIndicatorIcon fontSize='small' />
+          <DragIndicatorIcon fontSize="small" />
         </Box>
 
         <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
           {/* 属性名称 TextField - 直接编辑 */}
           <TextField
-            size='small'
+            size="small"
             value={editingName !== undefined ? editingName : attribute.name}
             onChange={(e) => onNameChange(e.target.value)}
             onBlur={onNameSave}
@@ -149,8 +149,8 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
             }}
             onCompositionStart={onCompositionStart}
             onCompositionEnd={onCompositionEnd}
-            variant='outlined'
-            placeholder='属性名称'
+            variant="outlined"
+            placeholder="属性名称"
             sx={{
               maxWidth: "100px",
               "& .MuiInputBase-input": {
@@ -165,7 +165,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
           {/* 数据类型编辑 */}
           <Autocomplete
             disableClearable
-            size='small'
+            size="small"
             value={typeName}
             onChange={(_, newValue) => {
               if (newValue) {
@@ -176,7 +176,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                variant='outlined'
+                variant="outlined"
                 sx={{
                   maxWidth: "180px",
                   "& .MuiInputBase-input": {
@@ -195,14 +195,14 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
         {/* 主键标识移到右侧，优化样式 */}
         <Chip
           label={isWeakEntity ? "DIS" : "PK"}
-          size='small'
+          size="small"
           variant={attribute.isPrimaryKey ? "filled" : "outlined"}
           clickable
           onClick={() => {
             handleAttributeKeyChange(
               entityId,
               attribute.id,
-              !attribute.isPrimaryKey
+              !attribute.isPrimaryKey,
             );
           }}
           sx={{
@@ -232,9 +232,9 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
         />
 
         {/* 属性操作菜单 */}
-        <Tooltip title='属性操作'>
+        <Tooltip title="属性操作">
           <IconButton
-            size='small'
+            size="small"
             onClick={onMenuOpen}
             sx={{
               opacity: 0.6,
@@ -244,7 +244,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
               },
             }}
           >
-            <MoreVertIcon fontSize='small' />
+            <MoreVertIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -269,7 +269,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
             {dataTypeParamConfig[typeName].paramLabels.map((label, idx) => {
               // 解析当前参数值
               const { params: currentParams } = parseDataType(
-                attribute.dataType || ""
+                attribute.dataType || "",
               );
               const currentValue = currentParams[idx] || "";
 
@@ -284,7 +284,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                 >
                   <TextField
                     label={label}
-                    size='small'
+                    size="small"
                     onKeyDown={handleKeyDown}
                     value={currentValue}
                     onChange={(e) => onParamChange(idx, e.target.value)}
@@ -304,7 +304,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
         )}
 
         <MenuItem onClick={onDeleteAttribute} sx={{ color: "error.main" }}>
-          <DeleteIcon fontSize='small' sx={{ mr: 1 }} />
+          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           删除
         </MenuItem>
       </Menu>

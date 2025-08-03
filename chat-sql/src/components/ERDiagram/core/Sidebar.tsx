@@ -65,36 +65,36 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   };
 
   return (
-    <div className='global-sidebar-container'>
-      <div className='global-sidebar-top-buttons'>
-        <Tooltip title='新建图表' placement='right'>
+    <div className="global-sidebar-container">
+      <div className="global-sidebar-top-buttons">
+        <Tooltip title="新建图表" placement="right">
           <Button
-            type='text'
+            type="text"
             icon={<PlusOutlined />}
-            className='global-sidebar-action-button'
+            className="global-sidebar-action-button"
             onClick={handleNewDiagram}
           />
         </Tooltip>
 
-        <Tooltip title='打开图表' placement='right'>
+        <Tooltip title="打开图表" placement="right">
           <Button
-            type='text'
+            type="text"
             icon={<FolderOpenOutlined />}
-            className='global-sidebar-action-button'
+            className="global-sidebar-action-button"
             onClick={handleOpenDiagram}
           />
         </Tooltip>
       </div>
 
-      <div className='global-sidebar-menu-container'>
-        <div className='global-sidebar-menu-items'>
+      <div className="global-sidebar-menu-container">
+        <div className="global-sidebar-menu-items">
           <ThemeToggle />
         </div>
 
-        <div className='global-sidebar-menu-items'>
-          <Tooltip title='组件库' placement='right'>
+        <div className="global-sidebar-menu-items">
+          <Tooltip title="组件库" placement="right">
             <Button
-              type='text'
+              type="text"
               icon={<AppstoreOutlined />}
               className={`global-sidebar-action-button${
                 activeTab === "components" ? " selected" : ""
@@ -104,10 +104,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           </Tooltip>
         </div>
 
-        <div className='global-sidebar-menu-items'>
-          <Tooltip title='实体' placement='right'>
+        <div className="global-sidebar-menu-items">
+          <Tooltip title="实体" placement="right">
             <Button
-              type='text'
+              type="text"
               icon={<TableOutlined />}
               className={`global-sidebar-action-button${
                 activeTab === "entities" ? " selected" : ""
@@ -117,10 +117,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           </Tooltip>
         </div>
 
-        <div className='global-sidebar-menu-items'>
-          <Tooltip title='关系' placement='right'>
+        <div className="global-sidebar-menu-items">
+          <Tooltip title="关系" placement="right">
             <Button
-              type='text'
+              type="text"
               icon={<ShareAltOutlined />}
               className={`global-sidebar-action-button${
                 activeTab === "relationships" ? " selected" : ""
@@ -130,10 +130,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           </Tooltip>
         </div>
 
-        <div className='global-sidebar-menu-items'>
-          <Tooltip title='题目历史' placement='right'>
+        <div className="global-sidebar-menu-items">
+          <Tooltip title="题目历史" placement="right">
             <Button
-              type='text'
+              type="text"
               icon={<FileTextOutlined />}
               className={`global-sidebar-action-button${
                 activeTab === "quiz-history" ? " selected" : ""
@@ -144,21 +144,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         </div>
       </div>
 
-      <div className='global-sidebar-bottom-buttons'>
-        <Tooltip title='帮助' placement='right'>
+      <div className="global-sidebar-bottom-buttons">
+        <Tooltip title="帮助" placement="right">
           <Button
-            type='text'
+            type="text"
             icon={<QuestionCircleOutlined />}
-            className='global-sidebar-action-button'
+            className="global-sidebar-action-button"
             onClick={handleHelpClick}
           />
         </Tooltip>
 
-        <Tooltip title='GitHub仓库' placement='right'>
+        <Tooltip title="GitHub仓库" placement="right">
           <Button
-            type='text'
+            type="text"
             icon={<GithubOutlined />}
-            className='global-sidebar-action-button'
+            className="global-sidebar-action-button"
             onClick={handleGithubClick}
           />
         </Tooltip>
@@ -168,7 +168,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         open={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
         fullWidth
-        maxWidth='md'
+        maxWidth="md"
         PaperProps={{
           sx: {
             background: "var(--sidebar-bg)",

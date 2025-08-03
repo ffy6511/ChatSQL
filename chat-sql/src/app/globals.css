@@ -386,8 +386,10 @@ hr {
 [data-theme="dark"] .ant-dropdown-menu {
   background-color: #1f1f1f !important;
   border-color: #333 !important;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
-    0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.48),
+    0 6px 16px 0 rgba(0, 0, 0, 0.32),
+    0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="dark"] .ant-dropdown-menu-item {

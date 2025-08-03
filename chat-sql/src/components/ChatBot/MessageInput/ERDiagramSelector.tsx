@@ -88,7 +88,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
       // 按更新时间倒序排列
       historyItems.sort(
         (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
       );
 
       setDiagrams(historyItems);
@@ -107,7 +107,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
       onChange(jsonData);
       setDialogOpen(false);
     },
-    [onChange]
+    [onChange],
   );
 
   // 切换ER图
@@ -117,7 +117,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
       showSnackbar(`已将当前ER图切换到 ${diagram.name}`, "info");
       setDialogOpen(false);
     },
-    [loadDiagram, showSnackbar]
+    [loadDiagram, showSnackbar],
   );
 
   // 关闭选择对话框
@@ -140,8 +140,8 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
           onClick={loadDiagrams}
           startIcon={<HistoryIcon />}
           disabled={loading}
-          size='small'
-          variant='outlined'
+          size="small"
+          variant="outlined"
         >
           {loading ? "加载中..." : "从历史记录选择"}
         </Button>
@@ -154,7 +154,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         fullWidth
-        variant='outlined'
+        variant="outlined"
         sx={{
           "& .MuiInputBase-input": {
             fontSize: "0.85em",
@@ -167,7 +167,7 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
-        maxWidth='md'
+        maxWidth="md"
         fullWidth
         slotProps={{
           paper: { sx: { height: "70vh" } },
@@ -175,12 +175,12 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
       >
         <DialogTitle>
           <Stack
-            direction='row'
-            alignItems='center'
-            justifyContent='space-between'
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
           >
-            <Typography variant='h6'>选择ER图</Typography>
-            <IconButton onClick={handleCloseDialog} size='small'>
+            <Typography variant="h6">选择ER图</Typography>
+            <IconButton onClick={handleCloseDialog} size="small">
               <CloseIcon />
             </IconButton>
           </Stack>
@@ -189,8 +189,8 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
         <DialogContent dividers>
           {diagrams.length === 0 ? (
             <Typography
-              color='var(--secondary-text)'
-              align='center'
+              color="var(--secondary-text)"
+              align="center"
               sx={{ py: 4 }}
             >
               暂无ER图历史记录
@@ -219,27 +219,27 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
                       <ListItemText
                         primary={
                           <Stack
-                            direction='row'
-                            alignItems='center'
+                            direction="row"
+                            alignItems="center"
                             spacing={1}
                           >
-                            <Typography variant='subtitle2'>
+                            <Typography variant="subtitle2">
                               {diagram.name}
                             </Typography>
                             <Chip
                               label={`${stats.entities}个实体`}
-                              size='small'
-                              variant='outlined'
+                              size="small"
+                              variant="outlined"
                             />
                             <Chip
                               label={`${stats.relationships}个关系`}
-                              size='small'
-                              variant='outlined'
+                              size="small"
+                              variant="outlined"
                             />
                           </Stack>
                         }
                         secondary={
-                          <Typography variant='caption'>
+                          <Typography variant="caption">
                             创建时间: {formatTimestamp(diagram.createdAt)} |
                             更新时间: {formatTimestamp(diagram.updatedAt)}
                           </Typography>
@@ -247,13 +247,13 @@ const ERDiagramSelector: React.FC<ERDiagramSelectorProps> = ({
                       />
                     </ListItemButton>
 
-                    <Tooltip title='预览'>
+                    <Tooltip title="预览">
                       <IconButton
                         onClick={() => handlePreviewDiagram(diagram)}
-                        size='small'
+                        size="small"
                         sx={{ mr: 1 }}
                       >
-                        <PreviewIcon fontSize='small' />
+                        <PreviewIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </ListItem>

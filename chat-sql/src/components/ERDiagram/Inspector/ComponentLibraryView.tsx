@@ -56,7 +56,7 @@ const ComponentLibraryView: React.FC = () => {
   return (
     <Box>
       <Typography
-        variant='h6'
+        variant="h6"
         sx={{ display: "flex", alignItems: "center", gap: 1 }}
       >
         <AppsIcon sx={{ color: "#1976d2", mr: 1 }} /> 组件库
@@ -82,10 +82,10 @@ const ComponentLibraryView: React.FC = () => {
             >
               <component.icon sx={{ color: component.color }} />
               <Box>
-                <Typography fontWeight='bold' color='var(--primary-text)'>
+                <Typography fontWeight="bold" color="var(--primary-text)">
                   {component.name}
                 </Typography>
-                <Typography variant='body2' color='var(--secondary-text)'>
+                <Typography variant="body2" color="var(--secondary-text)">
                   {component.description}
                 </Typography>
               </Box>
@@ -104,8 +104,8 @@ const ComponentLibraryView: React.FC = () => {
           bgcolor: "var(--card-border)",
         }}
       >
-        <Typography variant='body2'>将组件拖放到画布上。</Typography>
-        <Typography variant='body2'>或者右键单击画布以创建新节点。</Typography>
+        <Typography variant="body2">将组件拖放到画布上。</Typography>
+        <Typography variant="body2">或者右键单击画布以创建新节点。</Typography>
       </Box>
     </Box>
   );

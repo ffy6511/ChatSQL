@@ -103,7 +103,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth='md'
+      maxWidth="md"
       fullWidth
       sx={{
         "& .MuiDialog-paper": {
@@ -122,7 +122,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
         >
           <Box>
             <Typography>打开ER图</Typography>
-            <Typography variant='body2' color='textSecondary' sx={{ mt: 1 }}>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
               选择一个已保存的图表继续编辑
             </Typography>
           </Box>
@@ -132,32 +132,32 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
 
       <DialogContent>
         {error && (
-          <Alert severity='error' sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {diagramList.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography variant='h6' color='textSecondary'>
+            <Typography variant="h6" color="textSecondary">
               暂无保存的图表
             </Typography>
-            <Typography variant='body2' color='textSecondary' sx={{ mt: 1 }}>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
               创建您的第一个ER图开始使用
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} variant='outlined'>
+          <TableContainer component={Paper} variant="outlined">
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>图表名称</TableCell>
                   <TableCell>描述</TableCell>
-                  <TableCell align='center'>实体数</TableCell>
-                  <TableCell align='center'>关系数</TableCell>
+                  <TableCell align="center">实体数</TableCell>
+                  <TableCell align="center">关系数</TableCell>
                   <TableCell>创建时间</TableCell>
                   <TableCell>最后修改</TableCell>
-                  <TableCell align='center'>操作</TableCell>
+                  <TableCell align="center">操作</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -171,48 +171,48 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
                   >
                     <TableCell>
                       <Typography
-                        variant='subtitle2'
+                        variant="subtitle2"
                         sx={{ fontWeight: "bold" }}
                       >
                         {diagram.name}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant='body2' color='textSecondary'>
+                      <Typography variant="body2" color="textSecondary">
                         {diagram.description || "无描述"}
                       </Typography>
                     </TableCell>
-                    <TableCell align='center'>
+                    <TableCell align="center">
                       <Chip
                         label={diagram.entityCount}
-                        size='small'
-                        color='primary'
-                        variant='outlined'
+                        size="small"
+                        color="primary"
+                        variant="outlined"
                       />
                     </TableCell>
-                    <TableCell align='center'>
+                    <TableCell align="center">
                       <Chip
                         label={diagram.relationshipCount}
-                        size='small'
-                        color='secondary'
-                        variant='outlined'
+                        size="small"
+                        color="secondary"
+                        variant="outlined"
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant='body2'>
+                      <Typography variant="body2">
                         {formatDate(diagram.createdAt)}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant='body2'>
+                      <Typography variant="body2">
                         {formatDate(diagram.updatedAt)}
                       </Typography>
                     </TableCell>
-                    <TableCell align='center'>
+                    <TableCell align="center">
                       <Box sx={{ display: "flex", gap: 1 }}>
                         <IconButton
-                          size='small'
-                          color='primary'
+                          size="small"
+                          color="primary"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleOpenDiagram(diagram.id);
@@ -222,9 +222,9 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
                           <OpenIcon />
                         </IconButton>
                         <IconButton
-                          size='small'
-                          color='error'
-                          className='deleteButton'
+                          size="small"
+                          color="error"
+                          className="deleteButton"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteDiagram(diagram.id);
@@ -246,7 +246,7 @@ const OpenDiagramModal: React.FC<OpenDiagramModalProps> = ({
         <Button onClick={onClose}>取消</Button>
         <Button
           onClick={() => selectedDiagram && handleOpenDiagram(selectedDiagram)}
-          variant='contained'
+          variant="contained"
           disabled={!selectedDiagram || isLoading}
           startIcon={<OpenIcon />}
         >

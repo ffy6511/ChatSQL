@@ -138,64 +138,64 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected, id }) => {
     >
       {/* 上方连接点 */}
       <Handle
-        type='source'
+        type="source"
         position={Position.Top}
-        id='top'
+        id="top"
         className={styles.handle}
         style={{ top: "10px", left: "50%", transform: "translateX(-50%)" }}
       />
       <Handle
-        type='target'
+        type="target"
         position={Position.Top}
-        id='top'
+        id="top"
         className={styles.handle}
         style={{ top: "10px", left: "50%", transform: "translateX(-50%)" }}
       />
 
       {/* 右侧连接点 */}
       <Handle
-        type='source'
+        type="source"
         position={Position.Right}
-        id='right'
+        id="right"
         className={styles.handle}
         style={{ top: "50%", right: "10px", transform: "translateY(-50%)" }}
       />
       <Handle
-        type='target'
+        type="target"
         position={Position.Right}
-        id='right'
+        id="right"
         className={styles.handle}
         style={{ top: "50%", right: "10px", transform: "translateY(-50%)" }}
       />
 
       {/* 下方连接点 */}
       <Handle
-        type='source'
+        type="source"
         position={Position.Bottom}
-        id='bottom'
+        id="bottom"
         className={styles.handle}
         style={{ bottom: "10px", left: "50%", transform: "translateX(-50%)" }}
       />
       <Handle
-        type='target'
+        type="target"
         position={Position.Bottom}
-        id='bottom'
+        id="bottom"
         className={styles.handle}
         style={{ bottom: "10px", left: "50%", transform: "translateX(-50%)" }}
       />
 
       {/* 左侧连接点 */}
       <Handle
-        type='source'
+        type="source"
         position={Position.Left}
-        id='left'
+        id="left"
         className={styles.handle}
         style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }}
       />
       <Handle
-        type='target'
+        type="target"
         position={Position.Left}
-        id='left'
+        id="left"
         className={styles.handle}
         style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }}
       />
@@ -210,8 +210,8 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected, id }) => {
         <polygon
           points={points}
           className={styles.diamondShape}
-          fill='#e1f5fe'
-          stroke='#0277bd'
+          fill="#e1f5fe"
+          stroke="#0277bd"
           strokeWidth={isWeakRelationship ? "4" : "2"}
         />
         {/* 弱关系的内部边框 */}
@@ -255,7 +255,7 @@ const DiamondNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           attributes={attributes}
         />
       }
-      placement='right'
+      placement="right"
       arrow
       componentsProps={{
         tooltip: {

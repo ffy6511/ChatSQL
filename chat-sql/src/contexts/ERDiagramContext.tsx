@@ -616,9 +616,10 @@ function erDiagramReducer(
         ...state,
         diagramData: {
           ...state.diagramData,
+          // 遍历实体,找到需要重新排序的实体
           entities: state.diagramData.entities.map((entity) => {
             if (entity.id === action.payload.entityId) {
-              // 根据新的顺序重新排列属性
+              // 构建一个属性ID到属性的Map
               const attributeMap = new Map(
                 entity.attributes.map((attr) => [attr.id, attr]),
               );
@@ -1163,6 +1164,28 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     try {
       await saveDiagram(newDiagramData, state.currentDiagramId);
       dispatch({ type: "SET_DIAGRAM_DATA", payload: newDiagramData });
+
+      // 自动调整属性排序
+      if (updates.isPrimaryKey !== undefined) {
+        const otherAttributeIds = entityToUpdate.attributes
+          .map((attr) => attr.id)
+          .filter((id) => id !== attributeId);
+
+        // 分离主键和非主键
+        const primaryKeyIds = entityToUpdate.attributes
+          .filter((attr) => attr.isPrimaryKey && attr.id !== attributeId)
+          .map((attr) => attr.id);
+
+        const nonPrimaryKeyIds = otherAttributeIds.filter(
+          (id) => !primaryKeyIds.includes(id),
+        );
+
+        // 分类讨论排序的位置
+        let newOrder: string[];
+        newOrder = [...primaryKeyIds, attributeId, ...nonPrimaryKeyIds];
+
+        updateAttributeOrder(entityId, newOrder);
+      }
     } catch (error) {
       console.error("更新属性失败:", error);
     }
@@ -1219,7 +1242,6 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
 
       // 异步保存到持久化存储
       await saveDiagram(updatedData, state.currentDiagramId);
-      showSnackbar("属性排序更新成功", "success");
     } catch (error) {
       console.error("更新属性排序失败:", error);
       showSnackbar("更新属性排序失败，请重试", "error");
