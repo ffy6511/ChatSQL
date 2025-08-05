@@ -1,5 +1,5 @@
 // 可拖拽属性项组件
-import React from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -31,13 +31,7 @@ interface SortableAttributeItemProps {
   id: string;
   attribute: ERAttribute;
   entityId: string;
-  editingName: string;
-  isComposing: boolean;
   menuAnchor: HTMLElement | null;
-  onNameChange: (value: string) => void;
-  onNameSave: () => void;
-  onCompositionStart: () => void;
-  onCompositionEnd: () => void;
   onMenuOpen: (event: React.MouseEvent<HTMLElement>) => void;
   onMenuClose: () => void;
   onDeleteAttribute: () => void;
@@ -49,13 +43,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
   id,
   attribute,
   entityId,
-  editingName,
-  isComposing,
   menuAnchor,
-  onNameChange,
-  onNameSave,
-  onCompositionStart,
-  onCompositionEnd,
   onMenuOpen,
   onMenuClose,
   onDeleteAttribute,
@@ -71,6 +59,32 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
     isDragging,
   } = useSortable({ id });
 
+  const [isComposing, setIsComposing] = useState(false);
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+  };
+
+  // 存储到数据库
+  const handleAttributeNameSave = async () => {
+    debugger;
+
+    if (isComposing) {
+      return;
+    }
+
+    const newName = localEditingName;
+    if (newName !== undefined) {
+      const finalName = newName.trim() || "未命名";
+      await updateAttribute(entityId, attribute.id, { name: finalName });
+      setLocalEditingName(finalName); // 更新本地状态
+    }
+  };
+
   // 获取所有实体的信息，判断当前的实体是否为弱实体
   const { state, updateAttribute } = useERDiagramContext();
   const entities = state.diagramData?.entities || [];
@@ -81,6 +95,13 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
       e.preventDefault();
       onMenuClose();
     }
+  };
+
+  // 本地的临时编辑名称
+  const [localEditingName, setLocalEditingName] = useState(attribute.name);
+
+  const handleNameChange = (value: string) => {
+    setLocalEditingName(value);
   };
 
   // 切换PK/DIS
@@ -137,18 +158,18 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
           {/* 属性名称 TextField - 直接编辑 */}
           <TextField
             size="small"
-            value={editingName !== undefined ? editingName : attribute.name}
-            onChange={(e) => onNameChange(e.target.value)}
-            onBlur={onNameSave}
+            value={localEditingName}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onBlur={handleAttributeNameSave}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !isComposing) {
                 e.preventDefault();
-                onNameSave();
+                handleAttributeNameSave();
                 (e.target as HTMLInputElement).blur();
               }
             }}
-            onCompositionStart={onCompositionStart}
-            onCompositionEnd={onCompositionEnd}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             variant="outlined"
             placeholder="属性名称"
             sx={{

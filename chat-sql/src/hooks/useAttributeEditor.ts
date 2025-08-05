@@ -38,7 +38,7 @@ export const useAttributeEditor = ({
 
     const newName = editingNames[attributeId];
     if (newName !== undefined) {
-      const finalName = newName.trim() || "未命名属性";
+      const finalName = newName.trim() || "未命名";
       await updateAttribute(entityId, attributeId, { name: finalName });
 
       setEditingNames((prev) => {

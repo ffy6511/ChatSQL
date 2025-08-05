@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../styles/typography.css"; /* 导入独立的字体大小配置 */
+@import "../styles/globalSidebar.css";
 
 /* 全局的删除按钮样式 */
 .deleteButton {
@@ -446,5 +448,3 @@ hr {
   transform: translateY(0);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
-
-@import "../styles/globalSidebar.css";

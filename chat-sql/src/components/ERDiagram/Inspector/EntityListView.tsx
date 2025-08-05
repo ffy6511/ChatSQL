@@ -376,21 +376,7 @@ const EntityListView: React.FC = () => {
                               id={`${entity.id}-${attr.id}`}
                               attribute={attr}
                               entityId={entity.id}
-                              editingName={editingNames[attr.id] || attr.name}
-                              isComposing={isComposing[attr.id] || false}
                               menuAnchor={menuAnchor[attr.id] || null}
-                              onNameChange={(value) =>
-                                handleNameChange(attr.id, value)
-                              }
-                              onNameSave={() =>
-                                handleNameSave(entity.id, attr.id)
-                              }
-                              onCompositionStart={() =>
-                                handleCompositionStart(attr.id)
-                              }
-                              onCompositionEnd={() =>
-                                handleCompositionEnd(attr.id)
-                              }
                               onMenuOpen={(e) => handleMenuOpen(e, attr.id)}
                               onMenuClose={() => handleMenuClose()}
                               onDeleteAttribute={() =>

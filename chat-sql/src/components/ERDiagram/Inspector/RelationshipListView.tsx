@@ -143,7 +143,7 @@ const RelationshipListView: React.FC = () => {
 
     const newName = editingAttributeNames[attributeId];
     if (newName !== undefined) {
-      const finalName = newName.trim() || "未命名属性";
+      const finalName = newName.trim() || "未命名";
       await updateRelationshipAttribute(relationshipId, attributeId, {
         name: finalName,
       });
