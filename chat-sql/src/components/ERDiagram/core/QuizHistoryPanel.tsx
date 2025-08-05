@@ -34,12 +34,13 @@ import {
   ExpandLess as ExpandLessIcon,
   DeleteSweep as DeleteSweepIcon,
   School as SchoolIcon,
+  PushPin as PushPinIcon,
 } from "@mui/icons-material";
 import { Quiz, QuizHistoryPanelProps } from "@/types/ERDiagramTypes/quiz";
 import { quizStorage } from "@/services/quizStorage";
 import { useERDiagramContext } from "@/contexts/ERDiagramContext";
 import styles from "./QuizHistoryPanel.module.css";
-import { tutorialQuizzes, getTutorialQuizIds } from "@/data/tutorialQuizzes";
+import { tutorialQuizzes } from "@/data/tutorialQuizzes";
 
 /**
  * Quiz历史管理面板组件
@@ -60,11 +61,11 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [expandedQuizzes, setExpandedQuizzes] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [loadingTutorial, setLoadingTutorial] = useState(false);
 
-  const { setDiagramData } = useERDiagramContext();
+  const { setDiagramData, setPinnedQuiz, state } = useERDiagramContext();
   const { showSnackbar } = useSnackbar();
 
   // 切换单个题目的展开状态
@@ -84,7 +85,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
   const handleToggleAll = useCallback(() => {
     const allQuizIds = quizzes.map((q) => q.id);
     const allCurrentlyExpanded = allQuizIds.every((id) =>
-      expandedQuizzes.has(id),
+      expandedQuizzes.has(id)
     );
 
     if (allCurrentlyExpanded) {
@@ -149,12 +150,12 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       // 1. 获取所有已存在的题目，并提取出它们的教程ID
       const existingQuizzes = await quizStorage.getAllQuizzes();
       const existingTutorialIds = new Set(
-        existingQuizzes.map((q) => q.id).filter(Boolean),
+        existingQuizzes.map((q) => q.id).filter(Boolean)
       );
 
       // 2. 找出尚未被添加的教程
       const missingTutorials = tutorialQuizzes.filter(
-        (tutorial) => !existingTutorialIds.has(tutorial.id),
+        (tutorial) => !existingTutorialIds.has(tutorial.id)
       );
 
       // 3. 如果没有缺失的教程，则提示用户并退出
@@ -207,7 +208,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       setAnchorEl(event.currentTarget);
       setSelectedQuiz(quiz);
     },
-    [],
+    []
   );
 
   // 关闭菜单
@@ -304,6 +305,22 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     setSelectedQuiz(null); // Clean up selection
   }, [selectedQuiz, setDiagramData, onQuizSelect]);
 
+  // 固定题目到画布
+  const handlePinQuiz = useCallback(() => {
+    if (selectedQuiz) {
+      const isCurrentlyPinned = state.pinnedQuizId === selectedQuiz.id;
+      if (isCurrentlyPinned) {
+        setPinnedQuiz(null);
+        showSnackbar("已取消固定题目", "info");
+      } else {
+        setPinnedQuiz(selectedQuiz.id);
+        showSnackbar("题目已固定到画布", "success");
+      }
+    }
+    setAnchorEl(null); // Close menu
+    setSelectedQuiz(null); // Clean up selection
+  }, [selectedQuiz, state.pinnedQuizId, setPinnedQuiz, showSnackbar]);
+
   // 格式化日期
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString("zh-CN");
@@ -313,14 +330,14 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* 头部标题 */}
       <Box sx={{ p: 0, borderBottom: "1px solid var(--card-border)" }}>
-        <Stack direction="row" alignItems="center" spacing={1} display="flex">
+        <Stack direction='row' alignItems='center' spacing={1} display='flex'>
           <QuizIcon sx={{ color: "var(--secondary-text)" }} />
-          <Typography variant="h6" sx={{ color: "var(--primary-text)" }}>
+          <Typography variant='h6' sx={{ color: "var(--primary-text)" }}>
             题目历史
           </Typography>
           <Chip
             label={quizzes.length}
-            size="small"
+            size='small'
             sx={{
               backgroundColor: "var(--hover-bg)",
               color: "var(--secondary-text)",
@@ -335,10 +352,10 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
               gap: 0.5,
             }}
           >
-            <Tooltip title="填充教程数据">
+            <Tooltip title='填充教程数据'>
               <Button
                 className={styles.tutorialButton}
-                size="small"
+                size='small'
                 onClick={handleFillTutorialData}
                 startIcon={<SchoolIcon />}
                 disabled={loadingTutorial}
@@ -356,7 +373,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
             >
               <Button
                 className={styles.expandButton}
-                size="small"
+                size='small'
                 onClick={handleToggleAll}
                 startIcon={
                   expandedQuizzes.size === quizzes.length ? (
@@ -373,10 +390,10 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
               </Button>
             </Tooltip>
 
-            <Tooltip title="删除全部记录">
+            <Tooltip title='删除全部记录'>
               <Button
                 className={styles.deleteAllButton}
-                size="small"
+                size='small'
                 onClick={handleDeleteAllOpen}
                 startIcon={<DeleteSweepIcon />}
                 sx={{
@@ -401,7 +418,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
 
         {/* 错误提示 */}
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity='error' sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
@@ -414,12 +431,12 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                 <QuizIcon
                   sx={{ fontSize: 48, color: "var(--secondary-text)", mb: 2 }}
                 />
-                <Typography variant="body2" color="var(--secondary-text)">
+                <Typography variant='body2' color='var(--secondary-text)'>
                   暂无题目历史
                 </Typography>
                 <Typography
-                  variant="caption"
-                  color="var(--secondary-text)"
+                  variant='caption'
+                  color='var(--secondary-text)'
                   sx={{ mt: 1, display: "block" }}
                 >
                   请在智能助手中生成一些题目
@@ -453,7 +470,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                           <Box sx={{ flex: 1, minWidth: 0 }}>
                             {/* 题目名称 */}
                             <Typography
-                              variant="subtitle2"
+                              variant='subtitle2'
                               sx={{
                                 fontWeight: 600,
                                 color: "var(--primary-text)",
@@ -466,8 +483,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
 
                             {/* 创建时间 */}
                             <Stack
-                              direction="row"
-                              alignItems="center"
+                              direction='row'
+                              alignItems='center'
                               spacing={0.5}
                               sx={{ mb: 1 }}
                             >
@@ -478,8 +495,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                                 }}
                               />
                               <Typography
-                                variant="caption"
-                                color="var(--secondary-text)"
+                                variant='caption'
+                                color='var(--secondary-text)'
                               >
                                 {formatDate(quiz.createdAt)}
                               </Typography>
@@ -487,8 +504,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
 
                             {/* 题目描述 */}
                             <Stack
-                              direction="row"
-                              alignItems="flex-start"
+                              direction='row'
+                              alignItems='flex-start'
                               spacing={0.5}
                             >
                               <DescriptionIcon
@@ -499,18 +516,22 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                                 }}
                               />
                               <Box
-                                className={`${styles.expandContainer} ${isExpanded ? styles.expanded : styles.collapsed}`}
+                                className={`${styles.expandContainer} ${
+                                  isExpanded
+                                    ? styles.expanded
+                                    : styles.collapsed
+                                }`}
                                 sx={{ flex: 1 }}
                               >
                                 <Typography
-                                  variant="body2"
+                                  variant='body2'
                                   color={
                                     isExpanded
                                       ? "var(--primary-text)"
                                       : "var(--secondary-text)"
                                   }
                                   sx={{
-                                    lineHeight: 1.4,
+                                    lineHeight: 1.5,
                                     wordBreak: "break-word",
                                     display: "-webkit-box",
                                     WebkitLineClamp: isExpanded ? "unset" : 2,
@@ -530,7 +551,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
 
                           {/* 操作按钮 */}
                           <IconButton
-                            size="small"
+                            size='small'
                             onClick={(e) => handleMenuOpen(e, quiz)}
                             sx={{
                               color: "var(--secondary-text)",
@@ -539,7 +560,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                               },
                             }}
                           >
-                            <MoreVertIcon fontSize="small" />
+                            <MoreVertIcon fontSize='small' />
                           </IconButton>
                         </Box>
                       </CardContent>
@@ -570,16 +591,22 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
         }}
       >
         <MenuItem onClick={handleViewAnswer}>
-          <VisibilityIcon sx={{ mr: 1, fontSize: 18 }} />
+          <VisibilityIcon sx={{ mr: 1, fontSize: 16 }} />
           查看答案ER图
         </MenuItem>
+        <MenuItem onClick={handlePinQuiz}>
+          <PushPinIcon sx={{ mr: 1, fontSize: 16 }} />
+          {selectedQuiz && state.pinnedQuizId === selectedQuiz.id
+            ? "取消固定"
+            : "固定到画布"}
+        </MenuItem>
         <MenuItem onClick={handleEditOpen}>
-          <EditIcon sx={{ mr: 1, fontSize: 18 }} />
+          <EditIcon sx={{ mr: 1, fontSize: 16 }} />
           修改名称
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleDeleteOpen} sx={{ color: "error.main" }}>
-          <DeleteIcon sx={{ mr: 1, fontSize: 18 }} />
+          <DeleteIcon sx={{ mr: 1, fontSize: 16 }} />
           删除题目
         </MenuItem>
       </Menu>
@@ -588,7 +615,7 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
       <Dialog
         open={editDialogOpen}
         onClose={handleEditClose}
-        maxWidth="sm"
+        maxWidth='sm'
         fullWidth
       >
         <DialogTitle>修改题目名称</DialogTitle>
@@ -596,18 +623,18 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
           <TextField
             autoFocus
             fullWidth
-            label="题目名称"
+            label='题目名称'
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
-            margin="normal"
-            variant="outlined"
+            margin='normal'
+            variant='outlined'
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleEditClose}>取消</Button>
           <Button
             onClick={handleEditConfirm}
-            variant="contained"
+            variant='contained'
             disabled={!editName.trim()}
           >
             确认
@@ -627,8 +654,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
           <Button onClick={handleDeleteClose}>取消</Button>
           <Button
             onClick={handleDeleteConfirm}
-            color="error"
-            variant="contained"
+            color='error'
+            variant='contained'
           >
             删除
           </Button>
@@ -647,8 +674,8 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
           <Button onClick={handleDeleteAllClose}>取消</Button>
           <Button
             onClick={handleDeleteAllConfirm}
-            color="error"
-            variant="contained"
+            color='error'
+            variant='contained'
           >
             删除全部
           </Button>

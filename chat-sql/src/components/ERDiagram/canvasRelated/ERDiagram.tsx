@@ -36,6 +36,7 @@ import { ERDiagramData, ERConnection } from "@/types/ERDiagramTypes/erDiagram";
 import { convertERJsonToFlow, LayoutConfig } from "@/utils/erToFlow";
 import EntityNode from "./EntityNode";
 import DiamondNode from "./DiamondNode";
+import PinnedQuizDisplay from "./PinnedQuizDisplay";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useERDiagramContext } from "@/contexts/ERDiagramContext";
 import {
@@ -84,55 +85,55 @@ const CustomControls: React.FC<{
   const { zoomIn, zoomOut, fitView } = useReactFlow();
 
   return (
-    <Panel position="bottom-right" className={styles.customControls}>
-      <Tooltip title="放大" placement="bottom">
+    <Panel position='bottom-right' className={styles.customControls}>
+      <Tooltip title='放大' placement='bottom'>
         <button
-          type="button"
+          type='button'
           onClick={() => zoomIn({ duration: 800 })}
           className={styles.controlButton}
-          aria-label="放大"
+          aria-label='放大'
         >
           +
         </button>
       </Tooltip>
-      <Tooltip title="缩小" placement="bottom">
+      <Tooltip title='缩小' placement='bottom'>
         <button
-          type="button"
+          type='button'
           onClick={() => zoomOut({ duration: 800 })}
           className={styles.controlButton}
-          aria-label="缩小"
+          aria-label='缩小'
         >
           -
         </button>
       </Tooltip>
-      <Tooltip title="适应视图" placement="bottom">
+      <Tooltip title='适应视图' placement='bottom'>
         <button
-          type="button"
+          type='button'
           onClick={() => fitView({ duration: 800, padding: 0.2 })}
           className={`${styles.controlButton} ${styles.fitButton}`}
-          aria-label="适应视图"
+          aria-label='适应视图'
         >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            xmlns='http://www.w3.org/2000/svg'
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
           >
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            <path d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7' />
           </svg>
         </button>
       </Tooltip>
       <Tooltip
         title={edgeStyle === "bezier" ? "切换为折线" : "切换为曲线"}
-        placement="bottom"
+        placement='bottom'
       >
         <button
-          type="button"
+          type='button'
           onClick={() =>
             onEdgeStyleChange(edgeStyle === "bezier" ? "step" : "bezier")
           }
@@ -140,22 +141,22 @@ const CustomControls: React.FC<{
           aria-label={edgeStyle === "bezier" ? "切换为折线" : "切换为曲线"}
         >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            xmlns='http://www.w3.org/2000/svg'
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
           >
             {edgeStyle === "bezier" ? (
               // 折线图标
-              <path d="M3 3v18h18 M3 12h18 M12 3v18" />
+              <path d='M3 3v18h18 M3 12h18 M12 3v18' />
             ) : (
               // 曲线图标
-              <path d="M3 18c3 0 6-4 9-4s6 4 9 4" />
+              <path d='M3 18c3 0 6-4 9-4s6 4 9 4' />
             )}
           </svg>
         </button>
@@ -169,7 +170,7 @@ const InfoPanel: React.FC<{ data: ERDiagramData }> = ({ data }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
-    <Panel position="top-left" className={styles.infoPanel}>
+    <Panel position='top-left' className={styles.infoPanel}>
       {/* <Tooltip title={showInfo ? "隐藏信息" : "显示信息"}>
         <IconButton 
           size="small" 
@@ -182,12 +183,12 @@ const InfoPanel: React.FC<{ data: ERDiagramData }> = ({ data }) => {
 
       {showInfo && (
         <Paper className={styles.infoContent} elevation={3}>
-          <Typography variant="h6" className={styles.infoTitle}>
+          <Typography variant='h6' className={styles.infoTitle}>
             {data.metadata?.title || "ER图"}
           </Typography>
 
           {data.metadata?.description && (
-            <Typography variant="body2" className={styles.infoDescription}>
+            <Typography variant='body2' className={styles.infoDescription}>
               {data.metadata.description}
             </Typography>
           )}
@@ -195,20 +196,20 @@ const InfoPanel: React.FC<{ data: ERDiagramData }> = ({ data }) => {
           <Box className={styles.statsContainer}>
             <Chip
               label={`实体: ${data.entities.length}`}
-              size="small"
-              color="primary"
-              variant="outlined"
+              size='small'
+              color='primary'
+              variant='outlined'
             />
             <Chip
               label={`关系: ${data.relationships.length}`}
-              size="small"
-              color="secondary"
-              variant="outlined"
+              size='small'
+              color='secondary'
+              variant='outlined'
             />
           </Box>
 
           {data.metadata?.version && (
-            <Typography variant="caption" className={styles.version}>
+            <Typography variant='caption' className={styles.version}>
               版本: {data.metadata.version}
             </Typography>
           )}
@@ -235,6 +236,9 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   // 消息状态
   const [message, setMessage] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  // 获取Context状态
+  const { state: erState } = useERDiagramContext();
 
   // 右键菜单状态
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -270,7 +274,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   } catch (error) {
     // Context 不存在时，使用空的方法
     console.warn(
-      "ERDiagram: ERDiagramContext not available, drag and connect features disabled",
+      "ERDiagram: ERDiagramContext not available, drag and connect features disabled"
     );
   }
 
@@ -303,7 +307,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         ...edge,
         type: edgeStyle,
         data: { ...edge.data, edgeStyle },
-      })),
+      }))
     );
   }, [edgeStyle, setEdges]);
 
@@ -319,7 +323,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           (change): change is NodePositionChange =>
             change.type === "position" &&
             "dragging" in change &&
-            !!change.dragging,
+            !!change.dragging
         )
         .map((change) => change.id);
 
@@ -328,7 +332,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           nds.map((node) => ({
             ...node,
             className: draggedNodeIds.includes(node.id) ? "dragging" : "",
-          })),
+          }))
         );
       } else if (changes.some((change) => change.type === "position")) {
         // 拖拽结束时，清除类名
@@ -336,11 +340,11 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           nds.map((node) => ({
             ...node,
             className: "",
-          })),
+          }))
         );
       }
     },
-    [onNodesChange, setNodes],
+    [onNodesChange, setNodes]
   );
 
   // 节点点击处理
@@ -349,7 +353,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       console.log("Node clicked:", node);
       onNodeClick?.(node);
     },
-    [onNodeClick],
+    [onNodeClick]
   );
 
   // 边点击处理
@@ -358,7 +362,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       console.log("Edge clicked:", edge);
       onEdgeClick?.(edge);
     },
-    [onEdgeClick],
+    [onEdgeClick]
   );
 
   // 节点双击处理
@@ -367,7 +371,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       console.log("Node double clicked:", node);
       onNodeDoubleClick?.(node);
     },
-    [onNodeDoubleClick],
+    [onNodeDoubleClick]
   );
 
   // 拖拽处理函数
@@ -383,7 +387,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       // 如果没有 Context，则不处理拖拽
       if (!contextMethods.addEntity || !contextMethods.addRelationship) {
         console.warn(
-          "ERDiagram: Cannot handle drop, ERDiagramContext not available",
+          "ERDiagram: Cannot handle drop, ERDiagramContext not available"
         );
         return;
       }
@@ -417,7 +421,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         console.error("拖拽创建节点失败:", error);
       }
     },
-    [screenToFlowPosition, contextMethods],
+    [screenToFlowPosition, contextMethods]
   );
 
   // 连接处理函数
@@ -428,7 +432,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       // 如果没有 Context，则不处理连接
       if (!contextMethods.createConnection) {
         console.warn(
-          "ERDiagram: Cannot handle connect, ERDiagramContext not available",
+          "ERDiagram: Cannot handle connect, ERDiagramContext not available"
         );
         return;
       }
@@ -477,7 +481,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         // 持久化连接到 diagramData
         await contextMethods.createConnection(
           relationshipNodeId,
-          newConnection,
+          newConnection
         );
         console.log("创建连接并持久化:", {
           relationshipNodeId,
@@ -487,7 +491,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         console.error("创建连接失败:", error);
       }
     },
-    [nodes, contextMethods, showMessage],
+    [nodes, contextMethods, showMessage]
   );
 
   // 右键菜单处理函数
@@ -507,7 +511,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         flowPosition,
       });
     },
-    [screenToFlowPosition],
+    [screenToFlowPosition]
   );
 
   // 关闭右键菜单
@@ -521,7 +525,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       // 如果没有 Context，则不处理创建
       if (!contextMethods.addEntity || !contextMethods.addRelationship) {
         console.warn(
-          "ERDiagram: Cannot create node, ERDiagramContext not available",
+          "ERDiagram: Cannot create node, ERDiagramContext not available"
         );
         return;
       }
@@ -538,7 +542,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           console.log("通过右键菜单创建新弱实体:", newEntity);
         } else if (nodeType === "diamond") {
           const newRelationship = createDefaultRelationship(
-            contextMenu.flowPosition,
+            contextMenu.flowPosition
           );
           await contextMethods.addRelationship(newRelationship);
           console.log("通过右键菜单创建新关系:", newRelationship);
@@ -549,7 +553,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         handleCloseContextMenu();
       }
     },
-    [contextMenu.flowPosition, contextMethods, handleCloseContextMenu],
+    [contextMenu.flowPosition, contextMethods, handleCloseContextMenu]
   );
 
   return (
@@ -575,7 +579,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         minZoom={0.1}
         maxZoom={2}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-        attributionPosition="bottom-left"
+        attributionPosition='bottom-left'
         defaultEdgeOptions={{
           type: edgeStyle,
           animated: false,
@@ -592,7 +596,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         zoomOnPinch={true}
         panOnScroll={true}
         panOnDrag={true}
-        className="flow-with-transitions"
+        className='flow-with-transitions'
       >
         {/* 自定义控制面板 */}
         {showControls && (
@@ -604,6 +608,11 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
 
         {/* 信息面板 */}
         <InfoPanel data={data} />
+
+        {/* 固定题目显示 */}
+        {erState.pinnedQuizId && (
+          <PinnedQuizDisplay quizId={erState.pinnedQuizId} />
+        )}
 
         {/* 背景 */}
         {showBackground && (
@@ -630,7 +639,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         >
           <Alert
             onClose={() => setOpen(false)}
-            severity="warning"
+            severity='warning'
             sx={{ width: "100%" }}
           >
             {message}
@@ -642,7 +651,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       <Menu
         open={contextMenu.isOpen}
         onClose={handleCloseContextMenu}
-        anchorReference="anchorPosition"
+        anchorReference='anchorPosition'
         anchorPosition={{
           top: contextMenu.position.y,
           left: contextMenu.position.x,
@@ -664,19 +673,19 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           <ListItemIcon>
             <BorderAllIcon sx={{ color: "#448fd6" }} />
           </ListItemIcon>
-          <ListItemText primary="添加强实体" />
+          <ListItemText primary='添加强实体' />
         </MenuItem>
         <MenuItem onClick={() => handleCreateNode("weak-entity")}>
           <ListItemIcon>
             <BorderAllIcon sx={{ color: "#bd62eb" }} />
           </ListItemIcon>
-          <ListItemText primary="添加弱实体" />
+          <ListItemText primary='添加弱实体' />
         </MenuItem>
         <MenuItem onClick={() => handleCreateNode("diamond")}>
           <ListItemIcon>
             <DiamondIcon sx={{ color: "#ebcd62" }} />
           </ListItemIcon>
-          <ListItemText primary="添加关系" />
+          <ListItemText primary='添加关系' />
         </MenuItem>
       </Menu>
     </div>
