@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogTitle,
@@ -9,14 +10,9 @@ import {
   Button,
   Card,
   CardContent,
-  CardActions,
   Typography,
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Alert,
   Snackbar,
 } from "@mui/material";
@@ -71,6 +67,7 @@ const templates = [
 ];
 
 const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
+  const router = useRouter();
   const { createNewDiagram } = useERDiagramContext();
   const [selectedTemplate, setSelectedTemplate] = useState<string>("blank");
   const [diagramName, setDiagramName] = useState<string>("");
@@ -82,7 +79,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   // 生成时间以自动填充会话名称
   const defaultName = useMemo(
     () => `${new Date().toLocaleString("zh-CN")}`,
-    [],
+    []
   );
 
   // 简化后的 handleCreate 方法
@@ -93,7 +90,18 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
     setError("");
 
     try {
-      await createNewDiagram(finalName, diagramDescription, selectedTemplate);
+      const newId = await createNewDiagram(
+        finalName,
+        diagramDescription,
+        selectedTemplate
+      );
+
+      if (router) {
+        router.push(`/er-diagram?id=${newId}`);
+      } else {
+        // 如果没有路由器，使用window.location
+        window.location.href = `/er-diagram?id=${newId}`;
+      }
 
       // 显示成功消息
       setShowSuccess(true);
@@ -137,7 +145,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   // 在选中模板的card上绑定回车和空格输入的创建
   const handleTemplateKeyDown = (
     event: React.KeyboardEvent,
-    templateId: string,
+    templateId: string
   ) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -151,7 +159,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="md" // xs, sm, md, lg, xl
+      maxWidth='md' // xs, sm, md, lg, xl
       fullWidth
       sx={{
         "& .MuiDialog-paper": {
@@ -161,21 +169,21 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
     >
       <DialogTitle>
         <Typography>新建ER图</Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+        <Typography variant='body2' color='textSecondary' sx={{ mt: 1 }}>
           选择一个模板开始创建您的ER图
         </Typography>
       </DialogTitle>
 
       <DialogContent>
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity='error' sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         <Box sx={{ mb: 3 }}>
           <TextField
-            label="图表名称 (可选)"
+            label='图表名称 (可选)'
             value={diagramName}
             onChange={(e) => {
               setDiagramName(e.target.value);
@@ -188,18 +196,18 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           />
 
           <TextField
-            label="图表描述"
+            label='图表描述'
             value={diagramDescription}
             onChange={(e) => setDiagramDescription(e.target.value)}
             fullWidth
             multiline
             rows={2}
-            placeholder="图表描述（可选）"
+            placeholder='图表描述（可选）'
             onKeyDown={handleKeyDown}
           />
         </Box>
 
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography variant='h6' sx={{ mb: 2 }}>
           选择模板
         </Typography>
 
@@ -233,11 +241,11 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
                   <Box sx={{ mr: 1, color: "primary.main" }}>
                     {template.icon}
                   </Box>
-                  <Typography variant="h6" component="h3">
+                  <Typography variant='h6' component='h3'>
                     {template.name}
                   </Typography>
                 </Box>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant='body2' color='textSecondary'>
                   {template.description}
                 </Typography>
               </CardContent>
@@ -252,7 +260,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
         </Button>
         <Button
           onClick={handleCreate}
-          variant="contained"
+          variant='contained'
           disabled={isCreating}
           startIcon={<AddIcon />}
         >
@@ -266,7 +274,7 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
         onClose={() => setShowSuccess(false)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity="success" onClose={() => setShowSuccess(false)}>
+        <Alert severity='success' onClose={() => setShowSuccess(false)}>
           图表创建成功！
         </Alert>
       </Snackbar>
