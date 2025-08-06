@@ -56,15 +56,15 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
   const getAgentName = (agentType: AgentType) => {
     switch (agentType) {
       case AgentType.CHAT:
-        return "通用聊天";
+        return "通用问答";
       case AgentType.SCHEMA_GENERATOR:
-        return "DDL生成器";
+        return "DDL生成";
       case AgentType.ER_GENERATOR:
-        return "ER图生成器";
+        return "ER图生成";
       case AgentType.ER_QUIZ_GENERATOR:
-        return "ER图出题助手";
+        return "ER图出题";
       case AgentType.ER_VERIFIER:
-        return "ER图测评助手";
+        return "ER图测评";
       default:
         return "通用聊天";
     }
@@ -72,7 +72,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
   return (
     <Box
       sx={{
-        width: 48,
+        width: "2.5rem",
         height: "100%",
         backgroundColor: "var(--sidebar-bg)",
         borderRight: "1px solid var(--sidebar-border)",
@@ -84,7 +84,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
       }}
     >
       {/* 新建对话按钮 */}
-      <Tooltip title="新建对话" placement="right">
+      <Tooltip title='新建对话' placement='right'>
         <IconButton
           onClick={onNewChat}
           sx={{
@@ -98,12 +98,12 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
             },
           }}
         >
-          <AddIcon fontSize="small" />
+          <AddIcon fontSize='small' />
         </IconButton>
       </Tooltip>
 
       {/* 历史记录按钮 */}
-      <Tooltip title="历史记录" placement="right">
+      <Tooltip title='历史记录' placement='right'>
         <IconButton
           onClick={onToggleHistory}
           sx={{
@@ -133,7 +133,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
               },
             }}
           >
-            <HistoryIcon fontSize="small" />
+            <HistoryIcon fontSize='small' />
           </Badge>
         </IconButton>
       </Tooltip>
@@ -146,30 +146,33 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
           const isSelected = selectedAgent === agentType;
 
           return (
-            <Tooltip key={agentType} title={agentName} placement="right">
+            <Tooltip key={agentType} title={agentName} placement='right'>
               <IconButton
                 onClick={() => onAgentChange(agentType)}
                 sx={{
                   color: isSelected
                     ? "var(--primary-color)"
                     : "var(--icon-color)",
-                  backgroundColor: isSelected
-                    ? "var(--selected-bg)"
-                    : "transparent",
+                  // backgroundColor: isSelected
+                  //   ? "var(--selected-bg)"
+                  //   : "transparent",
                   borderRadius: 4,
                   width: ICON_SIZE,
                   height: ICON_SIZE,
-                  border: isSelected
-                    ? "2px solid var(--primary-color)"
-                    : "2px solid transparent",
+                  // border: isSelected
+                  //   ? "2px solid var(--primary-color)"
+                  //   : "2px solid transparent",
                   "&:hover": {
+                    color: isSelected
+                      ? "var(--primary-color)"
+                      : "var(--icon-color)",
                     backgroundColor: isSelected
                       ? "var(--selected-hover-bg)"
                       : "var(--hover-bg)",
                   },
                 }}
               >
-                <IconComponent fontSize="small" />
+                <IconComponent fontSize='small' />
               </IconButton>
             </Tooltip>
           );
@@ -180,7 +183,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
       <Box sx={{ flex: 1 }} />
 
       {/* 设置按钮 */}
-      <Tooltip title="设置" placement="right">
+      <Tooltip title='设置' placement='right'>
         <IconButton
           onClick={onOpenSettings}
           sx={{
@@ -193,7 +196,7 @@ const IconSidebar: React.FC<IconSidebarProps> = ({
             },
           }}
         >
-          <SettingsIcon fontSize="small" />
+          <SettingsIcon fontSize='small' />
         </IconButton>
       </Tooltip>
     </Box>

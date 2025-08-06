@@ -195,9 +195,9 @@ export interface ERVerifierResponse {
  * 智能体类型枚举
  */
 export enum AgentType {
+  CHAT = "chat", // 默认聊天智能体
   SCHEMA_GENERATOR = "schema-generator",
   ER_GENERATOR = "er-generator",
-  CHAT = "chat", // 默认聊天智能体
   ER_QUIZ_GENERATOR = "er_quiz_generator",
   ER_VERIFIER = "er_verifier",
 }

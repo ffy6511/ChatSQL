@@ -39,7 +39,7 @@ import { useSnackbar } from "@/contexts/SnackbarContext";
  * 将ChatMessage转换为MessageList组件期望的Message格式
  */
 const convertChatMessagesToMessages = (
-  chatMessages: ChatMessage[],
+  chatMessages: ChatMessage[]
 ): Message[] => {
   return chatMessages.map((msg) => {
     let metadata: any = undefined;
@@ -85,7 +85,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const parsePosition = (
       value: number | "center",
       base: number,
-      size: number,
+      size: number
     ): number => {
       if (value === "center") {
         return Math.floor((base - size) / 2);
@@ -100,14 +100,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       typeof size.width === "string" && size.width.endsWith("%")
         ? Math.floor((baseWidth * parseFloat(size.width)) / 100)
         : typeof size.width === "number"
-          ? size.width
-          : 400;
+        ? size.width
+        : 400;
     const height =
       typeof size.height === "string" && size.height.endsWith("%")
         ? Math.floor((baseHeight * parseFloat(size.height)) / 100)
         : typeof size.height === "number"
-          ? size.height
-          : 600;
+        ? size.height
+        : 600;
 
     return {
       x: parsePosition(position.x as number | "center", baseWidth, width),
@@ -215,7 +215,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         setIsDragging(true);
       }
     },
-    [isFullscreen],
+    [isFullscreen]
   );
 
   const handleMouseMove = useCallback(
@@ -234,7 +234,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         y: Math.max(0, Math.min(newY, maxY)),
       });
     },
-    [isDragging, dragOffset, currentSize, isFullscreen],
+    [isDragging, dragOffset, currentSize, isFullscreen]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -250,7 +250,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       e.stopPropagation();
       setIsResizing(true);
     },
-    [isFullscreen],
+    [isFullscreen]
   );
 
   const handleResizeMouseMove = useCallback(
@@ -268,7 +268,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         height: newHeight,
       });
     },
-    [isResizing, isFullscreen],
+    [isResizing, isFullscreen]
   );
 
   // 监听鼠标移动和释放事件
@@ -388,7 +388,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <>
-      <Slide direction="up" in={isOpen} mountOnEnter unmountOnExit>
+      <Slide direction='up' in={isOpen} mountOnEnter unmountOnExit>
         <Paper
           ref={windowRef}
           elevation={2}
@@ -455,16 +455,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <AIIcon sx={{ color: "primary.main", fontSize: 20 }} />
+                {/* <AIIcon sx={{ color: "primary.main", fontSize: 20 }} /> */}
                 <Typography
-                  variant="subtitle2"
+                  variant='subtitle2'
                   sx={{ color: "var(--primary-text)", fontWeight: "bold" }}
                 >
                   {getAgentTitle(selectedAgent)}
                 </Typography>
                 {isLoading && (
                   <Typography
-                    variant="caption"
+                    variant='caption'
                     sx={{ color: "var(--secondary-text)" }}
                   >
                     正在思考...
@@ -472,7 +472,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 )}
                 {currentSessionId && (
                   <Typography
-                    variant="caption"
+                    variant='caption'
                     sx={{ color: "var(--secondary-text)" }}
                   >
                     {sessions.find((s) => s.id === currentSessionId)?.title} •{" "}
@@ -484,25 +484,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Tooltip title={isFullscreen ? "退出全屏" : "全屏"}>
                   <IconButton
-                    size="small"
+                    size='small'
                     onClick={toggleFullscreen}
                     sx={{ color: "var(--icon-color)" }}
                   >
                     {isFullscreen ? (
-                      <FullscreenExitIcon fontSize="small" />
+                      <FullscreenExitIcon fontSize='small' />
                     ) : (
-                      <FullscreenIcon fontSize="small" />
+                      <FullscreenIcon fontSize='small' />
                     )}
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="关闭">
+                <Tooltip title='关闭'>
                   <IconButton
-                    size="small"
+                    size='small'
                     onClick={onClose}
                     sx={{ color: "var(--icon-color)" }}
                   >
-                    <CloseIcon fontSize="small" />
+                    <CloseIcon fontSize='small' />
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -510,7 +510,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
             {/* 错误提示 */}
             {error && (
-              <Alert severity="error" onClose={clearError} sx={{ m: 1 }}>
+              <Alert severity='error' onClose={clearError} sx={{ m: 1 }}>
                 {error}
               </Alert>
             )}

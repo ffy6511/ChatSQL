@@ -591,22 +591,22 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
         }}
       >
         <MenuItem onClick={handleViewAnswer}>
-          <VisibilityIcon sx={{ mr: 1, fontSize: 16 }} />
-          查看答案ER图
+          <VisibilityIcon sx={{ mr: 1, fontSize: "0.9rem" }} />
+          参考答案
         </MenuItem>
         <MenuItem onClick={handlePinQuiz}>
-          <PushPinIcon sx={{ mr: 1, fontSize: 16 }} />
+          <PushPinIcon sx={{ mr: 1, fontSize: "0.9rem" }} />
           {selectedQuiz && state.pinnedQuizId === selectedQuiz.id
             ? "取消固定"
             : "固定到画布"}
         </MenuItem>
         <MenuItem onClick={handleEditOpen}>
-          <EditIcon sx={{ mr: 1, fontSize: 16 }} />
+          <EditIcon sx={{ mr: 1, fontSize: "0.9rem" }} />
           修改名称
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleDeleteOpen} sx={{ color: "error.main" }}>
-          <DeleteIcon sx={{ mr: 1, fontSize: 16 }} />
+          <DeleteIcon sx={{ mr: 1, fontSize: "0.9rem" }} />
           删除题目
         </MenuItem>
       </Menu>

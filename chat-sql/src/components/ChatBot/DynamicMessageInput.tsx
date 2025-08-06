@@ -25,7 +25,7 @@ interface DynamicMessageInputProps {
   selectedAgent: AgentType;
   onSendMessage: (
     agentType: string,
-    inputValues: Record<string, string>,
+    inputValues: Record<string, string>
   ) => Promise<AgentOutputPart[] | null>;
   disabled?: boolean;
 }
@@ -90,7 +90,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
     try {
       const output: AgentOutputPart[] | null = await onSendMessage(
         selectedAgent,
-        inputValues,
+        inputValues
       );
 
       setInputValues({});
@@ -138,7 +138,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
 
   // 检查是否可以发送
   const canSend = agentInfo.inputFields.every(
-    (field) => !field.required || inputValues[field.name]?.trim(),
+    (field) => !field.required || inputValues[field.name]?.trim()
   );
 
   // 渲染输入字段
@@ -150,7 +150,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
     return (
       <Box key={field.name}>
         <Typography
-          variant="caption"
+          variant='caption'
           sx={{
             color: "var(--secondary-text)",
             display: "block",
@@ -161,7 +161,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
           {field.label}
           {field.required && (
             <Typography
-              component="span"
+              component='span'
               sx={{ color: "var(--error-color, #f44336)" }}
             >
               {" "}
@@ -196,25 +196,13 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             placeholder={field.placeholder}
             disabled={disabled}
             error={!!error}
-            variant="outlined"
-            size="small"
+            variant='outlined'
+            size='small'
             sx={{
               "& .MuiOutlinedInput-root": {
                 backgroundColor: "var(--input-bg)",
-                borderRadius: 1,
+                borderRadius: 4,
                 fontSize: "0.875rem",
-                "& fieldset": {
-                  borderColor: "var(--input-border)",
-                },
-                "&:hover fieldset": {
-                  borderColor: "primary.main",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "primary.main",
-                },
-                "&.Mui-error fieldset": {
-                  borderColor: "var(--error-color, #f44336)",
-                },
               },
               "& .MuiInputBase-input": {
                 color: "var(--input-text)",
@@ -257,7 +245,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
       >
         {/* 输入字段 */}
         {agentInfo.inputFields.map((field, index) =>
-          renderInputField(field, index),
+          renderInputField(field, index)
         )}
 
         {/* 发送按钮区域 */}
@@ -269,11 +257,11 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             flexShrink: 0, // 防止按钮区域被压缩
           }}
         >
-          <Tooltip title="发送 (Enter)">
+          <Tooltip title='发送 (Enter)'>
             <IconButton
               onClick={handleSendMessage}
               disabled={disabled || !canSend}
-              color="primary"
+              color='primary'
               sx={{
                 backgroundColor: canSend ? "primary.main" : "grey.300",
                 color: "white",

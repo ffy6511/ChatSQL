@@ -8,10 +8,9 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { useLLMContext } from "@/contexts/LLMContext";
-import styles from "./SideBar.module.css";
 import GuidingModal from "./GuidingModal";
 import InitTutorialButton from "../Tutorial/InitTutorialButton";
-import ThemeToggle from "./ThemeToggle";
+import ShareButton from "../NavBar/ShareButton";
 
 const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({
   onToggleHistory,
@@ -57,57 +56,58 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({
   };
 
   return (
-    <div className="global-sidebar-container">
+    <div className='global-sidebar-container'>
       {contextHolder}
-      <div className="global-sidebar-top-buttons">
-        <Tooltip title="新建对话" placement="right">
+      <div className='global-sidebar-top-buttons'>
+        <Tooltip title='新建对话' placement='right'>
           <Button
-            type="text"
+            type='text'
             icon={<PlusCircleOutlined />}
-            className="global-sidebar-action-button"
+            className='global-sidebar-action-button'
             onClick={handleNewChat}
           />
         </Tooltip>
 
         <Tooltip
           title={isHistoryCollapsed ? "展开历史记录" : "收起历史记录"}
-          placement="right"
+          placement='right'
         >
           <Button
-            type="text"
+            type='text'
             icon={
               isHistoryCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
             }
-            className="global-sidebar-action-button"
+            className='global-sidebar-action-button'
             onClick={handleToggleHistory}
           />
         </Tooltip>
       </div>
 
-      <div className="global-sidebar-menu-container">
-        <div className="global-sidebar-menu-items">
-          <ThemeToggle />
+      <div className='global-sidebar-menu-container'>
+        <div className='global-sidebar-menu-items'>
+          <InitTutorialButton className='global-sidebar-action-button' />
         </div>
-        <div className="global-sidebar-menu-items">
-          <InitTutorialButton className="global-sidebar-action-button" />
+
+        <div className='global-sidebar-menu-items'>
+          <ShareButton className='global-sidebar-action-button' />
         </div>
       </div>
 
-      <div className="global-sidebar-bottom-buttons">
-        <Tooltip title="帮助" placement="right">
+      <div className='global-sidebar-bottom-buttons'>
+        <Tooltip title='帮助' placement='right'>
           <Button
-            type="text"
+            type='text'
             icon={<QuestionCircleOutlined />}
-            className="global-sidebar-action-button"
+            className='global-sidebar-action-button'
             onClick={handleOpenGuide}
           />
         </Tooltip>
 
-        <Tooltip title="GitHub仓库" placement="right">
+        <Tooltip title='GitHub仓库' placement='right'>
           <Button
-            type="text"
+            type='text'
             icon={<GithubOutlined />}
-            className="global-sidebar-action-button"
+            className='global-sidebar-action-button'
             onClick={handleGithubClick}
           />
         </Tooltip>

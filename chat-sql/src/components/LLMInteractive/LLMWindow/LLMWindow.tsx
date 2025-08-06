@@ -68,7 +68,7 @@ const LLMWindow: React.FC = () => {
 
   const handleTagCheck = (tag: string, checked: boolean) => {
     setCheckedTags(
-      checked ? [...checkedTags, tag] : checkedTags.filter((t) => t !== tag),
+      checked ? [...checkedTags, tag] : checkedTags.filter((t) => t !== tag)
     );
   };
 
@@ -182,16 +182,16 @@ const LLMWindow: React.FC = () => {
           {/* 顶部标题区域 */}
           <div className={styles.headerArea}>
             <Typography
-              variant="h4"
+              variant='h3'
               sx={{
-                fontWeight: "normal",
+                // fontWeight: "normal",
                 textAlign: "center",
                 flex: 1,
                 color: "var(-secondary-text)",
               }}
             >
               {loading ? (
-                <ShinyText text="正在生成有趣的应用..." speed={3} />
+                <ShinyText text='正在生成有趣的应用...' speed={3} />
               ) : (
                 "今天希望练习什么内容？"
               )}
@@ -214,7 +214,7 @@ const LLMWindow: React.FC = () => {
               >
                 <div className={styles.resultHeader}>
                   <Typography
-                    variant="h6"
+                    variant='h6'
                     sx={{
                       display: "flex",
                       alignItems: "center",
@@ -232,9 +232,9 @@ const LLMWindow: React.FC = () => {
                   </Typography>
 
                   <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
+                    variant='contained'
+                    color='success'
+                    size='small'
                     onClick={handleConfirm}
                     disabled={isSaving}
                     startIcon={<CheckOutlined />}
@@ -277,14 +277,14 @@ const LLMWindow: React.FC = () => {
             {/* 输入框区域 */}
             <div className={styles.textAreaWrapper}>
               <TextField
-                placeholder="您的任务描述"
+                placeholder='您的任务描述'
                 value={declare}
                 onChange={(e) => setDeclare(e.target.value)}
                 multiline
                 minRows={3}
                 maxRows={6}
                 fullWidth
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "24px",
@@ -312,7 +312,7 @@ const LLMWindow: React.FC = () => {
 
               <div className={styles.actionButtonContainer}>
                 <IconButton
-                  color="primary"
+                  color='primary'
                   onClick={handleSubmit}
                   disabled={loading}
                   sx={{
@@ -335,7 +335,7 @@ const LLMWindow: React.FC = () => {
             <div className={styles.buttonGroup}>
               {/* 标签按钮 */}
               <Button
-                variant="outlined"
+                variant='outlined'
                 onClick={handleTagsClick}
                 startIcon={<TagOutlined />}
                 sx={{
@@ -356,7 +356,7 @@ const LLMWindow: React.FC = () => {
 
               {/* 难度按钮 */}
               <Button
-                variant="outlined"
+                variant='outlined'
                 onClick={handleDifficultyClick}
                 startIcon={<BarChartOutlined />}
                 sx={{
@@ -376,7 +376,7 @@ const LLMWindow: React.FC = () => {
 
               {/* 数量按钮 */}
               <Button
-                variant="outlined"
+                variant='outlined'
                 onClick={handleCountClick}
                 startIcon={<NumberOutlined />}
                 sx={{
@@ -419,7 +419,7 @@ const LLMWindow: React.FC = () => {
               }}
             >
               <Typography
-                variant="subtitle2"
+                variant='subtitle2'
                 sx={{ fontWeight: "bold", textAlign: "center", mb: 2 }}
               >
                 选择标签
@@ -470,11 +470,11 @@ const LLMWindow: React.FC = () => {
                 }}
               >
                 <TextField
-                  placeholder="输入新标签"
+                  placeholder='输入新标签'
                   value={newTagInput}
                   onChange={(e) => setNewTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
-                  size="small"
+                  size='small'
                   fullWidth
                   sx={{
                     "& .MuiOutlinedInput-root": {
@@ -491,7 +491,7 @@ const LLMWindow: React.FC = () => {
                   }}
                 />
                 <Button
-                  variant="contained"
+                  variant='contained'
                   onClick={handleAddTag}
                   disabled={!newTagInput.trim()}
                 >
@@ -525,7 +525,7 @@ const LLMWindow: React.FC = () => {
               }}
             >
               <Typography
-                variant="subtitle2"
+                variant='subtitle2'
                 sx={{ fontWeight: "bold", textAlign: "center", mb: 2 }}
               >
                 选择难度
@@ -576,14 +576,14 @@ const LLMWindow: React.FC = () => {
               }}
             >
               <Typography
-                variant="subtitle2"
+                variant='subtitle2'
                 sx={{ fontWeight: "bold", textAlign: "center", mb: 2 }}
               >
                 选择题目数量
               </Typography>
               <Box sx={{ padding: "0 16px" }}>
                 <TextField
-                  type="number"
+                  type='number'
                   value={problemCnt}
                   onChange={(e) => setProblemCnt(Number(e.target.value))}
                   inputProps={{ min: 1, max: 10 }}
@@ -600,7 +600,7 @@ const LLMWindow: React.FC = () => {
                   }}
                 />
                 <Typography
-                  variant="caption"
+                  variant='caption'
                   sx={{
                     color: "var(--secondary-text)",
                     display: "block",

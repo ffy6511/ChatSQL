@@ -9,9 +9,8 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import styles from "./NavBar.module.css";
 
-const ShareButton: React.FC = () => {
+const ShareButton: React.FC<{ className?: string }> = ({ className }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,7 +19,7 @@ const ShareButton: React.FC = () => {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
         return String.fromCharCode(parseInt(p1, 16));
-      }),
+      })
     )
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
@@ -43,7 +42,7 @@ const ShareButton: React.FC = () => {
           .map(function (c) {
             return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
           })
-          .join(""),
+          .join("")
       );
     } catch (e) {
       throw new Error("解码失败：无效的数据");
@@ -212,18 +211,14 @@ const ShareButton: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Dropdown menu={{ items }} placement="bottomRight">
-        <Button
-          type="text"
-          icon={<ShareAltOutlined />}
-          className={styles.navButton}
-        />
+      <Dropdown menu={{ items }} placement='bottomRight'>
+        <Button type='text' icon={<ShareAltOutlined />} className={className} />
       </Dropdown>
       <input
-        type="file"
+        type='file'
         ref={fileInputRef}
         style={{ display: "none" }}
-        accept=".json"
+        accept='.json'
         onChange={handleFileSelect}
       />
     </>

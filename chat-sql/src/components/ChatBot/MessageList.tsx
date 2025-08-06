@@ -28,7 +28,7 @@ const MessageList: React.FC<MessageListProps> = ({
     let timer: NodeJS.Timeout;
     if (isLoading) {
       setCurrentTip(
-        chatLoadingTips[Math.floor(Math.random() * chatLoadingTips.length)],
+        chatLoadingTips[Math.floor(Math.random() * chatLoadingTips.length)]
       );
 
       timer = setInterval(() => {
@@ -38,7 +38,7 @@ const MessageList: React.FC<MessageListProps> = ({
             setCurrentTip(
               chatLoadingTips[
                 Math.floor(Math.random() * chatLoadingTips.length)
-              ],
+              ]
             );
           }
           return next;
@@ -88,7 +88,7 @@ const MessageList: React.FC<MessageListProps> = ({
         }}
       >
         {/* AI头像 */}
-        {!isUser && (
+        {/* {!isUser && (
           <Box
             sx={{
               width: 32,
@@ -104,7 +104,7 @@ const MessageList: React.FC<MessageListProps> = ({
           >
             <AIIcon sx={{ fontSize: 18, color: "white" }} />
           </Box>
-        )}
+        )} */}
 
         {/* 消息内容 */}
         <Paper
@@ -131,7 +131,7 @@ const MessageList: React.FC<MessageListProps> = ({
 
           {/* 时间戳 */}
           <Typography
-            variant="caption"
+            variant='caption'
             sx={{
               display: "block",
               mt: 1,
@@ -170,7 +170,7 @@ const MessageList: React.FC<MessageListProps> = ({
           }}
         >
           <Box>
-            <Typography variant="h6" color="var(--secondary-text)">
+            <Typography variant='h4' color='var(--secondary-text)'>
               有什么可以帮您？
             </Typography>
           </Box>
@@ -189,7 +189,7 @@ const MessageList: React.FC<MessageListProps> = ({
                 mb: 2,
               }}
             >
-              <Box
+              {/* <Box
                 sx={{
                   width: 32,
                   height: 32,
@@ -203,7 +203,7 @@ const MessageList: React.FC<MessageListProps> = ({
                 }}
               >
                 <AIIcon sx={{ fontSize: 18, color: "white" }} />
-              </Box>
+              </Box> */}
 
               <Paper
                 elevation={1}
@@ -219,14 +219,14 @@ const MessageList: React.FC<MessageListProps> = ({
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <ShinyText text="正在思考中..." speed={3} />
-                  <Typography variant="body2" color="var(--secondary-text)">
+                  <ShinyText text='正在思考中...' speed={3} />
+                  <Typography variant='body2' color='var(--secondary-text)'>
                     {elapsedTime}s
                   </Typography>
                 </Box>
                 <Typography
-                  variant="caption"
-                  color="var(--secondary-text)"
+                  variant='caption'
+                  color='var(--secondary-text)'
                   sx={{ mt: 1 }}
                 >
                   {currentTip}

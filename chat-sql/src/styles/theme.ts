@@ -16,17 +16,23 @@ const theme = createTheme({
           // 输入框的外框
           "& .MuiOutlinedInput-root": {
             backgroundColor: "var(--input-bg)",
+            borderRadius: "16px",
+            boxShadow: `
+            inset 0 0 0 1px rgba(5, 5, 5, 0.08),
+            0 1px 3px rgba(0, 0, 0, 0.05),
+            0 1px 2px -1px rgba(0, 0, 0, 0.05)
+          `,
             // 默认状态下的边框颜色
             "& fieldset": {
-              borderColor: "var(--input-border)",
+              borderColor: "transparent",
             },
             // 鼠标悬停时的边框颜色
             "&:hover fieldset": {
-              borderColor: "var(--link-color)",
+              borderColor: "transparent",
             },
             // 聚焦时的边框颜色
             "&.Mui-focused fieldset": {
-              borderColor: "var(--link-color)",
+              borderColor: "transparent",
             },
             // 输入的文字颜色
             "& .MuiOutlinedInput-input": {
@@ -181,26 +187,32 @@ const theme = createTheme({
         h1: {
           color: "var(--primary-text)",
           fontWeight: 600,
+          fontSize: "1.45rem",
         },
         h2: {
           color: "var(--primary-text)",
           fontWeight: 600,
+          fontSize: "1.35rem",
         },
         h3: {
           color: "var(--primary-text)",
           fontWeight: 600,
+          fontSize: "1.25rem",
         },
         h4: {
           color: "var(--primary-text)",
           fontWeight: 600,
+          fontSize: "1.15rem",
         },
         h5: {
-          color: "var(--primary-text)",
+          color: "var(--secondary-text)",
           fontWeight: 600,
+          fontSize: "0.95rem",
         },
         h6: {
-          color: "var(--primary-text)",
+          color: "var(--secondary-text)",
           fontWeight: 600,
+          fontSize: "0.875rem",
         },
         body1: {
           color: "var(--primary-text)",

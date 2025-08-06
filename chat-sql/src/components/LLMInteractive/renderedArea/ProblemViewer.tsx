@@ -30,11 +30,11 @@ const ProblemViewer: React.FC = () => {
   // 使用 useMemo 缓存数据，避免不必要的重新计算
   const problem = useMemo(
     () => llmResult?.data?.outputs?.problem || [],
-    [llmResult?.data?.outputs?.problem],
+    [llmResult?.data?.outputs?.problem]
   );
   const description = useMemo(
     () => llmResult?.data?.outputs?.description || "",
-    [llmResult?.data?.outputs?.description],
+    [llmResult?.data?.outputs?.description]
   );
 
   // 检查是否有已完成的问题
@@ -91,18 +91,11 @@ const ProblemViewer: React.FC = () => {
         >
           <AssignmentIcon
             sx={{
-              fontSize: 30,
+              fontSize: "1.5rem",
               color: "primary.main",
-              // marginLeft: 'auto', // 使图标在容器中水平居中
             }}
           />
-          <Typography
-            variant="h5"
-            component="h2"
-            fontWeight="bold"
-            textAlign={"center"}
-            width="100%"
-          >
+          <Typography variant='h5' textAlign={"center"} width='100%'>
             查询要求
           </Typography>
         </Box>
@@ -110,10 +103,9 @@ const ProblemViewer: React.FC = () => {
         {description && (
           <Box sx={{ mb: 4 }}>
             <Typography
-              variant="h6"
-              component="h3"
+              variant='h6'
+              component='h3'
               gutterBottom
-              fontSize="1rem"
               sx={{
                 color: "var(--secondary-text)",
               }}
@@ -121,7 +113,7 @@ const ProblemViewer: React.FC = () => {
               问题描述
             </Typography>
             <Typography
-              variant="body1"
+              variant='body2'
               sx={{
                 backgroundColor: "action.hover",
                 p: 2,
@@ -143,9 +135,8 @@ const ProblemViewer: React.FC = () => {
           }}
         >
           <Typography
-            variant="h6"
-            component="h3"
-            fontSize="1rem"
+            variant='h6'
+            component='h3'
             sx={{
               color: "var(--secondary-text)",
             }}
@@ -155,10 +146,10 @@ const ProblemViewer: React.FC = () => {
 
           {/* 清除进度按钮 */}
           {hasCompletedProblems && currentProblemId && (
-            <Tooltip title="清除所有进度" placement="top">
+            <Tooltip title='清除所有进度' placement='top'>
               <IconButton
                 onClick={handleClearProgressClick}
-                size="small"
+                size='small'
                 sx={{
                   color: "var(--secondary-text)",
                   "&:hover": {
@@ -167,7 +158,7 @@ const ProblemViewer: React.FC = () => {
                   },
                 }}
               >
-                <DeleteSweepIcon fontSize="small" />
+                <DeleteSweepIcon fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
@@ -228,13 +219,13 @@ const ProblemViewer: React.FC = () => {
       <Dialog
         open={isConfirmDialogOpen}
         onClose={handleCancelClearProgress}
-        aria-labelledby="clear-progress-dialog-title"
-        aria-describedby="clear-progress-dialog-description"
+        aria-labelledby='clear-progress-dialog-title'
+        aria-describedby='clear-progress-dialog-description'
         onKeyDown={handleDialogKeyDown}
       >
-        <DialogTitle id="clear-progress-dialog-title">确认清除进度</DialogTitle>
+        <DialogTitle id='clear-progress-dialog-title'>确认清除进度</DialogTitle>
         <DialogContent>
-          <DialogContentText id="clear-progress-dialog-description">
+          <DialogContentText id='clear-progress-dialog-description'>
             您确定要清除所有编程题目的完成进度吗？此操作无法撤销。
           </DialogContentText>
         </DialogContent>
@@ -247,8 +238,8 @@ const ProblemViewer: React.FC = () => {
           </Button>
           <Button
             onClick={handleConfirmClearProgress}
-            color="error"
-            variant="contained"
+            color='error'
+            variant='contained'
             autoFocus
           >
             确认清除

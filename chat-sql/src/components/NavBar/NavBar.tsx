@@ -14,6 +14,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./NavBar.module.css";
 import ShareButton from "./ShareButton";
+import ThemeToggle from "../SideBar/ThemeToggle";
 import ChatWindow from "@/components/ChatBot/ChatWindow";
 
 const NavBar: React.FC = () => {
@@ -50,8 +51,8 @@ const NavBar: React.FC = () => {
         <div className={styles.leftSection}>
           <div className={styles.logoContainer}>
             <img
-              src="/assets/logo.svg"
-              alt="Logo"
+              src='/assets/logo.svg'
+              alt='Logo'
               className={styles.logoImage}
             />
             <h2 className={styles.logoText}>ChatSQL</h2>
@@ -60,34 +61,40 @@ const NavBar: React.FC = () => {
 
         <div className={styles.middleSection}>
           <div className={styles.navTabs}>
-            <Tooltip title="SQL练习">
+            <Tooltip title='SQL练习'>
               <Button
                 type={isActive("/") ? "primary" : "text"}
                 icon={<CodeOutlined />}
                 onClick={() => router.push("/")}
-                className={`${styles.tabButton} ${isActive("/") ? styles.activeTab : ""}`}
+                className={`${styles.tabButton} ${
+                  isActive("/") ? styles.activeTab : ""
+                }`}
               >
                 Coding
               </Button>
             </Tooltip>
 
-            <Tooltip title="ER图建模">
+            <Tooltip title='ER图建模'>
               <Button
                 type={isActive("/er-diagram") ? "primary" : "text"}
                 icon={<DatabaseOutlined />}
                 onClick={() => router.push("/er-diagram")}
-                className={`${styles.tabButton} ${isActive("/er-diagram") ? styles.activeTab : ""}`}
+                className={`${styles.tabButton} ${
+                  isActive("/er-diagram") ? styles.activeTab : ""
+                }`}
               >
                 ER-Graph
               </Button>
             </Tooltip>
 
-            <Tooltip title="B+树可视化">
+            <Tooltip title='B+树可视化'>
               <Button
                 type={isActive("/Bplus") ? "primary" : "text"}
                 icon={<PartitionOutlined />}
                 onClick={() => router.push("/Bplus")}
-                className={`${styles.tabButton} ${isActive("/Bplus") ? styles.activeTab : ""}`}
+                className={`${styles.tabButton} ${
+                  isActive("/Bplus") ? styles.activeTab : ""
+                }`}
               >
                 BPlus
               </Button>
@@ -96,29 +103,34 @@ const NavBar: React.FC = () => {
         </div>
 
         <div className={styles.rightSection}>
-          <ShareButton />
+          {/* 主题切换 */}
+          <Button
+            type='text'
+            icon={<ThemeToggle />}
+            className={styles.navButton}
+          />
 
           {/* 聊天按钮 */}
           <Tooltip title={`智能助手 (Ctrl+K)`}>
             <Button
-              type={isChatOpen ? "primary" : "text"}
+              type='text'
               icon={isChatOpen ? <CloseOutlined /> : <MessageOutlined />}
               onClick={toggleChat}
               className={styles.navButton}
             />
           </Tooltip>
 
-          <Tooltip title="返回主页">
+          <Tooltip title='返回主页'>
             <Button
-              type="text"
+              type='text'
               icon={<HomeOutlined />}
               onClick={() => router.push("/")}
               className={styles.navButton}
             />
           </Tooltip>
-          <Tooltip title="更新日志">
+          <Tooltip title='更新日志'>
             <Button
-              type="text"
+              type='text'
               icon={<HistoryOutlined />}
               onClick={() => router.push("/changelog")}
               className={styles.navButton}

@@ -87,7 +87,6 @@
 
 .navButton {
   border-radius: 50%;
-  border: 1px solid var(--button-border);
   box-shadow: 0 0 10px rgba(136, 134, 134, 0.1);
   height: 30px;
   width: 30px;
@@ -101,7 +100,6 @@
 
 [data-theme="dark"] .navButton {
   color: var(--icon-color-dark) !important;
-  border-color: var(--button-border);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
