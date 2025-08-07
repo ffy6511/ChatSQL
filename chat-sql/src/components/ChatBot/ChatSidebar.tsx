@@ -76,7 +76,7 @@ const ChatSidebar: React.FC<ExtendedChatSidebarProps> = ({
         position: "relative",
         height: "100%",
         backgroundColor: "var(--sidebar-bg)",
-        width: isHistoryOpen ? 328 : 48, // 48px (IconSidebar) + 280px (HistoryPanel)
+        width: isHistoryOpen ? "15.5rem" : "2.5rem",
         transition: "width 0.3s ease-in-out",
       }}
     >

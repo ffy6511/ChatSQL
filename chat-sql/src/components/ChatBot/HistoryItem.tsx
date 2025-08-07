@@ -103,12 +103,12 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
 
   return (
     <>
-      <ListItem disablePadding>
+      <ListItem disablePadding sx={{ borderRadius: "16px" }}>
         <ListItemButton
           onClick={handleItemClick}
           selected={isSelected}
           sx={{
-            borderRadius: 1,
+            borderRadius: "16px",
             mb: 0.5,
             backgroundColor: isSelected ? "var(--hover-bg)" : "transparent",
             "&:hover": {
@@ -138,7 +138,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             <Box sx={{ flex: 1, minWidth: 0 }}>
               {isEditing ? (
                 <TextField
-                  size="small"
+                  size='small'
                   value={editingTitle}
                   onChange={(e) => setEditingTitle(e.target.value)}
                   onKeyDown={(e) => {
@@ -169,7 +169,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     }}
                   >
                     <Typography
-                      variant="body2"
+                      variant='body2'
                       sx={{
                         color: "var(--primary-text)",
                         fontWeight: isSelected ? 600 : 400,
@@ -183,7 +183,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                       {truncateTitle(history.title || "")}
                     </Typography>
                     <IconButton
-                      size="small"
+                      size='small'
                       onClick={handleMenuOpen}
                       sx={{
                         opacity: 0,
@@ -193,7 +193,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                         p: 0.25,
                       }}
                     >
-                      <MoreVertIcon fontSize="small" />
+                      <MoreVertIcon fontSize='small' />
                     </IconButton>
                   </Box>
 
@@ -207,7 +207,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                     }}
                   >
                     <Typography
-                      variant="caption"
+                      variant='caption'
                       sx={{
                         color: "var(--secondary-text)",
                         fontSize: "0.75rem",

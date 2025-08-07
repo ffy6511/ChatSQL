@@ -12,10 +12,8 @@ export const TUTORIAL_QUIZ_ID_PREFIX = "tutorial-quiz-";
 const beginnerQuiz: Omit<Quiz, "createdAt" | "updatedAt"> = {
   id: `${TUTORIAL_QUIZ_ID_PREFIX}beginner`,
   name: "初级教程：学生选课系统",
-  description: JSON.stringify({
-    description:
-      "设计一个简单的学生选课系统的ER图。系统需要管理学生信息和课程信息，学生可以选修多门课程，每门课程也可以被多个学生选修。\n\n要求包含的实体：\n1. 学生(Student)：学号、姓名、年龄\n2. 课程(Course)：课程号、课程名、学分\n\n要求包含的关系：\n1. 选修关系：学生选修课程，记录成绩",
-  }),
+  description:
+    "设计一个简单的学生选课系统的ER图。系统需要管理学生信息和课程信息，学生可以选修多门课程，每门课程也可以被多个学生选修。\n\n要求包含的实体：\n1. 学生(Student)：学号、姓名、年龄\n2. 课程(Course)：课程号、课程名、学分\n\n要求包含的关系：\n1. 选修关系：学生选修课程，记录成绩",
   referenceAnswer: {
     entities: [
       {
@@ -70,10 +68,8 @@ const beginnerQuiz: Omit<Quiz, "createdAt" | "updatedAt"> = {
 const intermediateQuiz: Omit<Quiz, "createdAt" | "updatedAt"> = {
   id: `${TUTORIAL_QUIZ_ID_PREFIX}intermediate`,
   name: "中级教程：图书管理系统",
-  description: JSON.stringify({
-    description:
-      "设计一个图书管理系统的ER图。系统需要管理图书、作者、读者和借阅信息。\n\n要求包含的实体：\n1. 图书(Book)：ISBN、书名、出版年份、价格\n2. 作者(Author)：作者ID、姓名、国籍\n3. 读者(Reader)：读者证号、姓名、电话\n\n要求包含的关系：\n1. 著作关系：作者写作图书（一对多）\n2. 借阅关系：读者借阅图书，记录借阅日期和归还日期",
-  }),
+  description:
+    "设计一个图书管理系统的ER图。系统需要管理图书、作者、读者和借阅信息。\n\n要求包含的实体：\n1. 图书(Book)：ISBN、书名、出版年份、价格\n2. 作者(Author)：作者ID、姓名、国籍\n3. 读者(Reader)：读者证号、姓名、电话\n\n要求包含的关系：\n1. 著作关系：作者写作图书（一对多）\n2. 借阅关系：读者借阅图书，记录借阅日期和归还日期",
   referenceAnswer: {
     entities: [
       {
@@ -155,10 +151,8 @@ const intermediateQuiz: Omit<Quiz, "createdAt" | "updatedAt"> = {
 const advancedQuiz: Omit<Quiz, "createdAt" | "updatedAt"> = {
   id: `${TUTORIAL_QUIZ_ID_PREFIX}advanced`,
   name: "高级教程：电商订单系统",
-  description: JSON.stringify({
-    description:
-      "设计一个复杂的电商订单系统ER图。系统包含用户、商品、订单、商家等多个实体和复杂关系。\n\n要求包含的实体：\n1. 用户(User)：用户ID、用户名、邮箱、注册时间\n2. 商品(Product)：商品ID、商品名、价格、库存\n3. 订单(Order)：订单ID、订单时间、总金额、状态\n4. 商家(Merchant)：商家ID、商家名、联系方式\n5. 地址(Address)：地址ID、省份、城市、详细地址\n\n要求包含的关系：\n1. 用户拥有地址（一对多）\n2. 商家销售商品（一对多）\n3. 用户下订单（一对多）\n4. 订单包含商品（多对多，记录数量和单价）\n5. 订单配送到地址（多对一）",
-  }),
+  description:
+    "设计一个复杂的电商订单系统ER图。系统包含用户、商品、订单、商家等多个实体和复杂关系。\n\n要求包含的实体：\n1. 用户(User)：用户ID、用户名、邮箱、注册时间\n2. 商品(Product)：商品ID、商品名、价格、库存\n3. 订单(Order)：订单ID、订单时间、总金额、状态\n4. 商家(Merchant)：商家ID、商家名、联系方式\n5. 地址(Address)：地址ID、省份、城市、详细地址\n\n要求包含的关系：\n1. 用户拥有地址（一对多）\n2. 商家销售商品（一对多）\n3. 用户下订单（一对多）\n4. 订单包含商品（多对多，记录数量和单价）\n5. 订单配送到地址（多对一）",
   referenceAnswer: {
     entities: [
       {

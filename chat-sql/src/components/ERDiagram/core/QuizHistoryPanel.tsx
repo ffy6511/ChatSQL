@@ -542,8 +542,10 @@ const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
                                       : "ellipsis",
                                   }}
                                 >
-                                  {/* 取出字段内部的内容显示 */}
-                                  {JSON.parse(quiz.description).description}
+                                  {/* 取出字段内部的内容显示,判断是否为JSON,如果是JSON则转化为字符串 */}
+                                  {typeof quiz.description === "string"
+                                    ? quiz.description
+                                    : JSON.stringify(quiz.description)}
                                 </Typography>
                               </Box>
                             </Stack>

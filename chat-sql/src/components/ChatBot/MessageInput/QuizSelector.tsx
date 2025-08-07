@@ -82,7 +82,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         setFilteredQuizzes([]);
       }
     },
-    [quizzes],
+    [quizzes]
   );
 
   // 打开选择对话框
@@ -155,7 +155,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
     <Box>
       {/* 选择按钮和当前选择显示 */}
       <Button
-        variant="outlined"
+        variant='outlined'
         onClick={handleOpenDialog}
         disabled={disabled}
         startIcon={<QuizIcon />}
@@ -172,23 +172,23 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
       >
         {currentDisplay ? (
           <Box sx={{ width: "100%" }}>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Typography variant='body2' sx={{ fontWeight: 500 }}>
               {currentDisplay.name}
             </Typography>
-            <Typography variant="caption">
+            <Typography variant='caption'>
               {currentDisplay.description}
             </Typography>
           </Box>
         ) : (
-          <Typography variant="body2">{placeholder}</Typography>
+          <Typography variant='body2'>{placeholder}</Typography>
         )}
       </Button>
 
       {/* 错误提示 */}
       {error && (
         <Typography
-          variant="caption"
-          color="error"
+          variant='caption'
+          color='error'
           sx={{ mt: 0.5, display: "block" }}
         >
           {error}
@@ -199,7 +199,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
       <Dialog
         open={open}
         onClose={handleCloseDialog}
-        maxWidth="md"
+        maxWidth='md'
         fullWidth
         PaperProps={{
           sx: { height: "70vh", backgroundColor: "var(--card-bg)" },
@@ -208,7 +208,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
         <DialogTitle>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <QuizIcon />
-            <Typography variant="h6">选择题目</Typography>
+            <Typography variant='h6'>选择题目</Typography>
           </Box>
         </DialogTitle>
 
@@ -216,18 +216,18 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
           {/* 搜索框 */}
           <TextField
             fullWidth
-            placeholder="搜索题目名称或描述..."
+            placeholder='搜索题目名称或描述...'
             value={searchKeyword}
             onChange={(e) => handleSearch(e.target.value)}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">
+                <InputAdornment position='start'>
                   <SearchIcon />
                 </InputAdornment>
               ),
               endAdornment: searchKeyword && (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => handleSearch("")}>
+                <InputAdornment position='end'>
+                  <IconButton size='small' onClick={() => handleSearch("")}>
                     <ClearIcon />
                   </IconButton>
                 </InputAdornment>
@@ -245,7 +245,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
 
           {/* 错误提示 */}
           {loadError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity='error' sx={{ mb: 2 }}>
               {loadError}
             </Alert>
           )}
@@ -255,13 +255,13 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
             <>
               {filteredQuizzes.length === 0 ? (
                 <Box sx={{ textAlign: "center", py: 4 }}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant='body2' color='text.secondary'>
                     {searchKeyword ? "未找到匹配的题目" : "暂无可用题目"}
                   </Typography>
                   {!searchKeyword && (
                     <Typography
-                      variant="caption"
-                      color="text.secondary"
+                      variant='caption'
+                      color='text.secondary'
                       sx={{ mt: 1, display: "block" }}
                     >
                       请先在"出题模式"中生成一些题目
@@ -292,8 +292,8 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                               }}
                             >
                               <Typography
-                                variant="subtitle2"
-                                color="var(--secondary-text)"
+                                variant='subtitle2'
+                                color='var(--secondary-text)'
                                 sx={{ fontWeight: 600 }}
                               >
                                 {quiz.name}
@@ -301,13 +301,13 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                               <Chip
                                 icon={<DateIcon />}
                                 label={formatDate(quiz.createdAt)}
-                                size="small"
-                                variant="outlined"
+                                size='small'
+                                variant='outlined'
                               />
                             </Box>
                             <Typography
-                              variant="body2"
-                              color="var(--secondary-text)"
+                              variant='body2'
+                              color='var(--secondary-text)'
                               sx={{
                                 display: "-webkit-box",
                                 WebkitLineClamp: 2,
@@ -316,7 +316,9 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
                                 lineHeight: 1.4,
                               }}
                             >
-                              {JSON.parse(quiz.description).description}
+                              {typeof quiz.description === "string"
+                                ? quiz.description
+                                : JSON.stringify(quiz.description)}
                             </Typography>
                           </Box>
                         </ListItemButton>
@@ -334,7 +336,7 @@ const QuizSelector: React.FC<QuizSelectorProps> = ({
           <Button onClick={handleCloseDialog}>取消</Button>
           <Button
             onClick={handleConfirmSelection}
-            variant="contained"
+            variant='contained'
             disabled={!selectedQuiz}
           >
             确认选择

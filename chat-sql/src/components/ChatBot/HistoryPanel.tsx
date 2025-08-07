@@ -63,7 +63,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     <>
       <Box
         sx={{
-          width: 280,
+          width: "13rem",
           height: "100%",
           backgroundColor: "var(--card-bg)",
           borderRight: "1px solid var(--card-border)",
@@ -91,15 +91,15 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           {/* 搜索框 */}
           <Box sx={{ flexGrow: 1 }}>
             <TextField
-              placeholder="搜索历史记录..."
-              size="small"
+              placeholder='Search'
+              size='small'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               fullWidth
               slotProps={{
                 input: {
                   startAdornment: (
-                    <InputAdornment position="start">
+                    <InputAdornment position='start'>
                       <SearchIcon
                         sx={{ color: "var(--icon-color)", fontSize: 18 }}
                       />
@@ -135,10 +135,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
 
           {/* 操作按钮 */}
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Tooltip title="新建对话">
+            <Tooltip title='新建对话'>
               <IconButton
                 onClick={onNewChat}
-                size="small"
+                size='small'
                 sx={{
                   color: "var(--icon-color)",
                   backgroundColor: "var(--button-bg)",
@@ -149,14 +149,14 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                   },
                 }}
               >
-                <AddIcon fontSize="small" />
+                <AddIcon fontSize='small' />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="清空所有历史记录">
+            <Tooltip title='清空所有历史记录'>
               <IconButton
                 onClick={handleClearAllClick}
-                size="small"
+                size='small'
                 disabled={chatHistory.length === 0}
                 sx={{
                   borderRadius: 4,
@@ -181,7 +181,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
                   },
                 }}
               >
-                <DeleteSweepIcon fontSize="small" />
+                <DeleteSweepIcon fontSize='small' />
               </IconButton>
             </Tooltip>
           </Box>

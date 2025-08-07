@@ -2,11 +2,6 @@
 
 import React, { use, useEffect, useRef, useState } from "react";
 import { Box, Typography, Paper, CircularProgress } from "@mui/material";
-import {
-  SmartToy as AIIcon,
-  Person as UserIcon,
-  ContentCopy as CopyIcon,
-} from "@mui/icons-material";
 import { MessageListProps, Message } from "@/types/chatBotTypes/chatbot";
 import { formatTimestamp } from "@/utils/chatbot/storage";
 import MessageContentRenderer from "./renderers/MessageContentRenderer";
@@ -219,10 +214,7 @@ const MessageList: React.FC<MessageListProps> = ({
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <ShinyText text='正在思考中...' speed={3} />
-                  <Typography variant='body2' color='var(--secondary-text)'>
-                    {elapsedTime}s
-                  </Typography>
+                  <ShinyText text={`正在思考中... ${elapsedTime}s`} speed={3} />
                 </Box>
                 <Typography
                   variant='caption'

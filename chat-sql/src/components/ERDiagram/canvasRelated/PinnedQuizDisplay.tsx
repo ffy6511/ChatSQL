@@ -196,7 +196,9 @@ const PinnedQuizDisplay: React.FC<PinnedQuizDisplayProps> = ({ quizId }) => {
               }}
             >
               {/* 提取字段内部的内容显示 */}
-              {JSON.parse(quiz.description).description}
+              {typeof quiz.description === "string"
+                ? quiz.description
+                : JSON.stringify(quiz.description)}
             </Typography>
 
             {/* 创建时间 */}

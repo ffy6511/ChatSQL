@@ -20,6 +20,7 @@ import {
 import ERDiagramSelector from "./MessageInput/ERDiagramSelector";
 import QuizSelector from "./MessageInput/QuizSelector";
 import { quizStorage } from "@/services/quizStorage";
+import { useSnackbar } from "@/contexts/SnackbarContext";
 
 interface DynamicMessageInputProps {
   selectedAgent: AgentType;
@@ -38,6 +39,8 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const firstInputRef = useRef<HTMLInputElement>(null);
+
+  const { showSnackbar } = useSnackbar();
 
   // 获取当前智能体信息
   const agentInfo = AGENTS_INFO[selectedAgent];
@@ -115,7 +118,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             };
             await quizStorage.addQuiz(quizData);
 
-            // TODO: 通过Snack通知用户成功保存
+            showSnackbar("Quiz已成功保存到本地", "success");
           } else {
             console.warn("智能体返回的数据不完整，无法保存");
           }

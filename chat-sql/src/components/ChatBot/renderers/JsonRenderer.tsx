@@ -29,6 +29,7 @@ import {
   JsonRendererConfig,
 } from "@/types/chatBotTypes/renderers";
 import { visualize } from "@/services/visualizationService";
+import { useSnackbar } from "@/contexts/SnackbarContext";
 
 /**
  * JSON 渲染器组件 - 专注于 JSON 格式化和语法高亮
@@ -42,6 +43,8 @@ const JsonRenderer: React.FC<RendererProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
+
+  const { showSnackbar } = useSnackbar();
 
   // 合并配置
   const jsonConfig = useMemo(() => {
@@ -121,7 +124,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
               (item.entities ||
                 item.relationships ||
                 item.type === "entity" ||
-                item.type === "relationship"),
+                item.type === "relationship")
           )))
     );
   }, [processedJson]);
@@ -139,6 +142,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
   const handleVisualize = () => {
     if (processedJson.isValid && processedJson.parsedJson) {
       visualize(processedJson.parsedJson, "er-diagram");
+      showSnackbar("可视化成功,请在ER图中查看", "success");
     }
   };
 
@@ -176,8 +180,8 @@ const JsonRenderer: React.FC<RendererProps> = ({
     const contentToCopy = showRaw
       ? json
       : isValid
-        ? formatJson(parsedJson)
-        : json;
+      ? formatJson(parsedJson)
+      : json;
     if (onCopy) {
       onCopy(contentToCopy);
     } else {
@@ -212,7 +216,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
             backgroundColor: "rgba(0,0,0,0.05)",
           }}
         >
-          <Typography variant="caption" sx={{ color: "var(--secondary-text)" }}>
+          <Typography variant='caption' sx={{ color: "var(--secondary-text)" }}>
             JSON {isValid ? "(有效)" : "(格式错误)"}
           </Typography>
 
@@ -220,7 +224,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
             {/* 展开/折叠按钮 */}
             <Tooltip title={isExpanded ? "Collapse" : "Expand"}>
               <IconButton
-                size="small"
+                size='small'
                 onClick={() => setIsExpanded(!isExpanded)}
                 sx={{
                   backgroundColor: "rgba(0,0,0,0.1)",
@@ -231,9 +235,9 @@ const JsonRenderer: React.FC<RendererProps> = ({
                 }}
               >
                 {isExpanded ? (
-                  <ExpandLessIcon fontSize="small" />
+                  <ExpandLessIcon fontSize='small' />
                 ) : (
-                  <ExpandMoreIcon fontSize="small" />
+                  <ExpandMoreIcon fontSize='small' />
                 )}
               </IconButton>
             </Tooltip>
@@ -242,7 +246,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
             {isValid && (
               <Tooltip title={showRaw ? "显示格式化" : "显示原始"}>
                 <IconButton
-                  size="small"
+                  size='small'
                   onClick={() => setShowRaw(!showRaw)}
                   sx={{
                     backgroundColor: "rgba(0,0,0,0.1)",
@@ -252,16 +256,16 @@ const JsonRenderer: React.FC<RendererProps> = ({
                     },
                   }}
                 >
-                  <CodeIcon fontSize="small" />
+                  <CodeIcon fontSize='small' />
                 </IconButton>
               </Tooltip>
             )}
 
             {/* 可视化按钮 */}
             {isERDiagramData && (
-              <Tooltip title="可视化 ER 图">
+              <Tooltip title='可视化 ER 图'>
                 <IconButton
-                  size="small"
+                  size='small'
                   onClick={handleVisualize}
                   sx={{
                     backgroundColor: "rgba(0,0,0,0.1)",
@@ -271,16 +275,16 @@ const JsonRenderer: React.FC<RendererProps> = ({
                     },
                   }}
                 >
-                  <VisualizeIcon fontSize="small" />
+                  <VisualizeIcon fontSize='small' />
                 </IconButton>
               </Tooltip>
             )}
 
             {/* 复制按钮 */}
             {jsonConfig.copyable && (
-              <Tooltip title="Copy">
+              <Tooltip title='Copy'>
                 <IconButton
-                  size="small"
+                  size='small'
                   onClick={handleCopy}
                   sx={{
                     backgroundColor: "rgba(0,0,0,0.1)",
@@ -290,7 +294,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
                     },
                   }}
                 >
-                  <CopyIcon fontSize="small" />
+                  <CopyIcon fontSize='small' />
                 </IconButton>
               </Tooltip>
             )}
@@ -301,7 +305,7 @@ const JsonRenderer: React.FC<RendererProps> = ({
         <Collapse in={isExpanded}>
           <Box sx={{ overflowX: "auto", backgroundColor: "transparent" }}>
             <SyntaxHighlighter
-              language="json"
+              language='json'
               style={getTheme()}
               showLineNumbers={jsonConfig.showLineNumbers}
               customStyle={{

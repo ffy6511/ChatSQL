@@ -20,7 +20,6 @@ import {
   Add as AddIcon,
   History as HistoryIcon,
 } from "@mui/icons-material";
-import { Try as AIIcon } from "@mui/icons-material";
 import { ChatWindowProps, Message } from "@/types/chatBotTypes/chatbot";
 import { ChatMessage } from "@/types/chat";
 import { AgentType } from "@/types/chatBotTypes/agents";
@@ -307,9 +306,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   // 处理加载历史记录（选择会话）
   const handleLoadHistory = async (historyId: string) => {
     try {
-      // 选择之后关闭窗口
-      setIsHistoryOpen(false);
-
       await selectSession(historyId);
     } catch (error) {
       console.error("加载会话失败:", error);

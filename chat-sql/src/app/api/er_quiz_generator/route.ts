@@ -82,7 +82,7 @@ function parseERQuizResponse(text: string): {
   } catch (err) {
     console.error("解析ERQuiz响应失败: 内容为 \n", text, "\n 错误为 \n", err);
     throw new Error(
-      `解析ERQuiz响应失败：返回内容为 '${text}'， 错误为 '${err}'`,
+      `解析ERQuiz响应失败：返回内容为 '${text}'， 错误为 '${err}'`
     );
   }
 }
@@ -94,12 +94,12 @@ function createERQuizGeneratorRequest(
   description: string,
   difficulty?: string,
   sessionId?: string,
-  parameters?: any,
+  parameters?: any
 ): BailianAIRequest {
   const request: BailianAIRequest = {
     input: {
       prompt:
-        "根据用户的描述生成合适的ER-quiz，请将输出结果包裹在 \`\`\`json ... \`\`\` 的代码块中， 并确保包含 description, erData字段",
+        "根据用户的描述生成合适的ER-quiz，请将输出结果包裹在 ```json ... ``` 的代码块中， 并确保包含 description, erData字段",
       biz_params: {
         description: description,
         difficulty: difficulty,
@@ -118,7 +118,7 @@ function createERQuizGeneratorRequest(
 
 // 调用百炼平台的API
 async function callBailianAPI(
-  request: BailianAIRequest,
+  request: BailianAIRequest
 ): Promise<BailianAIResponse> {
   const apiKey = process.env.DASHSCOPE_API_KEY;
   const apiId = AGENT_CONFIG.ER_QUIZ_GENERATOR.APP_ID;
@@ -126,7 +126,7 @@ async function callBailianAPI(
   if (!apiKey) {
     throw new BailianAIAPIError(
       "API密钥未配置，请检查环境变量DASHSCOPE_API_KEY",
-      ErrorType.AUTHENTICATION_ERROR,
+      ErrorType.AUTHENTICATION_ERROR
     );
   }
 
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
     // 调用提示词增强的智能体
     const quizGenRequest = createERQuizGeneratorRequest(userInput, difficulty);
     const quizGenResponse = (await callBailianAPI(
-      quizGenRequest,
+      quizGenRequest
     )) as BailianAIResponse;
     const enhancedDescription = quizGenResponse.output.text; // 得到智能体的增强描述
 
@@ -169,32 +169,46 @@ export async function POST(req: NextRequest) {
     const erGenRequestBody = {
       input: {
         biz_params: {
-          natural_language_query: enhancedDescription,
+          natural_language_query: enhancedDescription.replace(/\\n/g, "\n"), // 反转义 \\n
           provided_schema: "",
         },
       },
     };
 
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const url = `${baseUrl}/api/ER-generator`;
+
     // 发起内部的调用
-    const erGenApiResponse = await fetch(
-      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/ER-generator`,
-      {
+    let erGenApiResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(erGenRequestBody),
+    });
+
+    if (!erGenApiResponse.ok) {
+      const errorData = await erGenApiResponse.json();
+      throw new Error(
+        `ER-generator调用失败: ${errorData.error?.message || "未知错误"}`
+      );
+    }
+
+    const erGenResult: ERGeneratorResponse = await erGenApiResponse.json();
+
+    // 检查是否为空
+    while (erGenResult.data?.output?.length === 0) {
+      // 重新调用
+      console.warn("ER-generator返回空数据，重新调用...");
+      erGenApiResponse = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(erGenRequestBody),
-      },
-    );
-
-    if (!erGenApiResponse.ok) {
-      const errorData = await erGenApiResponse.json();
-      throw new Error(
-        `ER-generator调用失败: ${errorData.error?.message || "未知错误"}`,
-      );
+      });
     }
 
-    const erGenResult: ERGeneratorResponse = await erGenApiResponse.json();
     console.log("ER-generator调用成功，得到的ER图数据:", erGenResult);
 
     // 构建基于类型数组的输出格式
@@ -211,8 +225,7 @@ export async function POST(req: NextRequest) {
 
     // 添加ER图数据部分（作为JSON类型）
     const finalErData = erGenResult.data?.output?.find(
-      (part) =>
-        part.type === "json" && part.metadata?.dataType === "er-diagram",
+      (part) => part.type === "json" && part.metadata?.dataType === "er-diagram"
     )?.content;
 
     if (finalErData) {
