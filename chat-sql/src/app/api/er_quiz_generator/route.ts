@@ -197,17 +197,17 @@ export async function POST(req: NextRequest) {
     const erGenResult: ERGeneratorResponse = await erGenApiResponse.json();
 
     // 检查是否为空
-    while (erGenResult.data?.output?.length === 0) {
-      // 重新调用
-      console.warn("ER-generator返回空数据，重新调用...");
-      erGenApiResponse = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(erGenRequestBody),
-      });
-    }
+    // while (erGenResult.data?.output?.length === 0) {
+    //   // 重新调用
+    //   console.warn("ER-generator返回空数据，重新调用...");
+    //   erGenApiResponse = await fetch(url, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(erGenRequestBody),
+    //   });
+    // }
 
     console.log("ER-generator调用成功，得到的ER图数据:", erGenResult);
 
@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
     if (enhancedDescription) {
       outputParts.push({
         type: "text",
-        content: enhancedDescription,
+        content: enhancedDescription.replace(/\\n/g, "\n"),
       });
     }
 

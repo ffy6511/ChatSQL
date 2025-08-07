@@ -6,12 +6,13 @@ import {
   parseDataType,
   buildDataType,
 } from "@/types/ERDiagramTypes/dataTypes";
+import { useERDiagramContext } from "@/contexts/ERDiagramContext";
 
 interface UseAttributeEditorProps {
   updateAttribute: (
     id: string,
     attributeId: string,
-    updates: Partial<ERAttribute>,
+    updates: Partial<ERAttribute>
   ) => Promise<void>;
   deleteAttribute: (id: string, attributeId: string) => Promise<void>;
 }
@@ -28,6 +29,9 @@ export const useAttributeEditor = ({
   const [attributeParams, setAttributeParams] = useState<
     Record<string, string[]>
   >({});
+
+  const { state } = useERDiagramContext();
+  const entities = state.diagramData?.entities || [];
 
   const handleNameChange = (attributeId: string, newName: string) => {
     setEditingNames((prev) => ({ ...prev, [attributeId]: newName }));
@@ -59,7 +63,7 @@ export const useAttributeEditor = ({
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    attributeId: string,
+    attributeId: string
   ) => {
     event.stopPropagation();
     setMenuAnchor((prev) => ({ ...prev, [attributeId]: event.currentTarget }));
@@ -71,7 +75,7 @@ export const useAttributeEditor = ({
 
   const handleDeleteAttribute = async (
     entityId: string,
-    attributeId: string,
+    attributeId: string
   ) => {
     handleMenuClose();
     await deleteAttribute(entityId, attributeId);
@@ -80,7 +84,7 @@ export const useAttributeEditor = ({
   const handleTypeChange = async (
     entityId: string,
     attributeId: string,
-    dataType: string,
+    dataType: string
   ) => {
     if (dataTypeParamConfig[dataType]) {
       setAttributeParams((prev) => ({
@@ -98,9 +102,15 @@ export const useAttributeEditor = ({
     attributeId: string,
     paramIndex: number,
     value: string,
-    typeName: string,
+    typeName: string
   ) => {
-    const { params: currentParams } = parseDataType(typeName);
+    const entity = entities.find((e) => e.id === entityId);
+    if (!entity) return;
+
+    const attribute = entity.attributes.find((a) => a.id === attributeId);
+    if (!attribute) return;
+
+    const { params: currentParams } = parseDataType(attribute.dataType || "");
     const newParams = [...currentParams];
     newParams[paramIndex] = value;
     const newDataType = buildDataType(typeName, newParams);

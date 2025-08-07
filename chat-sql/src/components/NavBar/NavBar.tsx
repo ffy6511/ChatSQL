@@ -83,7 +83,7 @@ const NavBar: React.FC = () => {
                   isActive("/er-diagram") ? styles.activeTab : ""
                 }`}
               >
-                ER-Graph
+                ERDiagram
               </Button>
             </Tooltip>
 
