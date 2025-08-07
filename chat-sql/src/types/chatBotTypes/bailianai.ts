@@ -181,7 +181,7 @@ export interface RetryConfig {
  */
 export const DEFAULT_BAILIAN_CONFIG: Partial<BailianAIConfig> = {
   baseUrl: "https://dashscope.aliyuncs.com/api/v1/apps",
-  timeout: 300000,
+  timeout: 500000,
   maxRetries: 3,
   retryDelay: 1000,
 };
@@ -237,7 +237,7 @@ export class BailianAIAPIError extends Error {
     type: ErrorType = ErrorType.UNKNOWN_ERROR,
     code?: string,
     requestId?: string,
-    statusCode?: number,
+    statusCode?: number
   ) {
     super(message);
     this.name = "BailianAIAPIError";

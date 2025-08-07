@@ -61,7 +61,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         sessions: state.sessions.map((session) =>
-          session.id === action.payload.id ? action.payload : session,
+          session.id === action.payload.id ? action.payload : session
         ),
       };
 
@@ -69,7 +69,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         sessions: state.sessions.filter(
-          (session) => session.id !== action.payload,
+          (session) => session.id !== action.payload
         ),
         currentSessionId:
           state.currentSessionId === action.payload
@@ -138,7 +138,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // 如果会话有session_id，加载对应的消息
         if (session.session_id) {
           const messages = await chatStorage.getMessagesBySessionId(
-            session.session_id,
+            session.session_id
           );
           dispatch({ type: "SET_MESSAGES", payload: messages });
         } else {
@@ -154,7 +154,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [state.sessions],
+    [state.sessions]
   );
 
   /**
@@ -193,7 +193,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         dispatch({ type: "SET_ERROR", payload: "重命名会话失败" });
       }
     },
-    [refreshSessions],
+    [refreshSessions]
   );
 
   /**
@@ -311,7 +311,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [state.currentSessionId, state.sessions, refreshSessions],
+    [state.currentSessionId, state.sessions, refreshSessions]
   );
 
   /**
@@ -320,7 +320,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const sendAgentMessage = useCallback(
     async (
       agentType: string,
-      inputValues: Record<string, string>,
+      inputValues: Record<string, string>
     ): Promise<AgentOutputPart[] | null> => {
       try {
         dispatch({ type: "SET_LOADING", payload: true });
@@ -358,7 +358,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           (field) => ({
             type: "text",
             content: inputValues[field.name],
-          }),
+          })
         );
 
         const userMessage: ChatMessage = {
@@ -403,7 +403,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           };
         } else if (agentType === AgentType.ER_QUIZ_GENERATOR) {
           requestBody.input.biz_params = {
-            description_input: inputValues.description_input,
+            description: inputValues.description_input,
+            difficulty: inputValues.difficulty || "simple",
           };
         } else if (agentType === AgentType.ER_VERIFIER) {
           // 验证必需字段
@@ -518,7 +519,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [state.currentSessionId, state.sessions, refreshSessions],
+    [state.currentSessionId, state.sessions, refreshSessions]
   );
 
   /**
@@ -540,7 +541,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [],
+    []
   );
 
   /**

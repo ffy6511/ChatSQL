@@ -19,6 +19,7 @@ import {
 } from "@/types/chatBotTypes/agents";
 import ERDiagramSelector from "./MessageInput/ERDiagramSelector";
 import QuizSelector from "./MessageInput/QuizSelector";
+import DifficultySelector from "./MessageInput/DifficultySelector";
 import { quizStorage } from "@/services/quizStorage";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 
@@ -116,6 +117,7 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
               description: descriptionPart.content,
               referenceAnswer: erDataPart.content,
             };
+
             await quizStorage.addQuiz(quizData);
 
             showSnackbar("Quiz已成功保存到本地", "success");
@@ -186,6 +188,16 @@ const DynamicMessageInput: React.FC<DynamicMessageInputProps> = ({
             placeholder={field.placeholder}
             error={error}
           />
+        ) : field.type === "difficulty-selector" ? (
+          <Box sx={{ maxWidth: "10rem", ml: 1 }}>
+            <DifficultySelector
+              value={value}
+              onChange={(newValue) => handleInputChange(field.name, newValue)}
+              placeholder={field.placeholder}
+              disabled={disabled}
+              error={error}
+            />
+          </Box>
         ) : (
           <TextField
             ref={index === 0 ? firstInputRef : undefined}

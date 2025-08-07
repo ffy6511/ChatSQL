@@ -15,18 +15,23 @@ import {
   TextField,
   Alert,
   Snackbar,
+  Divider,
 } from "@mui/material";
 import {
   Add as AddIcon,
   School as SchoolIcon,
   Business as BusinessIcon,
   LocalLibrary as LibraryIcon,
+  Upload as UploadIcon,
 } from "@mui/icons-material";
 import { useERDiagramContext } from "@/contexts/ERDiagramContext";
+import { useSnackbar } from "@/contexts/SnackbarContext";
+import { visualizationService } from "@/services/visualizationService";
 import {
   sampleERData,
   employeeDepartmentERData,
   weakEntityERData,
+  ERDiagramData,
 } from "@/types/ERDiagramTypes/erDiagram";
 
 interface NewDiagramModalProps {
@@ -68,13 +73,19 @@ const templates = [
 
 const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   const router = useRouter();
-  const { createNewDiagram } = useERDiagramContext();
+  const { createNewDiagram, saveDiagram } = useERDiagramContext();
+  const { showSnackbar } = useSnackbar();
   const [selectedTemplate, setSelectedTemplate] = useState<string>("blank");
   const [diagramName, setDiagramName] = useState<string>("");
   const [diagramDescription, setDiagramDescription] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // JSON导入相关状态
+  const [showJsonImport, setShowJsonImport] = useState(false);
+  const [jsonInput, setJsonInput] = useState<string>("");
+  const [isImporting, setIsImporting] = useState(false);
 
   // 生成时间以自动填充会话名称
   const defaultName = useMemo(
@@ -122,12 +133,82 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
   };
 
   const handleClose = () => {
-    if (!isCreating) {
+    if (!isCreating && !isImporting) {
       setShowSuccess(false);
       setDiagramName("");
       setDiagramDescription("");
       setSelectedTemplate("blank");
+      setShowJsonImport(false);
+      setJsonInput("");
       onClose();
+    }
+  };
+
+  // JSON导入处理函数
+  const handleJsonImport = async () => {
+    if (!jsonInput.trim()) {
+      setError("请输入JSON数据");
+      return;
+    }
+
+    setIsImporting(true);
+    setError("");
+
+    try {
+      // 解析JSON
+      const parsedJson = JSON.parse(jsonInput.trim());
+
+      // 验证是否为ER图数据
+      if (!visualizationService.isERDiagramData(parsedJson)) {
+        throw new Error("输入的JSON不是有效的ER图数据格式");
+      }
+
+      // 构建ER图数据
+      let erData: ERDiagramData;
+      if (parsedJson.entities && parsedJson.relationships) {
+        // 符合ER图数据格式
+        erData = {
+          ...parsedJson,
+          metadata: {
+            title:
+              diagramName.trim() ||
+              `导入的ER图 - ${new Date().toLocaleString("zh-CN")}`,
+            description: diagramDescription.trim() || "从JSON导入的ER图",
+            version: "1.0.0",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            ...parsedJson.metadata,
+          },
+        };
+      } else {
+        throw new Error("JSON格式不正确，缺少entities或relationships字段");
+      }
+
+      // 保存到IndexedDB
+      const savedId = await saveDiagram(erData);
+
+      // 跳转到ER图页面
+      if (router) {
+        router.push(`/er-diagram?id=${savedId}`);
+      } else {
+        window.location.href = `/er-diagram?id=${savedId}`;
+      }
+
+      showSnackbar("JSON导入成功！", "success");
+
+      // 关闭模态框
+      setTimeout(() => {
+        handleClose();
+      }, 500);
+    } catch (error) {
+      console.error("JSON导入失败:", error);
+      if (error instanceof SyntaxError) {
+        setError("JSON格式错误，请检查语法");
+      } else {
+        setError(error instanceof Error ? error.message : "导入失败，请重试");
+      }
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -207,9 +288,18 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           />
         </Box>
 
-        <Typography variant='h6' sx={{ mb: 2 }}>
-          选择模板
-        </Typography>
+        <Box display='flex' alignItems='center' sx={{ mb: 2 }}>
+          <Typography variant='h6'>选择模板</Typography>
+
+          <Button
+            variant='outlined'
+            startIcon={<UploadIcon />}
+            onClick={() => setShowJsonImport(true)}
+            sx={{ ml: "auto", mr: 2 }}
+          >
+            从JSON导入
+          </Button>
+        </Box>
 
         <Box
           sx={{
@@ -278,6 +368,65 @@ const NewDiagramModal: React.FC<NewDiagramModalProps> = ({ open, onClose }) => {
           图表创建成功！
         </Alert>
       </Snackbar>
+
+      {/* JSON导入对话框 */}
+      <Dialog
+        open={showJsonImport}
+        onClose={() => !isImporting && setShowJsonImport(false)}
+        maxWidth='md'
+        fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle>
+          <Typography>从JSON导入ER图</Typography>
+          <Typography variant='body2' color='textSecondary' sx={{ mt: 1 }}>
+            请粘贴有效的ER图JSON数据
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent>
+          <TextField
+            label='JSON数据'
+            value={jsonInput}
+            onChange={(e) => {
+              setJsonInput(e.target.value);
+              if (error) setError(""); // 清除错误信息
+            }}
+            fullWidth
+            multiline
+            rows={12}
+            placeholder='请粘贴ER图的JSON数据，例如：
+{
+  "entities": [...],
+  "relationships": [...],
+  "metadata": {...}
+}'
+            sx={{ mt: 2 }}
+            disabled={isImporting}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button
+            onClick={() => setShowJsonImport(false)}
+            disabled={isImporting}
+          >
+            取消
+          </Button>
+          <Button
+            onClick={handleJsonImport}
+            variant='contained'
+            disabled={isImporting || !jsonInput.trim()}
+            startIcon={<UploadIcon />}
+          >
+            {isImporting ? "导入中..." : "导入"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

@@ -118,7 +118,7 @@ export interface ERQuizGeneratorRequest {
     session_id?: string;
     biz_params: {
       description: string;
-      // TODO: 添加难度
+      difficulty?: "simple" | "medium" | "hard";
     };
   };
   parameters?: {
@@ -209,7 +209,12 @@ export interface AgentInputField {
   name: string;
   label: string;
   description: string;
-  type: "text" | "textarea" | "er-diagram-selector" | "quiz-selector";
+  type:
+    | "text"
+    | "textarea"
+    | "er-diagram-selector"
+    | "quiz-selector"
+    | "difficulty-selector";
   required: boolean;
   placeholder?: string;
 }
@@ -343,6 +348,14 @@ export const AGENTS_INFO: Record<AgentType, AgentInfo> = {
         type: "textarea",
         required: true,
         placeholder: "例如：设计一个学生选课系统，包含学生、课程、教师实体...",
+      },
+      {
+        name: "difficulty",
+        label: "题目难度(默认simple)",
+        description: "选择题目的难度等级",
+        type: "difficulty-selector",
+        required: false,
+        placeholder: "请选择题目难度",
       },
     ],
   },
