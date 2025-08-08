@@ -8,6 +8,9 @@
 /* 悬停提示窗口 */
 .monaco-editor .monaco-hover {
   z-index: 9999 !important; /* 确保悬停提示窗口显示在最上层 */
+  border: 1px solid var(--card-border) !important;
+  background-color: var(--card-bg) !important;
+  border-radius: 8px !important;
 }
 
 /* 参数提示窗口 */

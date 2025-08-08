@@ -55,6 +55,7 @@
   /* 链接颜色 */
   --link-color: #1677ff;
   --link-hover: #4096ff;
+  --accent-color: #1677ff;
 
   /* 代码块 */
   --code-bg: #f5f5f5;
@@ -142,6 +143,7 @@
   /* 链接颜色 */
   --link-color: #4096ff;
   --link-hover: #69b1ff;
+  --accent-color: #4096ff;
 
   /* 代码块 */
   --code-bg: #2c2c2c;
@@ -388,10 +390,8 @@ hr {
 [data-theme="dark"] .ant-dropdown-menu {
   background-color: #1f1f1f !important;
   border-color: #333 !important;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.48),
-    0 6px 16px 0 rgba(0, 0, 0, 0.32),
-    0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+    0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="dark"] .ant-dropdown-menu-item {

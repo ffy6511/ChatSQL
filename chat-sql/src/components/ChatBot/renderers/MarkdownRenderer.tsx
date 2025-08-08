@@ -1,9 +1,12 @@
 import React from "react";
-import { Typography, Box, IconButton, Tooltip } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import { ContentCopy as CopyIcon } from "@mui/icons-material";
 import { RendererProps } from "@/types/chatBotTypes/renderers";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 const MarkdownRenderer: React.FC<RendererProps> = ({
   message,
@@ -47,9 +50,9 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
           ".message-bubble:hover &": { opacity: 1 },
         }}
       >
-        <Tooltip title="Copy">
+        <Tooltip title='Copy'>
           <IconButton
-            size="small"
+            size='small'
             onClick={handleCopy}
             sx={{
               backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -59,7 +62,7 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
               },
             }}
           >
-            <CopyIcon fontSize="small" />
+            <CopyIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </Box>
@@ -127,9 +130,57 @@ const MarkdownRenderer: React.FC<RendererProps> = ({
             backgroundColor: "transparent",
             fontSize: "inherit",
           },
+          // LaTeX 数学公式样式
+          "& .katex": {
+            color: "var(--primary-text)",
+            fontSize: "inherit",
+          },
+          "& .katex-display": {
+            margin: "1em 0",
+            textAlign: "center",
+          },
+          "& .katex .base": {
+            color: "inherit",
+          },
+          "& .katex .mord": {
+            color: "inherit",
+          },
+          "& .katex .mbin, & .katex .mrel": {
+            color: "var(--secondary-text)",
+          },
+          "& .katex .mop": {
+            color: "var(--accent-color, #1976d2)",
+          },
+          "& .katex .mopen, & .katex .mclose, & .katex .mpunct": {
+            color: "var(--secondary-text)",
+          },
+          "& .katex-error": {
+            color: "var(--error-color, #cc0000)",
+            backgroundColor: "rgba(204, 0, 0, 0.1)",
+            border: "1px solid var(--error-color, #cc0000)",
+            padding: "2px 4px",
+            borderRadius: "3px",
+            fontFamily: "monospace",
+            fontSize: "0.9em",
+          },
         }}
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{contentStr}</ReactMarkdown>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[
+            [
+              rehypeKatex,
+              {
+                throwOnError: false,
+                errorColor: "var(--error-color, #cc0000)",
+                strict: "ignore",
+                trust: false,
+              },
+            ],
+          ]}
+        >
+          {contentStr}
+        </ReactMarkdown>
       </Box>
     </Box>
   );
