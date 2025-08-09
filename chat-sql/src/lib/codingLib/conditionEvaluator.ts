@@ -64,7 +64,7 @@ export function evaluateCondition(row: any, condition: any): boolean {
 export function evaluateComparison(
   left: any,
   operator: string,
-  right: any,
+  right: any
 ): boolean {
   console.log("Comparing:", { left, operator, right }); // 调试日志
 
@@ -112,8 +112,12 @@ export function evaluateExpression(expr: any, row?: any): any {
     return expr.value;
   }
 
-  // 处理字符串字面量
-  if (expr.type === "string") {
+  // 处理字符串字面量 - 支持多种字符串类型
+  if (
+    expr.type === "string" ||
+    expr.type === "single_quote_string" ||
+    expr.type === "double_quote_string"
+  ) {
     return expr.value;
   }
 
@@ -167,7 +171,7 @@ export function evaluateExpression(expr: any, row?: any): any {
       (k) =>
         k.startsWith(`${funcName}(`) ||
         (funcName === "COUNT" && k.includes("count")) ||
-        (funcName === "AVG" && k.includes("avg")),
+        (funcName === "AVG" && k.includes("avg"))
     );
 
     if (possibleKey) {
@@ -208,7 +212,7 @@ export function evaluateExpression(expr: any, row?: any): any {
 
     // 3. 尝试查找任何表别名下的该列名
     const matchingKey = Object.keys(row).find((k) =>
-      k.endsWith(`.${columnName}`),
+      k.endsWith(`.${columnName}`)
     );
 
     if (matchingKey) {
@@ -255,7 +259,7 @@ export function evaluateLike(value: string, pattern: string): boolean {
         part
           .split(".")
           .map((subPart) => subPart.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-          .join("."),
+          .join(".")
       )
       .join(".*");
 

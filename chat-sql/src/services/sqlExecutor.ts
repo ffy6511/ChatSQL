@@ -202,14 +202,14 @@ export class SQLQueryEngine {
 
           // 找出共同列
           const leftColumns = leftTable.structure.columns.map(
-            (col) => col.name,
+            (col) => col.name
           );
           const rightColumns = rightTable.structure.columns.map(
-            (col) => col.name,
+            (col) => col.name
           );
 
           const commonColumns = leftColumns.filter((col) =>
-            rightColumns.includes(col),
+            rightColumns.includes(col)
           );
           console.log("找到共同列:", commonColumns);
 
@@ -256,7 +256,7 @@ export class SQLQueryEngine {
           joinClause.on = onCondition;
           console.log(
             "设置NATURAL JOIN的ON条件:",
-            JSON.stringify(onCondition, null, 2),
+            JSON.stringify(onCondition, null, 2)
           );
         }
       }
@@ -313,14 +313,14 @@ export class SQLQueryEngine {
 
       // 4. 处理GROUP BY和聚合
       const hasAggregates = selectAst.columns.some((col: any) =>
-        isAggregateFunction(col.expr),
+        isAggregateFunction(col.expr)
       );
 
       if (selectAst.groupby || hasAggregates) {
         result = this.processGroupByClause(
           result,
           selectAst.groupby || [],
-          selectAst.columns,
+          selectAst.columns
         );
       }
 
@@ -480,7 +480,7 @@ export class SQLQueryEngine {
             tableAlias: tableAlias,
             columnName: col.name,
             outputName: col.name,
-          }),
+          })
         );
 
         if (i === 0) {
@@ -515,7 +515,7 @@ export class SQLQueryEngine {
     if (mainTable.expr) {
       console.log(
         "检测到可能的子查询:",
-        JSON.stringify(mainTable.expr, null, 2),
+        JSON.stringify(mainTable.expr, null, 2)
       );
 
       // 检查是否是子查询的新结构
@@ -556,7 +556,7 @@ export class SQLQueryEngine {
         tableAlias: mainTableAlias,
         columnName: col.name,
         outputName: col.name,
-      }),
+      })
     );
 
     return {
@@ -583,18 +583,18 @@ export class SQLQueryEngine {
       subQueryAst = subqueryClause.expr.ast;
       console.log(
         "从新结构中提取子查询AST:",
-        JSON.stringify(subQueryAst, null, 2),
+        JSON.stringify(subQueryAst, null, 2)
       );
     } else if (subqueryClause.expr.type === "select") {
       // 旧的AST结构
       subQueryAst = subqueryClause.expr;
       console.log(
         "从旧结构中提取子查询AST:",
-        JSON.stringify(subQueryAst, null, 2),
+        JSON.stringify(subQueryAst, null, 2)
       );
     } else {
       throw new Error(
-        "无法识别的子查询结构: " + JSON.stringify(subqueryClause.expr),
+        "无法识别的子查询结构: " + JSON.stringify(subqueryClause.expr)
       );
     }
 
@@ -602,7 +602,7 @@ export class SQLQueryEngine {
     const subQueryResult = this.executeSelect(subQueryAst);
     if (!subQueryResult.success || !subQueryResult.data) {
       throw new Error(
-        "子查询执行失败: " + (subQueryResult.message || "未知错误"),
+        "子查询执行失败: " + (subQueryResult.message || "未知错误")
       );
     }
 
@@ -632,7 +632,7 @@ export class SQLQueryEngine {
 
     // 从第一行数据推断列元数据
     const columnMetadata: ColumnMetadata[] = Object.keys(
-      subQueryResult.data[0] || {},
+      subQueryResult.data[0] || {}
     ).map((col) => ({
       tableAlias: alias,
       columnName: col,
@@ -656,7 +656,7 @@ export class SQLQueryEngine {
    */
   private processJoinClauses(
     result: IntermediateResult,
-    joinClauses: any[],
+    joinClauses: any[]
   ): IntermediateResult {
     let currentResult = { ...result };
 
@@ -686,7 +686,7 @@ export class SQLQueryEngine {
           currentResult,
           subqueryResult,
           join.on,
-          joinType,
+          joinType
         );
 
         continue; // 跳过后续处理
@@ -696,7 +696,7 @@ export class SQLQueryEngine {
       const joinAlias = join.as || join.alias || join.table;
 
       console.log(
-        `JOIN类型: ${joinType}, 表: ${joinTableName}, 别名: ${joinAlias}`,
+        `JOIN类型: ${joinType}, 表: ${joinTableName}, 别名: ${joinAlias}`
       );
 
       // 更新表别名映射
@@ -716,7 +716,7 @@ export class SQLQueryEngine {
           joinTable,
           joinAlias,
           null, // 传递null作为ON条件，表示这是一个NATURAL JOIN
-          "NATURAL JOIN",
+          "NATURAL JOIN"
         );
       } else {
         // 正常处理其他JOIN类型
@@ -726,7 +726,7 @@ export class SQLQueryEngine {
           joinTable,
           joinAlias,
           join.on,
-          joinType,
+          joinType
         );
       }
     }
@@ -746,7 +746,7 @@ export class SQLQueryEngine {
     leftResult: IntermediateResult,
     rightResult: IntermediateResult,
     onCondition: any,
-    joinType: string,
+    joinType: string
   ): IntermediateResult {
     console.log("合并子查询JOIN结果");
     console.log("左侧行数:", leftResult.rows.length);
@@ -867,10 +867,10 @@ export class SQLQueryEngine {
     joinTable: TableData,
     joinAlias: string,
     onCondition: any,
-    joinType: string,
+    joinType: string
   ): IntermediateResult {
     console.log(
-      `执行 ${joinType} 操作，表: ${joinTable.structure.tableName}, 别名: ${joinAlias}`,
+      `执行 ${joinType} 操作，表: ${joinTable.structure.tableName}, 别名: ${joinAlias}`
     );
 
     // 更新列元数据
@@ -891,7 +891,7 @@ export class SQLQueryEngine {
           result.rows,
           joinTable,
           joinAlias,
-          onCondition,
+          onCondition
         );
         break;
       case "LEFT JOIN":
@@ -899,7 +899,7 @@ export class SQLQueryEngine {
           result.rows,
           joinTable,
           joinAlias,
-          onCondition,
+          onCondition
         );
         break;
       case "RIGHT JOIN":
@@ -907,7 +907,7 @@ export class SQLQueryEngine {
           result.rows,
           joinTable,
           joinAlias,
-          onCondition,
+          onCondition
         );
         break;
       case "FULL OUTER JOIN":
@@ -916,7 +916,7 @@ export class SQLQueryEngine {
           result.rows,
           joinTable,
           joinAlias,
-          onCondition,
+          onCondition
         );
         break;
       case "CROSS JOIN":
@@ -932,7 +932,7 @@ export class SQLQueryEngine {
           result.rows,
           joinTable,
           joinAlias,
-          onCondition,
+          onCondition
         );
     }
 
@@ -952,7 +952,7 @@ export class SQLQueryEngine {
     leftRows: Record<string, any>[],
     rightTable: TableData,
     rightAlias: string,
-    onCondition: any,
+    onCondition: any
   ): Record<string, any>[] {
     const joinedRows: Record<string, any>[] = [];
 
@@ -983,7 +983,7 @@ export class SQLQueryEngine {
     leftRows: Record<string, any>[],
     rightTable: TableData,
     rightAlias: string,
-    onCondition: any,
+    onCondition: any
   ): Record<string, any>[] {
     console.log("===== 执行 LEFT JOIN =====");
     console.log("左表行数:", leftRows.length);
@@ -1024,7 +1024,7 @@ export class SQLQueryEngine {
         const nullMergedRow = this.mergeRowsWithNull(
           leftRow,
           rightTable,
-          rightAlias,
+          rightAlias
         );
         console.log("合并NULL后的行:", nullMergedRow);
         joinedRows.push(nullMergedRow);
@@ -1043,7 +1043,7 @@ export class SQLQueryEngine {
     leftRows: Record<string, any>[],
     rightTable: TableData,
     rightAlias: string,
-    onCondition: any,
+    onCondition: any
   ): Record<string, any>[] {
     const joinedRows: Record<string, any>[] = [];
 
@@ -1094,14 +1094,14 @@ export class SQLQueryEngine {
     leftRows: Record<string, any>[],
     rightTable: TableData,
     rightAlias: string,
-    onCondition: any,
+    onCondition: any
   ): Record<string, any>[] {
     // 先执行LEFT JOIN
     const leftJoinResult = this.executeLeftJoin(
       leftRows,
       rightTable,
       rightAlias,
-      onCondition,
+      onCondition
     );
 
     // 再执行RIGHT JOIN，但只保留未匹配的右表行
@@ -1109,7 +1109,7 @@ export class SQLQueryEngine {
       leftRows,
       rightTable,
       rightAlias,
-      onCondition,
+      onCondition
     );
 
     // 找出LEFT JOIN中已匹配的右表行
@@ -1167,7 +1167,7 @@ export class SQLQueryEngine {
   private executeNaturalJoin(
     leftRows: Record<string, any>[],
     rightTable: TableData,
-    rightAlias: string,
+    rightAlias: string
   ): Record<string, any>[] {
     console.log("执行NATURAL JOIN");
 
@@ -1199,7 +1199,7 @@ export class SQLQueryEngine {
           } else {
             // 2. 尝试查找任何表别名下的该列名
             const matchingLeftKey = Object.keys(leftRow).find((k) =>
-              k.endsWith(`.${leftCol}`),
+              k.endsWith(`.${leftCol}`)
             );
             if (matchingLeftKey) {
               leftValue = leftRow[matchingLeftKey];
@@ -1224,8 +1224,8 @@ export class SQLQueryEngine {
               leftRow,
               rightRow,
               rightAlias,
-              commonColumns,
-            ),
+              commonColumns
+            )
           );
         }
       }
@@ -1239,7 +1239,7 @@ export class SQLQueryEngine {
    */
   private findCommonColumns(
     leftRows: Record<string, any>[],
-    rightTable: TableData,
+    rightTable: TableData
   ): { leftCol: string; rightCol: string }[] {
     if (leftRows.length === 0) return [];
 
@@ -1288,7 +1288,7 @@ export class SQLQueryEngine {
     leftRow: Record<string, any>,
     rightRow: Record<string, any>,
     rightAlias: string,
-    commonColumns: { leftCol: string; rightCol: string }[],
+    commonColumns: { leftCol: string; rightCol: string }[]
   ): Record<string, any> {
     const mergedRow: Record<string, any> = { ...leftRow };
 
@@ -1308,7 +1308,7 @@ export class SQLQueryEngine {
   private executeCrossJoin(
     leftRows: Record<string, any>[],
     rightTable: TableData,
-    rightAlias: string,
+    rightAlias: string
   ): Record<string, any>[] {
     const joinedRows: Record<string, any>[] = [];
 
@@ -1328,7 +1328,7 @@ export class SQLQueryEngine {
   private createTempRow(
     leftRow: Record<string, any>,
     rightRow: Record<string, any>,
-    rightAlias: string,
+    rightAlias: string
   ): Record<string, any> {
     // 创建一个新对象，而不是修改原对象
     const tempRow: Record<string, any> = {};
@@ -1352,7 +1352,7 @@ export class SQLQueryEngine {
   private mergeRows(
     leftRow: Record<string, any>,
     rightRow: Record<string, any>,
-    rightAlias: string,
+    rightAlias: string
   ): Record<string, any> {
     console.log("合并行 - 输入:");
     console.log("  左表行:", leftRow);
@@ -1385,7 +1385,7 @@ export class SQLQueryEngine {
   private mergeRowsWithNull(
     leftRow: Record<string, any>,
     rightTable: TableData,
-    rightAlias: string,
+    rightAlias: string
   ): Record<string, any> {
     console.log("合并NULL行 - 输入:");
     console.log("  左表行:", leftRow);
@@ -1420,7 +1420,7 @@ export class SQLQueryEngine {
    */
   private processWhereClause(
     result: IntermediateResult,
-    whereClause: any,
+    whereClause: any
   ): IntermediateResult {
     // 预处理 WHERE 子句中的子查询
     this.preprocessWhereSubqueries(whereClause);
@@ -1464,7 +1464,7 @@ export class SQLQueryEngine {
           const subQueryResult = this.executeSelect(whereClause.right.ast);
           if (!subQueryResult.success || !subQueryResult.data) {
             throw new Error(
-              "子查询执行失败: " + (subQueryResult.message || "未知错误"),
+              "子查询执行失败: " + (subQueryResult.message || "未知错误")
             );
           }
 
@@ -1506,7 +1506,7 @@ export class SQLQueryEngine {
   private processGroupByClause(
     result: IntermediateResult,
     groupByClause: any,
-    columns: any[],
+    columns: any[]
   ): IntermediateResult {
     console.log("处理GROUP BY子句:");
     console.log("- 输入行数:", result.rows.length);
@@ -1559,7 +1559,7 @@ export class SQLQueryEngine {
     const groupedResult = executeGroupBy(
       result.rows,
       standardizedGroupBy,
-      columns,
+      columns
     );
     console.log("- GROUP BY结果行数:", groupedResult.length);
 
@@ -1577,11 +1577,15 @@ export class SQLQueryEngine {
             console.warn(`分组行中缺少聚合函数结果: ${alias}`);
           } else {
             // 同时保存一个原始名称的版本，以便HAVING子句可以引用
-            const originalName = `${funcName}(${col.expr.args.expr.type === "star" ? "*" : col.expr.args.expr.column})`;
+            const originalName = `${funcName}(${
+              col.expr.args.expr.type === "star"
+                ? "*"
+                : col.expr.args.expr.column
+            })`;
             if (originalName !== alias) {
               row[originalName] = row[alias];
               console.log(
-                `为HAVING子句添加原始聚合函数名: ${originalName} = ${row[alias]}`,
+                `为HAVING子句添加原始聚合函数名: ${originalName} = ${row[alias]}`
               );
             }
           }
@@ -1630,7 +1634,7 @@ export class SQLQueryEngine {
    */
   private processHavingClause(
     result: IntermediateResult,
-    havingClause: any,
+    havingClause: any
   ): IntermediateResult {
     console.log("处理HAVING子句:", JSON.stringify(havingClause, null, 2));
 
@@ -1654,12 +1658,12 @@ export class SQLQueryEngine {
             if (havingClause.left.args.expr.type === "star") {
               // 尝试从行中获取COUNT(*)的值
               const countKey = Object.keys(row).find(
-                (k) => k.startsWith("COUNT(") || k === "student_count",
+                (k) => k.startsWith("COUNT(") || k === "student_count"
               );
               if (countKey) {
                 countValue = row[countKey];
                 console.log(
-                  `从行中获取COUNT值: ${countValue}, 键: ${countKey}`,
+                  `从行中获取COUNT值: ${countValue}, 键: ${countKey}`
                 );
               } else {
                 console.warn("无法从行中找到COUNT值");
@@ -1677,7 +1681,7 @@ export class SQLQueryEngine {
 
             // 执行比较
             console.log(
-              `比较: ${countValue} ${havingClause.operator} ${rightValue}`,
+              `比较: ${countValue} ${havingClause.operator} ${rightValue}`
             );
             switch (havingClause.operator) {
               case ">":
@@ -1729,7 +1733,7 @@ export class SQLQueryEngine {
           const subQueryResult = this.executeSelect(havingClause.left.ast);
           if (!subQueryResult.success || !subQueryResult.data) {
             throw new Error(
-              "子查询执行失败: " + (subQueryResult.message || "未知错误"),
+              "子查询执行失败: " + (subQueryResult.message || "未知错误")
             );
           }
 
@@ -1766,7 +1770,7 @@ export class SQLQueryEngine {
           const subQueryResult = this.executeSelect(havingClause.right.ast);
           if (!subQueryResult.success || !subQueryResult.data) {
             throw new Error(
-              "子查询执行失败: " + (subQueryResult.message || "未知错误"),
+              "子查询执行失败: " + (subQueryResult.message || "未知错误")
             );
           }
 
@@ -1803,11 +1807,11 @@ export class SQLQueryEngine {
    */
   private processSelectClause(
     result: IntermediateResult,
-    columns: any[],
+    columns: any[]
   ): IntermediateResult {
     console.log(
       "处理SELECT子句 - 输入行:",
-      JSON.stringify(result.rows, null, 2),
+      JSON.stringify(result.rows, null, 2)
     );
 
     const newRows = result.rows.map((row, rowIndex) => {
@@ -1839,7 +1843,7 @@ export class SQLQueryEngine {
               if (newRow[column] === undefined || newRow[column] === null) {
                 console.log(
                   `  使用带前缀的列 ${key} 替换 ${column}:`,
-                  row[key],
+                  row[key]
                 );
                 newRow[column] = row[key];
               }
@@ -1879,7 +1883,7 @@ export class SQLQueryEngine {
                 if (newRow[column] === undefined || newRow[column] === null) {
                   console.log(
                     `  使用带前缀的列 ${key} 替换 ${column}:`,
-                    row[key],
+                    row[key]
                   );
                   newRow[column] = row[key];
                 }
@@ -1898,7 +1902,7 @@ export class SQLQueryEngine {
           } else {
             // 再查找带前缀的列名
             const matchingKey = Object.keys(row).find((k) =>
-              k.endsWith(`.${columnName}`),
+              k.endsWith(`.${columnName}`)
             );
             if (matchingKey) {
               newRow[outputName] = row[matchingKey];
@@ -1932,7 +1936,7 @@ export class SQLQueryEngine {
    */
   private processOrderByClause(
     result: IntermediateResult,
-    orderByClause: any,
+    orderByClause: any
   ): IntermediateResult {
     const sortedRows = executeOrderBy(result.rows, orderByClause);
     return {
@@ -1956,7 +1960,8 @@ export class SQLQueryEngine {
 
     const newRow: any = {};
     ast.columns.forEach((col: string, index: number) => {
-      newRow[col] = ast.values[index];
+      // 使用 evaluateExpression 处理值，支持各种字符串类型
+      newRow[col] = evaluateExpression(ast.values[index]);
     });
 
     // 验证主键约束
@@ -2023,7 +2028,7 @@ export class SQLQueryEngine {
 
     const originalLength = table.data.length;
     table.data = table.data.filter(
-      (row) => !evaluateWhereClause(row, ast.where),
+      (row) => !evaluateWhereClause(row, ast.where)
     );
 
     return {
