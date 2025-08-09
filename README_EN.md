@@ -1,4 +1,12 @@
-# 𝐜𝐡𝐚𝐭𝐒𝐐𝐋
+
+
+<h1 align="center">
+  <a href="https://chat-sql-hazel.vercel.app/" target="_blank">
+    <img src="./chat-sql/public/assets/navLogo.png" width="300" alt="ChatSQL">
+  </a>
+</h1>
+
+
 
 English | [简体中文](./README.md)
 
@@ -12,42 +20,77 @@ English | [简体中文](./README.md)
 <p align="center" style="font-size: 1.2em; margin: 20px 0;">
   <a href="https://chat-sql-hazel.vercel.app/" target="_blank" style="font-size: 1.2em; font-weight: bold;">Website</a>
 </p>
-ChatSQL is an interactive SQL learning platform that leverages artificial intelligence to generate personalized SQL exercises, helping users master SQL query language from beginner to advanced levels. The platform combines intuitive database visualization tools, a smart code editor, and real-time feedback system to provide an immersive learning experience. Whether you're a SQL beginner or a developer looking to enhance your query skills, ChatSQL tailors learning content to your proficiency level, making SQL learning more efficient and engaging.
+<img src="./chat-sql/public/assets/demo.png">
 
-## ✨ Features
+C𝐡𝐚𝐭𝐒𝐐𝐋 is an interactive database system learning platform that helps users master SQL queries, ER diagram design, and B+ tree operations from beginner to advanced levels through intelligent agent design and workflow orchestration, combined with secondary development and deep adaptation of frontend components like xyflow.
 
-- 🤖 AI-Generated Exercises: Two sources of practice problems
+## Core Module Introduction
+
+C𝐡𝐚𝐭𝐒𝐐𝐋 consists of the following core modules:
+
+- **SQL Programming Practice Module**: Provides users with SQL query practice, offering exercises from both Dify-generated and preset course sources
+- **ER Diagram Design Module**: Provides ER diagram modeling tools, ER diagram modeling problem generation, and intelligent agent evaluation feedback
+- **B+ Tree Operation Module**: Implements B+ tree operation visualization
+- **ChatBot Module**: General Q&A based on professional knowledge base, assisting in database system course learning
+
+### SQL Programming Practice Module
+
+#### Feature Design
+
+<img src="./chat-sql/public/assets/design-SQL.png">
+
+- 🤖 **AI-Generated Exercises**: Provides two sources of practice problems
+
   - Through preset tutorials, progressively practice `select`, `join`, aggregation operations, and nested subqueries.
   - Interact with Dify workflow to automatically generate SQL exercises by inputting difficulty, tags, and descriptions.
+- 📊 **Database Structure Visualization**: Intuitively displays table relationships and field information, with foreign key constraints clearly visible
+- ⌨️ **Monaco Editor with Schema Integration**:
 
-- 📊 Database Structure Visualization: Intuitively displays table relationships and field information, with foreign key constraints clearly visible.
-- ⌨️ Monaco Editor with Schema Completion Integration:
   - Supports SQL syntax highlighting and hover syntax tips
   - Provides `tab` auto-completion based on current schema information
+- 📝 **Instant Result Validation**: Real-time verification of query results
 
-- 📝 Instant Result Validation: Real-time verification of query results
-  - SQL engine built into the frontend processes query results with zero delay
-  - Supports comparing query results with expected results to evaluate correctness
+  - Supports comparing query results with expected results to evaluate query correctness
 
-## 🖥 Interface Preview
+#### Runtime Results
 
-### Initialization Interface
-![](https://my-blog-img-1358266118.cos.ap-guangzhou.myqcloud.com/undefined20250508164908220.png?imageSlim)
-- Click "Initialization Tutorial" in the sidebar to interact with the preset database structure
-- Click "Help" in the sidebar to view basic operation demonstrations
+<img src="./chat-sql/public/assets/ret-SQL.png">
 
-### Database Structure Visualization
-![](https://my-blog-img-1358266118.cos.ap-guangzhou.myqcloud.com/undefined20250508165221364.png?imageSlim)
-- Database structure visualization view is displayed by default
-- You can switch to tuple view in the bottom left corner
+### ER Diagram Design Module
 
-### SQL Editor Demo
-<img src="./chat-sql/public/assets/edit.gif" alt="Editor Demo" width="80%" />
+#### Feature Design
 
-Corresponding shortcuts:
-- `command+enter` : Execute query
-- `command+j`: Check if query results match
-- `command+k`: Search history records
+<img src="./chat-sql/public/assets/design-ER.png">
+
+#### Runtime Results
+
+<img src="./chat-sql/public/assets/ret-ER.png">
+
+### B+ Tree Operation Module
+
+#### Feature Design
+
+<img src="./chat-sql/public/assets/design-B+.png">
+
+#### Runtime Results
+
+<img src="./chat-sql/public/assets/ret-B+.png">
+
+### ChatBot Module
+
+#### Feature Design
+
+<img src="./chat-sql/public/assets/design-chat.png">
+
+#### Runtime Results
+
+<img src="./chat-sql/public/assets/ret-chat.png">
+
+## Future Plans
+
+### Socratic Dialogue Agent
+
+<img src="./chat-sql/public/assets/future-chat.png">
 
 ## 🛠 Tech Stack
 
@@ -60,22 +103,21 @@ Corresponding shortcuts:
   <img src="https://img.shields.io/badge/Monaco%20Editor-DD1100?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Monaco Editor" />
   <img src="https://img.shields.io/badge/XY%20Flow-22C55E?style=for-the-badge&logo=diagram&logoColor=white" alt="XY Flow" />
 </p>
+<img src="./chat-sql/public/assets/framework.png">
 
-- **Framework**: [Next.js](https://nextjs.org/) 15.3.0
+- **Framework**: [Next.js](https://nextjs.org/)
 - **UI Components**:
-  - [Ant Design](https://ant.design/) 5.24.6
-  - [Material-UI](https://mui.com/) 7.0.2
+  - [Ant Design](https://ant.design/)
+  - [Material-UI](https://mui.com/)
 - **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 - **Flow Diagram**:
   - [XY Flow](https://reactflow.dev/) (@xyflow/react)
-  - For database table relationship visualization
-  - Supports custom node and edge styles
-  - Provides interactive chart operations
-  - D3.js-based zooming and dragging functionality
-- **AI Integration**: [Dify.ai](https://dify.ai/)
+- **AI Integration**: [Dify.ai](https://dify.ai/) && [Alibaba Cloud Bailian](https://bailian.console.aliyun.com/?utm_content=se_1021228063&gclid=CjwKCAjw49vEBhAVEiwADnMbbN8YRdE4pNrz9txN0_KcUqiOuUc9aPSgyMDqlti1KVOPf5-o-yL1jBoC3usQAvD_BwE#/home)
 - **Type Checking**: [TypeScript](https://www.typescriptlang.org/)
 
 ## 🚀 Quick Start
+
+> **TODO**: Provide intelligent agent/workflow design files for Bailian platform or migrate to Dify
 
 ### Prerequisites
 
