@@ -128,14 +128,15 @@ const NavBar: React.FC = () => {
               className={styles.navButton}
             />
           </Tooltip>
-          <Tooltip title='更新日志'>
+          {/* 暂时停用更新日志 */}
+          {/* <Tooltip title='更新日志'>
             <Button
               type='text'
               icon={<HistoryOutlined />}
               onClick={() => router.push("/changelog")}
               className={styles.navButton}
             />
-          </Tooltip>
+          </Tooltip> */}
         </div>
       </nav>
 

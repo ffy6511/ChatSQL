@@ -3,15 +3,15 @@ app:
   icon: male-student
   icon_background: '#FEF7C3'
   mode: workflow
-  name: chatSQL
+  name: chatSQL_improved
   use_icon_as_answer_icon: false
 dependencies:
 - current_identifier: null
   type: marketplace
   value:
-    marketplace_plugin_unique_identifier: langgenius/gemini:0.1.5@aad7561ffd05c8e2fd97a989fb843bd09e994b5ced6a746131662b4d9d9f0897
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.3.0@3d5be07581c53609a49d2bbb47be98c2e10820591bfc99f686b005d2c1ef95d9
 kind: app
-version: 0.1.5
+version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -297,7 +297,10 @@ workflow:
             - 表结构和数据要简洁明了，适合初学者理解\n- 输出需严格按照指定的JSON格式, 注意不要有```json出现,直接给出JSON格式输出\n\
             请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
             \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
-            \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
+            \ 并且体现在问题中.\n\n记住其中foreignKeys的参考格式为：\nforeignKeys: [\n          {\n \
+            \           fromTable: \"Students\",\n            fromColumn: \"department_id\"\
+            ,\n            toTable: \"Departments\",\n            toColumn: \"department_id\"\
+            ,\n          },\n        ],\n请包含这四个字段\n\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
             ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
             ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
             \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
@@ -368,7 +371,7 @@ workflow:
           text: '根据要求产生符合示例要求的格式的JSON数据, 确保输出结果中没有```和json标识符
 
             注意problem内的字符串个数, 也就是问题的个数与{{#1744815115517.count#}}保持一致!'
-        selected: false
+        selected: true
         title: Simple-generator
         type: llm
         variables: []
@@ -382,7 +385,7 @@ workflow:
       positionAbsolute:
         x: 701.7843802599643
         y: 281.9783604333139
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -405,9 +408,13 @@ workflow:
           role: system
           text: " 你是一个经验丰富的SQL题目生成专家\n\n生成一道SQL练习题，难度为中等。题目可涉及多条件筛选、分组（GROUP BY）、聚合函数（如COUNT、SUM、AVG）、简单的子查询或多表连接（JOIN），表结构适度复杂，适合有一定基础的学习者练习。\n\
             \n- 输出需严格按照指定的JSON格式, 注意不要有```json出现, 直接给出JSON格式输出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\
-            \n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关, 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的).\
-            \ 输出的tags至少包括{{#1744815115517.tags#}}输入的部分, 并且体现在问题中.\n\n{\n    \"hint\"\
-            : \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\",\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
+            \n记住其中foreignKeys的参考格式为：\nforeignKeys: [\n          {\n            fromTable:\
+            \ \"Students\",\n            fromColumn: \"department_id\",\n        \
+            \    toTable: \"Departments\",\n            toColumn: \"department_id\"\
+            ,\n          },\n        ],\n请包含这四个字段\n\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
+            \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
+            \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
+            ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
             ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
             \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
             \    \"order by\"\n    ],\n    \"tableStructure\": [\n        {\n    \
@@ -487,10 +494,10 @@ workflow:
       id: '17448590465580'
       position:
         x: 701.7843802599643
-        y: 462.50559999999984
+        y: 463.79216576141846
       positionAbsolute:
         x: 701.7843802599643
-        y: 462.50559999999984
+        y: 463.79216576141846
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -516,7 +523,10 @@ workflow:
             \ IN）、分组与排序的结合，表结构可以更复杂，适合进阶学习者挑战\n\n- 输出需严格按照指定的JSON格式, 注意不要有```json出现,\
             \ 直接给出JSON格式输出\n请确保生成的数据简洁、题目描述清晰，且所有字段和数据逻辑自洽。\n\n示例:\n根据输入的{{#1744815115517.declare#}}选择表的主题相关,\
             \ 根据 {{#1744815115517.count#}}设置相应的问题设置个数(表的结构是统一的). 输出的tags至少包括{{#1744815115517.tags#}}输入的部分,\
-            \ 并且体现在问题中.\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
+            \ 并且体现在问题中.\n记住其中foreignKeys的参考格式为：\nforeignKeys: [\n          {\n   \
+            \         fromTable: \"Students\",\n            fromColumn: \"department_id\"\
+            ,\n            toTable: \"Departments\",\n            toColumn: \"department_id\"\
+            ,\n          },\n        ],\n请包含这四个字段\n\n{\n    \"hint\": \"考察基础SELECT和WHERE子句的使用，注意筛选条件和结果排序。\"\
             ,\n    \"description\": \"有一张员工表，记录员工编号、姓名和部门。请查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。场景：公司人力资源管理。\"\
             ,\n    \"problem\": [\n        \"查询所有属于“人力资源部”的员工信息，并按员工编号升序排列。\"\n  \
             \  ],\n    \"tags\": [\n        \"select\",\n        \"where\",\n    \
@@ -827,7 +837,7 @@ workflow:
       positionAbsolute:
         x: 716.0829525353628
         y: 849.2684154140408
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -858,7 +868,7 @@ workflow:
           - text
         - - '17448590465580'
           - text
-      height: 152
+      height: 163
       id: '1754061479785'
       position:
         x: 1116.2453516675944
@@ -958,7 +968,7 @@ workflow:
           - '1754061479785'
           - output
           variable: input
-      height: 134
+      height: 150
       id: '1754061541819'
       position:
         x: 1449.7471388152626
@@ -972,6 +982,6 @@ workflow:
       type: custom
       width: 244
     viewport:
-      x: 428.19708623305655
-      y: 129.0992927989195
-      zoom: 0.6597539553864471
+      x: -796.0705995513592
+      y: -264.9375431387724
+      zoom: 0.7772630284342179

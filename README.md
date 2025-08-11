@@ -126,8 +126,8 @@ C𝐡𝐚𝐭𝐒𝐐𝐋 由以下核心模块组成：
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/ffy6511/chatSQL.git
-cd chatSQL/chat-sql
+git clone https://github.com/ffy6511/ChatSQL.git
+cd ChatSQL/chat-sql
 ```
 
 2. 安装依赖
@@ -142,7 +142,7 @@ npm install
 touch .env
 ```
 
-编辑 `.env` 文件并添加你的 Dify API 密钥：
+编辑 `.env` 文件并添加您的 Dify API 密钥：
 
 ```
 NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
@@ -154,17 +154,11 @@ NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
 npm run dev
 ```
 
-5. 更新git日志: 如果您希望更新自己的"更新日志"界面, 请执行
-
-```bash
-npm run generate-git
-```
-
 ### Dify 工作流配置
 
 1. 在 [Dify 平台](https://dify.ai) 创建新应用（选择工作流）
 2. 导入工作流配置：
-   - 从项目中下载 `public/chatSQL.yml` 文件
+   - 从项目中下载 `public/Agent/dify/ChatSQL_dify_improved.yml` 文件
    - 在 Dify 平台中导入该配置文件
    - <img src="./chat-sql/public/assets/dify.png" alt="导入工作流" width="80%" />
 3. 获取 API 密钥并在个人设置中配置（工作流默认使用 Gemini，可根据需要修改）

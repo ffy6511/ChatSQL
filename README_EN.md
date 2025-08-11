@@ -130,8 +130,8 @@ C𝐡𝐚𝐭𝐒𝐐𝐋 consists of the following core modules:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/ffy6511/chatSQL.git
-cd chatSQL/chat-sql
+git clone https://github.com/ffy6511/ChatSQL.git
+cd ChatSQL/chat-sql
 ```
 
 2. Install dependencies
@@ -158,17 +158,11 @@ NEXT_PUBLIC_DIFY_API_KEY=your_api_key_here
 npm run dev
 ```
 
-5. Update the git log: If you wish to update your own "changelog" interface, please execute
-
-```bash
-npm run generate-git
-```
-
 ### Dify Workflow Configuration
 
 1. Create a new application (select workflow) on [Dify platform](https://dify.ai)
 2. Import workflow configuration:
-   - Download the `public/chatSQL.yml` file from the project
+   - Download the `public/Agent/dify/ChatSQL_dify_improved.yml` file from the project
    - Import this configuration file in the Dify platform
    - <img src="./chat-sql/public/assets/dify.png" alt="Import Workflow" width="80%" />
 3. Get API key and configure in personal settings (workflow uses Gemini by default, can be modified as needed)

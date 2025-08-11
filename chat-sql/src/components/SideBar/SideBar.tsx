@@ -52,7 +52,7 @@ const SideBar: React.FC<{ onToggleHistory?: () => void }> = ({
   };
 
   const handleGithubClick = () => {
-    window.open("https://github.com/ffy6511/chatSQL", "_blank");
+    window.open("https://github.com/ffy6511/ChatSQL", "_blank");
   };
 
   return (
