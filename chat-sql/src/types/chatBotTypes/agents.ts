@@ -264,7 +264,7 @@ export const AGENT_CONFIG = {
     OUTPUT_PARAM: "text",
   },
   ER_VERIFIER: {
-    APP_ID: "6533b3711b8143068af6b09b98a3323c", // 默认聊天智能体
+    APP_ID: process.env.ER_VERIFIER_APP_ID || "c70598b194c6488b8a379ef6f2b6ba82", // 支持环境变量配置
     INPUT_PARAMS: ["description", "erDiagramDone", "erDiagramAns"],
     OUTPUT_PARAM: "text",
   },
