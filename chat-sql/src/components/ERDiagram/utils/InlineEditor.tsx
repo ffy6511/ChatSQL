@@ -5,34 +5,14 @@ import { styled } from "@mui/material/styles";
 // 样式化的TextField组件
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-root": {
-    fontSize: "1.1em",
+    // fontSize: "1.1em",
     fontWeight: "bold",
-    padding: "6px 12px",
-    minWidth: "120px",
-    backgroundColor: theme.palette.background.paper,
-    border: `2px solid ${theme.palette.primary.main}`,
-    borderRadius: "8px",
+    padding: "0px 0px",
     boxShadow: `0 4px 12px rgba(0, 0, 0, 0.15)`,
-    transition: "all 0.2s ease-in-out",
-    "&:hover": {
-      borderColor: theme.palette.primary.dark,
-      boxShadow: `0 6px 16px rgba(0, 0, 0, 0.2)`,
-    },
-    "&.Mui-focused": {
-      borderColor: theme.palette.primary.main,
-      boxShadow: `0 0 0 3px ${theme.palette.primary.main}25, 0 6px 16px rgba(0, 0, 0, 0.2)`,
-      transform: "scale(1.02)",
-    },
   },
   "& .MuiInputBase-input": {
-    padding: "2px 0",
+    padding: "4px 0",
     textAlign: "center",
-    "&::selection": {
-      backgroundColor: `${theme.palette.primary.main}40`,
-    },
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    border: "none",
   },
 }));
 
@@ -101,14 +81,14 @@ const InlineEditor: React.FC<InlineEditorProps> = ({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        variant="outlined"
-        size="small"
+        variant='outlined'
+        size='small'
         className={className}
         inputProps={{
           "aria-label": `编辑${nodeId}的名称`,
           maxLength: 50, // 限制最大长度
         }}
-        autoComplete="off"
+        autoComplete='off'
         spellCheck={false}
       />
     </ClickAwayListener>

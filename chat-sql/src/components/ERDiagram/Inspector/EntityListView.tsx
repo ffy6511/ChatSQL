@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -37,6 +37,7 @@ import {
   Add as AddIcon,
 } from "@mui/icons-material";
 import { useERDiagramContext } from "@/contexts/ERDiagramContext";
+import { useSnackbar } from "@/contexts/SnackbarContext";
 import { ERAttribute } from "@/types/ERDiagramTypes/erDiagram";
 import { useAttributeEditor } from "@/hooks/useAttributeEditor";
 import {
@@ -51,12 +52,14 @@ const EntityListView: React.FC = () => {
   const {
     state,
     deleteEntity,
+    updateEntity,
     updateAttribute,
     addAttribute,
     deleteAttribute,
     updateAttributeOrder,
     renameNode,
   } = useERDiagramContext();
+  const { showSnackbar } = useSnackbar();
   const entities = state.diagramData?.entities || [];
   const [expandedEntities, setExpandedEntities] = useState<string[]>([]);
   // 用于临时存储每个属性的参数输入 和 属性名的输入
@@ -67,16 +70,48 @@ const EntityListView: React.FC = () => {
     [entityId: string]: boolean;
   }>({});
 
+  // 临时存储实体描述的输入状态
+  const [editingEntityDescriptions, setEditingEntityDescriptions] = useState<{
+    [entityId: string]: string;
+  }>({}); // 初始化为空对象
+
+  // 当实体变化时初始化 editingEntityDescriptions
+  useEffect(() => {
+    const initialDescriptions: { [entityId: string]: string } = {};
+    entities.forEach((entity) => {
+      // 仅在描述存在时设置，否则使用空字符串
+      initialDescriptions[entity.id] = entity.description || "";
+    });
+    setEditingEntityDescriptions(initialDescriptions);
+  }, [entities]); // 依赖于 entities，以便在 entities 变化时重新初始化
+
+  // 处理正在编辑的描述
+  const handleUpdateDescription = (entityId: string, description: string) => {
+    setEditingEntityDescriptions((prev) => ({
+      ...prev,
+      [entityId]: description,
+    }));
+  };
+
+  // 保存描述的处理函数
+  const handleSaveDescription = async (entityId: string) => {
+    const newDescription = editingEntityDescriptions[entityId];
+    if (newDescription !== undefined && state.currentDiagramId) {
+      try {
+        // 调用上下文函数更新实体
+        await updateEntity(entityId, { description: newDescription });
+        showSnackbar("实体描述保存成功", "success");
+      } catch (error) {
+        console.error("保存描述失败:", error);
+        showSnackbar("保存描述失败，请重试", "error");
+      }
+    }
+  };
+
   const {
-    editingNames,
-    isComposing,
     menuAnchor,
     attributeParams,
     setAttributeParams,
-    handleNameChange,
-    handleNameSave,
-    handleCompositionStart,
-    handleCompositionEnd,
     handleMenuOpen,
     handleMenuClose,
     handleDeleteAttribute,
@@ -92,7 +127,7 @@ const EntityListView: React.FC = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   // 处理拖拽结束事件
@@ -113,17 +148,17 @@ const EntityListView: React.FC = () => {
     if (!entity) return;
 
     const oldIndex = entity.attributes.findIndex(
-      (attr) => `${entityId}-${attr.id}` === activeId,
+      (attr) => `${entityId}-${attr.id}` === activeId
     );
     const newIndex = entity.attributes.findIndex(
-      (attr) => `${entityId}-${attr.id}` === overId,
+      (attr) => `${entityId}-${attr.id}` === overId
     );
 
     if (oldIndex !== -1 && newIndex !== -1) {
       const newAttributeOrder = arrayMove(
         entity.attributes,
         oldIndex,
-        newIndex,
+        newIndex
       );
       const newAttributeIds = newAttributeOrder.map((attr) => attr.id);
 
@@ -160,7 +195,7 @@ const EntityListView: React.FC = () => {
     entities.forEach((entity) => {
       entity.attributes.forEach((attribute) => {
         const { typeName, params } = parseDataType(
-          attribute.dataType || "VARCHAR",
+          attribute.dataType || "VARCHAR"
         );
 
         if (dataTypeParamConfig[typeName] && !attributeParams[attribute.id]) {
@@ -180,7 +215,7 @@ const EntityListView: React.FC = () => {
     setExpandedEntities((prev) =>
       prev.includes(entityId)
         ? prev.filter((id) => id !== entityId)
-        : [...prev, entityId],
+        : [...prev, entityId]
     );
   };
 
@@ -193,7 +228,7 @@ const EntityListView: React.FC = () => {
       setExpandedEntities((prev) =>
         prev.includes(state.selectedElementId!)
           ? prev
-          : [...prev, state.selectedElementId!],
+          : [...prev, state.selectedElementId!]
       );
     }
   }, [state.selectedElementId, entities]);
@@ -233,7 +268,7 @@ const EntityListView: React.FC = () => {
   return (
     <Box>
       <Typography
-        variant="h6"
+        variant='h6'
         sx={{ display: "flex", alignItems: "center", gap: 1 }}
       >
         <TableChartIcon /> 实体列表
@@ -241,7 +276,7 @@ const EntityListView: React.FC = () => {
       <Divider sx={{ my: 1 }} />
       {entities.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography variant="body2">暂无实体</Typography>
+          <Typography variant='body2'>暂无实体</Typography>
         </Box>
       ) : (
         <Stack spacing={1}>
@@ -268,14 +303,14 @@ const EntityListView: React.FC = () => {
                   sx={{ display: "flex", alignItems: "center", gap: 1 }}
                   onClick={() => handleExpand(entity.id)}
                 >
-                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Stack direction='row' alignItems='center' spacing={0.5}>
                     {expandedEntities.includes(entity.id) ? (
                       <ExpandMoreIcon />
                     ) : (
                       <ExpandLessIcon />
                     )}
                     <TextField
-                      size="small"
+                      size='small'
                       value={
                         editingEntityNames[entity.id] !== undefined
                           ? editingEntityNames[entity.id]
@@ -301,7 +336,7 @@ const EntityListView: React.FC = () => {
                       onCompositionEnd={() =>
                         handleEntityCompositionEnd(entity.id)
                       }
-                      variant="standard"
+                      variant='standard'
                       slotProps={{
                         input: {
                           disableUnderline: true,
@@ -321,11 +356,11 @@ const EntityListView: React.FC = () => {
                       }}
                     />
                   </Stack>
-                  <Typography variant="body2" color="var(--secondary-text)">
+                  <Typography variant='body2' color='var(--secondary-text)'>
                     {entity.attributes.length} attributes
                   </Typography>
                 </Box>
-                <Tooltip title="删除实体">
+                <Tooltip title='删除实体'>
                   <IconButton
                     sx={{
                       opacity: 0.6,
@@ -336,7 +371,7 @@ const EntityListView: React.FC = () => {
                         backgroundColor: "var(--hover-bg)",
                       },
                     }}
-                    size="small"
+                    size='small'
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteEntity(entity.id);
@@ -349,13 +384,13 @@ const EntityListView: React.FC = () => {
 
               <Collapse
                 in={expandedEntities.includes(entity.id)}
-                timeout="auto"
+                timeout='auto'
                 unmountOnExit
               >
                 <CardContent>
                   <Stack spacing={0}>
                     {entity.attributes.length === 0 ? (
-                      <Typography variant="body2" color="var(--secondary-text)">
+                      <Typography variant='body2' color='var(--secondary-text)'>
                         暂无属性
                       </Typography>
                     ) : (
@@ -366,7 +401,7 @@ const EntityListView: React.FC = () => {
                       >
                         <SortableContext
                           items={entity.attributes.map(
-                            (attr) => `${entity.id}-${attr.id}`,
+                            (attr) => `${entity.id}-${attr.id}`
                           )}
                           strategy={verticalListSortingStrategy}
                         >
@@ -387,14 +422,14 @@ const EntityListView: React.FC = () => {
                               }
                               onParamChange={(paramIndex, value) => {
                                 const { typeName } = parseDataType(
-                                  attr.dataType || "VARCHAR",
+                                  attr.dataType || "VARCHAR"
                                 );
                                 handleParamChange(
                                   entity.id,
                                   attr.id,
                                   paramIndex,
                                   value,
-                                  typeName,
+                                  typeName
                                 );
                               }}
                             />
@@ -408,7 +443,7 @@ const EntityListView: React.FC = () => {
                       sx={{ mt: 1, display: "flex", justifyContent: "center" }}
                     >
                       <Button
-                        size="small"
+                        size='small'
                         startIcon={<AddIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -426,20 +461,60 @@ const EntityListView: React.FC = () => {
                       </Button>
                     </Box>
                   </Stack>
-                  {entity.description && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="var(--secondary-text)">
-                        描述：
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="var(--primary-text)"
-                        sx={{ ml: 2 }}
-                      >
-                        {entity.description}
-                      </Typography>
-                    </Box>
-                  )}
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant='body2' color='var(--secondary-text)'>
+                      描述：
+                    </Typography>
+                    <TextField
+                      multiline
+                      rows={2}
+                      fullWidth
+                      value={editingEntityDescriptions[entity.id] || ""}
+                      onChange={(e) =>
+                        handleUpdateDescription(entity.id, e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSaveDescription(entity.id);
+                          // 失去聚焦
+                          (e.target as HTMLTextAreaElement).blur();
+                        }
+                      }}
+                      onBlur={() => handleSaveDescription(entity.id)}
+                      placeholder='实体描述为空'
+                      variant='standard'
+                      size='small'
+                      slotProps={{
+                        input: {
+                          disableUnderline: true,
+                          style: {
+                            color: "var(--secondary-text)",
+                            fontSize: "0.875rem",
+                          },
+                        },
+                      }}
+                      sx={{
+                        mt: 1,
+                        "& .MuiInputBase-root": {
+                          border: "none",
+                          borderRadius: "16px",
+                          transition: " all 0.2s ease-in-out",
+                          "&:hover": {
+                            border: "1px solid var(--border-color)",
+                            padding: "8px",
+                          },
+                          "&.Mui-focused": {
+                            border: "1px solid var(--border-color)",
+                            padding: "8px",
+                          },
+                        },
+                        "& .MuiInputBase-input": {
+                          padding: "4px",
+                        },
+                      }}
+                    />
+                  </Box>
                 </CardContent>
               </Collapse>
             </Card>
@@ -458,10 +533,10 @@ const EntityListView: React.FC = () => {
           bgcolor: "var(--card-border)",
         }}
       >
-        <Typography variant="body2">
+        <Typography variant='body2'>
           从组件库添加实体后，将在此处显示
         </Typography>
-        <Typography variant="body2"> 点击实体可展开查看和编辑属性</Typography>
+        <Typography variant='body2'> 点击实体可展开查看和编辑属性</Typography>
       </Box>
     </Box>
   );
