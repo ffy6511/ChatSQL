@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Card,
@@ -66,6 +66,7 @@ const RelationshipListView: React.FC = () => {
   const [editingConnection, setEditingConnection] = useState<string | null>(
     null
   );
+  const relationshipRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // 跟踪编辑的关系属性
   const [editingAttributeNames, setEditingAttributeNames] = useState<{
@@ -330,17 +331,24 @@ const RelationshipListView: React.FC = () => {
     );
   };
 
-  // 根据selectedElementId自动展开对应关系
+  // 根据selectedElementId自动展开对应关系并滚动到视图
   React.useEffect(() => {
     if (
       state.selectedElementId &&
       relationships.find((r) => r.id === state.selectedElementId)
     ) {
+      const relationshipId = state.selectedElementId;
       setExpandedRelationships((prev) =>
-        prev.includes(state.selectedElementId!)
-          ? prev
-          : [...prev, state.selectedElementId!]
+        prev.includes(relationshipId) ? prev : [...prev, relationshipId]
       );
+
+      // 滚动到对应的关系
+      setTimeout(() => {
+        relationshipRefs.current[relationshipId]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100); // 延迟以确保展开动画完成后再滚动
     }
   }, [state.selectedElementId, relationships]);
 
@@ -646,6 +654,9 @@ const RelationshipListView: React.FC = () => {
           {relationships.map((relationship) => (
             <Card
               key={relationship.id}
+              ref={(el) => {
+                relationshipRefs.current[relationship.id] = el;
+              }}
               className={`${styles.relationshipCard} ${
                 state.selectedElementId === relationship.id
                   ? styles.selected

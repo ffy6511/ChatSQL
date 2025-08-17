@@ -28,7 +28,7 @@ const defaultLayoutConfig: LayoutConfig = {
 function calculateLayout(
   entities: EREntity[],
   relationships: ERRelationship[],
-  config: LayoutConfig,
+  config: LayoutConfig
 ) {
   const positions = new Map<string, { x: number; y: number }>();
 
@@ -57,21 +57,28 @@ function calculateLayout(
 export function convertERJsonToFlow(
   erData: ERDiagramData,
   layoutConfig: Partial<LayoutConfig> = {},
+  forceLayout: boolean = false
 ): { nodes: Node[]; edges: Edge[] } {
   const config = { ...defaultLayoutConfig, ...layoutConfig };
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  // 计算布局
-  const positions = calculateLayout(
-    erData.entities,
-    erData.relationships,
-    config,
-  );
+  // 检查是否需要计算布局
+  const shouldCalculateLayout =
+    forceLayout ||
+    erData.entities.some((e) => !e.position) ||
+    erData.relationships.some((r) => !r.position);
+
+  const positions = shouldCalculateLayout
+    ? calculateLayout(erData.entities, erData.relationships, config)
+    : new Map<string, { x: number; y: number }>();
 
   // 1. 创建实体节点
   erData.entities.forEach((entity) => {
-    const position = positions.get(entity.id) || { x: 0, y: 0 };
+    const position =
+      entity.position && !forceLayout
+        ? entity.position
+        : positions.get(entity.id) || { x: 0, y: 0 };
 
     const entityNode: Node<EntityNodeData> = {
       id: entity.id,
@@ -91,7 +98,10 @@ export function convertERJsonToFlow(
 
   // 2. 创建关系节点
   erData.relationships.forEach((relationship) => {
-    const position = positions.get(relationship.id) || { x: 0, y: 0 };
+    const position =
+      relationship.position && !forceLayout
+        ? relationship.position
+        : positions.get(relationship.id) || { x: 0, y: 0 };
 
     // 判断关系是否连接了弱实体集
     const isWeakRelationship = relationship.connections.some((connection) => {
@@ -183,7 +193,7 @@ export function convertERJsonToFlow(
 function determineSourceHandle(
   entityId: string,
   relationshipId: string,
-  positions: Map<string, { x: number; y: number }>,
+  positions: Map<string, { x: number; y: number }>
 ): string {
   const entityPos = positions.get(entityId);
   const relationshipPos = positions.get(relationshipId);
@@ -205,7 +215,7 @@ function determineSourceHandle(
 function determineTargetHandle(
   entityId: string,
   relationshipId: string,
-  positions: Map<string, { x: number; y: number }>,
+  positions: Map<string, { x: number; y: number }>
 ): string {
   const entityPos = positions.get(entityId);
   const relationshipPos = positions.get(relationshipId);
@@ -226,7 +236,7 @@ function determineTargetHandle(
 // 优化布局的辅助函数
 export function optimizeLayout(
   nodes: Node[],
-  edges: Edge[],
+  edges: Edge[]
 ): { nodes: Node[]; edges: Edge[] } {
   // TODO: 根据距离动态调整连接的端口
   // 目前返回原始布局

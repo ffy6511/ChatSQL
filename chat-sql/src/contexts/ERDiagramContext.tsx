@@ -131,7 +131,11 @@ type ERDiagramAction =
       payload: { entityId: string; attributeIds: string[] };
     }
   // 固定题目相关Action
-  | { type: "SET_PINNED_QUIZ"; payload: { quizId: string | null } };
+  | { type: "SET_PINNED_QUIZ"; payload: { quizId: string | null } }
+  | {
+      type: "UPDATE_NODE_POSITION";
+      payload: { nodeId: string; position: { x: number; y: number } };
+    };
 
 const initialState: ERDiagramState = {
   currentDiagramId: null,
@@ -656,6 +660,28 @@ function erDiagramReducer(
         ...state,
         pinnedQuizId: action.payload.quizId,
       };
+    case "UPDATE_NODE_POSITION":
+      if (!state.diagramData) return state;
+      return {
+        ...state,
+        diagramData: {
+          ...state.diagramData,
+          entities: state.diagramData.entities.map((entity) =>
+            entity.id === action.payload.nodeId
+              ? { ...entity, position: action.payload.position }
+              : entity
+          ),
+          relationships: state.diagramData.relationships.map((relationship) =>
+            relationship.id === action.payload.nodeId
+              ? { ...relationship, position: action.payload.position }
+              : relationship
+          ),
+          metadata: {
+            ...state.diagramData.metadata,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
     default:
       return state;
   }
@@ -750,6 +776,11 @@ interface ERDiagramContextType {
   ) => void;
   // 固定题目相关方法
   setPinnedQuiz: (quizId: string | null) => void;
+  // 节点位置更新
+  updateNodePosition: (
+    nodeId: string,
+    position: { x: number; y: number }
+  ) => void;
 }
 
 const ERDiagramContext = createContext<ERDiagramContextType | undefined>(
@@ -1713,6 +1744,33 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     fetchDiagramList();
   }, [fetchDiagramList]);
 
+  // 节点位置更新方法
+  const updateNodePosition = useCallback(
+    (nodeId: string, position: { x: number; y: number }) => {
+      if (!state.diagramData || !state.currentDiagramId) return;
+
+      dispatch({
+        type: "UPDATE_NODE_POSITION",
+        payload: { nodeId, position },
+      });
+
+      // 异步保存，避免阻塞UI
+      setTimeout(() => {
+        const updatedData = erDiagramReducer(state, {
+          type: "UPDATE_NODE_POSITION",
+          payload: { nodeId, position },
+        }).diagramData;
+
+        if (updatedData && state.currentDiagramId) {
+          saveDiagram(updatedData, state.currentDiagramId).catch((error) => {
+            console.error("自动保存节点位置失败:", error);
+          });
+        }
+      }, 500); // 延迟保存
+    },
+    [state, saveDiagram]
+  );
+
   // 固定题目相关方法
   const setPinnedQuiz = useCallback((quizId: string | null) => {
     dispatch({ type: "SET_PINNED_QUIZ", payload: { quizId } });
@@ -1763,6 +1821,8 @@ export const ERDiagramProvider: React.FC<ERDiagramProviderProps> = ({
     showSnackbar,
     // 固定题目相关方法
     setPinnedQuiz,
+    // 节点位置更新
+    updateNodePosition,
   };
 
   return (

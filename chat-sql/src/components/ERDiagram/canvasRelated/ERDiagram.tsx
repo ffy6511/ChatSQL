@@ -30,9 +30,15 @@ import {
 import {
   BorderAll as BorderAllIcon,
   Diamond as DiamondIcon,
+  AutoFixHigh as AutoFixHighIcon,
 } from "@mui/icons-material";
 
-import { ERDiagramData, ERConnection } from "@/types/ERDiagramTypes/erDiagram";
+import {
+  ERDiagramData,
+  ERConnection,
+  EREntity,
+  ERRelationship,
+} from "@/types/ERDiagramTypes/erDiagram";
 import { convertERJsonToFlow, LayoutConfig } from "@/utils/erToFlow";
 import EntityNode from "./EntityNode";
 import DiamondNode from "./DiamondNode";
@@ -81,11 +87,22 @@ interface ERDiagramProps {
 const CustomControls: React.FC<{
   edgeStyle: EdgeStyle;
   onEdgeStyleChange: (style: EdgeStyle) => void;
-}> = ({ edgeStyle, onEdgeStyleChange }) => {
+  onAutoLayout: () => void;
+}> = ({ edgeStyle, onEdgeStyleChange, onAutoLayout }) => {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
 
   return (
     <Panel position='bottom-right' className={styles.customControls}>
+      <Tooltip title='自动布局' placement='bottom'>
+        <button
+          type='button'
+          onClick={onAutoLayout}
+          className={styles.controlButton}
+          aria-label='自动布局'
+        >
+          <AutoFixHighIcon fontSize='small' />
+        </button>
+      </Tooltip>
       <Tooltip title='放大' placement='bottom'>
         <button
           type='button'
@@ -238,7 +255,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   const [open, setOpen] = useState(false);
 
   // 获取Context状态
-  const { state: erState } = useERDiagramContext();
+  const { state: erState, updateNodePosition } = useERDiagramContext();
 
   // 右键菜单状态
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -256,7 +273,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   const { theme: themeContext } = useThemeContext();
 
   // 获取 React Flow 实例用于坐标转换：但是当前实现下创建新的节点导致重新渲染和布局，作为保留功能（持久化存储位置）
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, getNodes } = useReactFlow();
 
   // 尝试获取 ERDiagramContext，如果不存在则为 null（用于独立使用的情况）
   let contextMethods: {
@@ -343,8 +360,22 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           }))
         );
       }
+
+      // 处理节点位置变化
+      const positionChanges = changes.filter(
+        (change): change is NodePositionChange =>
+          change.type === "position" && !change.dragging
+      );
+
+      if (positionChanges.length > 0) {
+        positionChanges.forEach((change) => {
+          if (change.position) {
+            updateNodePosition(change.id, change.position);
+          }
+        });
+      }
     },
-    [onNodesChange, setNodes]
+    [onNodesChange, setNodes, updateNodePosition]
   );
 
   // 节点点击处理
@@ -556,6 +587,20 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     [contextMenu.flowPosition, contextMethods, handleCloseContextMenu]
   );
 
+  // 自动布局处理函数
+  const handleAutoLayout = useCallback(() => {
+    const { nodes: layoutedNodes } = convertERJsonToFlow(
+      data,
+      layoutConfig,
+      true
+    );
+    setNodes(layoutedNodes);
+    // 更新所有节点的位置信息
+    layoutedNodes.forEach((node) => {
+      updateNodePosition(node.id, node.position);
+    });
+  }, [data, layoutConfig, setNodes, updateNodePosition]);
+
   return (
     <div className={`${styles.erDiagram} ${className || ""}`}>
       <ReactFlow
@@ -603,6 +648,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           <CustomControls
             edgeStyle={edgeStyle}
             onEdgeStyleChange={setEdgeStyle}
+            onAutoLayout={handleAutoLayout}
           />
         )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Card,
@@ -69,6 +69,7 @@ const EntityListView: React.FC = () => {
   const [isEntityComposing, setIsEntityComposing] = useState<{
     [entityId: string]: boolean;
   }>({});
+  const entityRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // 临时存储实体描述的输入状态
   const [editingEntityDescriptions, setEditingEntityDescriptions] = useState<{
@@ -219,17 +220,24 @@ const EntityListView: React.FC = () => {
     );
   };
 
-  // 根据selectedElementId自动展开对应实体
+  // 根据selectedElementId自动展开对应实体并滚动到视图
   React.useEffect(() => {
     if (
       state.selectedElementId &&
       entities.find((e) => e.id === state.selectedElementId)
     ) {
+      const entityId = state.selectedElementId;
       setExpandedEntities((prev) =>
-        prev.includes(state.selectedElementId!)
-          ? prev
-          : [...prev, state.selectedElementId!]
+        prev.includes(entityId) ? prev : [...prev, entityId]
       );
+
+      // 滚动到对应的实体
+      setTimeout(() => {
+        entityRefs.current[entityId]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100); // 延迟以确保展开动画完成后再滚动
     }
   }, [state.selectedElementId, entities]);
 
@@ -283,6 +291,9 @@ const EntityListView: React.FC = () => {
           {entities.map((entity) => (
             <Card
               key={entity.id}
+              ref={(el) => {
+                entityRefs.current[entity.id] = el;
+              }}
               className={`${styles.entityCard} ${
                 state.selectedElementId === entity.id ? styles.selected : ""
               }`}
