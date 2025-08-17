@@ -31,6 +31,7 @@ import {
   BorderAll as BorderAllIcon,
   Diamond as DiamondIcon,
   AutoFixHigh as AutoFixHighIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 
 import {
@@ -69,6 +70,13 @@ interface ContextMenuState {
   isOpen: boolean;
   position: { x: number; y: number };
   flowPosition: { x: number; y: number };
+}
+
+// 边右键菜单状态接口
+interface EdgeContextMenuState {
+  isOpen: boolean;
+  position: { x: number; y: number };
+  edge: Edge | null;
 }
 
 // ER图组件的属性接口
@@ -255,13 +263,27 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   const [open, setOpen] = useState(false);
 
   // 获取Context状态
-  const { state: erState, updateNodePosition } = useERDiagramContext();
+  const { 
+    state: erState, 
+    updateNodePosition,
+    // 从context获取diagramData用于重新计算
+  } = useERDiagramContext();
+  
+  // 使用context中的diagramData而不是props中的data
+  const diagramData = erState.diagramData;
 
   // 右键菜单状态
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     isOpen: false,
     position: { x: 0, y: 0 },
     flowPosition: { x: 0, y: 0 },
+  });
+
+  // 边右键菜单状态
+  const [edgeContextMenu, setEdgeContextMenu] = useState<EdgeContextMenuState>({
+    isOpen: false,
+    position: { x: 0, y: 0 },
+    edge: null,
   });
 
   const showMessage = (msg: string) => {
@@ -280,6 +302,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
     addEntity?: any;
     addRelationship?: any;
     createConnection?: any;
+    deleteConnection?: any; // 添加deleteConnection方法
   } = {};
   try {
     const context = useERDiagramContext();
@@ -287,6 +310,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       addEntity: context.addEntity,
       addRelationship: context.addRelationship,
       createConnection: context.createConnection,
+      deleteConnection: context.deleteConnection, // 添加deleteConnection方法
     };
   } catch (error) {
     // Context 不存在时，使用空的方法
@@ -297,7 +321,9 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
 
   // 转换数据为React Flow格式
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
-    const result = convertERJsonToFlow(data, layoutConfig);
+    // 使用context中的diagramData而不是props中的data
+    if (!diagramData) return { nodes: [], edges: [] };
+    const result = convertERJsonToFlow(diagramData, layoutConfig);
     // 应用边样式
     const styledEdges = result.edges.map((edge) => ({
       ...edge,
@@ -305,7 +331,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       data: { ...edge.data, edgeStyle },
     }));
     return { nodes: result.nodes, edges: styledEdges };
-  }, [data, layoutConfig, edgeStyle]);
+  }, [diagramData, layoutConfig, edgeStyle]);
 
   // 使用React Flow的状态管理
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -394,6 +420,21 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
       onEdgeClick?.(edge);
     },
     [onEdgeClick]
+  );
+
+  // 边右键处理
+  const handleEdgeContextMenu = useCallback(
+    (event: React.MouseEvent, edge: Edge) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      setEdgeContextMenu({
+        isOpen: true,
+        position: { x: event.clientX, y: event.clientY },
+        edge,
+      });
+    },
+    []
   );
 
   // 节点双击处理
@@ -518,6 +559,9 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
           relationshipNodeId,
           connection: newConnection,
         });
+        
+        // 通过更新context中的数据来触发重新渲染
+        // 这将导致useMemo重新计算nodes和edges，使用我们计算的连接点
       } catch (error) {
         console.error("创建连接失败:", error);
       }
@@ -548,6 +592,11 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
   // 关闭右键菜单
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu((prev) => ({ ...prev, isOpen: false }));
+  }, []);
+
+  // 关闭边右键菜单
+  const handleCloseEdgeContextMenu = useCallback(() => {
+    setEdgeContextMenu({ isOpen: false, position: { x: 0, y: 0 }, edge: null });
   }, []);
 
   // 创建节点的处理函数
@@ -615,6 +664,7 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onContextMenu={handleContextMenu}
+        onEdgeContextMenu={handleEdgeContextMenu}
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{
@@ -732,6 +782,51 @@ const ERDiagramComponent: React.FC<ERDiagramProps> = ({
             <DiamondIcon sx={{ color: "#ebcd62" }} />
           </ListItemIcon>
           <ListItemText primary='添加关系' />
+        </MenuItem>
+      </Menu>
+
+      {/* 边右键菜单 */}
+      <Menu
+        open={edgeContextMenu.isOpen}
+        onClose={handleCloseEdgeContextMenu}
+        anchorReference='anchorPosition'
+        anchorPosition={{
+          top: edgeContextMenu.position.y,
+          left: edgeContextMenu.position.x,
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 150,
+              boxShadow: 3,
+            },
+          },
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            if (edgeContextMenu.edge) {
+              // 获取关系ID和实体ID
+              const relationshipId = edgeContextMenu.edge.target;
+              const entityId = edgeContextMenu.edge.source;
+
+              // 调用deleteConnection方法删除连接
+              if (contextMethods.deleteConnection) {
+                contextMethods.deleteConnection(relationshipId, entityId);
+              }
+            }
+            handleCloseEdgeContextMenu();
+          }}
+          sx={{ color: "var(--error-color)" }}
+        >
+          {/* <ListItemIcon> */}
+          <DeleteIcon fontSize='small' sx={{ mr: 1 }} />
+          {/* </ListItemIcon> */}
+          <ListItemText primary='删除连接' />
         </MenuItem>
       </Menu>
     </div>

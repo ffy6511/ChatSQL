@@ -53,6 +53,120 @@ function calculateLayout(
   return positions;
 }
 
+// 计算两点之间的距离
+function calculateDistance(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+// 确定最近的连接点
+function determineNearestHandles(
+  sourceNode: Node,
+  targetNode: Node
+): { sourceHandle: string; targetHandle: string } {
+  // 获取节点的实际尺寸和连接点位置
+  const sourceIsEntity = sourceNode.type === "entity";
+  const targetIsEntity = targetNode.type === "entity";
+
+  // 节点尺寸
+  const sourceWidth = sourceIsEntity ? 260 : 160;
+  const sourceHeight = sourceIsEntity ? 60 : 100;
+
+  const targetWidth = targetIsEntity ? 260 : 160;
+  const targetHeight = targetIsEntity ? 60 : 100;
+
+  // 连接点偏移量（根据CSS样式设置）
+  const sourceHandleOffset = sourceIsEntity ? 4 : 10;
+  const targetHandleOffset = targetIsEntity ? 4 : 10;
+
+  // 源节点的连接点位置
+  const sourceHandles = [
+    {
+      id: "top",
+      x: sourceNode.position.x + sourceWidth / 2,
+      y: sourceNode.position.y + sourceHandleOffset,
+    },
+    {
+      id: "right",
+      x: sourceNode.position.x + sourceWidth - sourceHandleOffset,
+      y: sourceNode.position.y + sourceHeight / 2,
+    },
+    {
+      id: "bottom",
+      x: sourceNode.position.x + sourceWidth / 2,
+      y: sourceNode.position.y + sourceHeight - sourceHandleOffset,
+    },
+    {
+      id: "left",
+      x: sourceNode.position.x + sourceHandleOffset,
+      y: sourceNode.position.y + sourceHeight / 2,
+    },
+  ];
+
+  // 目标节点的连接点位置
+  const targetHandles = [
+    {
+      id: "top",
+      x: targetNode.position.x + targetWidth / 2,
+      y: targetNode.position.y + targetHandleOffset,
+    },
+    {
+      id: "right",
+      x: targetNode.position.x + targetWidth - targetHandleOffset,
+      y: targetNode.position.y + targetHeight / 2,
+    },
+    {
+      id: "bottom",
+      x: targetNode.position.x + targetWidth / 2,
+      y: targetNode.position.y + targetHeight - targetHandleOffset,
+    },
+    {
+      id: "left",
+      x: targetNode.position.x + targetHandleOffset,
+      y: targetNode.position.y + targetHeight / 2,
+    },
+  ];
+
+  // 找到最近的连接点组合
+  let minDistance = Infinity;
+  let nearestSourceHandle = "right";
+  let nearestTargetHandle = "left";
+
+  for (const sourceHandle of sourceHandles) {
+    for (const targetHandle of targetHandles) {
+      const distance = calculateDistance(
+        sourceHandle.x,
+        sourceHandle.y,
+        targetHandle.x,
+        targetHandle.y
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestSourceHandle = sourceHandle.id;
+        nearestTargetHandle = targetHandle.id;
+      }
+    }
+  }
+
+  // console.log("计算连接点:", {
+  //   sourceNode: sourceNode.id,
+  //   targetNode: targetNode.id,
+  //   sourceHandle: nearestSourceHandle,
+  //   targetHandle: nearestTargetHandle,
+  //   sourcePosition: sourceNode.position,
+  //   targetPosition: targetNode.position
+  // });
+
+  return {
+    sourceHandle: nearestSourceHandle,
+    targetHandle: nearestTargetHandle,
+  };
+}
+
 // 主转换函数
 export function convertERJsonToFlow(
   erData: ERDiagramData,
@@ -137,22 +251,19 @@ export function convertERJsonToFlow(
         return; // Skip if nodes are not found
       }
 
-      // With a 3-column layout, connections are always horizontal.
-      // We just need to determine if the entity is on the left or right column.
-      let sourceHandle: string;
-      let targetHandle: string;
+      // 确定最近的连接点
+      const { sourceHandle, targetHandle } = determineNearestHandles(
+        entityNode,
+        relationshipNode
+      );
 
-      if (entityNode.position.x < relationshipNode.position.x) {
-        // Entity is on the left of the relationship
-        sourceHandle = "right";
-        targetHandle = "left";
-      } else {
-        // Entity is on the right of the relationship
-        sourceHandle = "left";
-        targetHandle = "right";
-      }
-
-      const isTotal = connection.cardinality.startsWith("1");
+      // console.log("创建Edge:", {
+      //   edgeId,
+      //   source: connection.entityId,
+      //   target: relationship.id,
+      //   sourceHandle,
+      //   targetHandle,
+      // });
 
       const edge: Edge = {
         id: edgeId,
@@ -180,6 +291,9 @@ export function convertERJsonToFlow(
         },
         data: {
           role: connection.role,
+          // 添加连接信息用于删除功能
+          relationshipId: relationship.id,
+          entityId: connection.entityId,
         },
       };
       edges.push(edge);
@@ -187,50 +301,6 @@ export function convertERJsonToFlow(
   });
 
   return { nodes, edges };
-}
-
-// 确定源连接点
-function determineSourceHandle(
-  entityId: string,
-  relationshipId: string,
-  positions: Map<string, { x: number; y: number }>
-): string {
-  const entityPos = positions.get(entityId);
-  const relationshipPos = positions.get(relationshipId);
-
-  if (!entityPos || !relationshipPos) return "right";
-
-  const dx = relationshipPos.x - entityPos.x;
-  const dy = relationshipPos.y - entityPos.y;
-
-  // 根据相对位置确定连接点
-  if (Math.abs(dx) > Math.abs(dy)) {
-    return dx > 0 ? "right" : "left";
-  } else {
-    return dy > 0 ? "bottom" : "top";
-  }
-}
-
-// 确定目标连接点
-function determineTargetHandle(
-  entityId: string,
-  relationshipId: string,
-  positions: Map<string, { x: number; y: number }>
-): string {
-  const entityPos = positions.get(entityId);
-  const relationshipPos = positions.get(relationshipId);
-
-  if (!entityPos || !relationshipPos) return "left";
-
-  const dx = entityPos.x - relationshipPos.x;
-  const dy = entityPos.y - relationshipPos.y;
-
-  // 根据相对位置确定连接点
-  if (Math.abs(dx) > Math.abs(dy)) {
-    return dx > 0 ? "right" : "left";
-  } else {
-    return dy > 0 ? "bottom" : "top";
-  }
 }
 
 // 优化布局的辅助函数

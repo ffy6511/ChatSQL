@@ -56,6 +56,7 @@ const RelationshipListView: React.FC = () => {
     updateRelationshipAttribute,
     renameNode,
     updateRelationship,
+    deleteConnection, // 添加deleteConnection方法
   } = useERDiagramContext();
   const { showSnackbar } = useSnackbar();
   const relationships = state.diagramData?.relationships || [];
@@ -440,6 +441,26 @@ const RelationshipListView: React.FC = () => {
         {connection.role && (
           <Typography variant='body2'>({connection.role})</Typography>
         )}
+        
+        <Tooltip title="删除连接">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteConnection(relationshipId, connection.entityId);
+            }}
+            sx={{
+              opacity: 0.6,
+              "&:hover": {
+                opacity: 1,
+                color: "var(--error-color)",
+                backgroundColor: "var(--hover-bg)",
+              },
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Box>
     );
   };
